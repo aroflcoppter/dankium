@@ -27,9 +27,10 @@ Alternatively you may download an apk for sideloading from [github releases](htt
 3. Make sure you apply the patches while in the src directory with `git am --whitespace=nowarn --keep-non-patch ../patches/chromium/eyeo/*.patch && git am --whitespace=nowarn --keep-non-patch ../patches/chromium/hexavalent/*.patch && git am --whitespace=nowarn --keep-non-patch ../patches/chromium/dankium/*.patch && git am --whitespace=nowarn --keep-non-patch ../patches/chromium/dankium-noapikeys/*.patch`.
 4. The proper gclient command is `gclient sync -D --with_branch_heads --with_tags --jobs 32` which is ran after checking out the right tag for the dankium build for example `git checkout 137.0.7151.72` in both the dankium folder and src folder.
 5. Make sure you apply the angle patch `cd third_party/angle && git am --whitespace=nowarn --keep-non-patch ../../../patches/submodules/angle/*.patch && cd ../..`
-6. When you run `gn args out/Default` be sure to paste in the contents of android_args.gn from the dankium repo.
-7. Build with `autoninja -C out/Default chrome_public_apk` and your unsigned APK will be in out/Default/apks for installation with the option of signing first.
-8. When you are updating make sure you pull both dankium and the src directories and checkout the right tag.
+6. Also make sure you apply the libunwind patch `cd third_party/libunwind/src && git am --whitespace=nowarn --keep-non-patch ../../../../patches/submodules/libunwind/*.patch && cd ../../..`
+7. When you run `gn args out/Default` be sure to paste in the contents of android_args.gn from the dankium repo.
+8. Build with `autoninja -C out/Default chrome_public_apk` and your unsigned APK will be in out/Default/apks for installation with the option of signing first.
+9. When you are updating make sure you pull both dankium and the src directories and checkout the right tag.
 
 ## Windows
 
