@@ -1,0 +1,29 @@
+From 3c17e9b1fabca0f5ed83467ce4f1d858f33fbc35 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Wed, 4 Jun 2025 03:28:39 -0230
+Subject: [PATCH 2/2] Enable command line on non-rooted device
+
+---
+ chrome/common/chrome_features.cc | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/chrome/common/chrome_features.cc b/chrome/common/chrome_features.cc
+index c948e61ad53ed..b8b3aa0bd1c31 100644
+--- a/chrome/common/chrome_features.cc
++++ b/chrome/common/chrome_features.cc
+@@ -181,6 +181,12 @@ BASE_FEATURE(kCryptohomeUserDataAuthKillswitch,
+              base::FEATURE_DISABLED_BY_DEFAULT);
+ #endif
+ 
++#if BUILDFLAG(IS_ANDROID)
++BASE_FEATURE(kCommandLineOnNonRooted,
++             "CommandLineOnNonRooted",
++             base::FEATURE_DISABLED_BY_DEFAULT);
++#endif
++
+ #if BUILDFLAG(IS_CHROMEOS)
+ // Enables starting of Data Leak Prevention Files Daemon by sending the
+ // DLP policy there. The daemon might restrict access to some protected files.
+-- 
+2.43.0
+
