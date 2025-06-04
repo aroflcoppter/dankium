@@ -1,0 +1,55 @@
+From 105cf07f684fa62d1c29824919c5d46cb5c57d48 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Wed, 4 Jun 2025 05:54:23 -0230
+Subject: [PATCH] Forbid dynamic code generation on Linux/Android
+
+Based on https://github.com/Hexavalent-Browser/Hexavalent-Archive/blob/main/patches/linux/0002-Forbid-dynamic-code-generation-on-Linux.patch
+---
+ sandbox/linux/seccomp-bpf-helpers/baseline_policy.cc | 6 +++---
+ sandbox/policy/linux/bpf_audio_policy_linux.cc       | 3 +++
+ 2 files changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/sandbox/linux/seccomp-bpf-helpers/baseline_policy.cc b/sandbox/linux/seccomp-bpf-helpers/baseline_policy.cc
+index 7bde501115bdf..0f1e4ae0c7b28 100644
+--- a/sandbox/linux/seccomp-bpf-helpers/baseline_policy.cc
++++ b/sandbox/linux/seccomp-bpf-helpers/baseline_policy.cc
+@@ -257,19 +257,19 @@ ResultExpr EvaluateSyscallImpl(int fs_denied_errno,
+ #if defined(__i386__) || defined(__x86_64__) || defined(__mips__) || \
+     defined(__aarch64__)
+   if (sysno == __NR_mmap)
+-    return RestrictMmapFlags();
++    return RestrictMmapFlagsNoWX();
+ #endif
+ 
+ #if defined(__i386__) || defined(__arm__) || \
+     (defined(ARCH_CPU_MIPS_FAMILY) && defined(ARCH_CPU_32_BITS))
+   if (sysno == __NR_mmap2)
+-    return RestrictMmapFlags();
++    return RestrictMmapFlagsNoWX();
+ #endif
+ 
+   if (sysno == __NR_mprotect || sysno == __NR_pkey_mprotect) {
+     // pkey_mprotect is identical to mprotect except for the additional (last)
+     // parameter, which can be ignored here.
+-    return RestrictMprotectFlags();
++    return RestrictMprotectFlagsNoWX();
+   }
+ 
+   if (sysno == __NR_prctl)
+diff --git a/sandbox/policy/linux/bpf_audio_policy_linux.cc b/sandbox/policy/linux/bpf_audio_policy_linux.cc
+index e1716b97e8f21..dc25d460460d5 100644
+--- a/sandbox/policy/linux/bpf_audio_policy_linux.cc
++++ b/sandbox/policy/linux/bpf_audio_policy_linux.cc
+@@ -121,6 +121,9 @@ ResultExpr AudioProcessPolicy::EvaluateSyscall(int system_call_number) const {
+ #endif
+     default:
+ #if defined(__x86_64__)
++      if (system_call_number == __NR_shmat)
++        return RestrictShmatFlags();
++
+       if (SyscallSets::IsSystemVSemaphores(system_call_number) ||
+           SyscallSets::IsSystemVSharedMemory(system_call_number)) {
+         return Allow();
+-- 
+2.43.0
+

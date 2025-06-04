@@ -1,0 +1,69 @@
+From e14fcc07e8a90a1115f3ab8658eb6fc41812c709 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Wed, 4 Jun 2025 06:12:01 -0230
+Subject: [PATCH] Android command line arguments
+
+---
+ .../chromium/base/CommandLineInitUtil.java    | 33 +++++++++++++++----
+ 1 file changed, 26 insertions(+), 7 deletions(-)
+
+diff --git a/base/android/java/src/org/chromium/base/CommandLineInitUtil.java b/base/android/java/src/org/chromium/base/CommandLineInitUtil.java
+index 73fe0a6a1ea56..ad32d1cc9b76c 100644
+--- a/base/android/java/src/org/chromium/base/CommandLineInitUtil.java
++++ b/base/android/java/src/org/chromium/base/CommandLineInitUtil.java
+@@ -44,17 +44,34 @@ public final class CommandLineInitUtil {
+     }
+ 
+     /**
+-     * Initializes the CommandLine class, pulling command line arguments from {@code fileName}.
++     * Initializes the CommandLine class, pulling command line arguments from a hardcoded array.
+      *
+-     * @param fileName The name of the command line file to pull arguments from.
+      * @param shouldUseDebugFlags If non-null, returns whether debug flags are allowed to be used.
+      */
+-    public static void initCommandLine(
+-            String fileName, @Nullable Supplier<Boolean> shouldUseDebugFlags) {
+-        if (sFilenameOverrideForTesting != null) {
+-            fileName = sFilenameOverrideForTesting;
+-        }
++    public static void initCommandLine(@Nullable Supplier<Boolean> shouldUseDebugFlags) {
+         assert !CommandLine.isInitialized();
++
++        // Hardcoded command line arguments from dankium_android_argv in base/command_line.cc
++        String[] args = {
++            "chromium",
++            "--no-first-run",
++            "--disable-features=ThirdPartyCookies,FieldTrials,Variations,NetworkPrediction,MetricsReporting,CrashReporting,ArticleSuggestions,ContentFeed,Sensors,ProtectedMediaPlaying,BackgroundSync,MediaRouterRemoting,MediaRouter,DrmPreprovisioning,AutofillCommunication,ComponentUpdatePings,Omaha,GaiaAuthCode,PrivacySandbox,PrivacyAwareAnalyticsTrials,OptimizationGuides,OptimizationGuidesFetching",
++            "--disable-background-networking",
++            "--no-pings",
++            "--disable-sync",
++            "--disable-breakpad",
++            "--disable-metrics",
++            "--disable-auto-update",
++            "--disable-sync-config-for-tests",
++            "--disable-network-time",
++            "--enable-features=HttpsOnlyMode,PrefetchPrivacyChanges,SplitCacheByNetworkIsolationKey,PartitionConnectionsByNetworkIsolationKey,DoNotTrack,StrictSiteIsolation,StrictOriginIsolation,ReduceAcceptLanguage,ContentSettingsPartitioning,CertificateTransparency,WebRtcAllowProxiedOnly"
++        };
++        CommandLine.init(args);
++
++        // The following file-reading logic is removed as per the request to use a hardcoded array.
++        // If file-reading is still desired as a fallback or alternative,
++        // it would need to be re-added and integrated with a conditional check.
++        /*
+         File commandLineFile = new File(COMMAND_LINE_FILE_PATH_DEBUG_APP, fileName);
+         // shouldUseDebugCommandLine() uses IPC, so don't bother calling it if no flags file exists.
+         boolean debugFlagsExist = commandLineFile.exists();
+@@ -62,8 +79,10 @@ public final class CommandLineInitUtil {
+             commandLineFile = new File(COMMAND_LINE_FILE_PATH, fileName);
+         }
+         CommandLine.initFromFile(commandLineFile.getPath());
++        */
+     }
+ 
++
+     /**
+      * Use an alternative path if:
+      * - The current build is "eng" or "userdebug", OR
+-- 
+2.43.0
+
