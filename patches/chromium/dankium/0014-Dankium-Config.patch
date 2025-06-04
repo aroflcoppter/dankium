@@ -1,14 +1,14 @@
-From aefffef2839515cce00a08d0dfd1096be60e97cc Mon Sep 17 00:00:00 2001
+From 2eb0b9c1a7b473e897d475c02a2112fcae232b3d Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
-Date: Wed, 4 Jun 2025 00:05:02 -0230
-Subject: [PATCH] Configure dankium
+Date: Wed, 4 Jun 2025 01:20:31 -0230
+Subject: [PATCH] Dankium Config
 
 ---
- base/command_line.cc | 855 +++++++++++++++++++++++--------------------
- 1 file changed, 450 insertions(+), 405 deletions(-)
+ base/command_line.cc | 903 ++++++++++++++++++++++++-------------------
+ 1 file changed, 499 insertions(+), 404 deletions(-)
 
 diff --git a/base/command_line.cc b/base/command_line.cc
-index d4d3bc52426d1..17a2fbdd594e6 100644
+index d4d3bc52426d1..9f40acddae57b 100644
 --- a/base/command_line.cc
 +++ b/base/command_line.cc
 @@ -66,7 +66,7 @@ constexpr auto kSwitchPrefixes = std::to_array<CommandLine::StringViewType>({
@@ -126,13 +126,6 @@ index d4d3bc52426d1..17a2fbdd594e6 100644
 -          (end == arg.size() || arg[end] == L'"') ? 2 : 1;
 -
 -      out.append(std::wstring(backslash_count * backslash_multiplier, L'\\'));
--
--      // Advances `i` to one before `end` to balance `++i` in loop.
--      i = end - 1;
--    } else if (arg[i] == L'"') {
--      out.append(LR"(\")");
--    } else {
--      out.push_back(arg[i]);
 +    // Ensures that GetCommandLineString isn't used to generate command-line
 +    // strings for the Windows shell by checking for Windows insert sequences like
 +    // "%1". GetCommandLineStringForShell should be used instead to get a string
@@ -143,7 +136,13 @@ index d4d3bc52426d1..17a2fbdd594e6 100644
 +    if (arg.find_first_of(kQuotableCharacters) == std::wstring::npos) {
 +        return arg;
 +    }
-+
+ 
+-      // Advances `i` to one before `end` to balance `++i` in loop.
+-      i = end - 1;
+-    } else if (arg[i] == L'"') {
+-      out.append(LR"(\")");
+-    } else {
+-      out.push_back(arg[i]);
 +    std::wstring out(1, L'"');
 +    for (size_t i = 0; i < arg.size(); ++i) {
 +        if (arg[i] == L'\\') {
@@ -206,7 +205,7 @@ index d4d3bc52426d1..17a2fbdd594e6 100644
 +    "--disable-features=ThirdPartyCookies,FieldTrials,Variations,NetworkPrediction,MetricsReporting,CrashReporting,ArticleSuggestions,ContentFeed,Sensors,ProtectedMediaPlaying,BackgroundSync,MediaRouterRemoting,MediaRouter,DrmPreprovisioning,AutofillCommunication,ComponentUpdatePings,Omaha,GaiaAuthCode,PrivacySandbox,PrivacyAwareAnalyticsTrials,OptimizationGuides,OptimizationGuidesFetching",
 +    "--disable-background-networking",
 +    "--no-pings",
-+    "--disable-sync", // Sync is disabled for Android as per previous instructions
++    "--disable-sync",
 +    "--disable-breakpad",
 +    "--disable-metrics",
 +    "--disable-auto-update",
@@ -246,7 +245,7 @@ index d4d3bc52426d1..17a2fbdd594e6 100644
  }
  
  CommandLine::CommandLine(const CommandLine& other) = default;
-@@ -214,256 +247,268 @@ CommandLine::CommandLine(CommandLine&& other) noexcept
+@@ -214,256 +247,318 @@ CommandLine::CommandLine(CommandLine&& other) noexcept
        switches_(std::move(other.switches_)),
        begin_args_(std::exchange(other.begin_args_, 1)) {
  #if BUILDFLAG(ENABLE_COMMANDLINE_SEQUENCE_CHECKS)
@@ -335,26 +334,76 @@ index d4d3bc52426d1..17a2fbdd594e6 100644
 +    }
 +
 +    current_process_commandline_ = new CommandLine(NO_PROGRAM);
++
++    FilePath program_path;
++    bool is_renderer_process = false;
  #if BUILDFLAG(IS_WIN)
 -  current_process_commandline_->ParseFromString(::GetCommandLineW());
-+    // Use the hardcoded command line for Windows
-+    current_process_commandline_->ParseFromString(
-+        L"chromium --no-first-run "
-+        L"--disable-features=ThirdPartyCookies,FieldTrials,Variations,NetworkPrediction,MetricsReporting,CrashReporting,ArticleSuggestions,ContentFeed,Sensors,ProtectedMediaPlaying,BackgroundSync,MediaRouterRemoting,MediaRouter,DrmPreprovisioning,AutofillCommunication,ComponentUpdatePings,Omaha,GaiaAuthCode,PrivacySandbox,PrivacyAwareAnalyticsTrials,OptimizationGuides,OptimizationGuidesFetching "
-+        L"--disable-background-networking --no-pings "
-+        L"--disable-breakpad --disable-metrics "
-+        L"--disable-auto-update "
-+        L"--disable-network-time "
-+        L"--enable-features=HttpsOnlyMode,PrefetchPrivacyChanges,SplitCacheByNetworkIsolationKey,PartitionConnectionsByNetworkIsolationKey,DoNotTrack,StrictSiteIsolation,StrictOriginIsolation,ReduceAcceptLanguage,ContentSettingsPartitioning,CertificateTransparency,WebRtcAllowProxiedOnly"
-+    );
++    const std::wstring raw_command_line_w = ::GetCommandLineW();
++    program_path = FilePath(raw_command_line_w).BaseName();
++    // Check for renderer process type in the raw command line string.
++    // A simple substring search is sufficient for this specific flag.
++    if (raw_command_line_w.find(L"--type=renderer") != std::wstring::npos ||
++        raw_command_line_w.find(L"--process-type=renderer") != std::wstring::npos) {
++        is_renderer_process = true;
++    }
++#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_ANDROID)
++    if (argc > 0 && argv[0]) {
++      program_path = FilePath(argv[0]).BaseName();
++      // Iterate through argv to check for renderer process type.
++      for (int i = 1; i < argc; ++i) {
++          std::string_view arg_view(argv[i]);
++          if (arg_view == "--type=renderer" || arg_view == "--process-type=renderer") {
++              is_renderer_process = true;
++              break;
++          }
++      }
++    }
++#else
++#error Unsupported platform
++#endif
++
++    bool is_browser_or_renderer = false;
++#if BUILDFLAG(IS_WIN)
++    std::wstring program_name_lower = ToLowerASCII(program_path.RemoveExtension().value());
++    if (program_name_lower == L"chrome" || program_name_lower == L"chromium" || is_renderer_process) {
++      is_browser_or_renderer = true;
++    }
++#else
++    std::string program_name_lower = ToLowerASCII(program_path.RemoveExtension().value());
++    if (program_name_lower == "chrome" || program_name_lower == "chromium" || is_renderer_process) {
++      is_browser_or_renderer = true;
++    }
++#endif
++
++#if BUILDFLAG(IS_WIN)
++    if (is_browser_or_renderer) {
++      current_process_commandline_->ParseFromString(
++          L"chromium --no-first-run "
++          L"--disable-features=ThirdPartyCookies,FieldTrials,Variations,NetworkPrediction,MetricsReporting,CrashReporting,ArticleSuggestions,ContentFeed,Sensors,ProtectedMediaPlaying,BackgroundSync,MediaRouterRemoting,MediaRouter,DrmPreprovisioning,AutofillCommunication,ComponentUpdatePings,Omaha,GaiaAuthCode,PrivacySandbox,PrivacyAwareAnalyticsTrials,OptimizationGuides,OptimizationGuidesFetching "
++          L"--disable-background-networking --no-pings "
++          L"--disable-breakpad --disable-metrics "
++          L"--disable-auto-update "
++          L"--disable-network-time "
++          L"--enable-features=HttpsOnlyMode,PrefetchPrivacyChanges,SplitCacheByNetworkIsolationKey,PartitionConnectionsByNetworkIsolationKey,DoNotTrack,StrictSiteIsolation,StrictOriginIsolation,ReduceAcceptLanguage,ContentSettingsPartitioning,CertificateTransparency,WebRtcAllowProxiedOnly"
++      );
++    } else {
++      current_process_commandline_->ParseFromString(raw_command_line_w);
++    }
  #elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
 -  // SAFETY: required from caller.
 -  UNSAFE_BUFFERS(current_process_commandline_->InitFromArgv(argc, argv));
-+    // Use the hardcoded command line for POSIX/Fuchsia
-+    UNSAFE_BUFFERS(current_process_commandline_->InitFromArgv(dankium_argc, dankium_argv));
++    if (is_browser_or_renderer) {
++      UNSAFE_BUFFERS(current_process_commandline_->InitFromArgv(dankium_argc, dankium_argv));
++    } else {
++      UNSAFE_BUFFERS(current_process_commandline_->InitFromArgv(argc, argv));
++    }
 +#elif BUILDFLAG(IS_ANDROID)
-+    // Use the hardcoded command line for Android
-+    UNSAFE_BUFFERS(current_process_commandline_->InitFromArgv(dankium_android_argc, dankium_android_argv));
++    if (is_browser_or_renderer) {
++      UNSAFE_BUFFERS(current_process_commandline_->InitFromArgv(dankium_android_argc, dankium_android_argv));
++    } else {
++      UNSAFE_BUFFERS(current_process_commandline_->InitFromArgv(argc, argv));
++    }
  #else
  #error Unsupported platform
  #endif
@@ -635,7 +684,7 @@ index d4d3bc52426d1..17a2fbdd594e6 100644
  #else
  #error Unsupported platform
  #endif
-@@ -471,259 +516,259 @@ void CommandLine::AppendSwitchUTF8(std::string_view switch_string,
+@@ -471,259 +566,259 @@ void CommandLine::AppendSwitchUTF8(std::string_view switch_string,
  
  void CommandLine::RemoveSwitch(std::string_view switch_key_without_prefix) {
  #if BUILDFLAG(ENABLE_COMMANDLINE_SEQUENCE_CHECKS)
@@ -1066,7 +1115,7 @@ index d4d3bc52426d1..17a2fbdd594e6 100644
  }
  
  // NOTE: this function is used to set Chrome's open command in the registry
-@@ -734,67 +779,67 @@ std::wstring CommandLine::QuoteForCommandLineToArgvW(const std::wstring& arg) {
+@@ -734,67 +829,67 @@ std::wstring CommandLine::QuoteForCommandLineToArgvW(const std::wstring& arg) {
  // update, when parsing command lines for other channels, when uninstalling web
  // applications installed using the old syntax, etc.
  CommandLine::StringType CommandLine::GetCommandLineStringForShell() const {
