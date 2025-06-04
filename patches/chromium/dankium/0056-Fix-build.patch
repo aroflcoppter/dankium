@@ -1,0 +1,90 @@
+From c2fe1c202b351fa8d09532201ebb86868294488b Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Wed, 4 Jun 2025 16:59:24 -0230
+Subject: [PATCH] Fix build
+
+---
+ base/feature_list.h                                 | 10 ++++------
+ chrome/browser/browser_features.cc                  |  2 +-
+ components/autofill/core/common/autofill_features.h |  9 ++-------
+ components/variations/synthetic_trial_registry.cc   |  2 +-
+ 4 files changed, 8 insertions(+), 15 deletions(-)
+
+diff --git a/base/feature_list.h b/base/feature_list.h
+index b156f4390abaf..7d0db008f5680 100644
+--- a/base/feature_list.h
++++ b/base/feature_list.h
+@@ -38,13 +38,11 @@ class FeatureVisitor;
+ // NOTE: The actual runtime state may be different, due to a field trial or a
+ // command line switch.
+ enum FeatureState {
+-  FEATURE_DISABLED_BY_DEFAULT,
+-  FEATURE_ENABLED_BY_DEFAULT,
+-};
++  FEATURE_DISABLED_BY_DEFAULT = 0,
++  FEATURE_ENABLED_BY_DEFAULT = 1,
++  NONDANK_FEATURE_DISABLED = 0 ,
++  DANK_FEATURE_ENABLED = 1 ,
+ 
+-enum DankState {
+-  NONDANK_FEATURE_DISABLED,
+-  DANK_FEATURE_ENABLED,
+ };
+ 
+ // Recommended macros for declaring and defining features and parameters:
+diff --git a/chrome/browser/browser_features.cc b/chrome/browser/browser_features.cc
+index fdf45d1c2c8ea..759a1bcff8473 100644
+--- a/chrome/browser/browser_features.cc
++++ b/chrome/browser/browser_features.cc
+@@ -49,7 +49,7 @@ BASE_FEATURE(kBookmarkTriggerForPrerender2,
+ // switch.
+ BASE_FEATURE(kCertificateTransparencyAskBeforeEnabling,
+              "CertificateTransparencyAskBeforeEnabling",
+-#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
++#if BUILDFLAG(!GOOGLE_CHROME_BRANDING)
+              base::FEATURE_ENABLED_BY_DEFAULT);
+ #else
+              base::FEATURE_DISABLED_BY_DEFAULT);
+diff --git a/components/autofill/core/common/autofill_features.h b/components/autofill/core/common/autofill_features.h
+index 12d637f215609..83df3881b2b2f 100644
+--- a/components/autofill/core/common/autofill_features.h
++++ b/components/autofill/core/common/autofill_features.h
+@@ -313,12 +313,7 @@ BASE_DECLARE_FEATURE(kAutofillVirtualViewStructureAndroid);
+ // skipping certain checks when testing manually.
+ enum class VirtualViewStructureSkipChecks {
+   kDontSkip = 0,
+-  kSkipAllChecks = 1,
+-  kOnlySkipAwGCheck = 2,
+-};
+-
+-enum class DankVirtualViewStructureSkipChecks {
+-  kDankMode = 0,
++  kDankMode = 1,
+   kSkipAllChecks = 1,
+   kOnlySkipAwGCheck = 2,
+ };
+@@ -333,7 +328,7 @@ inline constexpr base::FeatureParam<VirtualViewStructureSkipChecks>::Option
+ inline constexpr base::FeatureParam<VirtualViewStructureSkipChecks>
+     kAutofillVirtualViewStructureAndroidSkipsCompatibilityCheck{
+         &kAutofillVirtualViewStructureAndroid, "skip_compatibility_check",
+-        DankVirtualViewStructureSkipChecks::kDankMode,
++        VirtualViewStructureSkipChecks::kDankMode,
+         &kVirtualViewStructureSkipChecksOption};
+ 
+ #endif  // BUILDFLAG(IS_ANDROID)
+diff --git a/components/variations/synthetic_trial_registry.cc b/components/variations/synthetic_trial_registry.cc
+index 07f4c88aa251d..310c9850c308e 100644
+--- a/components/variations/synthetic_trial_registry.cc
++++ b/components/variations/synthetic_trial_registry.cc
+@@ -120,7 +120,7 @@ SyntheticTrialRegistry::GetCurrentSyntheticFieldTrialsForTest() const {
+   return synthetic_trials;
+ }
+ 
+-void SyntheticTrialRegistry::RegisterSyntheticFieldTrial(
++void SyntheticTrialRegistry::RegisterSyntheticFieldTrial(const SyntheticTrialGroup& trial){
+ }
+ 
+ std::string_view SyntheticTrialRegistry::GetStudyNameForExpId(
+-- 
+2.43.0
+
