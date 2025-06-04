@@ -1,0 +1,25 @@
+From 9fcc20b905b1cee542af1183a2c90d9cf70f64ef Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Wed, 4 Jun 2025 00:25:28 -0230
+Subject: [PATCH] Fix crash when using CFI
+
+---
+ src/libunwind.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/libunwind.cpp b/src/libunwind.cpp
+index cf39ec5..82c3819 100644
+--- a/src/libunwind.cpp
++++ b/src/libunwind.cpp
+@@ -40,7 +40,7 @@ _LIBUNWIND_EXPORT unw_addr_space_t unw_local_addr_space =
+ 
+ /// Create a cursor of a thread in this process given 'context' recorded by
+ /// __unw_getcontext().
+-_LIBUNWIND_HIDDEN int __unw_init_local(unw_cursor_t *cursor,
++__attribute__((no_sanitize("cfi"))) _LIBUNWIND_HIDDEN int __unw_init_local(unw_cursor_t *cursor,
+                                        unw_context_t *context) {
+   _LIBUNWIND_TRACE_API("__unw_init_local(cursor=%p, context=%p)",
+                        static_cast<void *>(cursor),
+-- 
+2.43.0
+
