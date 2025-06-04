@@ -1,0 +1,25 @@
+From 6a008739b69ea89ca6073ac38776ba61140e7e62 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Wed, 4 Jun 2025 16:52:00 -0230
+Subject: [PATCH 34/39] Enable strict origin isolation
+
+---
+ content/public/common/content_features.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/content/public/common/content_features.cc b/content/public/common/content_features.cc
+index 2016abf289e54..5773ed66230c9 100644
+--- a/content/public/common/content_features.cc
++++ b/content/public/common/content_features.cc
+@@ -1132,7 +1132,7 @@ BASE_FEATURE(kSpareRendererForSitePerProcess,
+ // eTLD+1.
+ BASE_FEATURE(kStrictOriginIsolation,
+              "StrictOriginIsolation",
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             base::DANK_FEATURE_ENABLED);
+ 
+ // Controls whether subframe process reuse should be restricted according to
+ // resource usage policies. Namely, a process that is already consuming too
+-- 
+2.43.0
+

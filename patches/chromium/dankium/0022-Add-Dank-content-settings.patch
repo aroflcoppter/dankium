@@ -1,0 +1,33 @@
+From 08792ec9b10da6563bfb81d3ee3f4ea0e9db5291 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Wed, 4 Jun 2025 13:52:38 -0230
+Subject: [PATCH 11/39] Add Dank content settings
+
+---
+ .../content_settings/core/common/content_settings.h    | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/components/content_settings/core/common/content_settings.h b/components/content_settings/core/common/content_settings.h
+index d75de97d99cdd..a979fc75a321a 100644
+--- a/components/content_settings/core/common/content_settings.h
++++ b/components/content_settings/core/common/content_settings.h
+@@ -37,6 +37,16 @@ enum ContentSetting {
+   CONTENT_SETTING_NUM_SETTINGS
+ };
+ 
++enum DankContentSetting {
++  DANK_CONTENT_SETTING_DEFAULT = 0,
++  DANK_CONTENT_SETTING_ALLOW,
++  DANK_CONTENT_SETTING_BLOCK,
++  DANK_CONTENT_SETTING_ASK,
++  DANK_CONTENT_SETTING_SESSION_ONLY,
++  DANK_CONTENT_SETTING_DETECT_IMPORTANT_CONTENT,
++  DANK_CONTENT_SETTING_NUM_SETTINGS
++};
++
+ // Range-checked conversion of an int to a ContentSetting, for use when reading
+ // prefs off disk.
+ ContentSetting IntToContentSetting(int content_setting);
+-- 
+2.43.0
+

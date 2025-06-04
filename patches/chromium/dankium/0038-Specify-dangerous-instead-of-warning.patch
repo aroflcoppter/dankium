@@ -1,0 +1,65 @@
+From 73c6d96f02193d69d9d576e5a016872e1278c06b Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Wed, 4 Jun 2025 15:48:42 -0230
+Subject: [PATCH 22/39] Specify dangerous instead of warning
+
+---
+ components/security_state/core/security_state.cc | 8 +++++---
+ components/security_state/core/security_state.h  | 1 +
+ 2 files changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/components/security_state/core/security_state.cc b/components/security_state/core/security_state.cc
+index 16da2d3f268d9..2436597f22249 100644
+--- a/components/security_state/core/security_state.cc
++++ b/components/security_state/core/security_state.cc
+@@ -31,6 +31,8 @@ std::string GetHistogramSuffixForSecurityLevel(
+       return "WARNING";
+     case DANGEROUS:
+       return "DANGEROUS";
++    case NONDANK:
++      return "DANGEROUS";
+     default:
+       return "OTHER";
+   }
+@@ -74,7 +76,7 @@ SecurityLevel GetSecurityLevel(
+   // occurred due to an upgraded main-frame navigation).
+   if (visible_security_state.is_https_only_mode_upgraded &&
+       visible_security_state.is_error_page) {
+-    return WARNING;
++    return NONDANK;
+   }
+ 
+   if (!visible_security_state.connection_info_initialized) {
+@@ -92,7 +94,7 @@ SecurityLevel GetSecurityLevel(
+   // data: URLs don't define a secure context, and are a vector for spoofing.
+   // Display a "Not secure" badge for all these URLs.
+   if (url.SchemeIs(url::kDataScheme)) {
+-    return WARNING;
++    return NONDANK;
+   }
+ 
+   // Display DevTools pages as neutral since we can't be confident the page
+@@ -133,7 +135,7 @@ SecurityLevel GetSecurityLevel(
+         return NONE;
+       }
+ #endif  // !BUILDFLAG(IS_ANDROID)
+-      return WARNING;
++      return NONDANK;
+     }
+     return NONE;
+   }
+diff --git a/components/security_state/core/security_state.h b/components/security_state/core/security_state.h
+index 04f8bbd2faa1b..0e866065da47b 100644
+--- a/components/security_state/core/security_state.h
++++ b/components/security_state/core/security_state.h
+@@ -68,6 +68,7 @@ enum SecurityLevel {
+   // insecure active content on the page, malware, phishing, or any other
+   // serious security issue that could be dangerous.
+   DANGEROUS = 5,
++  NONDANK = 5,
+ 
+   // Pages deemed insecure, where we should show a warning indicator. This
+   // includes HTTP pages (previously these were HTTP_SHOW_WARNING) and cases
+-- 
+2.43.0
+

@@ -1,0 +1,25 @@
+From aea3bb039ae34485f140aa5defcf9154678a800f Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Wed, 4 Jun 2025 16:19:15 -0230
+Subject: [PATCH 25/39] Disable detailed language
+
+---
+ components/language/core/common/language_experiments.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/components/language/core/common/language_experiments.cc b/components/language/core/common/language_experiments.cc
+index 66db7d9c9af40..e46e1ea53c1b5 100644
+--- a/components/language/core/common/language_experiments.cc
++++ b/components/language/core/common/language_experiments.cc
+@@ -13,7 +13,7 @@ namespace language {
+ // Features:
+ BASE_FEATURE(kDetailedLanguageSettings,
+              "DetailedLanguageSettings",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::NONDANK_FEATURE_DISABLED);
+ BASE_FEATURE(kContentLanguagesInLanguagePicker,
+              "ContentLanguagesInLanguagePicker",
+              base::FEATURE_ENABLED_BY_DEFAULT);
+-- 
+2.43.0
+

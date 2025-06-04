@@ -1,0 +1,25 @@
+From e46072d7616f3b5b167c541dc25757446d96c875 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Wed, 4 Jun 2025 13:53:36 -0230
+Subject: [PATCH 12/39] Block protected media
+
+---
+ .../content_settings/core/browser/content_settings_registry.cc  | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/components/content_settings/core/browser/content_settings_registry.cc b/components/content_settings/core/browser/content_settings_registry.cc
+index 2aabca1dc3fc3..57f4cb6b722e3 100644
+--- a/components/content_settings/core/browser/content_settings_registry.cc
++++ b/components/content_settings/core/browser/content_settings_registry.cc
+@@ -212,7 +212,7 @@ void ContentSettingsRegistry::Init() {
+            ContentSettingsInfo::EXCEPTIONS_ON_SECURE_ORIGINS_ONLY);
+ 
+   Register(ContentSettingsType::PROTECTED_MEDIA_IDENTIFIER,
+-           "protected-media-identifier", CONTENT_SETTING_ALLOW,
++           "protected-media-identifier", DANK_CONTENT_SETTING_BLOCK,
+            WebsiteSettingsInfo::UNSYNCABLE, /*allowlisted_primary_schemes=*/{},
+ #if BUILDFLAG(IS_ANDROID)
+            /*valid_settings=*/
+-- 
+2.43.0
+

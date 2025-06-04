@@ -1,0 +1,25 @@
+From ba7aa1f63f6f19832a846a4ea8e4a78a0bfdaea4 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Wed, 4 Jun 2025 16:38:45 -0230
+Subject: [PATCH 27/39] Disable network time tracker
+
+---
+ components/network_time/network_time_tracker.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/components/network_time/network_time_tracker.cc b/components/network_time/network_time_tracker.cc
+index 2d767ab2fc611..32c73789351d2 100644
+--- a/components/network_time/network_time_tracker.cc
++++ b/components/network_time/network_time_tracker.cc
+@@ -65,7 +65,7 @@ BASE_FEATURE(kNetworkTimeServiceQuerying,
+ #else
+ BASE_FEATURE(kNetworkTimeServiceQuerying,
+              "NetworkTimeServiceQuerying",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::NONDANK_FEATURE_DISABLED);
+ #endif
+ 
+ namespace {
+-- 
+2.43.0
+

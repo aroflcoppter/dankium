@@ -1,0 +1,26 @@
+From 46f9d80a0bfc7b7eb778029fffc382e94a23fb89 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Wed, 4 Jun 2025 13:34:57 -0230
+Subject: [PATCH 05/39] Disable preloading by default
+
+---
+ chrome/browser/preloading/preloading_prefs.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/chrome/browser/preloading/preloading_prefs.h b/chrome/browser/preloading/preloading_prefs.h
+index 20d7692b46deb..ac1b762a68fc0 100644
+--- a/chrome/browser/preloading/preloading_prefs.h
++++ b/chrome/browser/preloading/preloading_prefs.h
+@@ -23,7 +23,8 @@ enum class NetworkPredictionOptions {
+   kWifiOnlyDeprecated = 1,
+   kDisabled = 2,
+   kExtended = 3,
+-  kDefault = kWifiOnlyDeprecated,
++  kNo = 2,
++  kDefault = kNo,
+ };
+ 
+ // Enum representing possible values of the Preload Pages opt-in state. These
+-- 
+2.43.0
+

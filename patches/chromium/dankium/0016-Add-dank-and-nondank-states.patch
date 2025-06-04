@@ -1,0 +1,28 @@
+From 01f0aad3e5079870055d41145b798758623e0709 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Wed, 4 Jun 2025 13:43:48 -0230
+Subject: [PATCH 08/39] Add dank and nondank states
+
+---
+ base/feature_list.h | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/base/feature_list.h b/base/feature_list.h
+index 731ea5dc22b4d..b156f4390abaf 100644
+--- a/base/feature_list.h
++++ b/base/feature_list.h
+@@ -42,6 +42,11 @@ enum FeatureState {
+   FEATURE_ENABLED_BY_DEFAULT,
+ };
+ 
++enum DankState {
++  NONDANK_FEATURE_DISABLED,
++  DANK_FEATURE_ENABLED,
++};
++
+ // Recommended macros for declaring and defining features and parameters:
+ //
+ // - `kFeature` is the C++ identifier that will be used for the `base::Feature`.
+-- 
+2.43.0
+

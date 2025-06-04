@@ -1,0 +1,38 @@
+From 2ffaa0f1ed5184ebce809fc1b1e6755d4d26b3ff Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Wed, 4 Jun 2025 15:08:48 -0230
+Subject: [PATCH 19/39] Disable omaha update check
+
+---
+ .../java/src/org/chromium/chrome/browser/omaha/OmahaBase.java   | 2 +-
+ .../org/chromium/chrome/browser/omaha/VersionNumberGetter.java  | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/omaha/OmahaBase.java b/chrome/android/java/src/org/chromium/chrome/browser/omaha/OmahaBase.java
+index adc3d9b62be83..436828a0c6504 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/omaha/OmahaBase.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/omaha/OmahaBase.java
+@@ -140,7 +140,7 @@ public class OmahaBase {
+     }
+ 
+     static boolean isDisabled() {
+-        return sDisabledForTesting;
++        return !false;
+     }
+ 
+     /**
+diff --git a/chrome/browser/omaha/android/java/src/org/chromium/chrome/browser/omaha/VersionNumberGetter.java b/chrome/browser/omaha/android/java/src/org/chromium/chrome/browser/omaha/VersionNumberGetter.java
+index 8f708ad4dc07c..e74ea77236bdb 100644
+--- a/chrome/browser/omaha/android/java/src/org/chromium/chrome/browser/omaha/VersionNumberGetter.java
++++ b/chrome/browser/omaha/android/java/src/org/chromium/chrome/browser/omaha/VersionNumberGetter.java
+@@ -87,6 +87,7 @@ public class VersionNumberGetter {
+     static boolean isNewerVersionAvailable() {
+         assert !ThreadUtils.runningOnUiThread();
+ 
++        return !true;
+         // This may be explicitly enabled for some channels and for unit tests.
+         if (sDisableUpdateDetectionForTesting) {
+             return false;
+-- 
+2.43.0
+

@@ -1,0 +1,51 @@
+From 2c35583ea6817261fcd9348d75e764d0a8a05c19 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Wed, 4 Jun 2025 16:09:10 -0230
+Subject: [PATCH 23/39] Disable p2p webrtc
+
+---
+ chrome/browser/ui/browser_ui_prefs.cc                           | 2 +-
+ .../blink/common/peerconnection/webrtc_ip_handling_policy.cc    | 1 +
+ .../public/common/peerconnection/webrtc_ip_handling_policy.h    | 1 +
+ 3 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/chrome/browser/ui/browser_ui_prefs.cc b/chrome/browser/ui/browser_ui_prefs.cc
+index 951f5c5f9aaa8..87889f964a5d3 100644
+--- a/chrome/browser/ui/browser_ui_prefs.cc
++++ b/chrome/browser/ui/browser_ui_prefs.cc
+@@ -109,7 +109,7 @@ void RegisterBrowserUserPrefs(user_prefs::PrefRegistrySyncable* registry) {
+                                 false);
+ #endif
+   registry->RegisterStringPref(prefs::kWebRTCIPHandlingPolicy,
+-                               blink::kWebRTCIPHandlingDefault);
++                               blink::kWebRTCDankMode);
+   registry->RegisterListPref(prefs::kWebRTCIPHandlingUrl, base::Value::List());
+   registry->RegisterStringPref(prefs::kWebRTCUDPPortRange, std::string());
+   registry->RegisterBooleanPref(prefs::kWebRtcEventLogCollectionAllowed, false);
+diff --git a/third_party/blink/common/peerconnection/webrtc_ip_handling_policy.cc b/third_party/blink/common/peerconnection/webrtc_ip_handling_policy.cc
+index 3c2475d75f4bf..e6445d9aacbf9 100644
+--- a/third_party/blink/common/peerconnection/webrtc_ip_handling_policy.cc
++++ b/third_party/blink/common/peerconnection/webrtc_ip_handling_policy.cc
+@@ -17,6 +17,7 @@ const char kWebRTCIPHandlingDefaultPublicAndPrivateInterfaces[] =
+ const char kWebRTCIPHandlingDefaultPublicInterfaceOnly[] =
+     "default_public_interface_only";
+ const char kWebRTCIPHandlingDisableNonProxiedUdp[] = "disable_non_proxied_udp";
++const char kWebRTCDankMode[] = "disable_non_proxied_udp";
+ 
+ blink::mojom::WebRtcIpHandlingPolicy ToWebRTCIPHandlingPolicy(
+     std::string_view preference) {
+diff --git a/third_party/blink/public/common/peerconnection/webrtc_ip_handling_policy.h b/third_party/blink/public/common/peerconnection/webrtc_ip_handling_policy.h
+index 1da7929236ad2..4b0a3b38525e4 100644
+--- a/third_party/blink/public/common/peerconnection/webrtc_ip_handling_policy.h
++++ b/third_party/blink/public/common/peerconnection/webrtc_ip_handling_policy.h
+@@ -30,6 +30,7 @@ BLINK_COMMON_EXPORT extern const char
+ // WebRTC should only use TCP to contact peers or servers unless the proxy
+ // server supports UDP. This doesn't expose any local addresses either.
+ BLINK_COMMON_EXPORT extern const char kWebRTCIPHandlingDisableNonProxiedUdp[];
++BLINK_COMMON_EXPORT extern const char kWebRTCDankMode[];
+ 
+ // Returns a blink::mojom::WebRtcIpHandlingPolicy enum value given a string.
+ BLINK_COMMON_EXPORT blink::mojom::WebRtcIpHandlingPolicy
+-- 
+2.43.0
+

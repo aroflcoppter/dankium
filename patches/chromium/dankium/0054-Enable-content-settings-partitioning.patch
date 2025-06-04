@@ -1,0 +1,25 @@
+From ef36fd823c1b220edfd0b899c1dbb6d92e0251ee Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Wed, 4 Jun 2025 16:58:31 -0230
+Subject: [PATCH 38/39] Enable content settings partitioning
+
+---
+ components/content_settings/core/common/features.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/components/content_settings/core/common/features.cc b/components/content_settings/core/common/features.cc
+index 3cfa770ae49b7..90507c5b35663 100644
+--- a/components/content_settings/core/common/features.cc
++++ b/components/content_settings/core/common/features.cc
+@@ -161,7 +161,7 @@ const base::FeatureParam<EnableForIframeTypes>
+ 
+ BASE_FEATURE(kContentSettingsPartitioning,
+              "ContentSettingsPartitioning",
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             base::DANK_FEATURE_ENABLED);
+ 
+ }  // namespace features
+ }  // namespace content_settings
+-- 
+2.43.0
+

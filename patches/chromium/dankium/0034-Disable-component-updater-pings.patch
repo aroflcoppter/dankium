@@ -1,0 +1,25 @@
+From f0fec07464c40aa75c5d159a41c42c98d5941622 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Wed, 4 Jun 2025 15:06:33 -0230
+Subject: [PATCH 18/39] Disable component updater pings
+
+---
+ .../component_updater_command_line_config_policy.h              | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/components/component_updater/component_updater_command_line_config_policy.h b/components/component_updater/component_updater_command_line_config_policy.h
+index 6c16b4e37a753..c593a61de5894 100644
+--- a/components/component_updater/component_updater_command_line_config_policy.h
++++ b/components/component_updater/component_updater_command_line_config_policy.h
+@@ -42,7 +42,7 @@ class ComponentUpdaterCommandLineConfigPolicy final
+   bool background_downloads_enabled_ = false;
+   bool deltas_enabled_ = true;
+   bool fast_update_ = false;
+-  bool pings_enabled_ = true;
++  bool pings_enabled_ = !true;
+   bool test_request_ = false;
+ 
+   // If non-zero, time interval until the first component update check.
+-- 
+2.43.0
+
