@@ -352,7 +352,7 @@ index d4d3bc52426d1..9f40acddae57b 100644
 +      program_path = FilePath(argv[0]).BaseName();
 +      // Iterate through argv to check for renderer process type.
 +      for (int i = 1; i < argc; ++i) {
-+          std::string_view arg_view(argv[i]);
++          std::string_view arg_view(UNSAFE_BUFFERS(argv[i]), UNSAFE_BUFFERS(strlen(argv[i])));
 +          if (arg_view == "--type=renderer" || arg_view == "--process-type=renderer") {
 +              is_renderer_process = true;
 +              break;
