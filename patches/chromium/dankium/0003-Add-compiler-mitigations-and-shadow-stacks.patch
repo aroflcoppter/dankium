@@ -1,0 +1,35 @@
+From 81f6be29297e5b3a523e434e578f6a745915bc2c Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Mon, 2 Jun 2025 20:15:56 -0230
+Subject: [PATCH 1/7] Add compiler mitigations and shadow stacks
+
+---
+ build/config/compiler/BUILD.gn | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
+index e579cc9a9d1fd..0b25b75fde869 100644
+--- a/build/config/compiler/BUILD.gn
++++ b/build/config/compiler/BUILD.gn
+@@ -361,11 +361,13 @@ config("compiler") {
+       # On Aarch64, SCS requires the x18 register to be unused because it will hold
+       # a pointer to the shadow stack. For Android we know that Clang doesn't use
+       # x18 by default. On other OSs adding "-ffixed-x18" might be required.
+-      assert(is_android)
+-
+-      scs_parameters = [
+-        "-fsanitize=shadow-call-stack",
+-        "-fno-stack-protector",
++       scs_parameters = [
++         "-fsanitize=shadow-call-stack",
++         "-fstack-protector-all",
++         "-fstack-clash-protection",
++         "-ftrivial-auto-var-init=zero",
++         "-Wno-unused-command-line-argument",
++         "-fwrapv",
+       ]
+       cflags += scs_parameters
+       ldflags += scs_parameters
+-- 
+2.43.0
+

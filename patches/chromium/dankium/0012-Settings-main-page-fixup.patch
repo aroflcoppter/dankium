@@ -1,0 +1,24 @@
+From e1db6f67bc16c18a372b573ffe6191bf1203b15c Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Tue, 3 Jun 2025 12:02:37 -0230
+Subject: [PATCH 5/6] Settings main page fixup
+
+---
+ chrome/android/java/res/xml/main_preferences.xml | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/chrome/android/java/res/xml/main_preferences.xml b/chrome/android/java/res/xml/main_preferences.xml
+index f032c32654c47..95c1c752a0e91 100644
+--- a/chrome/android/java/res/xml/main_preferences.xml
++++ b/chrome/android/java/res/xml/main_preferences.xml
+@@ -32,7 +32,6 @@ for the previous order (main_preferences_legacy). -->
+         android:order="4"
+         android:layout="@layout/account_management_account_row"
+         android:title="@string/prefs_google_services"
+-        android:icon="@drawable/ic_google_services_48dp_with_bg"
+         android:fragment="org.chromium.chrome.browser.sync.settings.GoogleServicesSettings"/>
+ 
+     <PreferenceCategory
+-- 
+2.43.0
+

@@ -1,0 +1,39 @@
+From 04e7b16407aa42913f73470bd33dd9dc2ae3a07d Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Tue, 3 Jun 2025 03:38:42 -0230
+Subject: [PATCH 4/4] Help and feedback redirect
+
+---
+ .../chrome/browser/feedback/HelpAndFeedbackLauncherImpl.java    | 2 +-
+ .../browser/feedback/HelpAndFeedbackLauncherDelegate.java       | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/feedback/HelpAndFeedbackLauncherImpl.java b/chrome/android/java/src/org/chromium/chrome/browser/feedback/HelpAndFeedbackLauncherImpl.java
+index ba21d894a0cf4..8bc7ff421140e 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/feedback/HelpAndFeedbackLauncherImpl.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/feedback/HelpAndFeedbackLauncherImpl.java
+@@ -31,7 +31,7 @@ import java.util.Map;
+  */
+ public class HelpAndFeedbackLauncherImpl implements HelpAndFeedbackLauncher {
+     protected static final String FALLBACK_SUPPORT_URL =
+-            "https://support.google.com/chrome/topic/6069782";
++            "https://github.com/aroflcoppter/dankium/issues";
+ 
+     private static ProfileKeyedMap<HelpAndFeedbackLauncher> sProfileToLauncherMap;
+     private final HelpAndFeedbackLauncherDelegate mDelegate;
+diff --git a/chrome/browser/feedback/android/java/src/org/chromium/chrome/browser/feedback/HelpAndFeedbackLauncherDelegate.java b/chrome/browser/feedback/android/java/src/org/chromium/chrome/browser/feedback/HelpAndFeedbackLauncherDelegate.java
+index b900240bfa2f2..5de2b61e795e6 100644
+--- a/chrome/browser/feedback/android/java/src/org/chromium/chrome/browser/feedback/HelpAndFeedbackLauncherDelegate.java
++++ b/chrome/browser/feedback/android/java/src/org/chromium/chrome/browser/feedback/HelpAndFeedbackLauncherDelegate.java
+@@ -15,7 +15,7 @@ import org.chromium.build.annotations.NullMarked;
+ /** Delegate that handles the display of the HelpAndFeedback flows. */
+ @NullMarked
+ public interface HelpAndFeedbackLauncherDelegate {
+-    static final String FALLBACK_SUPPORT_URL = "https://support.google.com/chrome/topic/6069782";
++    static final String FALLBACK_SUPPORT_URL = "https://github.com/aroflcoppter/dankium/issues";
+ 
+     /**
+      * Starts an activity showing a help page for the specified context ID.
+-- 
+2.43.0
+

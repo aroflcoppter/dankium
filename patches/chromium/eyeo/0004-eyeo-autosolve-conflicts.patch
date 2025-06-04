@@ -1,0 +1,53 @@
+From 113e633d1e0492739076af46fd7296ee767dfc1f Mon Sep 17 00:00:00 2001
+From: vanilla-chromium-builder <project_26591639_bot@noreply.gitlab.com>
+Date: Thu, 22 May 2025 15:51:16 +0000
+Subject: [PATCH] Autosolve conflicts
+
+Autosolved files:
+
+tools/metrics/histograms/metadata/extensions/enums.xml
+extensions/common/mojom/api_permission_id.mojom
+---
+ extensions/common/mojom/api_permission_id.mojom        | 3 ---
+ tools/metrics/histograms/metadata/extensions/enums.xml | 3 ---
+ 2 files changed, 6 deletions(-)
+
+diff --git a/extensions/common/mojom/api_permission_id.mojom b/extensions/common/mojom/api_permission_id.mojom
+index 93160041b890a..f7f549ad9519b 100644
+--- a/extensions/common/mojom/api_permission_id.mojom
++++ b/extensions/common/mojom/api_permission_id.mojom
+@@ -290,13 +290,10 @@ enum APIPermissionID {
+   kAILanguageModelOriginTrial = 259,
+   kExperimentalAiData = 260,
+   kOmniboxDirectInput = 261,
+-<<<<<<< HEAD
+   kExperimentalActor = 262,
+-=======
+   kEyeoDevToolsPrivate = 998,
+   kAdblockPrivate = 999,
+   kEyeoFilteringPrivate = 1000,
+->>>>>>> 37398628352c0... Squashed commits
+ 
+   // Add new entries at the end of the enum and be sure to update the
+   // "ExtensionPermission3" enum in
+diff --git a/tools/metrics/histograms/metadata/extensions/enums.xml b/tools/metrics/histograms/metadata/extensions/enums.xml
+index 55a58996c1748..fbadcdf4612aa 100644
+--- a/tools/metrics/histograms/metadata/extensions/enums.xml
++++ b/tools/metrics/histograms/metadata/extensions/enums.xml
+@@ -3209,13 +3209,10 @@ Called by update_extension_permission.py.-->
+   <int value="259" label="kAILanguageModelOriginTrial"/>
+   <int value="260" label="kExperimentalAiData"/>
+   <int value="261" label="kOmniboxDirectInput"/>
+-<<<<<<< HEAD
+   <int value="262" label="kExperimentalActor"/>
+-=======
+   <int value="998" label="kEyeoDevToolsPrivate"/>
+   <int value="999" label="kAdblockPrivate"/>
+   <int value="1000" label="kEyeoFilteringPrivate"/>
+->>>>>>> 37398628352c0... Squashed commits
+ </enum>
+ 
+ <enum name="ExtensionPolicyReinstallReason">
+-- 
+GitLab
+

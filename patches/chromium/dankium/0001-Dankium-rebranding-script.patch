@@ -1,0 +1,65 @@
+From bab5b7327409ecc3cdb75a758de5392bba92474d Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Tue, 3 Jun 2025 03:00:04 -0230
+Subject: [PATCH] Dankium rebranding script
+
+Based on chromites rebranding script https://github.com/uazo/cromite/blob/master/build/patches/Cromite-Branding.patch
+---
+ tools/grit/grit/grd_reader.py | 34 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
+
+diff --git a/tools/grit/grit/grd_reader.py b/tools/grit/grit/grd_reader.py
+index 16397abea2a82..82b49bb1e9ab6 100755
+--- a/tools/grit/grit/grd_reader.py
++++ b/tools/grit/grit/grd_reader.py
+@@ -112,6 +112,7 @@ class GrdContentHandler(xml.sax.handler.ContentHandler):
+   def characters(self, content):
+     if self.ignore_depth == 0:
+       if self.stack[-1]:
++        content = self.replace_browser(content)
+         self.stack[-1].AppendContent(content)
+ 
+   def ignorableWhitespace(self, whitespace):
+@@ -119,6 +120,39 @@ class GrdContentHandler(xml.sax.handler.ContentHandler):
+     # parser?
+     pass
+ 
++  def replace_browser(self, content_orig):
++    content = content_orig.replace("Chromiumdontreplace", "zzzyyyyxxxx1")
++    content = content.replace("Chromedontreplace", "zzzyyyyxxxx2")
++    content = content.replace("chromedontreplace", "zzzyyyyxxxx3")
++    content = content.replace("//chrome", "zzzyyyyxxxx4")
++    content = content.replace("chrome://", "zzzyyyyxxxx5")
++    content = content.replace("/chrome/", "zzzyyyyxxxx6")
++    content = content.replace("chrome_", "zzzyyyyxxxx7")
++    content = content.replace(".chromium.org", "zzzyyyyxxxx8")
++    content = content.replace("chromebook", "zzzyyyyxxxx9")
++    content = content.replace("chromeos", "zzzyyyyxxxxA")
++
++    content = content.replace("google chrome", "dankium")
++    content = content.replace("Google Chrome", "Dankium")
++    content = content.replace("Chrome", "Dankium")
++    content = content.replace("Chromium", "Dankium")
++    content = content.replace("chrome", "dankium")
++    content = content.replace("chromium", "dankium")
++
++    content = content.replace("zzzyyyyxxxx1", "Chromium")
++    content = content.replace("zzzyyyyxxxx2", "Chrome")
++    content = content.replace("zzzyyyyxxxx3", "chrome")
++    content = content.replace("zzzyyyyxxxx4", "//chrome")
++    content = content.replace("zzzyyyyxxxx5", "chrome://")
++    content = content.replace("zzzyyyyxxxx6", "/chrome/")
++    content = content.replace("zzzyyyyxxxx7", "chrome_")
++    content = content.replace("zzzyyyyxxxx8", ".chromium.org")
++    content = content.replace("zzzyyyyxxxx9", "chromebook")
++    content = content.replace("zzzyyyyxxxxA", "chromeos")
++    # if "dontreplace" in content_orig:
++    #   raise exception.MissingElement("stop")
++    #   print(content + " <-- " + content_orig)
++    return content
+ 
+ class GrdPartContentHandler(xml.sax.handler.ContentHandler):
+   def __init__(self, parent):
+-- 
+2.43.0
+

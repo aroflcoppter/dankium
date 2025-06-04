@@ -1,0 +1,25 @@
+From af7c65401bcbca8762d5f8aff00e91d5435e8b0b Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Mon, 2 Jun 2025 08:57:20 -0230
+Subject: [PATCH 38/45] Setup toolbar to default to google translate
+
+---
+ .../chrome/browser/toolbar/adaptive/AdaptiveToolbarPrefs.java   | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/adaptive/AdaptiveToolbarPrefs.java b/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/adaptive/AdaptiveToolbarPrefs.java
+index f87f803111d0c..160404ba6e78b 100644
+--- a/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/adaptive/AdaptiveToolbarPrefs.java
++++ b/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/adaptive/AdaptiveToolbarPrefs.java
+@@ -43,7 +43,7 @@ public class AdaptiveToolbarPrefs {
+     public static @AdaptiveToolbarButtonVariant int getCustomizationSetting() {
+         return ChromeSharedPreferences.getInstance()
+                 .readInt(
+-                        ADAPTIVE_TOOLBAR_CUSTOMIZATION_SETTINGS, AdaptiveToolbarButtonVariant.AUTO);
++                        ADAPTIVE_TOOLBAR_CUSTOMIZATION_SETTINGS, AdaptiveToolbarButtonVariant.TRANSLATE);
+     }
+ 
+     /**
+-- 
+2.43.0
+

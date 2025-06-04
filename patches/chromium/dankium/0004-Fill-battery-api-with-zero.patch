@@ -1,0 +1,40 @@
+From d38370fb60f9270a4bbb60a3a34b8fbee3d37cec Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Mon, 2 Jun 2025 07:28:26 -0230
+Subject: [PATCH 25/45] Fill battery api with zero
+
+---
+ .../blink/renderer/modules/battery/battery_manager.cc     | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/third_party/blink/renderer/modules/battery/battery_manager.cc b/third_party/blink/renderer/modules/battery/battery_manager.cc
+index 51cdc75ceee61..a06e1fb94c100 100644
+--- a/third_party/blink/renderer/modules/battery/battery_manager.cc
++++ b/third_party/blink/renderer/modules/battery/battery_manager.cc
+@@ -80,19 +80,19 @@ ScriptPromise<BatteryManager> BatteryManager::StartRequest(
+ }
+ 
+ bool BatteryManager::charging() {
+-  return battery_status_.Charging();
++  return 0;
+ }
+ 
+ double BatteryManager::chargingTime() {
+-  return battery_status_.charging_time().InSecondsF();
++  return 0.0;
+ }
+ 
+ double BatteryManager::dischargingTime() {
+-  return battery_status_.discharging_time().InSecondsF();
++  return 0.0;
+ }
+ 
+ double BatteryManager::level() {
+-  return battery_status_.Level();
++  return 0.0;
+ }
+ 
+ void BatteryManager::DidUpdateData() {
+-- 
+2.43.0
+

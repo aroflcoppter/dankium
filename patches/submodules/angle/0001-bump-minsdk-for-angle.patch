@@ -1,0 +1,27 @@
+From a8d2f73a3f962c9927a3351b2b4f0dbd5c357ee6 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Mon, 2 Jun 2025 17:22:33 -0230
+Subject: [PATCH] bump minsdk for angle
+
+---
+ android/angle_apk.gni | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/android/angle_apk.gni b/android/angle_apk.gni
+index 51ab05cb6f..c485abe334 100644
+--- a/android/angle_apk.gni
++++ b/android/angle_apk.gni
+@@ -40,8 +40,8 @@ if (enable_java_templates) {
+       android_manifest_dep = ":$manifest_target_name"
+       version_code = invoker.version_code
+       version_name = invoker.version_name
+-      min_sdk_version = 26
+-      target_sdk_version = 28
++      min_sdk_version = 33
++      target_sdk_version = 35
+       deps = [ ":${invoker.package_name}_assets" ]
+       if (symbol_level != 0) {
+         deps += [ ":compressed_symbols" ]
+-- 
+2.43.0
+

@@ -1,0 +1,7 @@
+/.cipd
+/.gclient
+/.gclient_entries
+/.gclient_previous_sync_commits
+/.gclient_previous_custom_vars
+/.gcs_entries
+/src

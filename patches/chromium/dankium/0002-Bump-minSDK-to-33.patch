@@ -1,0 +1,173 @@
+From 745c300acbe078a37b4d9928b1666a7942638812 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Mon, 2 Jun 2025 20:35:54 -0230
+Subject: [PATCH 4/7] Bump minSDK to 33
+
+---
+ android_webview/system_webview_apk_tmpl.gni               | 2 +-
+ android_webview/system_webview_bundle.gni                 | 2 +-
+ build/config/android/config.gni                           | 8 ++++----
+ chrome/android/chrome_public_apk_tmpl.gni                 | 2 +-
+ chrome/android/modules/chrome_bundle_tmpl.gni             | 2 +-
+ chrome/android/trichrome.gni                              | 2 +-
+ .../partner_browser_customizations_provider/BUILD.gn      | 4 ++--
+ media/audio/android/opensles_input.cc                     | 2 ++
+ media/audio/android/opensles_output.cc                    | 2 ++
+ tools/android/customtabs_benchmark/BUILD.gn               | 4 ++--
+ 10 files changed, 17 insertions(+), 13 deletions(-)
+
+diff --git a/android_webview/system_webview_apk_tmpl.gni b/android_webview/system_webview_apk_tmpl.gni
+index 63d01350b695a..82de05922f98d 100644
+--- a/android_webview/system_webview_apk_tmpl.gni
++++ b/android_webview/system_webview_apk_tmpl.gni
+@@ -124,7 +124,7 @@ template("system_webview_apk_or_module_tmpl") {
+     _omit_dex = defined(invoker.omit_dex) && invoker.omit_dex
+ 
+     if (!defined(min_sdk_version) && _is_trichrome) {
+-      min_sdk_version = 29
++      min_sdk_version = 33
+     }
+     if (defined(expected_android_manifest)) {
+       if (android_64bit_target_cpu) {
+diff --git a/android_webview/system_webview_bundle.gni b/android_webview/system_webview_bundle.gni
+index 79eca5e537c70..58d76c54aa20b 100644
+--- a/android_webview/system_webview_bundle.gni
++++ b/android_webview/system_webview_bundle.gni
+@@ -23,7 +23,7 @@ template("system_webview_bundle") {
+     # are working again.
+     enable_language_splits = false
+     if (_is_trichrome) {
+-      min_sdk_version = 29
++      min_sdk_version = 33
+     }
+     system_image_locale_allowlist = platform_pak_locales
+     if (android_64bit_target_cpu) {
+diff --git a/build/config/android/config.gni b/build/config/android/config.gni
+index c86e623b7c3a7..c549c17c27ba7 100644
+--- a/build/config/android/config.gni
++++ b/build/config/android/config.gni
+@@ -71,9 +71,9 @@ if (is_android) {
+ 
+     # The default to use for android:minSdkVersion for targets that do
+     # not explicitly set it.
+-    default_min_sdk_version = 26
++    default_min_sdk_version = 33
+     if (is_asan) {
+-      default_min_sdk_version = 27
++      default_min_sdk_version = 33
+     }
+ 
+     # Static analysis can be either "on" or "off" or "build_server". This
+@@ -112,12 +112,12 @@ if (is_android) {
+   }
+ 
+   # Our build system no longer supports legacy multidex.
+-  min_supported_sdk_version = 21
++  min_supported_sdk_version = 33
+ 
+   # ASAN requires O MR1.
+   # https://github.com/google/sanitizers/wiki/AddressSanitizerOnAndroid/01f8df1ac1a447a8475cdfcb03e8b13140042dbd#running-with-wrapsh-recommended
+   if (is_asan) {
+-    min_supported_sdk_version = 27
++    min_supported_sdk_version = 33
+   }
+ 
+   assert(
+diff --git a/chrome/android/chrome_public_apk_tmpl.gni b/chrome/android/chrome_public_apk_tmpl.gni
+index 4bb91169abffe..99ec2b1002c46 100644
+--- a/chrome/android/chrome_public_apk_tmpl.gni
++++ b/chrome/android/chrome_public_apk_tmpl.gni
+@@ -253,7 +253,7 @@ template("chrome_common_apk_or_module_tmpl") {
+     if (defined(invoker.min_sdk_version)) {
+       min_sdk_version = invoker.min_sdk_version
+     } else if (_is_trichrome) {
+-      min_sdk_version = 29
++      min_sdk_version = 33
+     }
+     if (defined(invoker.version_name)) {
+       version_name = invoker.version_name
+diff --git a/chrome/android/modules/chrome_bundle_tmpl.gni b/chrome/android/modules/chrome_bundle_tmpl.gni
+index acbe780c26b6e..8d08a6523c734 100644
+--- a/chrome/android/modules/chrome_bundle_tmpl.gni
++++ b/chrome/android/modules/chrome_bundle_tmpl.gni
+@@ -106,7 +106,7 @@ template("chrome_bundle") {
+   if (defined(invoker.min_sdk_version)) {
+     _min_sdk_version = invoker.min_sdk_version
+   } else if (_is_trichrome) {
+-    _min_sdk_version = 29
++    _min_sdk_version = 33
+   } else {
+     _min_sdk_version = default_min_sdk_version
+   }
+diff --git a/chrome/android/trichrome.gni b/chrome/android/trichrome.gni
+index 65c97d56a00df..2491f313ec5e7 100644
+--- a/chrome/android/trichrome.gni
++++ b/chrome/android/trichrome.gni
+@@ -99,7 +99,7 @@ template("trichrome_library_apk_tmpl") {
+     app_as_shared_lib = true
+     version_name = chrome_version_name
+     version_code = _version_code
+-    min_sdk_version = 29
++    min_sdk_version = 33
+ 
+     # Only the .build_config.json is used from this target, and it's fine if
+     # it contains more assets than we need (always use the 64_32 variant).
+diff --git a/chrome/browser/android/examples/partner_browser_customizations_provider/BUILD.gn b/chrome/browser/android/examples/partner_browser_customizations_provider/BUILD.gn
+index dea3b4859c34a..73b6d00603608 100644
+--- a/chrome/browser/android/examples/partner_browser_customizations_provider/BUILD.gn
++++ b/chrome/browser/android/examples/partner_browser_customizations_provider/BUILD.gn
+@@ -18,8 +18,8 @@ android_apk("partner_browser_customizations_example_apk") {
+     "src/org/chromium/example/partnercustomizations/PartnerBrowserCustomizationsProviderExample.java",
+   ]
+   android_manifest = "AndroidManifest.xml"
+-  min_sdk_version = 23
+-  target_sdk_version = 23
++  min_sdk_version = 33
++  target_sdk_version = 36
+   apk_name = "PartnerCustomizationProviderExample"
+   deps = [ ":partner_browser_customizations_example_apk_resources" ]
+   chromium_code = false
+diff --git a/media/audio/android/opensles_input.cc b/media/audio/android/opensles_input.cc
+index 5466afb3bded1..fe66859b4c471 100644
+--- a/media/audio/android/opensles_input.cc
++++ b/media/audio/android/opensles_input.cc
+@@ -7,6 +7,8 @@
+ #pragma allow_unsafe_buffers
+ #endif
+ 
++#pragma clang diagnostic ignored "-Wdeprecated-declarations"
++
+ #include "media/audio/android/opensles_input.h"
+ 
+ #include "base/logging.h"
+diff --git a/media/audio/android/opensles_output.cc b/media/audio/android/opensles_output.cc
+index 1f5bd24d09c0a..59f583113a32e 100644
+--- a/media/audio/android/opensles_output.cc
++++ b/media/audio/android/opensles_output.cc
+@@ -7,6 +7,8 @@
+ #pragma allow_unsafe_buffers
+ #endif
+ 
++#pragma clang diagnostic ignored "-Wdeprecated-declarations"
++
+ #include "media/audio/android/opensles_output.h"
+ 
+ #include "base/android/build_info.h"
+diff --git a/tools/android/customtabs_benchmark/BUILD.gn b/tools/android/customtabs_benchmark/BUILD.gn
+index ee9c618785932..740f0d5027ff7 100644
+--- a/tools/android/customtabs_benchmark/BUILD.gn
++++ b/tools/android/customtabs_benchmark/BUILD.gn
+@@ -18,8 +18,8 @@ android_apk("customtabs_benchmark_apk") {
+     "java/src/org/chromium/customtabs/test/WebViewActivity.java",
+   ]
+   android_manifest = "java/AndroidManifest.xml"
+-  min_sdk_version = 21
+-  target_sdk_version = 33
++  min_sdk_version = 33
++  target_sdk_version = 36
+   apk_name = "CustomTabsBenchmark"
+   deps = [
+     ":customtabs_benchmark_apk_resources",
+-- 
+2.43.0
+

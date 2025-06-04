@@ -1,0 +1,29 @@
+From ce22523e56d9ff326871803d1d558a27a3ff7025 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Mon, 2 Jun 2025 23:30:45 -0230
+Subject: [PATCH] Windows installer always system
+
+---
+ chrome/installer/util/initial_preferences.cc | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/chrome/installer/util/initial_preferences.cc b/chrome/installer/util/initial_preferences.cc
+index 48ae7b2d6c69e..ec456586ae943 100644
+--- a/chrome/installer/util/initial_preferences.cc
++++ b/chrome/installer/util/initial_preferences.cc
+@@ -172,12 +172,10 @@ void InitialPreferences::InitializeFromCommandLine(
+     std::string is_machine_var =
+         env->GetVar(env_vars::kGoogleUpdateIsMachineEnvVar)
+             .value_or(std::string());
+-    if (is_machine_var == "1") {
+       VLOG(1) << "Taking system-level from environment.";
+       name.assign(installer::initial_preferences::kDistroDict);
+       name.append(".").append(installer::initial_preferences::kSystemLevel);
+       initial_dictionary_->SetByDottedPath(name, true);
+-    }
+   }
+ 
+   // Cache a pointer to the distribution dictionary. Ignore errors if any.
+-- 
+2.43.0
+

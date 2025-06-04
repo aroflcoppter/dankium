@@ -1,0 +1,94 @@
+From b0d1e1896f0552f51651311ea3edce848a1b2478 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Tue, 3 Jun 2025 03:34:41 -0230
+Subject: [PATCH 3/4] Fixup settings strings for branding
+
+---
+ .../strings/android_chrome_strings.grd        | 24 +++++++++----------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
+
+diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
+index 151d037f64820..ea70aa49e2119 100644
+--- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
++++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
+@@ -287,7 +287,7 @@ CHAR_LIMIT guidelines:
+ 
+       <!-- Sign-in, sync and personalization preferences -->
+       <message name="IDS_PREFS_SECTION_ACCOUNT_AND_GOOGLE_SERVICES" desc="Title for the group of account-related entries and google services in Settings. [CHAR_LIMIT=32]">
+-        You and Google
++        Advanced Search Settings
+       </message>
+       <message name="IDS_SIGN_IN_TO_CHROME" desc="Title for the button to sign in to Chrome using one's Google account. [CHAR_LIMIT=27]">
+         Sign in to Chrome
+@@ -331,7 +331,7 @@ CHAR_LIMIT guidelines:
+         Sync
+       </message>
+       <message name="IDS_PREFS_GOOGLE_SERVICES" desc="Title for the group of preferences that control non-personalized Google services. This group contains preferences for data that is not tied to user's Google Account. [CHAR_LIMIT=40]">
+-        Google services
++        Search services
+       </message>
+       <message name="IDS_ALLOW_CHROME_SIGNIN_TITLE" desc="Title for a checkbox in Google services that controls sign-in and sync prompts.">
+         Allow Chrome sign-in
+@@ -666,7 +666,7 @@ For more settings that use data to improve your Chrome experience, go to <ph nam
+         Passwords
+       </message>
+       <message name="IDS_PASSWORD_MANAGER_SETTINGS_TITLE" desc="Title for the settings menu item leading to the Password Manager UI surface. This allows users to e.g. manage their saved passwords, toggle saving and auto-sign-in on/off, etc. [CHAR_LIMIT=32]">
+-        Google Password Manager
++        Password Manager
+       </message>
+       <message name="IDS_PASSWORD_SAVING_ON_BY_ADMINISTRATOR" desc="Subtitle for the settings menu item leading to the Password Manager UI surface, shown when the device administrator set saving passwords to enabled.">
+         Password saving is turned on by your administrator
+@@ -2344,7 +2344,7 @@ Your Google account may have other forms of browsing history like searches and a
+         Copyright <ph name="year">%1$d<ex>2014</ex></ph> Google LLC. All rights reserved.
+       </message>
+       <message name="IDS_APPLICATION_VERSION_TITLE" desc="Title for application version">
+-        Application version
++        Dankium version
+       </message>
+       <message name="IDS_VERSION_WITH_UPDATE_TIME" desc="Message showing Chrome's version and the time it was last updated">
+         <ph name="VERSION">%1$s<ex>Chrome 40.0.2214.67</ex></ph> (Updated <ph name="TIME_SINCE_UPDATE">%2$s<ex>5 minutes ago</ex></ph>)
+@@ -2426,7 +2426,7 @@ Your Google account may have other forms of browsing history like searches and a
+ 
+       <!-- Legal information preferences -->
+       <message name="IDS_LEGAL_INFORMATION_TITLE" desc="Title for legal information [CHAR_LIMIT=32]">
+-        Legal information
++        Chromium Legal information
+       </message>
+       <message name="IDS_OPEN_SOURCE_LICENSE_TITLE" desc="Title for open source license">
+         Open source licenses
+@@ -2435,25 +2435,25 @@ Your Google account may have other forms of browsing history like searches and a
+         chrome://credits
+       </message>
+       <message name="IDS_GOOGLE_TERMS_OF_SERVICE_TITLE" desc="Title for Google terms of service">
+-        Google Terms of Service
++        Dankium Terms of Service
+       </message>
+       <message name="IDS_GOOGLE_TERMS_OF_SERVICE_URL" desc="URL for Google terms of service" translateable="false">
+-        https://policies.google.com/terms/embedded
++        https://dankium.ca/tos.html
+       </message>
+       <message name="IDS_GOOGLE_TERMS_OF_SERVICE_DARK_MODE_URL" desc="URL for Google terms of service for dark mode" translateable="false">
+-        https://policies.google.com/terms/embedded?color_scheme=dark
++        https://dankium.ca/tos.html
+       </message>
+       <message name="IDS_CHROME_ADDITIONAL_TERMS_OF_SERVICE_TITLE" desc="Title for Chrome and ChromeOS addtional terms of service">
+-        Chrome &amp; ChromeOS Additional Terms of Service
++        Dankium Software License
+       </message>
+       <message name="IDS_CHROME_ADDITIONAL_TERMS_OF_SERVICE_URL" desc="URL for Chrome and ChromeOS additional terms of service" translateable="false">
+-        https://www.google.com/chrome/terms/
++        https://dankium.ca/license.html
+       </message>
+       <message name="IDS_PRIVACY_POLICY_TITLE" desc="Title for the Google privacy policy">
+-        Google Privacy Policy
++        Dankium Privacy Policy
+       </message>
+       <message name="IDS_GOOGLE_PRIVACY_POLICY_URL" desc="URL for the Google privacy policy" translateable="false">
+-        https://policies.google.com/privacy
++        https://dankium.ca/privacy.html
+       </message>
+ 
+       <!-- Sign-in strings -->
+-- 
+2.43.0
+

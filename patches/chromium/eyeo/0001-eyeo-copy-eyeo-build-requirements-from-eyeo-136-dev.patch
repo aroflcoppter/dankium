@@ -1,0 +1,3966 @@
+From a58f638229ca32f8697d26d45579fde69cad4e00 Mon Sep 17 00:00:00 2001
+From: vanilla-chromium-builder <project_26591639_bot@noreply.gitlab.com>
+Date: Thu, 22 May 2025 15:49:01 +0000
+Subject: [PATCH] Copy eyeo build requirements from eyeo-136-dev
+
+---
+ .ci-scripts/checkout_snippets.sh             |   44 +
+ .ci-scripts/chromium_version.py              |   30 +
+ .ci-scripts/compare_perf_samples.py          |   72 ++
+ .ci-scripts/find-words.py                    |   88 ++
+ .ci-scripts/get_failing_tests.py             |   48 +
+ .ci-scripts/get_gtest_exclusion_filter.py    |   59 +
+ .ci-scripts/get_vanilla_job_test_report.py   |  206 +++
+ .ci-scripts/install_packages.sh              |   26 +
+ .ci-scripts/lint_and_format_merge_request.sh |   55 +
+ .ci-scripts/minio_download_files.py          |  130 ++
+ .ci-scripts/minio_get_presigned_url.py       |   65 +
+ .ci-scripts/minio_upload_files.py            |   66 +
+ .ci-scripts/post_open_mrs_on_slack.py        |  145 +++
+ .ci-scripts/print_size_of_flatbuffer.py      |   62 +
+ .ci-scripts/run_chromium_tests.py            |  221 ++++
+ .ci-scripts/run_perf_tests.sh                |  113 ++
+ .ci-scripts/s3_download_files.py             |  132 ++
+ .ci-scripts/s3_get_presigned_url.py          |  153 +++
+ .ci-scripts/s3_upload_files.py               |  153 +++
+ .ci-scripts/setup_emulators.sh               |  119 ++
+ .ci-scripts/update_badges.py                 |  190 +++
+ .ci-scripts/update_flaky_tests.py            |  143 +++
+ .gitlab-ci.yml                               | 1187 ++++++++++++++++++
+ .pre-commit-config.yaml                      |   55 +
+ gclient/.gclient                             |   35 +
+ gclient/.gclient_ci_android                  |   33 +
+ gclient/.gclient_ci_linux                    |   30 +
+ gclient/.gclient_ci_mac                      |   31 +
+ gclient/.gclient_ci_windows                  |   31 +
+ 29 files changed, 3722 insertions(+)
+ create mode 100755 .ci-scripts/checkout_snippets.sh
+ create mode 100644 .ci-scripts/chromium_version.py
+ create mode 100755 .ci-scripts/compare_perf_samples.py
+ create mode 100755 .ci-scripts/find-words.py
+ create mode 100755 .ci-scripts/get_failing_tests.py
+ create mode 100644 .ci-scripts/get_gtest_exclusion_filter.py
+ create mode 100644 .ci-scripts/get_vanilla_job_test_report.py
+ create mode 100755 .ci-scripts/install_packages.sh
+ create mode 100755 .ci-scripts/lint_and_format_merge_request.sh
+ create mode 100644 .ci-scripts/minio_download_files.py
+ create mode 100644 .ci-scripts/minio_get_presigned_url.py
+ create mode 100644 .ci-scripts/minio_upload_files.py
+ create mode 100644 .ci-scripts/post_open_mrs_on_slack.py
+ create mode 100644 .ci-scripts/print_size_of_flatbuffer.py
+ create mode 100644 .ci-scripts/run_chromium_tests.py
+ create mode 100755 .ci-scripts/run_perf_tests.sh
+ create mode 100644 .ci-scripts/s3_download_files.py
+ create mode 100644 .ci-scripts/s3_get_presigned_url.py
+ create mode 100644 .ci-scripts/s3_upload_files.py
+ create mode 100755 .ci-scripts/setup_emulators.sh
+ create mode 100644 .ci-scripts/update_badges.py
+ create mode 100644 .ci-scripts/update_flaky_tests.py
+ create mode 100644 .gitlab-ci.yml
+ create mode 100644 .pre-commit-config.yaml
+ create mode 100644 gclient/.gclient
+ create mode 100644 gclient/.gclient_ci_android
+ create mode 100644 gclient/.gclient_ci_linux
+ create mode 100644 gclient/.gclient_ci_mac
+ create mode 100644 gclient/.gclient_ci_windows
+
+diff --git a/.ci-scripts/checkout_snippets.sh b/.ci-scripts/checkout_snippets.sh
+new file mode 100755
+index 0000000000000..886cb025dbea5
+--- /dev/null
++++ b/.ci-scripts/checkout_snippets.sh
+@@ -0,0 +1,44 @@
++#!/bin/bash
++
++# This file is part of eyeo Chromium SDK,
++# Copyright (C) 2006-present eyeo GmbH
++# eyeo Chromium SDK is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License version 3 as
++# published by the Free Software Foundation.
++# eyeo Chromium SDK is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# You should have received a copy of the GNU General Public License
++# along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++
++if [[ -z $1 ]]; then
++  echo "Missing argument with snippets revision to checkout!"
++  exit 1
++fi
++
++DEV_SNIPPETS_VERSION=$1
++
++# Setup build node and npm deps for abp-snippets repo, requires 16+ version of node
++curl -sL https://deb.nodesource.com/setup_20.x -o nodesource_setup.sh
++chmod +x nodesource_setup.sh
++sudo ./nodesource_setup.sh
++sudo apt-get install -qy nodejs
++# Check if npm is available before proceeding
++if ! command -v npm &> /dev/null; then
++  echo "npm could not be found, exiting."
++  exit 1
++fi
++OLD_DIR=$PWD && cd components/adblock/core/resources/snippets
++echo "Current snippets library files from DEPS:"
++ls -al dist/*.jst
++git config --global --add safe.directory /opt/ci/chromium-sdk/src/components/adblock/core/resources/snippets
++git remote add dev_origin git@gitlab.com:eyeo/adblockplus/abp-snippets.git
++git fetch dev_origin
++git checkout ${DEV_SNIPPETS_VERSION}
++npm install
++npm run build
++node ./bundle/dependencies.js
++echo "New snippets library files from ${DEV_SNIPPETS_VERSION}:"
++ls -al dist/*.jst
++cd $OLD_DIR
+diff --git a/.ci-scripts/chromium_version.py b/.ci-scripts/chromium_version.py
+new file mode 100644
+index 0000000000000..bc671e204259d
+--- /dev/null
++++ b/.ci-scripts/chromium_version.py
+@@ -0,0 +1,30 @@
++#!/usr/bin/env python3
++
++# This file is part of eyeo Chromium SDK,
++# Copyright (C) 2006-present eyeo GmbH
++# eyeo Chromium SDK is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License version 3 as
++# published by the Free Software Foundation.
++# eyeo Chromium SDK is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# You should have received a copy of the GNU General Public License
++# along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++
++import os
++
++
++def get_chromium_version():
++    script_dir = os.path.dirname(os.path.abspath(__file__))
++    file_path = os.path.join(script_dir, "../chrome/VERSION")
++    with open(file_path, 'r') as file:
++        version = {}
++        for line in file:
++            key, value = line.strip().split('=')
++            version[key] = value
++    return f"{version['MAJOR']}.{version['MINOR']}.{version['BUILD']}.{version['PATCH']}"
++
++
++if __name__ == "__main__":
++    print(get_chromium_version())
+diff --git a/.ci-scripts/compare_perf_samples.py b/.ci-scripts/compare_perf_samples.py
+new file mode 100755
+index 0000000000000..931939d600336
+--- /dev/null
++++ b/.ci-scripts/compare_perf_samples.py
+@@ -0,0 +1,72 @@
++#!/usr/bin/env python3
++
++# This file is part of eyeo Chromium SDK,
++# Copyright (C) 2006-present eyeo GmbH
++# eyeo Chromium SDK is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License version 3 as
++# published by the Free Software Foundation.
++# eyeo Chromium SDK is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.    See the
++# GNU General Public License for more details.
++# You should have received a copy of the GNU General Public License
++# along with eyeo Chromium SDK.    If not, see <http://www.gnu.org/licenses/>.
++
++import argparse
++import scipy.stats as stats
++import sys
++
++def delta(current, baseline):
++    try:
++        return round((abs(current - baseline) / baseline) * 100.0, 2)
++    except ZeroDivisionError:
++        return 0
++
++def average(list):
++    return sum(list) / len(list)
++
++def compare(args):
++    current_sample = list(map(int, args.current.split(",")))
++    baseline_sample = list(map(int, args.baseline.split(",")))
++
++    # Perform t-test
++    t_stat, p_value = stats.ttest_rel(baseline_sample, current_sample)
++    avg_current_sample = average(current_sample)
++    avg_baseline_sample = average(baseline_sample)
++    avg_delta = delta(avg_current_sample, avg_baseline_sample)
++
++    # Check p-value against significance level and check average delta against threshold (2%)
++    alpha = 0.05
++    avg_delta_threshold = 3
++    if ((p_value < alpha) and (avg_delta > avg_delta_threshold)):
++        print(f"Suspicious change detected. Current avg is {avg_current_sample}, baseline avg is {avg_baseline_sample}, both differs by {avg_delta}%")
++        # Sort lists to better see the values
++        current_sample.sort()
++        baseline_sample.sort()
++        print('current sample:', current_sample)
++        print('baseline sample:', baseline_sample)
++        exit(1)
++    else:
++        print('No significant changes.')
++        exit(0)
++
++parser = argparse.ArgumentParser(
++    description='Compare samples from performance test results. Returns non zero when delta is statistically significant.'
++)
++
++parser.add_argument(
++    "--current",
++    required=True,
++    type=str,
++    help='Comma separated numbers (int) of current measurements, example "1,2,3"'
++)
++
++parser.add_argument(
++    "--baseline",
++    required=True,
++    type=str,
++    help='Comma separated numbers (int) of baseline measurements, example "1,2,3"'
++)
++
++args = parser.parse_args()
++compare(args)
+diff --git a/.ci-scripts/find-words.py b/.ci-scripts/find-words.py
+new file mode 100755
+index 0000000000000..9d92ca77207d7
+--- /dev/null
++++ b/.ci-scripts/find-words.py
+@@ -0,0 +1,88 @@
++#!/bin/python
++
++# This file is part of eyeo Chromium SDK,
++# Copyright (C) 2006-present eyeo GmbH
++# eyeo Chromium SDK is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License version 3 as
++# published by the Free Software Foundation.
++# eyeo Chromium SDK is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# You should have received a copy of the GNU General Public License
++# along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++
++import argparse
++import git
++import re
++
++searched_words = set()
++# Bundled filter lists may contain searched words, skip them.
++excluded_paths = ['.txt']
++# Don't check same commits twice.
++checked_commits = set()
++
++
++def report_word_usage(checked_string, description):
++  for word in searched_words:
++    for match in re.findall(r'\b' + word + r'\b', checked_string, re.IGNORECASE):
++      print(description + match)
++
++
++def find_vanilla_commit(repo, head):
++  # Assumption: vanilla commit which marks the beginning of eyeo Chromium SDK
++  # changes on a branch is the first (latest) commit that has
++  # 'Publish DEPS for ...' commit message.
++  for commit in repo.iter_commits(head, grep='Publish DEPS for .*', max_count=1):
++    return commit
++  return None
++
++
++def path_is_excluded(diff_item):
++  for path in excluded_paths:
++    if re.findall(path, diff_item.b_path):
++      return True
++  return False
++
++
++def validate_diff(repo, commit):
++  parent = commit.parents[0]
++  for diff_item in commit.diff(parent).iter_change_type('M'):
++    if diff_item.b_blob and not path_is_excluded(diff_item):
++      printable_diff = repo.git.diff(
++          str(commit), str(parent), '--', diff_item.b_path)
++      report_word_usage(printable_diff, 'Diff of ' + str(commit) +
++                        ' in file ' + diff_item.b_path + ' contains bad word ')
++
++
++def validate_commit(repo, commit):
++  report_word_usage(commit.message, 'Commit message ' +
++                    str(commit) + ' contains bad word ')
++  validate_diff(repo, commit)
++
++
++def validate_history(repo, head):
++  vanilla_commit = find_vanilla_commit(repo, head)
++  if not vanilla_commit:
++    return
++  for commit in repo.iter_commits(str(vanilla_commit) + '..' + str(head), no_merges=True):
++    if commit in checked_commits:
++      return
++    checked_commits.add(commit)
++    validate_commit(repo, commit)
++
++
++def validate_branch_name(ref):
++  report_word_usage(ref.name, 'Branch ' + ref.name + ' contains bad word ')
++
++
++parser = argparse.ArgumentParser(
++    description='Find words in eyeo Chromium SDK repo. Search through branch names, commit messages and diffs')
++parser.add_argument('words', metavar='WORDS', nargs='+',
++                    help='space-separated words to search for, will be matched case-insensitive and as whole words')
++args = parser.parse_args()
++searched_words = args.words
++repo = git.Repo('.')
++for ref in repo.remote().refs:
++  validate_branch_name(ref)
++  validate_history(repo, ref.commit)
+diff --git a/.ci-scripts/get_failing_tests.py b/.ci-scripts/get_failing_tests.py
+new file mode 100755
+index 0000000000000..0cc0a176164d2
+--- /dev/null
++++ b/.ci-scripts/get_failing_tests.py
+@@ -0,0 +1,48 @@
++# This file is part of eyeo Chromium SDK,
++# Copyright (C) 2006-present eyeo GmbH
++# eyeo Chromium SDK is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License version 3 as
++# published by the Free Software Foundation.
++# eyeo Chromium SDK is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# You should have received a copy of the GNU General Public License
++# along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++
++import argparse
++import os
++import sys
++from lxml import etree
++
++def get_gtest_selector(xml_file):
++    if os.stat(xml_file).st_size > 0:
++        tree = etree.parse(xml_file)
++        return '\n'.join(node.getparent().attrib["classname"] + "."
++                + node.getparent().attrib["name"]
++                for node in tree.xpath("./testsuite/testcase/failure"))
++    return ""
++
++def main(args):
++    try:
++        tests = get_gtest_selector(args.test_report)
++        print(tests)
++    except FileNotFoundError as e:
++        print(str(e), file=sys.stderr)
++        exit(e.errno)
++
++
++if __name__ == "__main__":
++    parser = argparse.ArgumentParser(
++        description=__doc__,
++        formatter_class=argparse.RawDescriptionHelpFormatter
++    )
++
++    parser.add_argument(
++        "test_report",
++        type=str,
++        help="The path to the test report to read failed tests from"
++    )
++
++    args = parser.parse_args()
++    main(args)
+diff --git a/.ci-scripts/get_gtest_exclusion_filter.py b/.ci-scripts/get_gtest_exclusion_filter.py
+new file mode 100644
+index 0000000000000..d1904c076bc9c
+--- /dev/null
++++ b/.ci-scripts/get_gtest_exclusion_filter.py
+@@ -0,0 +1,59 @@
++#!/usr/bin/env python3
++
++# This file is part of eyeo Chromium SDK,
++# Copyright (C) 2006-present eyeo GmbH
++# eyeo Chromium SDK is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License version 3 as
++# published by the Free Software Foundation.
++# eyeo Chromium SDK is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# You should have received a copy of the GNU General Public License
++# along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++
++"""
++Given the path to a test report, prints the list of failed tests to exclude,
++in a format that can be consumed by a GTest command.
++
++Example: --gtest_filter=-test1:test2:test3
++
++In the case of no failed tests reported, a wilcard is printed instead.
++Warning: This is valid according to GTest rules, but its use is discouraged
++because it prevents parallel test execution.
++"""
++
++import argparse
++import os
++import sys
++
++
++def get_gtest_selector(file):
++    if os.path.isfile(file) and os.stat(file).st_size > 0:
++        with open(file) as f:
++            return "-" + ':'.join(line.strip() for line in f)
++    return "*"
++
++def main(args):
++    try:
++        tests = get_gtest_selector(args.test_report)
++        print(tests)
++    except FileNotFoundError as e:
++        print(str(e), file=sys.stderr)
++        exit(e.errno)
++
++
++if __name__ == "__main__":
++    parser = argparse.ArgumentParser(
++        description=__doc__,
++        formatter_class=argparse.RawDescriptionHelpFormatter
++    )
++
++    parser.add_argument(
++        "test_report",
++        type=str,
++        help="The path to the test report to read failed tests from"
++    )
++
++    args = parser.parse_args()
++    main(args)
+diff --git a/.ci-scripts/get_vanilla_job_test_report.py b/.ci-scripts/get_vanilla_job_test_report.py
+new file mode 100644
+index 0000000000000..574de8f1450f9
+--- /dev/null
++++ b/.ci-scripts/get_vanilla_job_test_report.py
+@@ -0,0 +1,206 @@
++#!/usr/bin/env python3
++
++# This file is part of eyeo Chromium SDK,
++# Copyright (C) 2006-present eyeo GmbH
++# eyeo Chromium SDK is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License version 3 as
++# published by the Free Software Foundation.
++# eyeo Chromium SDK is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# You should have received a copy of the GNU General Public License
++# along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++
++"""
++Given a Chromium version, retrieves the test reports in a vanilla Chromium
++branch. It first looks for an exact match, then for another release with the
++same major version.
++"""
++
++import argparse
++import os
++import gitlab
++import subprocess
++import re
++import requests
++import minio_download_files
++from urllib.parse import urlparse
++from urllib3.exceptions import ReadTimeoutError
++
++
++def get_pipeline_job(project, pipeline, job_name: str):
++    """This function looks through all jobs in the given pipeline and returns
++    the one with the given job_name (if its completed)
++    """
++    for pipeline_job in pipeline.jobs.list():
++        # Look for the job and make sure it has finished (manual jobs may not
++        # have started)
++        if pipeline_job.name == job_name and pipeline_job.finished_at:
++            return project.jobs.get(pipeline_job.id)
++    return None
++
++def get_gitlab_job(project, branch_name: str, job_name: str):
++    """This takes a branch/tag name and returns a GitLab job object.
++
++    TODO Add more information about what job is returned
++    """
++    # A generator that contains all successful pipelines
++    pipelines = project.pipelines.list(all=True, ref=branch_name,
++                                       status="success")
++    # Look for the first pipeline that contains our job
++    for pipeline in pipelines:
++        job = get_pipeline_job(project, pipeline, job_name)
++        if job:
++            return job
++    return None
++
++
++def get_vanilla_test_gitlab_job(project, version: str, job_name: str):
++    # Try exact version match
++    exact_branch_name = "chromium-{}-vanilla-automated".format(version)
++    print(f"Attempting retrieval for branch '{exact_branch_name}'...")
++    job = get_gitlab_job(project, exact_branch_name, job_name)
++    if job:
++        return job
++
++    # Try major version match
++    major_version = version.split('.')[0]
++    print("Could not find exact version match. "
++          f"Attempting retrieval for major version {major_version}...")
++    # The GitLab API search is limited to starting or trailing term, so the
++    # response needs to be matched against the complete regex
++    branch_pattern = "^chromium-{}.".format(major_version)
++    returned_branches = project.branches.list(search=branch_pattern)
++    candidate_branches = [
++        b.name for b in returned_branches
++        if re.match("chromium-\\d+.\\d+.\\d+.\\d+-vanilla-automated", b.name)
++    ]
++
++    # Check from newest to oldest version
++    for approx_branch_name in reversed(candidate_branches):
++        print(f"Attempting retrieval for branch '{approx_branch_name}'...")
++        job = get_gitlab_job(project, approx_branch_name, job_name)
++        if job:
++            return job
++
++    # No exact or approximate match found
++    return None
++
++def get_minio_test_files_folder(job):
++    job_id=getattr(job, "id")
++    pipeline_id=getattr(job, "pipeline")['id']
++    project_path= os.environ.get("CI_PROJECT_PATH")
++    return f"{project_path}/{pipeline_id}/{job_id}/out/Release/"
++
++def download_artifacts_from_minio(bucket, minio_object, download_dir):
++    minio_download_files.download_all_files_from_bucket(bucket, minio_object, download_dir)
++
++def download_artifacts_from_gitlab(job, download_dir=None):
++    """Downloads artifacts from the provided GitLab job into the download_dir
++    using the GitLab API.
++    """
++    if not download_dir:
++        download_dir = args.download_dir
++    if not os.path.isdir(download_dir):
++        os.makedirs(download_dir, exist_ok=False)
++
++    zip_filename = "___artifacts.zip"
++    print(f"Downloading artifacts from GitLab job: {job.web_url}")
++    with open(zip_filename, "wb") as f:
++        try:
++            job.artifacts(streamed=True, action=f.write)
++        except subprocess.TimeoutException:
++            # Retry once
++            print(f"Retrying downloading artifacts from GitLab job: "
++                  f"{job.web_url}")
++            job.artifacts(streamed=True, action=f.write)
++
++    subprocess.run(["unzip", "-bd", download_dir, zip_filename])
++    os.unlink(zip_filename)
++
++
++def main(args):
++    if (args.download_vanilla_reports_from_gitlab):
++        download_timeout = 600  # Default timeout (in seconds) for APK downloads
++        gl = gitlab.Gitlab(
++            args.gitlab_host,
++            private_token=args.gitlab_private_token,
++            timeout=download_timeout
++        )
++        project = gl.projects.get(args.project_id)
++
++        job = get_vanilla_test_gitlab_job(
++            project, args.chromium_version, args.job_name
++        )
++
++        if not job:
++            print(f"Could not find a matching job for {args.job_name}")
++            exit(1)
++
++        if not hasattr(job, "artifacts_file"):
++            print(f"Could not find artifacts for job {args.job_name}")
++            exit(2)
++
++        download_artifacts_from_gitlab(job)
++        print("Test reports successfully downloaded")
++    else:
++        bucket="chromium-sdk-archive"
++        minio_prefix="chromium-"+args.chromium_version+"-vanilla-automated/out/Release/"
++        minio_download_files.download_test_reports_from_bucket(bucket,minio_prefix,args.download_dir)
++
++
++if __name__ == "__main__":
++    parser = argparse.ArgumentParser(
++        description=__doc__,
++        formatter_class=argparse.RawDescriptionHelpFormatter
++    )
++
++    parser.add_argument(
++        "--download_vanilla_reports_from_gitlab",
++        action='store_true',
++        help="(int) Download vanilla test reports from gitlab",
++    )
++
++    parser.add_argument(
++        "chromium_version",
++        type=str,
++        help="The full Chromium version, e.g. 96.0.4664.92"
++    )
++
++    parser.add_argument(
++        "download_dir",
++        type=str,
++        help="The directory to save the downloaded test reports"
++    )
++
++    parser.add_argument(
++        "--gitlab-host",
++        type=str,
++        help="The hostname of the GitLab server, including https://",
++        default=os.environ.get("CI_SERVER_URL")
++    )
++
++    parser.add_argument(
++        "--gitlab-private-token",
++        type=str,
++        help="Private token for authentication agains the GitLab server",
++        default=os.environ.get("CHROMIUM_GITLAB_COM_TOKEN")
++    )
++
++    parser.add_argument(
++        "--project-id",
++        type=int,
++        help="(int) The project ID to download from",
++        default=os.environ.get("CI_PROJECT_ID"),
++    )
++
++    parser.add_argument(
++        "--job-name",
++        type=str,
++        help="The name of the job that produced the test reports",
++        default="vanilla_build_and_test_desktop_release"
++    )
++
++    args = parser.parse_args()
++    main(args)
+diff --git a/.ci-scripts/install_packages.sh b/.ci-scripts/install_packages.sh
+new file mode 100755
+index 0000000000000..777602f955cab
+--- /dev/null
++++ b/.ci-scripts/install_packages.sh
+@@ -0,0 +1,26 @@
++#!/bin/bash
++
++# This file is part of eyeo Chromium SDK,
++# Copyright (C) 2006-present eyeo GmbH
++# eyeo Chromium SDK is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License version 3 as
++# published by the Free Software Foundation.
++# eyeo Chromium SDK is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# You should have received a copy of the GNU General Public License
++# along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++
++# Install additional build dependencies.
++# Detect if they have already been installed (deps rarely change)
++for DEPS in install-build-deps.sh; do
++if ! grep -q $(md5sum build/$DEPS) $HOME/installed_deps ; then
++    md5sum build/$DEPS >> $HOME/installed_deps
++    MISSING_DEPS="true"
++fi
++done
++if [ "$MISSING_DEPS" ] ; then
++    echo "WARNING: Missing dependencies detected, you may want to update the docker image used."
++    ./build/install-build-deps.sh --android --no-prompt
++fi
+diff --git a/.ci-scripts/lint_and_format_merge_request.sh b/.ci-scripts/lint_and_format_merge_request.sh
+new file mode 100755
+index 0000000000000..81d93eb8780ea
+--- /dev/null
++++ b/.ci-scripts/lint_and_format_merge_request.sh
+@@ -0,0 +1,55 @@
++#!/bin/bash
++
++# This file is part of eyeo Chromium SDK,
++# Copyright (C) 2006-present eyeo GmbH
++# eyeo Chromium SDK is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License version 3 as
++# published by the Free Software Foundation.
++# eyeo Chromium SDK is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# You should have received a copy of the GNU General Public License
++# along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++
++if [ -z "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" ]; then
++  echo "This is not a merge request, skipping lint"
++  exit 0
++fi
++
++FORMATTING_ERROR_CODE=0
++
++
++echo "Ensuring the merge base commit is in the (truncated) history"
++if ! git merge-base --is-ancestor "$CI_MERGE_REQUEST_DIFF_BASE_SHA" HEAD; then
++  echo "$CI_MERGE_REQUEST_DIFF_BASE_SHA not present in history. Unshallowing the git repo is slow and flaky (DPD-2687), so I am skipping the linting and formatting checks"
++  exit 1
++fi
++
++echo "cpplint.py will run for cpp files modified against $CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
++FILES_TO_CHECK=$(git diff-tree --name-only -r $CI_MERGE_REQUEST_DIFF_BASE_SHA $CI_COMMIT_SHA -- '*.cc' '*.h' | grep -E 'adblock|eyeo' | grep -v 'schema_hash.h') || true
++if [ ! -z "$FILES_TO_CHECK" ]; then
++  echo "cpplint.py will check $(echo "$FILES_TO_CHECK" | wc -l) files"
++  # Muted some lint checks which produce false positives (runtime/references) or lot of noise.
++  LINT_OUTPUT=$(cpplint.py --filter=-whitespace,-build/include_what_you_use,-runtime/references,-readability/todo,-build/namespaces,-runtime/int $FILES_TO_CHECK 2>&1  > /dev/null | grep -v "Skipping input") || true
++  echo "$LINT_OUTPUT"
++  if [[ $LINT_OUTPUT != "Total errors found: 0" ]]; then
++    # Set a lint error but continue with the script, maybe there are also formatting errors
++    FORMATTING_ERROR_CODE=111
++  else
++    echo "No cpplint errors found"
++  fi
++else
++  echo "No cpp files to lint in this MR"
++fi
++
++echo "Will run git cl format for all files modified against $CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
++FORMAT_DIFF=$(git cl format --diff --upstream=${CI_MERGE_REQUEST_DIFF_BASE_SHA} --python  2>&1)
++if [[ -n "$FORMAT_DIFF" ]]; then
++  echo "$FORMAT_DIFF";
++  ((FORMATTING_ERROR_CODE+=222))
++else
++  echo "No git cl format errors found"
++fi
++
++exit $FORMATTING_ERROR_CODE
+diff --git a/.ci-scripts/minio_download_files.py b/.ci-scripts/minio_download_files.py
+new file mode 100644
+index 0000000000000..8d58ae3b95457
+--- /dev/null
++++ b/.ci-scripts/minio_download_files.py
+@@ -0,0 +1,130 @@
++#!/usr/bin/env python3
++
++# This file is part of eyeo Chromium SDK,
++# Copyright (C) 2006-present eyeo GmbH
++# eyeo Chromium SDK is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License version 3 as
++# published by the Free Software Foundation.
++# eyeo Chromium SDK is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# You should have received a copy of the GNU General Public License
++# along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++
++"""
++Script to download artifacts from Minio
++
++"""
++
++import argparse
++import os
++
++from minio import Minio
++from urllib.parse import urlparse
++from urllib3.exceptions import ReadTimeoutError
++
++
++def download_with_retry(minio_client, bucket, object_name, file_path):
++    try:
++        minio_client.fget_object(bucket_name=bucket,
++                                 object_name=object_name,
++                                 file_path=file_path)
++    except ReadTimeoutError:
++        # Retry once
++        print(f"Retrying downloading {object_name} from minio")
++        minio_client.fget_object(bucket_name=bucket,
++                                 object_name=object_name,
++                                 file_path=file_path)
++
++
++def download_test_reports_from_bucket(minio_client,
++                                      bucket,
++                                      minio_dir,
++                                      download_dir=None):
++    if not download_dir:
++        download_dir = args.download_dir
++    if not os.path.isdir(download_dir):
++        os.makedirs(download_dir, exist_ok=False)
++    for item in [
++            "unit_tests_failed.txt", "components_unittests_failed.txt",
++            "browser_tests_failed.txt"
++    ]:
++        download_with_retry(minio_client, bucket, minio_dir + item,
++                            f"{download_dir}/{minio_dir + item}")
++
++
++def download_all_files_from_bucket(minio_client,
++                                   bucket,
++                                   minio_object,
++                                   download_dir=None):
++    if not download_dir:
++        download_dir = args.download_dir
++    if not os.path.isdir(download_dir):
++        os.makedirs(download_dir, exist_ok=False)
++    for item in minio_client.list_objects(bucket, prefix=minio_object):
++        download_with_retry(minio_client, bucket, item.object_name,
++                            f"{download_dir}/{item.object_name}")
++
++
++def download_files_from_minio(minio_client,
++                              bucket,
++                              minio_object,
++                              download_dir=None):
++    if not download_dir:
++        download_dir = args.download_dir
++    if not os.path.isdir(download_dir):
++        os.makedirs(download_dir, exist_ok=False)
++
++    output_file = f"{download_dir}/{minio_object}"
++    if os.path.exists(output_file):
++        raise FileExistsError(f'{output_file} already exists!')
++
++    download_with_retry(minio_client, bucket, minio_object, output_file)
++
++def main(args):
++    access_key = os.environ.get("MINIO_ACCESS_KEY")
++    secret_key = os.environ.get("MINIO_SECRET_KEY")
++    minio_host = urlparse(os.environ.get("MINIO_HOST")).netloc
++    minio_client = Minio(minio_host, access_key, secret_key)
++    if args.download_all_files_from_bucket:
++        download_all_files_from_bucket(minio_client, args.minio_bucket,
++                                       args.minio_object)
++    else:
++        download_files_from_minio(minio_client, args.minio_bucket,
++                                  args.minio_object)
++
++if __name__ == "__main__":
++    parser = argparse.ArgumentParser(
++        description=__doc__,
++        formatter_class=argparse.RawDescriptionHelpFormatter
++    )
++
++    parser.add_argument(
++        "--download-all-files-from-bucket",
++        action='store_true',
++        help="(int) Download all files from a bucket",
++    )
++
++    parser.add_argument(
++        "minio_bucket",
++        type=str,
++        help="The name of minio bucket",
++        default="chromium-sdk",
++    )
++
++    parser.add_argument(
++        "minio_object",
++        type=str,
++        help="Path to minio object",
++    )
++
++    parser.add_argument(
++        "--download-dir",
++        type=str,
++        help="The directory to save the downloaded artifacts",
++        default=os.environ.get("GIT_CLONE_PATH"),
++    )
++
++    args = parser.parse_args()
++    main(args)
+diff --git a/.ci-scripts/minio_get_presigned_url.py b/.ci-scripts/minio_get_presigned_url.py
+new file mode 100644
+index 0000000000000..84b187873a266
+--- /dev/null
++++ b/.ci-scripts/minio_get_presigned_url.py
+@@ -0,0 +1,65 @@
++#!/usr/bin/env python3
++
++# This file is part of eyeo Chromium SDK,
++# Copyright (C) 2006-present eyeo GmbH
++# eyeo Chromium SDK is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License version 3 as
++# published by the Free Software Foundation.
++# eyeo Chromium SDK is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# You should have received a copy of the GNU General Public License
++# along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++
++"""
++Script to download artifacts from Minio
++
++"""
++
++import argparse
++import os
++
++from datetime import timedelta
++from minio import Minio
++from urllib.parse import urlparse
++
++def get_presigned_artifact_url(bucket, minio_object):
++    access_key = os.environ.get("MINIO_ACCESS_KEY")
++    secret_key = os.environ.get("MINIO_SECRET_KEY")
++    minio_host = urlparse(os.environ.get("MINIO_HOST")).netloc
++    minio_client = Minio(minio_host, access_key, secret_key)
++    url = minio_client.get_presigned_url(
++        "GET",
++        bucket,
++        minio_object,
++        expires=timedelta(days=1),
++    )
++    print(url)
++
++def main(args):
++
++    get_presigned_artifact_url(args.minio_bucket, args.minio_object)
++
++
++if __name__ == "__main__":
++    parser = argparse.ArgumentParser(
++        description=__doc__,
++        formatter_class=argparse.RawDescriptionHelpFormatter
++    )
++
++    parser.add_argument(
++        "minio_bucket",
++        type=str,
++        help="The name of minio bucket",
++        default="chromium-sdk",
++    )
++
++    parser.add_argument(
++        "minio_object",
++        type=str,
++        help="Path to minio object",
++    )
++
++    args = parser.parse_args()
++    main(args)
+diff --git a/.ci-scripts/minio_upload_files.py b/.ci-scripts/minio_upload_files.py
+new file mode 100644
+index 0000000000000..7ce8f995df546
+--- /dev/null
++++ b/.ci-scripts/minio_upload_files.py
+@@ -0,0 +1,66 @@
++#!/usr/bin/env python3
++
++# This file is part of eyeo Chromium SDK,
++# Copyright (C) 2006-present eyeo GmbH
++# eyeo Chromium SDK is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License version 3 as
++# published by the Free Software Foundation.
++# eyeo Chromium SDK is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# You should have received a copy of the GNU General Public License
++# along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++"""
++Script to upload artifacts to Minio
++
++"""
++
++import os
++import argparse
++from minio import Minio
++from urllib.parse import urlparse
++
++
++def upload_file_to_minio(minio_client, bucket, local_file, minio_object):
++    if not os.path.isfile(local_file):
++        raise FileNotFoundError(f'{local_file} does not exist!')
++
++    minio_client.fput_object(bucket, minio_object, local_file)
++
++
++def main(args):
++    access_key = os.environ.get("MINIO_ACCESS_KEY")
++    secret_key = os.environ.get("MINIO_SECRET_KEY")
++    minio_host = urlparse(os.environ.get("MINIO_HOST")).netloc
++    minio_client = Minio(minio_host, access_key, secret_key)
++    upload_file_to_minio(minio_client, args.minio_bucket, args.local_file,
++                         args.minio_object)
++
++
++if __name__ == "__main__":
++    parser = argparse.ArgumentParser(
++        description=__doc__,
++        formatter_class=argparse.RawDescriptionHelpFormatter)
++
++    parser.add_argument(
++        "minio_bucket",
++        type=str,
++        help="The name of minio bucket",
++        default="chromium-sdk",
++    )
++
++    parser.add_argument(
++        "local_file",
++        type=str,
++        help="The local file to upload",
++    )
++
++    parser.add_argument(
++        "minio_object",
++        type=str,
++        help="The object name in minio",
++    )
++
++    args = parser.parse_args()
++    main(args)
+diff --git a/.ci-scripts/post_open_mrs_on_slack.py b/.ci-scripts/post_open_mrs_on_slack.py
+new file mode 100644
+index 0000000000000..fc95d452570d4
+--- /dev/null
++++ b/.ci-scripts/post_open_mrs_on_slack.py
+@@ -0,0 +1,145 @@
++#!/usr/bin/env python3
++
++# This file is part of eyeo Chromium SDK,
++# Copyright (C) 2006-present eyeo GmbH
++# eyeo Chromium SDK is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License version 3 as
++# published by the Free Software Foundation.
++# eyeo Chromium SDK is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# You should have received a copy of the GNU General Public License
++# along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++
++import argparse
++import os
++import gitlab
++import json
++import requests
++
++
++class MergeRequests:
++
++    def __init__(self):
++        gl = gitlab.Gitlab(
++            args.gitlabhost,
++            private_token=args.gitlab_private_token,
++        )
++        project = gl.projects.get(args.project_id)
++        mrs = project.mergerequests.list(state='opened')
++        self.ready_reviewed = []
++        self.ready_waiting = []
++        self.draft_waiting = []
++        self.do_not_merge_reviewed = []
++        self.do_not_merge_waiting = []
++
++        for mr in mrs:
++            if "DO NOT MERGE" in mr.title:
++                if "not_approved" in mr.detailed_merge_status:
++                    self.do_not_merge_waiting.append(mr)
++                else:
++                    self.do_not_merge_reviewed.append(mr)
++            elif mr.draft:
++                if "not_approved" in mr.detailed_merge_status:
++                    self.draft_waiting.append(mr)
++                else:
++                    self.ready_reviewed.append(mr)
++            else:
++                if "not_approved" in mr.detailed_merge_status:
++                    self.ready_waiting.append(mr)
++                else:
++                    self.ready_reviewed.append(mr)
++
++
++def getDadJokeOfADay():
++    headers = {"Accept": "application/json"}
++    response = requests.get("https://icanhazdadjoke.com/", headers=headers)
++
++    if response.status_code == 200:
++        joke = response.json()  # Parse the JSON response
++        return "\nDaddy Joke Of a Day: \n" + joke['joke']
++    else:
++        return ""
++
++
++def createMessage(merge_requests):
++
++    def listMR(mrs):
++        nonlocal message
++        for mr in mrs:
++            message += "    - " + mr.title + " <" + mr.web_url + "|link>\n"
++
++    message = """
++    Good Morning Dragons!
++    Here is a list of open Merge Requests.
++    """
++    if merge_requests.ready_reviewed:
++        message += "\n"
++        message += str(len(merge_requests.ready_reviewed)) + (
++            " MRs are " if len(merge_requests.ready_waiting) > 1 else
++            " MR is ") + "ready to merge: \n"
++        listMR(merge_requests.ready_reviewed)
++    if merge_requests.ready_waiting:
++        message += "\n"
++        message += str(len(merge_requests.ready_waiting)) + (
++            " MRs are " if len(merge_requests.ready_waiting) > 1 else
++            " MR is ") + "calling for review: \n"
++        listMR(merge_requests.ready_waiting)
++    if merge_requests.draft_waiting:
++        message += "\n"
++        message += "" + str(len(merge_requests.draft_waiting)) + (
++            " drafts " if len(merge_requests.ready_waiting) > 1 else
++            " draft ") + " may be worth to look into: \n"
++        listMR(merge_requests.draft_waiting)
++    if merge_requests.do_not_merge_waiting:
++        message += "\n"
++        message += str(len(merge_requests.do_not_merge_waiting)) + (
++            " [DO NOT MERGE] are " if len(merge_requests.ready_waiting) > 1
++            else " [DO NOT MERGE] is ") + "waiting for review: \n"
++        listMR(merge_requests.do_not_merge_waiting)
++    return message
++
++
++def postMessageToSlack(message):
++    json_data = {
++        'text': message,
++    }
++
++    response = requests.post(os.environ.get("SLACK_WEBHOOK_URL"),
++                             json=json_data)
++    print(response)
++
++
++def main(args):
++    postMessageToSlack(createMessage(MergeRequests()) + getDadJokeOfADay())
++
++
++if __name__ == "__main__":
++    parser = argparse.ArgumentParser(
++        description=__doc__,
++        formatter_class=argparse.RawDescriptionHelpFormatter)
++
++    parser.add_argument(
++        "--project-id",
++        type=int,
++        help="(int) The project ID to download from",
++        default=os.environ.get("CI_PROJECT_ID"),
++    )
++
++    parser.add_argument(
++        "--gitlabhost",
++        type=str,
++        help="The hostname of your gitlab server, including https://",
++        default=os.environ.get("CI_SERVER_URL"),
++    )
++
++    parser.add_argument(
++        "--gitlab-private-token",
++        type=str,
++        default=os.environ.get("CHROMIUM_GITLAB_COM_TOKEN"),
++        help="Private token for authentication",
++    )
++
++    args = parser.parse_args()
++    main(args)
+diff --git a/.ci-scripts/print_size_of_flatbuffer.py b/.ci-scripts/print_size_of_flatbuffer.py
+new file mode 100644
+index 0000000000000..f8f43074fbd1b
+--- /dev/null
++++ b/.ci-scripts/print_size_of_flatbuffer.py
+@@ -0,0 +1,62 @@
++# This file is part of eyeo Chromium SDK,
++# Copyright (C) 2006-present eyeo GmbH
++# eyeo Chromium SDK is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License version 3 as
++# published by the Free Software Foundation.
++# eyeo Chromium SDK is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# You should have received a copy of the GNU General Public License
++# along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++
++import argparse
++import gzip
++import os
++import shutil
++import subprocess
++import tempfile
++
++
++def main():
++    # Parse arguments
++    parser = argparse.ArgumentParser(
++        description='Run converter executable on a gzip file.')
++    parser.add_argument('converter_executable',
++                        type=str,
++                        help='Location of the converter executable')
++    parser.add_argument('input_file',
++                        type=str,
++                        help='Location of the input gzip file')
++    args = parser.parse_args()
++
++    # Create a temporary folder
++    temp_folder = tempfile.mkdtemp()
++
++    try:
++        # Extract the input file (gzip) into a text file in the temp folder
++        extracted_file_path = os.path.join(temp_folder, 'extracted_file.txt')
++        with gzip.open(args.input_file, 'rb') as f_in:
++            with open(extracted_file_path, 'wb') as f_out:
++                shutil.copyfileobj(f_in, f_out)
++
++        # Run the converter executable
++        output_file_path = os.path.join(temp_folder, 'extracted_file.fb')
++        subprocess.run([
++            args.converter_executable, extracted_file_path,
++            'https://easylist-downloads.adblockplus.org/extracted_file.txt',
++            output_file_path
++        ],
++                       check=True)
++
++        # Write the size of the output file to stdout
++        output_file_size = os.path.getsize(output_file_path)
++        print(f'{output_file_size}')
++
++    finally:
++        # Destroy the temporary folder
++        shutil.rmtree(temp_folder)
++
++
++if __name__ == '__main__':
++    main()
+diff --git a/.ci-scripts/run_chromium_tests.py b/.ci-scripts/run_chromium_tests.py
+new file mode 100644
+index 0000000000000..6c7728db6ce31
+--- /dev/null
++++ b/.ci-scripts/run_chromium_tests.py
+@@ -0,0 +1,221 @@
++#!/usr/bin/env python3
++
++# This file is part of eyeo Chromium SDK,
++# Copyright (C) 2006-present eyeo GmbH
++# eyeo Chromium SDK is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License version 3 as
++# published by the Free Software Foundation.
++# eyeo Chromium SDK is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# You should have received a copy of the GNU General Public License
++# along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++"""
++Runs Chromium tests (unit_tests, browser_tests etc.), optionally skipping tests that were deemed unstable in the past or updating the list of unstable tests.
++"""
++
++import argparse
++import boto3
++import logging
++import os
++import subprocess
++import sys
++import tempfile
++from urllib.parse import urlparse
++from pathlib import Path
++
++import chromium_version
++import s3_download_files
++import s3_upload_files
++import get_gtest_exclusion_filter
++import get_failing_tests
++
++s3 = boto3.client('s3')
++
++
++# TODO(mpawlowski) move bucket_name and prefix to a shared file, to avoid duplication with update_flaky_tests.py
++def bucket_name():
++    return os.environ.get('AWS_S3_BUCKET_CENTRAL_1')
++
++
++def get_prefix():
++    version = chromium_version.get_chromium_version()
++    # TODO(mpawlowski): We might want to store failures from different platforms in separate directories.
++    # Currently, we're only collecting flakes from Desktop Linux.
++    return f"builds-archive/chromium-{version}-vanilla-automated/vanilla_build_and_test_desktop_release"
++
++
++def get_flake_list_name(test_binary_name, asan_enabled):
++    return test_binary_name + ("_asan" if asan_enabled else "") + "_failed.txt"
++
++
++def download_known_flakes_from_s3(test_binary_name, local_flake_list_path,
++                                  asan_enabled):
++    remote_flake_list_path = f"{get_prefix()}/{get_flake_list_name(test_binary_name, asan_enabled)}"
++    # Download the flake list from S3. The list might not be there, which is fine.
++    try:
++        logging.debug(
++            f"Downloading flaky tests list from {remote_flake_list_path}")
++        s3_download_files.download_with_retry(
++            bucket_name(), get_prefix(),
++            get_flake_list_name(test_binary_name, asan_enabled),
++            local_flake_list_path)
++        logging.debug(f"List downloaded to {local_flake_list_path}")
++    except s3.exceptions.ClientError:
++        logging.debug(
++            f"Flaky tests list not found at {remote_flake_list_path}")
++
++
++def upload_backup_of_flake_list(test_binary_name, local_flake_list_path,
++                                asan_enabled):
++    remote_flake_list_backup_path = f"{get_prefix()}/{get_flake_list_name(test_binary_name, asan_enabled)}.bak"
++    s3_upload_files.upload_files(
++        local_flake_list_path, bucket_name(), get_prefix(),
++        f"{get_flake_list_name(test_binary_name, asan_enabled)}.bak")
++    logging.debug(f"Backup of the original flaky tests list uploaded to " +
++                  f"{remote_flake_list_backup_path}")
++
++
++def update_local_flake_list(local_flake_list_path, current_failing_tests):
++    known_failing_tests = set()
++    if os.path.exists(local_flake_list_path):
++        with open(local_flake_list_path, "r") as f:
++            known_failing_tests = set(f.read().splitlines())
++    logging.info(
++        f"There are {len(current_failing_tests - known_failing_tests)} new failing tests"
++    )
++    logging.debug(f"Currently known failing tests: {len(known_failing_tests)}")
++    known_failing_tests.update(current_failing_tests)
++    logging.debug(
++        f"New number of known failing tests: {len(known_failing_tests)}")
++    with open(local_flake_list_path, "w") as f:
++        f.write("\n".join(known_failing_tests))
++
++
++def upload_flaky_tests_list(test_binary_name, local_flake_list_path,
++                            asan_enabled):
++    remote_flake_list_path = f"{get_prefix()}/{get_flake_list_name(test_binary_name, asan_enabled)}"
++    logging.debug(f"Uploading list of flaky tests to {remote_flake_list_path}")
++    s3_upload_files.upload_files(
++        local_flake_list_path, bucket_name(), get_prefix(),
++        get_flake_list_name(test_binary_name, asan_enabled))
++    logging.debug("Flaky tests list updated")
++
++
++def run_tests(test_binary_name, out_dir, skipped_tests_path, extra_args):
++    repo_root = Path(__file__).resolve().parent.parent.absolute()
++    test_binary = repo_root / out_dir / "bin" / f"run_{test_binary_name}"
++    if not test_binary.exists():
++        raise FileNotFoundError(f"Test binary {test_binary} not found")
++    # We report the result of the test run to a file with the same name as the test binary, but with a .xml extension
++    report_file = repo_root / out_dir / f"{test_binary_name}_report.xml"
++    command = [
++        "time", "xvfb-run", "-s", "-screen 0 1024x768x24",
++        str(test_binary), f"--gtest_output=xml:{report_file}"
++    ] + extra_args
++
++    selector = get_gtest_exclusion_filter.get_gtest_selector(
++        skipped_tests_path)
++    if selector != "*":
++        command += ["--gtest_filter=" + selector]
++
++    logging.debug(f"Running command: {' '.join(command)}")
++    # Run the test whilst printing the output to the console as it happens. This
++    # is useful for debugging test failures, especially if the job takes so long
++    # that the command doesn't finish within the time limit.
++    process = subprocess.Popen(command,
++                               stdout=subprocess.PIPE,
++                               stderr=subprocess.STDOUT)
++    for line in iter(process.stdout.readline, b''):
++        print(line.decode(), end='')
++        sys.stdout.flush()
++
++    process.stdout.close()
++    return (process.wait(), report_file)
++
++
++def main(args):
++    logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO)
++    s3 = boto3.client('s3')
++
++    test_binary_name = args.test_binary_name
++    with tempfile.TemporaryDirectory() as temp_dir:
++        # Download the flake list from S3 when we want to skip known upstream failures or update the flake list
++        if args.skip_known_upstream_failures or args.update_flake_list:
++            download_known_flakes_from_s3(test_binary_name, temp_dir,
++                                          args.asan)
++        # Run the tests
++        local_flake_list_path = os.path.join(
++            temp_dir, get_flake_list_name(test_binary_name, args.asan))
++        return_code, report_file = run_tests(test_binary_name, args.out_dir,
++                                             local_flake_list_path,
++                                             args.extra_args)
++
++        # In case of errors, optionally update the flake list
++        if return_code != 0 and args.update_flake_list:
++            # Find the list of tests that failed, crashed or timed out.
++            current_failing_tests = set(
++                get_failing_tests.get_gtest_selector(report_file).split("\n"))
++
++            # If there are too many failed tests, perhaps the whole run is compromised or the CI is broken.
++            # In such case, we don't want to update the flake list.
++            if len(current_failing_tests) > 500:
++                logging.warning(
++                    f"Too many tests failed ({len(current_failing_tests)}), not updating the flaky tests list."
++                )
++                return return_code
++
++            # Before uploading the modified list, upload a backup of the original list
++            if os.path.exists(local_flake_list_path):
++                upload_backup_of_flake_list(test_binary_name,
++                                            local_flake_list_path, args.asan)
++            # Update the local flake list with new failures
++            update_local_flake_list(local_flake_list_path,
++                                    current_failing_tests)
++
++            # Upload the updated list to S3
++            upload_flaky_tests_list(test_binary_name, local_flake_list_path,
++                                    args.asan)
++
++            # When we're in flake-collection mode, we _expect_ run_tests() will return an error code,
++            # so we don't want to return the return_code from run_tests() here. As long as the
++            # update of the flake list was successful, we should return a success.
++            return 0
++        return return_code
++
++
++if __name__ == "__main__":
++    parser = argparse.ArgumentParser(
++        description=__doc__,
++        formatter_class=argparse.RawDescriptionHelpFormatter)
++
++    parser.add_argument("out_dir",
++                        type=str,
++                        help="The directory where the test binary is located")
++    parser.add_argument("test_binary_name",
++                        type=str,
++                        help="The name of the test binary to run")
++    parser.add_argument("--skip_known_upstream_failures",
++                        action='store_true',
++                        help="Skip tests that are known to be flaky upstream")
++    parser.add_argument("--update_flake_list",
++                        action='store_true',
++                        help="Update the list of flaky tests")
++    parser.add_argument("-v",
++                        "--verbose",
++                        action='store_true',
++                        help="Print debug information")
++    parser.add_argument(
++        "-a",
++        "--asan",
++        action='store_true',
++        default=False,
++        help="If true, list of flaky tests for builds with asan will be updated"
++    )
++    parser.add_argument("extra_args",
++                        nargs=argparse.REMAINDER,
++                        default=[],
++                        help="Extra arguments to pass to the test binary")
++    args = parser.parse_args()
++    exit(main(args))
+diff --git a/.ci-scripts/run_perf_tests.sh b/.ci-scripts/run_perf_tests.sh
+new file mode 100755
+index 0000000000000..99d735f803d05
+--- /dev/null
++++ b/.ci-scripts/run_perf_tests.sh
+@@ -0,0 +1,113 @@
++#!/bin/bash
++
++# This file is part of eyeo Chromium SDK,
++# Copyright (C) 2006-present eyeo GmbH
++# eyeo Chromium SDK is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License version 3 as
++# published by the Free Software Foundation.
++# eyeo Chromium SDK is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# You should have received a copy of the GNU General Public License
++# along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++
++# How many times we will repeat components_perftests
++SAMPLES_COUNT=30
++if [[ ! -z $1 ]]; then
++  SAMPLES_COUNT=$1
++fi
++
++# Build for current branch
++time autoninja -j${NUMJOBS} -C out/Release components_perftests adblock_flatbuffer_converter
++
++# Store the size of flatbuffer files generated on the current branch:
++cp .ci-scripts/print_size_of_flatbuffer.py .
++exceptionrules_size_current=$(python3 print_size_of_flatbuffer.py out/Release/adblock_flatbuffer_converter components/test/data/adblock/exceptionrules.txt.gz)
++easylist_size_current=$(python3 print_size_of_flatbuffer.py out/Release/adblock_flatbuffer_converter components/test/data/adblock/easylist.txt.gz)
++echo "Size of current exceptionrules.fb: $exceptionrules_size_current bytes"
++echo "Size of current easylist.fb: $easylist_size_current bytes"
++
++
++# Run components_perftests for current branch
++for i in $(seq 1 $SAMPLES_COUNT); do
++  echo "Getting current sample $i"
++  time xvfb-run -a ./out/Release/components_perftests --no-sandbox --gtest_filter="*Adblock*:*Eyeo*" > "components_perftests_current${i}.txt"
++  cat "components_perftests_current${i}.txt" | sed -En "s/.*RESULT\ (.*)=\ ([0-9]*)\ (.*)/\1 (\3) \2/gp" > "components_perftests_current${i}_parsed.txt"
++done
++
++# We want to use compare script for current branch (it may have been updated in the MR)
++cp .ci-scripts/compare_perf_samples.py .
++
++# Checkout baseline branch (MR target)
++git branch -D $CI_MERGE_REQUEST_TARGET_BRANCH_NAME || true
++git fetch origin $CI_MERGE_REQUEST_TARGET_BRANCH_NAME --depth 1
++git checkout origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME
++
++# Build for baseline branch
++time autoninja -j${NUMJOBS} -C out/Release components_perftests adblock_flatbuffer_converter
++
++# Store the size of flatbuffer files generated on the baseline branch:
++exceptionrules_size_baseline=$(python3 print_size_of_flatbuffer.py out/Release/adblock_flatbuffer_converter components/test/data/adblock/exceptionrules.txt.gz)
++easylist_size_baseline=$(python3 print_size_of_flatbuffer.py out/Release/adblock_flatbuffer_converter components/test/data/adblock/easylist.txt.gz)
++echo "Size of baseline exceptionrules.fb: $exceptionrules_size_baseline bytes"
++echo "Size of baseline easylist.fb: $easylist_size_baseline bytes"
++
++# Run components_perftests for baseline branch
++for i in $(seq 1 $SAMPLES_COUNT); do
++  echo "Getting baseline sample $i";
++  time xvfb-run -a ./out/Release/components_perftests --no-sandbox --gtest_filter="*Adblock*:*Eyeo*" > "components_perftests_baseline${i}.txt"
++  cat "components_perftests_baseline${i}.txt" | sed -En "s/.*RESULT\ (.*)=\ ([0-9]*)\ (.*)/\1 (\3) \2/gp" > "components_perftests_baseline${i}_parsed.txt"
++done
++
++EXIT_CODE=0
++
++# Every file from current branch must have the same number of entries
++# Let's take the 1st one to see how many test results we will compare
++echo "--- PERF TESTS COMPARING START ---"
++NUMBER_OF_TESTS=$(cat components_perftests_current1_parsed.txt | wc -l)
++for i in $(seq 1 $NUMBER_OF_TESTS); do
++  CLINE=$(sed "${i}q;d" "components_perftests_current1_parsed.txt")
++  CLABEL=$(echo "$CLINE" | sed -En "s/(.*)\ ([0-9]*)/\1/gp")
++  if [[ "$i" -ne "1" ]]; then
++    echo "-------------------------------------------"
++  fi
++  echo "Comparing measurements for \"$CLABEL\":"
++  if [[ -z $(cat components_perftests_baseline1_parsed.txt | grep "$CLABEL") ]]; then
++    echo "\"$CLABEL\" missing on baseline branch, moving to the next test."
++    continue
++  fi
++  CURRENT=""
++  BASELINE=""
++  for j in $(seq 1 $SAMPLES_COUNT); do
++    CLINE=$(sed "${i}q;d" "components_perftests_current${j}_parsed.txt")
++    C=$(echo "$CLINE" | sed -En "s/(.*)\ ([0-9]*)/\2/gp")
++    CURRENT="${CURRENT}${C},"
++    BLINE=$(cat components_perftests_baseline${j}_parsed.txt | grep "$CLABEL")
++    B=$(echo "$BLINE" | sed -En "s/(.*)\ ([0-9]*)/\2/gp")
++    BASELINE="${BASELINE}${B},"
++  done
++  # Remove trailing comma
++  CURRENT=${CURRENT::-1}
++  BASELINE=${BASELINE::-1}
++   # Run script which compares samples
++  ./compare_perf_samples.py --current ${CURRENT} --baseline ${BASELINE}
++  if [[ $? -ne 0 ]]; then
++    EXIT_CODE=1
++  fi
++done
++
++# Compare the size of flatbuffer files
++echo "Comparing the size of flatbuffer files:"
++if [[ $exceptionrules_size_current -gt $exceptionrules_size_baseline ]]; then
++  echo "Size of exceptionrules.fb regressed from $exceptionrules_size_baseline to $exceptionrules_size_current bytes"
++  EXIT_CODE=1
++elif [[ $easylist_size_current -gt $easylist_size_baseline ]]; then
++  echo "Size of easylist.fb regressed from $easylist_size_baseline to $easylist_size_current bytes"
++  EXIT_CODE=1
++else
++  echo "Size of exceptionrules.fb and easylist.fb did not regress"
++fi
++
++echo "--- PERF TESTS COMPARING END ---"
++exit $EXIT_CODE
+diff --git a/.ci-scripts/s3_download_files.py b/.ci-scripts/s3_download_files.py
+new file mode 100644
+index 0000000000000..4775eb1d22a65
+--- /dev/null
++++ b/.ci-scripts/s3_download_files.py
+@@ -0,0 +1,132 @@
++#!/usr/bin/env python3
++
++# This file is part of eyeo Chromium SDK,
++# Copyright (C) 2006-present eyeo GmbH
++# eyeo Chromium SDK is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License version 3 as
++# published by the Free Software Foundation.
++# eyeo Chromium SDK is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# You should have received a copy of the GNU General Public License
++# along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++"""
++Script to download files in S3
++
++"""
++
++import argparse
++import os
++import boto3
++
++
++def download_with_retry(bucket,
++                        prefix,
++                        filename,
++                        download_dir,
++                        max_attempts=3):
++    s3 = boto3.client('s3')
++    s3_key = os.path.join(prefix, filename)
++
++    if not os.path.isdir(download_dir):
++        os.makedirs(download_dir, exist_ok=False)
++    file_path = os.path.join(download_dir, filename)
++    for attempt in range(max_attempts):
++        try:
++            s3.download_file(bucket, s3_key, file_path)
++            print(
++                f"Downloaded {filename} from {bucket}/{prefix} to {download_dir}"
++            )
++            break
++        except Exception as e:
++            if attempt < max_attempts - 1:
++                print(
++                    f"Failed to download {filename} from {bucket}, retrying ({attempt + 1}/{max_attempts})"
++                )
++            else:
++                print(
++                    f"Failed to download {filename} from {bucket} after {max_attempts} attempts"
++                )
++                raise e
++
++
++def download_test_reports_from_bucket(bucket, prefix, download_dir=None):
++    if not download_dir:
++        download_dir = args.download_dir
++    output_dir = os.path.join(download_dir, prefix)
++    for item in [
++            "unit_tests_failed.txt", "components_unittests_failed.txt",
++            "browser_tests_failed.txt"
++    ]:
++        download_with_retry(bucket, prefix, item, output_dir)
++
++
++def download_all_files_from_bucket(bucket, prefix, download_dir=None):
++    s3 = boto3.client('s3')
++    response = s3.list_objects_v2(Bucket=bucket, Prefix=prefix)
++    if not download_dir:
++        download_dir = args.download_dir
++    output_dir = os.path.join(download_dir, prefix)
++    for item in response.get('Contents', []):
++        print(item['Key'])
++        print(prefix)
++        # Since the prefix is listed as object, we need to ignore it
++        if item['Key'] != prefix:
++            download_with_retry(bucket, prefix, os.path.basename(item['Key']),
++                                output_dir)
++
++
++def download_files_from_s3(bucket, prefix, filename, download_dir=None):
++    if not download_dir:
++        download_dir = args.download_dir
++
++    download_with_retry(bucket, prefix, filename, download_dir)
++
++
++def main(args):
++    if args.download_all_files_from_bucket:
++        download_all_files_from_bucket(args.bucket, args.prefix)
++    else:
++        download_files_from_s3(args.bucket, args.prefix, args.object_name)
++
++
++if __name__ == "__main__":
++    parser = argparse.ArgumentParser(
++        description=__doc__,
++        formatter_class=argparse.RawDescriptionHelpFormatter)
++
++    parser.add_argument(
++        "--download-all-files-from-bucket",
++        action='store_true',
++        help="(int) Download all files from a prefix inside a bucket",
++    )
++
++    parser.add_argument(
++        "bucket",
++        type=str,
++        help="The name of S3 bucket",
++        default=os.environ.get('AWS_S3_BUCKET_CENTRAL_1'),
++    )
++
++    parser.add_argument(
++        "prefix",
++        type=str,
++        help="Prefix or path where the file is located in the bucket",
++    )
++
++    parser.add_argument(
++        "--object_name",
++        type=str,
++        help="Name of the file to download",
++    )
++
++    parser.add_argument(
++        "--download-dir",
++        type=str,
++        help="The directory to save the downloaded artifacts",
++        default=os.environ.get("GIT_CLONE_PATH"),
++    )
++
++    args = parser.parse_args()
++    main(args)
+diff --git a/.ci-scripts/s3_get_presigned_url.py b/.ci-scripts/s3_get_presigned_url.py
+new file mode 100644
+index 0000000000000..a3737225ab7f7
+--- /dev/null
++++ b/.ci-scripts/s3_get_presigned_url.py
+@@ -0,0 +1,153 @@
++#!/usr/bin/env python3
++
++# This file is part of eyeo Chromium SDK,
++# Copyright (C) 2006-present eyeo GmbH
++# eyeo Chromium SDK is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License version 3 as
++# published by the Free Software Foundation.
++# eyeo Chromium SDK is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# You should have received a copy of the GNU General Public License
++# along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++"""
++Script to get pre-signed URL of S3 artifacts
++
++"""
++
++import argparse
++import json
++import os
++import sys
++import boto3
++import fnmatch
++
++from datetime import timedelta
++from urllib.parse import urlparse
++from botocore.config import Config
++
++
++def get_aws_credentials():
++    region_name = "eu-central-1"
++    secret_arn = os.environ.get("AWS_CREDENTIALS_ARN")
++    client = boto3.client('secretsmanager', region_name=region_name)
++    try:
++        get_secret_value_response = client.get_secret_value(
++            SecretId=secret_arn)
++    except Exception as e:
++        print(f"Error retrieving secret: {e}")
++        return None
++    secret = get_secret_value_response['SecretString']
++    credentials = json.loads(secret)
++    if not credentials:
++        print("Failed to retrieve AWS credentials.")
++        sys.exit(1)
++    return credentials
++
++
++def get_matching_s3_objects(bucket, prefix, pattern):
++    s3 = boto3.client('s3')
++    response = s3.list_objects_v2(Bucket=bucket, Prefix=prefix)
++    for item in response.get('Contents', []):
++        filename = os.path.basename(item['Key'])
++        if fnmatch.fnmatch(filename, pattern):
++            return filename  # Return the first matching item
++
++
++def get_presigned_artifact_url(bucket, s3_key, region_name, expiration_in_days,
++                               aws_access_key_id, aws_secret_access_key):
++    s3 = boto3.client('s3',
++                      region_name,
++                      config=Config(signature_version='s3v4'),
++                      aws_access_key_id=aws_access_key_id,
++                      aws_secret_access_key=aws_secret_access_key)
++    try:
++        # Check if object exists
++        s3.head_object(Bucket=bucket, Key=s3_key)
++        url = s3.generate_presigned_url('get_object',
++                                        Params={
++                                            'Bucket': bucket,
++                                            'Key': s3_key
++                                        },
++                                        ExpiresIn=expiration_in_days * 86400)
++        return url
++
++    except s3.exceptions.NoSuchKey:
++        print(
++            f"The object with key {s3_key} does not exist in the bucket {bucket}."
++        )
++    except Exception as e:
++        print(f"An error occurred: {e}")
++
++
++def main(args):
++    url = None
++    if args.bucket == os.environ.get('AWS_S3_BUCKET_WEST_1'):
++        region_name = "eu-west-1"
++    else:
++        region_name = "eu-central-1"
++    aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID_S3')
++    aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY_S3')
++    if args.search_pattern and args.prefix:
++        filename = get_matching_s3_objects(args.bucket, args.prefix,
++                                           args.search_pattern)
++        if filename:
++            s3_key = os.path.join(args.prefix, filename)
++            url = get_presigned_artifact_url(args.bucket, s3_key, region_name,
++                                             args.expiration,
++                                             aws_access_key_id,
++                                             aws_secret_access_key)
++        else:
++            print(f"No matching object found in {args.bucket}/{args.prefix}")
++    elif args.s3_key:
++        url = get_presigned_artifact_url(args.bucket, args.s3_key, region_name,
++                                         args.expiration, aws_access_key_id,
++                                         aws_secret_access_key)
++    else:
++        print("Please provide s3_key or prefix and search pattern")
++    if url:
++        print(url)
++    else:
++        print("Failed to generate a presigned URL.")
++        sys.exit(1)
++
++if __name__ == "__main__":
++    parser = argparse.ArgumentParser(
++        description=__doc__,
++        formatter_class=argparse.RawDescriptionHelpFormatter)
++
++    parser.add_argument(
++        "bucket",
++        type=str,
++        help="The name of s3 bucket",
++        default="chromium-sdk",
++    )
++
++    parser.add_argument(
++        "--s3_key",
++        type=str,
++        help="Path to s3 object (Prefix + filename)",
++    )
++
++    parser.add_argument(
++        "--prefix",
++        type=str,
++        help="Prefix or path where the file is located in the bucket",
++    )
++
++    parser.add_argument(
++        "--search-pattern",
++        type=str,
++        help="Search pattern for the filename",
++    )
++
++    parser.add_argument(
++        "--expiration",
++        type=int,
++        help="Expiration time in days",
++        default=1,
++    )
++
++    args = parser.parse_args()
++    main(args)
+diff --git a/.ci-scripts/s3_upload_files.py b/.ci-scripts/s3_upload_files.py
+new file mode 100644
+index 0000000000000..ccb0fb5ab4039
+--- /dev/null
++++ b/.ci-scripts/s3_upload_files.py
+@@ -0,0 +1,153 @@
++#!/usr/bin/env python3
++
++# This file is part of eyeo Chromium SDK,
++# Copyright (C) 2006-present eyeo GmbH
++# eyeo Chromium SDK is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License version 3 as
++# published by the Free Software Foundation.
++# eyeo Chromium SDK is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# You should have received a copy of the GNU General Public License
++# along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++"""
++Script to upload artifacts to S3
++
++"""
++
++import argparse
++import base64
++import boto3
++import os
++import argparse
++import glob
++import logging
++import s3_get_presigned_url
++
++job_name = os.environ.get('CI_JOB_NAME_SLUG')
++s3 = boto3.client('s3')
++
++
++def upload_files(file_paths, bucket_name, prefix=None, file_names=None):
++    # Make sure file_paths and file_names are lists before iterating
++    if not isinstance(file_paths, list):
++        file_paths = [file_paths]
++    if file_names and not isinstance(file_names, list):
++        file_names = [file_names]
++
++    # Expand file paths in case there is a wildcard in the path
++    expanded_file_paths = []
++    for file_path in file_paths:
++        if os.path.isdir(file_path):
++            folder_basename = os.path.basename(file_path)
++            folder_prefix = os.path.join(prefix, folder_basename)
++            for root, _, files in os.walk(file_path):
++                for file in files:
++                    expanded_file_paths.append(
++                        (os.path.join(root, file), folder_prefix))
++        else:
++            expanded_file_paths.extend([(path, prefix)
++                                        for path in glob.glob(file_path)])
++
++    for file_path, folder_prefix in expanded_file_paths:
++        if not os.path.exists(file_path):
++            logging.warning("File does not exist: %s", file_path)
++            continue
++
++        if os.path.isdir(file_path):
++            s3_key = os.path.join(
++                folder_prefix,
++                os.path.relpath(file_path, start=os.path.dirname(file_path)))
++        else:
++            s3_key = os.path.join(prefix, os.path.basename(file_path))
++        try:
++            if bucket_name == os.environ.get('AWS_S3_BUCKET_WEST_1'):
++                region_name = "eu-west-1"
++            else:
++                region_name = "eu-central-1"
++            s3.upload_file(file_path, bucket_name, s3_key)
++            # Generate a pre-signed URL only for specific file extensions
++            print(f"{file_path} was uploaded")
++            if file_path.endswith(
++                ('.zip', '.apk', '.deb', '.dmg', '.exe', '.tar')):
++                expiration_in_days = 1
++                aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID_S3')
++                aws_secret_access_key = os.environ.get(
++                    'AWS_SECRET_ACCESS_KEY_S3')
++                url = s3_get_presigned_url.get_presigned_artifact_url(
++                    bucket_name, s3_key, region_name, expiration_in_days,
++                    aws_access_key_id, aws_secret_access_key)
++                # Due to Gitlab limitations, URL needs to be encoded so it can be accessed
++                encoded_url = base64.b64encode(url.encode()).decode()
++                print(f"Base64-encoded URL for {file_path}: {encoded_url}")
++        except Exception as e:
++            print(f"Error uploading {file_path}: {e}")
++    print("Use a Base64 decoder to get the URL for the needed artifact.")
++    print("All files were successfully uploaded.")
++
++
++def set_lifecycle_policy(bucket_name, prefix, expiration_days):
++    lifecycle_policy = {
++        'Rules': [{
++            'ID': 'Expire artifacts after a certain number of days',
++            'Prefix': prefix,
++            'Status': 'Enabled',
++            'Expiration': {
++                'Days': expiration_days
++            }
++        }]
++    }
++
++    s3.put_bucket_lifecycle_configuration(
++        Bucket=bucket_name, LifecycleConfiguration=lifecycle_policy)
++
++    print(
++        f"Set lifecycle policy on {bucket_name}/{prefix} to expire after {expiration_days} days"
++    )
++
++
++def main(args):
++    if args.archive_artifacts:
++        ci_commit_tag = os.environ.get('CI_COMMIT_TAG')
++        if ci_commit_tag:
++            prefix = f"builds-archive/{ci_commit_tag}/{job_name}"
++        else:
++            prefix = f"builds-archive/{os.environ.get('CI_COMMIT_BRANCH')}/{job_name}"
++    else:
++        prefix = args.prefix
++
++    upload_files(args.file_paths, args.bucket_name, prefix)
++
++    # Set lifecycle policy only for temporary artifacts
++    if not args.archive_artifacts or not args.upload_badges:
++        set_lifecycle_policy(args.bucket_name, prefix, args.expiration_days)
++
++
++if __name__ == "__main__":
++    prefix = f"builds/{os.environ.get('CI_PIPELINE_ID')}/{os.environ.get('CI_JOB_ID')}/{job_name}"
++    parser = argparse.ArgumentParser(
++        description="Upload files to an S3 bucket")
++    parser.add_argument("bucket_name",
++                        help="Name of the S3 bucket",
++                        type=str,
++                        default=os.environ.get('AWS_S3_BUCKET_NAME'))
++    parser.add_argument("file_paths",
++                        nargs='+',
++                        help="List of file paths to upload")
++    parser.add_argument("--prefix",
++                        help="Prefix to add to the S3 key",
++                        default=prefix)
++    parser.add_argument("--expiration_days",
++                        type=int,
++                        help="Number of days to keep the files",
++                        default=1)
++    parser.add_argument("--archive_artifacts",
++                        action='store_true',
++                        help="Archive artifacts to S3")
++    parser.add_argument("--upload_badges",
++                        action='store_true',
++                        help="Upload badges to S3")
++
++    args = parser.parse_args()  # Parse the command-line arguments
++    main(args)
+diff --git a/.ci-scripts/setup_emulators.sh b/.ci-scripts/setup_emulators.sh
+new file mode 100755
+index 0000000000000..4edc71ec59f6b
+--- /dev/null
++++ b/.ci-scripts/setup_emulators.sh
+@@ -0,0 +1,119 @@
++#!/bin/bash
++
++# This file is part of eyeo Chromium SDK,
++# Copyright (C) 2006-present eyeo GmbH
++# eyeo Chromium SDK is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License version 3 as
++# published by the Free Software Foundation.
++# eyeo Chromium SDK is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# You should have received a copy of the GNU General Public License
++# along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++
++# Setup emulator for testing
++#!/bin/bash
++
++CONTAINER_NAME=$CONTAINER_NAME
++ANDROID_IMAGE=$ANDROID_IMAGE
++BOOT_STATUS=""
++
++create_emulator() {
++    sudo modprobe binder_linux devices="binder,hwbinder,vndbinder"
++    # Make sure same container doesn't exist and data directory is clean
++    clean_up_container
++    docker run -itd --rm --privileged --name $CONTAINER_NAME-$PORT --pull always -v ~/data-$PORT:/data -p $PORT:5555 $ANDROID_IMAGE
++}
++
++verify_device_is_ready() {
++    elapsed=0
++    timeout=60
++    echo "Waiting for device on PORT ${PORT} to be fully booted..."
++    while [[ $BOOT_STATUS != "1" ]] ; do
++        BOOT_STATUS=$(adb -s localhost:${PORT} shell getprop sys.boot_completed 2>/dev/null)
++        if [[ $elapsed -eq $timeout ]] ; then
++            echo "Timeout of $timeout seconds reched. Device is not fully booted!"
++            exit 1
++        fi
++        sleep 1
++        elapsed=$((elapsed + 1)); \
++    done
++    echo "Device is fully booted and ready to be used."
++}
++
++prepare_emulator() {
++    adb connect localhost:${PORT}
++    if ! adb devices | grep -q "localhost:${PORT}"; then
++        echo "ERROR: Device not connected!"
++        exit 1
++    fi
++    verify_device_is_ready
++}
++
++clean_up_container() {
++    if [ "$(docker ps -q -f name=$CONTAINER_NAME-${PORT})" ]; then
++        docker stop $CONTAINER_NAME-${PORT};
++    fi
++    sudo rm -rf ~/data-$PORT;
++}
++
++disconnect_emulator() {
++    adb -s localhost:${PORT} disconnect
++}
++
++# Sometimes "ghost" devices are left behind, so we need to reboot them in order to clean up
++disconnect_all_devices() {
++    devices=$(adb devices | grep -w "device" | awk '{print $1}')
++    for device in $devices; do
++        adb -s $device -e reboot
++    done
++    adb kill-server
++}
++
++clean_up_env() {
++    # Stop and remove all containers
++    containers=$(docker ps -a -q --filter "name=^/emulator-")
++    if [ -n "$containers" ]; then
++        docker stop $containers
++    fi
++    # Remove all android data directories
++    sudo rm -rf ~/data-*
++}
++
++# Parse command-line arguments
++if [[ $# -lt 1 ]]; then
++    echo "Usage: $0 <command> <PORT>"
++    echo "Commands: setup_emulator, teardown_emulator, clean_up_env"
++    exit 1
++fi
++
++COMMAND=$1
++PORT=$2
++
++case "$COMMAND" in
++    setup_emulator)
++        if [[ -z "$PORT" ]]; then
++            echo "PORT is required for setup_emulator"
++            exit 1
++        fi
++        echo $PORT
++        create_emulator
++        prepare_emulator
++        ;;
++    teardown_emulator)
++        if [[ -z "$PORT" ]]; then
++            echo "PORT is required for teardown_emulator"
++            exit 1
++        fi
++        clean_up_container
++        disconnect_emulator
++        ;;
++    clean_up_env)
++        clean_up_env
++        ;;
++    *)
++        echo "Select a valid option: setup_emulator, teardown_emulator or clean_up_env"
++        exit 1
++        ;;
++esac
+\ No newline at end of file
+diff --git a/.ci-scripts/update_badges.py b/.ci-scripts/update_badges.py
+new file mode 100644
+index 0000000000000..400128ea414b1
+--- /dev/null
++++ b/.ci-scripts/update_badges.py
+@@ -0,0 +1,190 @@
++#!/usr/bin/env python3
++
++# This file is part of eyeo Chromium SDK,
++# Copyright (C) 2006-present eyeo GmbH
++# eyeo Chromium SDK is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License version 3 as
++# published by the Free Software Foundation.
++# eyeo Chromium SDK is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# You should have received a copy of the GNU General Public License
++# along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++
++import argparse
++import os
++import gitlab
++import json
++import requests
++from urllib.parse import urlparse
++import pyvips
++import s3_upload_files
++
++badges_data= '''
++{
++   "badges":[
++      {
++         "platform":"linux",
++         "job_name":"build_and_test_desktop_release"
++      },
++      {
++         "platform":"android",
++         "job_name":"build_and_test_x64_debug"
++      },
++      {
++         "platform":"windows",
++         "job_name":"build_windows_release"
++      },
++      {
++         "platform":"macos",
++         "job_name":"mac_os_release_build_and_test"
++      }
++   ]
++}
++'''
++jobs_badge_info = json.loads(badges_data)
++
++def get_latest_pipeline_id(project, branch_name: str):
++    """ Gets latest pipeline information from a branch
++    """
++    pipelines = project.pipelines.list(ref=branch_name, order_by="updated_at", scope="finished", get_all=True)
++    if not pipelines:
++        return None
++    return pipelines[0].id
++
++def get_pipeline_status(project, pipeline_id):
++    pipeline = project.pipelines.get(pipeline_id)
++    return pipeline.status
++
++def generate_status_badge_image(name:str, status: str):
++    if status == "success":
++        color = "brightgreen"
++    elif status == "failed":
++        color = "red"
++    elif status == "canceled":
++        color = "white"
++    else:
++        color = "yellow"
++    return f"https://img.shields.io/badge/{name}-{status}-{color}"
++
++def update_pipeline_badge(project, badge_name:str, image_url:str):
++    badges = project.badges.list()
++    for item in badges:
++        if item.name.lower() == badge_name:
++            badge_id = item.id
++            badge = project.badges.get(badge_id)
++            badge.image_url = image_url
++            badge.save()
++    return None
++
++def get_latest_release(project):
++    release = project.releases.list()
++    if not release:
++        return None
++    tag = release[0].tag_name
++    major_version = tag.split('eyeo-release-')[1].split('.')[0]
++    return major_version
++
++def get_dev_version(project):
++    dev_version = project.default_branch.split('-')[1]
++    return dev_version
++
++def generate_badge_image(image_url, badge_name):
++    response = requests.get(image_url).content.decode("utf-8")
++    file_name = f'{badge_name}.png'
++    image = pyvips.Image.svgload_buffer(bytes(response,'UTF-8'))
++    image.write_to_file(f"{badge_name}.png")
++    return file_name
++
++
++def upload_files_to_s3(file_name):
++    bucket = os.environ.get('AWS_S3_BUCKET_CENTRAL_1')
++    prefix = "wiki-resources/badges/"
++    project_path = os.environ.get("CI_PROJECT_DIR")
++    file_path = f"{project_path}/{file_name}"
++    s3_upload_files.upload_files([file_path], bucket, prefix)
++
++def main(args):
++
++    gl = gitlab.Gitlab(
++        args.gitlabhost,
++        private_token=args.gitlab_private_token,
++    )
++    project = gl.projects.get(args.project_id)
++
++    if args.update_release:
++        release_version=get_latest_release(project)
++        if release_version:
++            badge_name="latest_release"
++            image_url=f"https://img.shields.io/badge/{badge_name}-{release_version}-blue"
++            update_pipeline_badge(project, badge_name, image_url)
++            image_file_name = generate_badge_image(image_url, badge_name)
++            upload_files_to_s3(image_file_name)
++
++    if args.update_dev_version:
++        dev_version = get_dev_version(project)
++        badge_name="dev"
++        image_url= f"https://img.shields.io/badge/{badge_name}-{dev_version}-blue"
++        update_pipeline_badge(project, badge_name, image_url)
++        image_file_name = generate_badge_image(image_url, badge_name)
++        upload_files_to_s3(image_file_name)
++
++    if args.branch_name:
++        pipeline_id = get_latest_pipeline_id(project, args.branch_name)
++        if pipeline_id:
++            pipeline = project.pipelines.get(pipeline_id)
++            for pipeline_job in pipeline.jobs.list():
++                for job in jobs_badge_info['badges']:
++                    if pipeline_job.name == job['job_name']:
++                        image_url = generate_status_badge_image(job['platform'], pipeline_job.status)
++                        update_pipeline_badge(project, job['platform'], image_url)
++                        image_file_name = generate_badge_image(image_url, job['platform'])
++                        upload_files_to_s3(image_file_name)
++
++if __name__ == "__main__":
++    parser = argparse.ArgumentParser(
++        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
++    )
++
++    parser.add_argument(
++        "--update-release",
++        action='store_true',
++        help="(int) Update release badge",
++    )
++
++    parser.add_argument(
++        "--update-dev-version",
++        action='store_true',
++        help="(int) Update dev branch badge",
++    )
++
++    parser.add_argument(
++        "--branch-name",
++        type=str,
++        help="(int) The branch name for getting pipeline information",
++    )
++
++    parser.add_argument(
++        "--project-id",
++        type=int,
++        help="(int) The project ID to download from",
++        default=os.environ.get("CI_PROJECT_ID"),
++    )
++
++    parser.add_argument(
++        "--gitlabhost",
++        type=str,
++        help="The hostname of your gitlab server, including https://",
++        default=os.environ.get("CI_SERVER_URL"),
++    )
++
++    parser.add_argument(
++        "--gitlab-private-token",
++        type=str,
++        default=os.environ.get("CHROMIUM_GITLAB_COM_TOKEN"),
++        help="Private token for authentication",
++    )
++
++    args = parser.parse_args()
++    main(args)
+diff --git a/.ci-scripts/update_flaky_tests.py b/.ci-scripts/update_flaky_tests.py
+new file mode 100644
+index 0000000000000..2741642d67e61
+--- /dev/null
++++ b/.ci-scripts/update_flaky_tests.py
+@@ -0,0 +1,143 @@
++#!/usr/bin/env python3
++
++# This file is part of eyeo Chromium SDK,
++# Copyright (C) 2006-present eyeo GmbH
++# eyeo Chromium SDK is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License version 3 as
++# published by the Free Software Foundation.
++# eyeo Chromium SDK is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# You should have received a copy of the GNU General Public License
++# along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++"""
++Downloads the list of flaky or failing upstream tests from the vanilla branch
++relevant for the current checkout, allows updating the list by adding new flakes
++and then uploads the updated list to S3.
++"""
++
++import argparse
++import os
++import tempfile
++import boto3
++from urllib.parse import urlparse
++
++import chromium_version
++import s3_download_files
++import s3_upload_files
++
++known_flake_lists = [
++    "unit_tests_failed.txt",
++    "components_unittests_failed.txt",
++    "browser_tests_failed.txt",
++]
++
++
++def bucket_name():
++    return os.environ.get('AWS_S3_BUCKET_CENTRAL_1')
++
++
++def get_prefix():
++    version = chromium_version.get_chromium_version()
++    return f"builds-archive/chromium-{version}-vanilla-automated/vanilla_build_and_test_desktop_release"
++
++
++def main(args):
++    s3 = boto3.client('s3')
++    flake_list = args.flake_list
++
++    with tempfile.TemporaryDirectory() as temp_dir:
++        remote_flake_list_path = f"{get_prefix()}/{flake_list}"
++        local_flake_list_path = os.path.join(temp_dir, flake_list)
++        # Download the flake list from S3
++        s3_download_files.download_with_retry(bucket_name(),
++                                              remote_flake_list_path,
++                                              local_flake_list_path)
++
++        # Read flakes from the list
++        with open(local_flake_list_path, "r") as f:
++            flaky_tests = f.read().splitlines()
++
++        initial_flake_count = len(flaky_tests)
++
++        # If there are no flakes to add or remove, just print the current list
++        if not args.add and not args.remove:
++            print(f"Current flaky tests list ({initial_flake_count}):")
++            for t in flaky_tests:
++                print(t)
++            return
++
++        # Add or remove flakes
++        for t in args.add:
++            if t not in flaky_tests:
++                flaky_tests.append(t)
++                print(f"Will add {t} to the flaky tests list")
++            else:
++                print(f"{t} is already in the flaky tests list")
++
++        for t in args.remove:
++            if t in flaky_tests:
++                flaky_tests.remove(t)
++                print(f"Will remove {t} from the flaky tests list")
++            else:
++                print(f"{t} is not in the flaky tests list")
++
++        flaky_tests = list(set(flaky_tests))
++        flaky_tests.sort()
++
++        inp = input(
++            f"Updated flaky tests list will have {len(flaky_tests)} entries, "
++            + f"before it had {initial_flake_count}. Continue? y/N ")
++        if inp.lower() != "y":
++            print("Aborted")
++            return
++
++        # Before uploading the modified list, make a backup of the original list
++        remote_flake_list_backup_path = f"{get_prefix()}/{flake_list}.bak"
++        s3_upload_files.upload_files(local_flake_list_path, bucket_name(),
++                                     get_prefix(), f"{flake_list}.bak")
++        print(f"Backup of the original flaky tests list uploaded to " +
++              f"{remote_flake_list_backup_path}")
++
++        # Write the updated list
++        with open(local_flake_list_path, "w") as f:
++            f.write("\n".join(flaky_tests))
++
++        # Upload the updated list to S3
++        s3_upload_files.upload_files(local_flake_list_path, bucket_name(),
++                                     get_prefix(), f"{flake_list}.bak")
++
++        print(f"Updated flaky tests list uploaded to {remote_flake_list_path}")
++
++
++if __name__ == "__main__":
++    parser = argparse.ArgumentParser(
++        description=__doc__,
++        formatter_class=argparse.RawDescriptionHelpFormatter)
++
++    parser.add_argument(
++        "flake_list",
++        type=str,
++        help="The name of the flake list to update",
++        choices=known_flake_lists,
++    )
++
++    parser.add_argument(
++        "--add",
++        type=str,
++        nargs="+",
++        help="Add tests to the flaky tests list",
++        default=[],
++    )
++
++    parser.add_argument(
++        "--remove",
++        type=str,
++        nargs="+",
++        help="Remove tests from the flaky tests list",
++        default=[],
++    )
++
++    args = parser.parse_args()
++    main(args)
+diff --git a/.gitlab-ci.yml b/.gitlab-ci.yml
+new file mode 100644
+index 0000000000000..2b54d73386170
+--- /dev/null
++++ b/.gitlab-ci.yml
+@@ -0,0 +1,1187 @@
++# This file is part of eyeo Chromium SDK,
++# Copyright (C) 2006-present eyeo GmbH
++# eyeo Chromium SDK is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License version 3 as
++# published by the Free Software Foundation.
++# eyeo Chromium SDK is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# You should have received a copy of the GNU General Public License
++# along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++variables:
++  PIPELINE_TYPE:
++    value: ""
++    description: "Default to run same pipeline we run for -dev branches. Full to run all jobs but performance tests. Custom when you want to set flags below."
++    options:
++      - ""
++      - "default"
++      - "full"
++      - "custom"
++  BUILD_ONLY:
++    value: "false"
++    options:
++      - "true"
++      - "false"
++    description: "Set it to true to only build and skip tests."
++  RUN_DESKTOP_RELEASE_TEST_JOB:
++    value: "false"
++    options:
++      - "true"
++      - "false"
++    description: "Set it to true to build desktop release and run unit,component and browser tests."
++  RUN_DESKTOP_DEBUG_JOB:
++    value: "false"
++    options:
++      - "true"
++      - "false"
++    description: "Set it to true to build desktop debug."
++  RUN_MOBILE_PERF_TESTS:
++    value: "false"
++    options:
++      - "true"
++      - "false"
++    description: "Set it to true to run mobile performance tests. This will run build_arm64_apk_release job and trigger performance tests (memory and PLT)"
++  RUN_ANDROID_X64_RELEASE_JOB:
++    value: "false"
++    options:
++      - "true"
++      - "false"
++    description: "Set it to true to build android x64 release and run unit, component and android tests."
++  RUN_ANDROID_X86_DEBUG_JOB:
++    value: "false"
++    options:
++      - "true"
++      - "false"
++    description: "Set it to true to build android x86 debug, browser apk and webview."
++  RUN_ANDROID_ARM64_APK_RELEASE_BUILD:
++    value: "false"
++    options:
++      - "true"
++      - "false"
++    description: "Set it to true to build android arm release browser apk."
++  RUN_ANDROID_ARM64_APK_DEBUG_BUILD:
++    value: "false"
++    options:
++      - "true"
++      - "false"
++    description: "Set it to true to build android arm debug browser apk."
++  RUN_ANDROID_ARM64_WEBVIEW_RELEASE_BUILD:
++    value: "false"
++    options:
++      - "true"
++      - "false"
++    description: "Set it to true to build android arm release webview."
++  RUN_SELENIUM_TESTS:
++    value: "false"
++    options:
++      - "true"
++      - "false"
++    description: "Set it to true to run linux installer and complete selenium test suite."
++  RUN_WINDOWS_RELEASE_JOB:
++    value: "false"
++    options:
++      - "true"
++      - "false"
++    description: "Set it to true to build windows release"
++  RUN_WINDOWS_DEBUG_JOB:
++    value: "false"
++    options:
++      - "true"
++      - "false"
++    description: "Set it to true to build windows debug"
++  RUN_VERIFY_FLATBUFFER_ADBLOCKING:
++     value: "skip"
++     options:
++       - "skip"
++       - "10k"
++       - "full"
++     description: "Scope for filtering rules verification"
++  RUN_MAC_OS_RELEASE_BUILD:
++    value: "false"
++    options:
++      - "true"
++      - "false"
++    description: "Set it to true to build mac(m1) release and run unit,component and browser tests."
++  RUN_LINUX_INSTALLER_RELEASE_BUILD:
++    value: "false"
++    options:
++      - "true"
++      - "false"
++    description: "Set it to true to build linux installer release."
++  RUN_CONTENT_SHELL_RELEASE_BUILD:
++    value: "false"
++    options:
++      - "true"
++      - "false"
++    description: "Set it to true to build content shell release."
++  RUN_UPDATE_BADGES:
++    value: "false"
++    options:
++      - "true"
++      - "false"
++    description: "Scheduled job to update badges for default branch"
++  RUN_FOR_WEBVIEW_MODULE:
++    value: "false"
++    options:
++      - "true"
++      - "false"
++    description: "When set with RUN_ANDROID_X64_RELEASE_JOB it builds and runs java tests for WebView"
++  RUN_FOR_CONTENT_SHELL_MODULE:
++    value: "false"
++    options:
++      - "true"
++      - "false"
++    description: "When set with RUN_ANDROID_X64_RELEASE_JOB it builds and runs java tests for Content Shell"
++  GN_EXTRA_ARGS:
++    description: "Extra arguments passed directly to gn gen command"
++  DEV_SNIPPETS_VERSION:
++    description: "When set then build will use snippets dev version pointed here (can be branch, tag or commit) instead of the version from DEPS"
++  USE_PRODUCTION_TELEMETRY_SERVER:
++    value: "false"
++    options:
++      - "true"
++      - "false"
++    description: "When set to true all builds will be using a production eyeo telemetry server url instead of a staging one"
++workflow:
++  rules:
++    # Avoid duplicate pipelines when pushing to a branch that has an open MR
++    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS && $CI_PIPELINE_SOURCE == "push"
++      when: never
++    - if: $CI_MERGE_REQUEST_IID
++    - if: $PIPELINE_TYPE == "full"
++      variables:
++          RUN_ALL_TESTS: "true"
++          RUN_SELENIUM_TESTS: "true"
++    # Release branch pipelines include all jobs but performance tests, since those run only for tags.
++    - if: $CI_COMMIT_BRANCH =~ /^eyeo-[0-9]+-beta$/ || $CI_COMMIT_BRANCH =~ /^eyeo-[0-9]+-rc$/
++      variables:
++          PIPELINE_TYPE: "full"
++          RUN_VERIFY_FLATBUFFER_ADBLOCKING: "10k"
++    - if: '$CI_COMMIT_BRANCH =~ /-vanilla-automated$/'
++    - if: $CI_COMMIT_TAG =~ /^eyeo-(beta|release|rc)-.*-v[0-9]+$/
++      variables:
++          ARCHIVE_ARTIFACTS: "true"
++    - if: $CI_COMMIT_TAG
++    - if: '$CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web"'
++    - if: '$PIPELINE_TYPE == "custom" || $PIPELINE_TYPE == "default"'
++
++stages:
++  - mr-check
++  - build_and_run_unit_tests
++  - build_installers
++  - end_to_end_tests
++  - performance_tests
++  - update_badges
++  - slack_message
++
++### Rules ###
++# Due to the number of jobs and different pipelines configuration the project have,
++# we've created two sets of different rules used to modify the default behavior of each job.
++.rules_for_vanilla:
++  rules:
++    generic:
++      - if: '$CI_COMMIT_BRANCH =~ /-vanilla-automated$/'
++        variables:
++            ARCHIVE_ARTIFACTS: "true"
++    performance_tests:
++      - if: '$TRIGGER_PERF_TEST == "true" && $CI_COMMIT_BRANCH =~ /-vanilla-automated$/'
++    flake_detection:
++      - if: '$PIPELINE_TYPE == "flake-detection" && $CI_COMMIT_BRANCH =~ /-vanilla-automated$/'
++
++# Rules for running full pipeline for eyeo-chromium-sdk branches
++.rules_for_eyeo_chromium_jobs:
++  rules:
++    always_run_job_for_full_pipeline:
++      - if: '$PIPELINE_TYPE == "full"'
++        when: always
++    only_on_success_for_full_pipeline:
++      - if: '$PIPELINE_TYPE == "full"'
++    on_success_for_full_scheduled_pipeline:
++      - if: $PIPELINE_TYPE == "full" && $CI_PIPELINE_SOURCE == "schedule"
++    manual_for_on_success_for_full_scheduled_pipeline:
++      - if: $PIPELINE_TYPE == "full" && $CI_PIPELINE_SOURCE == "schedule"
++        when: manual
++        allow_failure: true
++    run_for_mrs:
++      - if: $CI_MERGE_REQUEST_IID
++        variables:
++            CHROMIUM_BRANCH: ${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}
++    manual_job_for_mrs:
++      - if: $CI_MERGE_REQUEST_IID
++        variables:
++            CHROMIUM_BRANCH: ${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}
++        when: manual
++        allow_failure: true
++    run_for_tags:
++     # Use commit tag as CHROMIUM_BRANCH if tests are running from a tag.
++      - if: '$CI_COMMIT_TAG'
++        variables:
++            CHROMIUM_BRANCH: ${$CI_COMMIT_TAG}
++    manual_job_for_tags:
++     # Use commit tag as CHROMIUM_BRANCH if tests are running from a tag.
++      - if: $CI_COMMIT_TAG
++        variables:
++            CHROMIUM_BRANCH: ${$CI_COMMIT_TAG}
++        when: manual
++        allow_failure: true
++
++.rules_for_custom_pipelines:
++  rules:
++    default_run:
++      - if: $PIPELINE_TYPE == "default"
++    default_run_manual:
++      - if: $PIPELINE_TYPE == "default"
++        when: manual
++        allow_failure: true
++    run_mobile_perf_tests:
++      - if: '$RUN_MOBILE_PERF_TESTS == "true"'
++    run_windows_release_build:
++      - if: '$RUN_WINDOWS_RELEASE_JOB == "true"'
++    run_windows_debug_build:
++      - if: '$RUN_WINDOWS_DEBUG_JOB == "true"'
++    run_desktop_release_test_job:
++      - if: '$RUN_DESKTOP_RELEASE_TEST_JOB == "true"'
++    run_desktop_debug_job:
++      - if: '$RUN_DESKTOP_DEBUG_JOB == "true"'
++    run_android_x64_release_job:
++      - if: '$RUN_ANDROID_X64_RELEASE_JOB == "true"'
++    run_android_x86_debug_job:
++      - if: '$RUN_ANDROID_X86_DEBUG_JOB == "true"'
++    run_android_arm64_apk_release_build:
++      - if: '$RUN_ANDROID_ARM64_APK_RELEASE_BUILD == "true"'
++    run_android_arm64_apk_debug_build:
++      - if: '$RUN_ANDROID_ARM64_APK_DEBUG_BUILD == "true"'
++    run_android_arm64_webview_release_build:
++      - if: '$RUN_ANDROID_ARM64_WEBVIEW_RELEASE_BUILD == "true"'
++    run_selenium_tests:
++      - if: '$RUN_SELENIUM_TESTS == "true"'
++    run_content_shell_release_build:
++      - if: '$RUN_CONTENT_SHELL_RELEASE_BUILD == "true"'
++    run_linux_installer_release_build:
++      - if: '$RUN_LINUX_INSTALLER_RELEASE_BUILD == "true"'
++    run_mac_os_release_build:
++      - if: '$RUN_MAC_OS_RELEASE_BUILD == "true"'
++    always_run_job_for_weekly_full_pipeline:
++      - if: $PIPELINE_TYPE == "full" && $WEEKLY_PIPELINE == "true"
++        when: always
++    not_run_job_for_weekly_full_pipeline:
++      - if: $WEEKLY_PIPELINE == "true"
++        when: never
++
++#### Chromium job template configuration ####
++.configure_linux_gclient: &configure_linux_gclient
++  - rm -f ../.gclient* ../.gcs_entries
++  - rm -rf ../.cipd
++  - cp gclient/.gclient_ci_linux ../.gclient
++
++.configure_android_gclient: &configure_android_gclient
++  - rm -f ../.gclient* ../.gcs_entries
++  - rm -rf ../.cipd
++  - cp gclient/.gclient_ci_android ../.gclient
++
++.configure_windows_gclient: &configure_windows_gclient
++  - rm -f ../.gclient* ../.gcs_entries
++  - rm -rf ../.cipd
++  - cp gclient/.gclient_ci_windows ../.gclient
++
++.configure_mac_gclient: &configure_mac_gclient
++  - rm -f ../.gclient* ../.gcs_entries
++  - rm -rf ../.cipd
++  - cp gclient/.gclient_ci_mac ../.gclient
++
++# Workaround to avoid issues when fetching code
++# TODO: Remove it whenever gitlab issues are fixed (DPD-2025)
++.set_git_to_use_ssh: &set_git_to_use_ssh
++  - sudo apt-get update && sudo apt-get -qy install openssh-client
++  - eval $(ssh-agent -s)
++  - test -d ~/.ssh/ || mkdir --mode=0700 ~/.ssh/
++  - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
++  - echo "${chromium_bot_ssh_key}" | ssh-add -
++  - git remote remove origin || true
++  - git remote add origin git@$CI_SERVER_HOST:$CI_PROJECT_PATH.git
++
++# Updated snippets repo from dev
++.maybe_update_snippets: &maybe_update_snippets
++  - |
++    if [[ -n "${DEV_SNIPPETS_VERSION}" ]]; then
++      time .ci-scripts/checkout_snippets.sh ${DEV_SNIPPETS_VERSION}
++    fi
++
++.add_gn_args: &add_gn_args
++  - |
++    # Append common gn gen args to GN_EXTRA_ARGS
++    GN_EXTRA_ARGS="${GN_EXTRA_ARGS} proprietary_codecs=true ffmpeg_branding=\"Chrome\" enable_nacl=false eyeo_intercept_debug_url=true use_remoteexec=true"
++    if [[ "$USE_PRODUCTION_TELEMETRY_SERVER" == true ]]; then
++      GN_EXTRA_ARGS="${GN_EXTRA_ARGS} eyeo_telemetry_activeping_auth_token=\"${TELEMETRY_DEFAULT_SERVER_ACTIVEPING_AUTH_TOKEN}\""
++    else
++      GN_EXTRA_ARGS="${GN_EXTRA_ARGS} eyeo_telemetry_server_url=\"https://eyeochromium.test-telemetry.data.eyeo.it/\" eyeo_telemetry_activeping_auth_token=\"${TELEMETRY_TESTSERVER_ACTIVEPING_AUTH_TOKEN}\""
++    fi
++
++# DPD-3303: Removes `":lint",` or `":lint"` from deps lists in given gni file
++.disable_eslint_in_webui_tests: &disable_eslint_in_webui_tests
++ - sed -i '' -E -e 's/(deps.*=.*\[.*)(":lint",?)(.*)/\1\3/g' chrome/test/data/webui/build_webui_tests.gni || true
++ - git diff chrome/test/data/webui/build_webui_tests.gni || true
++
++.common_build_chromium_before: &common_build_chromium_before
++  - source .ci-scripts/install_packages.sh
++  # Setup depot tools path
++  - export PATH=$PATH:$LINUX_WORK_DIR/depot_tools
++  # attempt to update ignoring error, there is issue after goma removal, see DPD-2654
++  - $LINUX_WORK_DIR/depot_tools/update_depot_tools || true
++  # Pull the dependencies in root directory and return to the src folder.
++  - cd ..; time gclient sync --force --reset --delete_unversioned_trees | grep -v '=='; cd src
++  # Used to setup ssh (the private key is in a gitlab variable)
++  - *set_git_to_use_ssh
++  - *maybe_update_snippets
++  - export PATH=`pwd`/third_party/llvm-build/Release+Asserts/bin:$PATH
++  # Populate some info shown in chrome://version
++  - LAST_CHANGE="${CI_COMMIT_SHORT_SHA}-${CI_JOB_NAME}-${CI_JOB_ID}"
++  - echo LASTCHANGE="${LAST_CHANGE}" > build/util/LASTCHANGE
++  - *add_gn_args
++  - *disable_eslint_in_webui_tests
++
++.upload_artifacts_to_s3:
++  script: |
++    function archive_artifacts() {
++        if [[ ${ARCHIVE_ARTIFACTS} == "true" ]]; then
++            python3 .ci-scripts/s3_upload_files.py $AWS_S3_BUCKET_NAME $ARTIFACTS --archive_artifacts
++        else
++            python3 .ci-scripts/s3_upload_files.py $AWS_S3_BUCKET_NAME $ARTIFACTS --expiration_days $ARTIFACTS_EXPIRATION
++        fi
++    }
++
++.maybe_skip_tests: &maybe_skip_tests
++  - !reference [.upload_artifacts_to_s3, script]
++  - |
++    if [ "$BUILD_ONLY" == "true" ]; then
++      archive_artifacts
++      echo "BUILD_ONLY is set to true. Skipping tests."
++      exit 0
++    fi
++
++.unmount_windows_toolchain: &unmount_win_toolchain
++  - export WIN_MOUNTPOINT=${GIT_CLONE_PATH}/third_party/depot_tools/win_toolchain/vs_files/
++  - |
++    if mountpoint -q ${WIN_MOUNTPOINT}; then
++      umount ${WIN_MOUNTPOINT};
++    fi
++
++.mac_build_common:
++  tags:
++    - macos
++  dependencies: []
++  interruptible: true
++  variables:
++    GIT_CLONE_PATH: $CI_BUILDS_DIR/chromium-sdk/src
++    GIT_CACHE_PATH: $MAC_WORK_DIR/.gclient_git_cache
++    NUMJOBS: 150
++    RBE_service_no_auth: "true"
++    RBE_use_application_default_credentials: "true"
++  before_script:
++    - *configure_mac_gclient
++    - cd ..; time gclient sync --force --reset --delete_unversioned_trees | grep -v '=='; cd src
++    - *maybe_update_snippets
++    # Populate some info shown in chrome://version
++    - LAST_CHANGE="${CI_COMMIT_SHORT_SHA}-${CI_JOB_NAME}-${CI_JOB_ID}"
++    - echo LASTCHANGE="${LAST_CHANGE}" > build/util/LASTCHANGE
++    - *add_gn_args
++    - *disable_eslint_in_webui_tests
++    - export PATH="/opt/homebrew/bin:${PATH}"
++  rules:
++    - !reference [.rules_for_eyeo_chromium_jobs, rules, always_run_job_for_full_pipeline]
++    - !reference [.rules_for_custom_pipelines, rules, run_mac_os_release_build]
++    - !reference [.rules_for_eyeo_chromium_jobs, rules, manual_job_for_mrs]
++    - !reference [.rules_for_eyeo_chromium_jobs, rules, run_for_tags]
++
++.common_build_chromium:
++  tags:
++    - "aws-builder"
++  dependencies: []
++  interruptible: true
++  variables:
++    GIT_STRATEGY: clone
++    GIT_CLONE_PATH: $CI_BUILDS_DIR/chromium-sdk/src
++    GIT_CACHE_PATH: "$LINUX_WORK_DIR/gclient_git_cache"
++    DEPOT_TOOLS_WIN_TOOLCHAIN: 1
++    NUMJOBS: 150
++    RBE_service_no_auth: "true"
++    RBE_use_application_default_credentials: "true"
++  hooks:
++    pre_get_sources_script:
++      - *unmount_win_toolchain
++  before_script:
++    - *configure_android_gclient
++    - *common_build_chromium_before
++
++.windows_build_common:
++  extends: .common_build_chromium
++  stage: build_installers
++  needs: []
++  variables:
++    GYP_MSVS_HASH_68a20d6dee: "688fcb6cbc"
++    NUMJOBS: 150
++    RBE_service_no_auth: "true"
++    RBE_use_application_default_credentials: "true"
++  before_script:
++    # Download currently required toolchain
++    - python3 ${GIT_CLONE_PATH}/.ci-scripts/s3_download_files.py $AWS_S3_BUCKET_CENTRAL_1 chromium-sdk-win-toolchains --object_name 688fcb6cbc.zip
++    # Chromium Windows Vars
++    - export DEPOT_TOOLS_WIN_TOOLCHAIN_BASE_URL=`pwd`
++    - *configure_windows_gclient
++    - *common_build_chromium_before
++    # Hardcode value missing by lack of git history
++    - echo 1647554189 > build/util/LASTCHANGE.committime
++  after_script:
++    - *unmount_win_toolchain
++
++.fail_if_pipeline_not_triggered: &fail_if_pipeline_not_triggered
++  - if [ $(cat response.json | jq -r ".status") != "created" ]; then
++      echo "Error. Pipeline was not triggered";
++      cat response.json
++      exit 1;
++    fi
++
++#### Jobs definition ####
++
++build_and_test_x64_release:
++  extends: .common_build_chromium
++  stage: build_and_run_unit_tests
++  needs: []
++  interruptible: false
++  variables:
++    ARTIFACTS: >-
++      out/Release/TEST_RESULTS*
++      out/Release/apks/AdblockShell.apk
++      out/Release/apks/ChromePublic.apk
++      out/Release/apks/SystemWebView.apk
++      out/Release/apks/SystemWebViewShell.apk
++    ARTIFACTS_EXPIRATION: 1
++    PORT: 5555
++    CONTAINER_NAME: "emulator"
++    DEVICES: "localhost:${PORT}"
++  before_script:
++    - *configure_android_gclient
++    - *common_build_chromium_before
++    # Adds Android SDK tools and related helpers to PATH
++    - source build/android/envsetup.sh
++  script:
++    - if [[ ${WEEKLY_PIPELINE} == "true" ]]; then
++          DISABLE_FIELDTRIAL_TESTING_CONFIG=" disable_fieldtrial_testing_config=false ";
++          CLANG_CFI_CONFIG=" is_cfi=true use_cfi_icall=true use_cfi_cast=true use_cfi_diag=true use_thin_lto=true ";
++      else
++          DISABLE_FIELDTRIAL_TESTING_CONFIG=" disable_fieldtrial_testing_config=true ";
++          CLANG_CFI_CONFIG=" is_cfi=false ";
++      fi
++    - time gn gen --check --args='target_cpu="x64" dcheck_always_on=false target_os="android" is_debug=false symbol_level=1'"${DISABLE_FIELDTRIAL_TESTING_CONFIG} ${GN_EXTRA_ARGS} ${CLANG_CFI_CONFIG}" out/Release
++    - BUILD_TARGETS="chrome_public_apk unit_tests components_unittests chrome_public_test_apk components_perftests system_webview_apk system_webview_shell_apk content_shell_apk adblock_shell_apk verify_flatbuffer_adblocking"
++    - if [[ ${PIPELINE_TYPE} == "full" && ${CI_PIPELINE_SOURCE} == "schedule" ]] || [[ ${RUN_FOR_WEBVIEW_MODULE} == "true" ]]; then
++        BUILD_TARGETS+=" webview_instrumentation_test_apk monochrome_public_bundle ";
++      fi
++    - if [[ ${PIPELINE_TYPE} == "full" && ${CI_PIPELINE_SOURCE} == "schedule" ]] || [[ ${RUN_FOR_CONTENT_SHELL_MODULE} == "true" ]]; then
++        BUILD_TARGETS+=" content_shell_test_apk ";
++      fi
++    - time autoninja -j${NUMJOBS} -C out/Release ${BUILD_TARGETS}
++    - *maybe_skip_tests
++    - .ci-scripts/setup_emulators.sh setup_emulator $PORT
++    - time ./out/Release/bin/run_unit_tests -d $DEVICES -v -f "*Abp*:*Adblock*" --gtest_output="xml:/data/user/0/org.chromium.native_test/unit_tests_report.xml" --app-data-file-dir out/Release/
++    - .ci-scripts/setup_emulators.sh teardown_emulator $PORT
++    - export PORT=5556
++    - export DEVICES="localhost:${PORT}"
++    - .ci-scripts/setup_emulators.sh setup_emulator $PORT
++    - time ./out/Release/bin/run_components_unittests -d $DEVICES -v -f "*Abp*:*Adblock*" --gtest_output="xml:/data/user/0/org.chromium.native_test/components_unittests_report.xml" --app-data-file-dir out/Release/
++    - .ci-scripts/setup_emulators.sh teardown_emulator $PORT
++    - export PORT=5557
++    - export DEVICES="localhost:${PORT}"
++    - .ci-scripts/setup_emulators.sh setup_emulator $PORT
++    - time ./out/Release/bin/run_chrome_public_test_apk -d $DEVICES --emulator-enable-network -v -A Feature=adblock --screenshot-directory /data/user/0/org.chromium.native_test/screenshots-chrome-apk
++    - .ci-scripts/setup_emulators.sh teardown_emulator $PORT
++    - if [[ ${PIPELINE_TYPE} == "full" && ${CI_PIPELINE_SOURCE} == "schedule" ]] || [[ ${RUN_FOR_WEBVIEW_MODULE} == "true" ]]; then
++        export PORT=5558;
++        export DEVICES="localhost:${PORT}";
++        .ci-scripts/setup_emulators.sh setup_emulator $PORT;
++        time ./out/Release/bin/run_webview_instrumentation_test_apk -d $DEVICES --emulator-enable-network -v -A Feature=adblock --screenshot-directory /data/user/0/org.chromium.native_test/screenshots-webview;
++        .ci-scripts/setup_emulators.sh teardown_emulator $PORT;
++      fi
++    - if [[ ${PIPELINE_TYPE} == "full" && ${CI_PIPELINE_SOURCE} == "schedule" ]] || [[ ${RUN_FOR_CONTENT_SHELL_MODULE} == "true" ]]; then
++        export PORT=5559;
++        export DEVICES="localhost:${PORT}";
++        .ci-scripts/setup_emulators.sh setup_emulator $PORT;
++        time ./out/Release/bin/run_content_shell_test_apk -d $DEVICES --emulator-enable-network -v -A Feature=adblock --screenshot-directory /data/user/0/org.chromium.native_test/screenshots-content_shell;
++        .ci-scripts/setup_emulators.sh teardown_emulator $PORT;
++      fi
++    - archive_artifacts
++  after_script:
++    # Adds Android SDK tools and related helpers to PATH
++    - source build/android/envsetup.sh
++    - .ci-scripts/setup_emulators.sh clean_up_env
++  rules:
++    - !reference [.rules_for_eyeo_chromium_jobs, rules, always_run_job_for_full_pipeline]
++    - !reference [.rules_for_eyeo_chromium_jobs, rules, run_for_mrs]
++    - !reference [.rules_for_custom_pipelines, rules, default_run]
++    - !reference [.rules_for_custom_pipelines, rules, run_android_x64_release_job]
++  artifacts:
++    reports:
++      junit:
++        - "out/Release/emulator-*/unit_tests_report.xml"
++        - "out/Release/emulator-*/components_unittests_report.xml"
++        - "out/Release/emulator-*/screenshots-chrome-apk/*"
++        - "out/Release/emulator-*/screenshots-content-shell-apk/*"
++        - "out/Release/emulator-*/screenshots-webview/*"
++    when: always
++
++build_and_test_desktop_release:
++  extends: .common_build_chromium
++  variables:
++    ARTIFACTS: >-
++      out/Release/unit_tests_report.xml
++      out/Release/components_unittests_report.xml
++      out/Release/browser_tests_report.xml
++      components_perftests_*.txt
++      out/Release/*.deb
++      out/Release/content_shell.tar
++      out/Release/eyeometry_test_server.7z
++      out/Release/eyeo_benchmarks.7z
++    ARTIFACTS_EXPIRATION: 1
++  stage: build_and_run_unit_tests
++  needs: []
++  before_script:
++    - *configure_linux_gclient
++    - *common_build_chromium_before
++  script:
++    - JOB_EXIT_CODE=0
++    - if [[ ${WEEKLY_PIPELINE} == "true" ]]; then
++          ASAN_CONFIG=" is_asan=true is_lsan=true ";
++          ASAN_FLAG="--asan";
++      fi
++    - time gn gen --check --args='is_cfi=false is_debug=false is_component_build=false eyeo_application_name="app_name_from_ci_config" eyeo_application_version="app_version_from_ci_config" disable_fieldtrial_testing_config=true eyeo_extend_chrome_devtools_protocol=true '"${ASAN_CONFIG} ${GN_EXTRA_ARGS} ${GN_SCHEDULE_DEFAULT_PIPELINE_ARGS}" out/Release
++    - BUILD_TARGETS="chrome unit_tests components_unittests browser_tests chrome_sandbox content_shell components_browsertests content_browsertests verify_flatbuffer_adblocking archive_eyeometry_test_server archive_eyeo_benchmarks eyeo_element_hiding_benchmark eyeo_classification_benchmark"
++    - if [[ ! ${WEEKLY_PIPELINE} == "true" ]]; then
++        BUILD_TARGETS+=" chrome/installer/linux:unstable ";
++      fi
++    - time autoninja -j${NUMJOBS} -C out/Release ${BUILD_TARGETS}
++    - *maybe_skip_tests
++    - export BUILDTYPE=Release
++    - export CHROME_DEVEL_SANDBOX=/usr/local/sbin/chrome-devel-sandbox
++    - time build/update-linux-sandbox.sh
++    # Verify adblocking logic against reference results on a very small set
++    # of URLs as a sanity check. See verify_flatbuffer_adblocking stage for
++    # full test.
++    # The benchmarks take around 5-15 seconds to run, we run them to verify
++    # they are not broken, without collecting or comparing results
++    - |
++      time ./out/Release/verify_flatbuffer_adblocking;
++      time ./out/Release/eyeo_element_hiding_benchmark;
++      time ./out/Release/eyeo_classification_benchmark;
++    # Run all tests when PIPELINE_TYPE is set to full otherwise only our tests.
++    - |
++      # Make sure port 5037 is unbound for EyeoDevToolsPrivateApiTest which mocks adb server running on port 5037
++      fuser -k 5037/tcp || true
++      if [[ $RUN_ALL_TESTS == "true" ]]; then
++        python3 ${GIT_CLONE_PATH}/.ci-scripts/run_chromium_tests.py --skip_known_upstream_failures ${ASAN_FLAG} out/Release unit_tests -- --test-launcher-jobs=12
++        python3 ${GIT_CLONE_PATH}/.ci-scripts/run_chromium_tests.py --skip_known_upstream_failures ${ASAN_FLAG} out/Release components_unittests -- --test-launcher-jobs=12
++        python3 ${GIT_CLONE_PATH}/.ci-scripts/run_chromium_tests.py --skip_known_upstream_failures ${ASAN_FLAG} out/Release browser_tests -- --test-launcher-jobs=12 | grep -v -e "error [0-9]\+.*Bad";
++      else
++        # This is a MR pipeline so just run our custom tests.
++        python3 ${GIT_CLONE_PATH}/.ci-scripts/run_chromium_tests.py out/Release unit_tests -- --gtest_filter="*Adblock*:*Eyeo*" --test-launcher-jobs=12
++        python3 ${GIT_CLONE_PATH}/.ci-scripts/run_chromium_tests.py out/Release components_unittests --  --gtest_filter="*Adblock*:*Eyeo*" --test-launcher-jobs=12
++        python3 ${GIT_CLONE_PATH}/.ci-scripts/run_chromium_tests.py out/Release browser_tests --  --gtest_filter="*Adblock*:*Eyeo*" --test-launcher-jobs=12 | grep -v -e "error [0-9]\+.*Bad";
++      fi
++      # For now run just our component and content BTs for every pipeline type
++      python3 ${GIT_CLONE_PATH}/.ci-scripts/run_chromium_tests.py out/Release components_browsertests -- --test-launcher-jobs=12 --gtest_filter="*Adblock*:*Eyeo*";
++      python3 ${GIT_CLONE_PATH}/.ci-scripts/run_chromium_tests.py out/Release content_browsertests -- --test-launcher-jobs=12 --gtest_filter="*Adblock*:*Eyeo*";
++    # Prepare content_shell package for archive
++    - tar -cvf out/Release/content_shell.tar out/Release/content_shell out/Release/content_shell.pak out/Release/libGLESv2.so out/Release/libEGL.so out/Release/icudtl.dat out/Release/v8_context_snapshot.bin
++    - archive_artifacts
++    - |
++      if [ ! -z "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" ]; then
++        time .ci-scripts/run_perf_tests.sh || EXIT_CODE=$?
++        if [[ $EXIT_CODE -ne 0 ]]; then
++          JOB_EXIT_CODE=$((222 + $JOB_EXIT_CODE))
++        fi
++      fi
++    - exit $JOB_EXIT_CODE
++  allow_failure:
++    exit_codes:
++      - 222 # Exit code to highlight components_perftests results
++  rules:
++    - !reference [.rules_for_eyeo_chromium_jobs, rules, always_run_job_for_full_pipeline]
++    - !reference [.rules_for_eyeo_chromium_jobs, rules, run_for_mrs]
++    - !reference [.rules_for_eyeo_chromium_jobs, rules, run_for_tags]
++    - !reference [.rules_for_custom_pipelines, rules, default_run]
++    - !reference [.rules_for_custom_pipelines, rules, run_desktop_release_test_job]
++    - !reference [.rules_for_custom_pipelines, rules, run_selenium_tests]
++
++build_desktop_debug:
++  extends: .common_build_chromium
++  stage: build_installers
++  needs: []
++  before_script:
++    - *configure_linux_gclient
++    - *common_build_chromium_before
++  script:
++    - time gn gen --check --args='is_cfi=false is_debug=true is_component_build=true eyeo_application_name="app_name_from_ci_config" eyeo_application_version="app_version_from_ci_config" disable_fieldtrial_testing_config=true eyeo_extend_chrome_devtools_protocol=true '"${GN_EXTRA_ARGS} ${GN_SCHEDULE_DEFAULT_PIPELINE_ARGS}" out/Debug
++    - time autoninja -j${NUMJOBS} -C out/Debug chrome
++  rules:
++    - !reference [.rules_for_eyeo_chromium_jobs, rules, manual_job_for_mrs]
++    - !reference [.rules_for_eyeo_chromium_jobs, rules, always_run_job_for_full_pipeline]
++    - !reference [.rules_for_eyeo_chromium_jobs, rules, run_for_tags]
++    - !reference [.rules_for_custom_pipelines, rules, default_run_manual]
++    - !reference [.rules_for_custom_pipelines, rules, run_desktop_debug_job]
++
++build_and_test_desktop_release_sanitized:
++  extends: .common_build_chromium
++  variables:
++    ARTIFACTS: >-
++      out/Release/unit_tests_report.xml
++      out/Release/components_unittests_report.xml
++      out/Release/browser_tests_report.xml
++      out/Release/*.deb
++      out/Release/eyeometry_test_server.7z
++      out/Release/eyeo_benchmarks.7z
++    ARTIFACTS_EXPIRATION: 1
++  stage: build_and_run_unit_tests
++  needs: []
++  before_script:
++    - *configure_linux_gclient
++    - *common_build_chromium_before
++  script:
++    - time gn gen --check --args='eyeo_intercept_debug_url=false is_debug=false is_component_build=false is_cfi=true use_cfi_icall=true use_cfi_cast=true use_cfi_diag=true use_thin_lto=true eyeo_application_name="app_name_from_ci_config" eyeo_application_version="app_version_from_ci_config" disable_fieldtrial_testing_config=false'" ${GN_EXTRA_ARGS} ${GN_SCHEDULE_DEFAULT_PIPELINE_ARGS}" out/Release
++    - BUILD_TARGETS="chrome unit_tests components_unittests browser_tests chrome_sandbox verify_flatbuffer_adblocking archive_eyeometry_test_server archive_eyeo_benchmarks"
++    - time autoninja -j${NUMJOBS} -C out/Release ${BUILD_TARGETS}
++    - *maybe_skip_tests
++    - export BUILDTYPE=Release
++    - export CHROME_DEVEL_SANDBOX=/usr/local/sbin/chrome-devel-sandbox
++    - time build/update-linux-sandbox.sh
++    # Verify adblocking logic against reference results on a very small set
++    # of URLs as a sanity check. See verify_flatbuffer_adblocking stage for
++    - time ./out/Release/verify_flatbuffer_adblocking
++    - python3 ${GIT_CLONE_PATH}/.ci-scripts/run_chromium_tests.py out/Release unit_tests -- --gtest_filter="*Adblock*:*Eyeo*" --test-launcher-jobs=12
++    - python3 ${GIT_CLONE_PATH}/.ci-scripts/run_chromium_tests.py out/Release components_unittests --  --gtest_filter="*Adblock*:*Eyeo*" --test-launcher-jobs=12
++    - python3 ${GIT_CLONE_PATH}/.ci-scripts/run_chromium_tests.py out/Release browser_tests --  --gtest_filter="*Adblock*:*Eyeo*" --test-launcher-jobs=12 | grep -v -e "error [0-9]\+.*Bad";
++    - archive_artifacts
++  rules:
++    - !reference [.rules_for_custom_pipelines, rules, always_run_job_for_weekly_full_pipeline]
++    - !reference [.rules_for_eyeo_chromium_jobs, rules,  manual_job_for_mrs]
++
++verify_flatbuffer_adblocking:
++  extends: .common_build_chromium
++  stage: build_and_run_unit_tests
++  before_script:
++    - *configure_linux_gclient
++    - *common_build_chromium_before
++  script:
++    - '[[ $RUN_VERIFY_FLATBUFFER_ADBLOCKING == "10k" ]] && VERIFY_SOURCE="random_shuf_100000.tsv.sql" || VERIFY_SOURCE="7M_requests.tsv.sql"'
++    - python3 ${GIT_CLONE_PATH}/.ci-scripts/s3_download_files.py $AWS_S3_BUCKET_CENTRAL_1 chromium-sdk-test-assets --object_name $VERIFY_SOURCE
++    # Build the verify_flatbuffer_adblocking target and run it with the downloaded input database
++    - time gn gen --check --args='disable_fieldtrial_testing_config=true is_debug=false symbol_level=1 clang_use_default_sample_profile=false is_cfi=false' out/Release_desktop
++    - autoninja -j${NUMJOBS} -C out/Release_desktop/ verify_flatbuffer_adblocking
++    - time ./out/Release_desktop/verify_flatbuffer_adblocking --input=$VERIFY_SOURCE 2>&1 | tee verification_result.txt
++  rules:
++    - if: '$RUN_VERIFY_FLATBUFFER_ADBLOCKING == "10k" || $RUN_VERIFY_FLATBUFFER_ADBLOCKING == "full"'
++      when: always
++  artifacts:
++    expire_in: 1 week
++    paths:
++      - "verification_result.txt"
++    reports:
++      metrics: verification_result.txt
++
++selenium_desktop_tests:
++  stage: end_to_end_tests
++  needs: ["build_and_test_desktop_release"]
++  dependencies: []
++  tags:
++    - aws-docker
++  image: "registry.gitlab.com/eyeo/docker/pipeline-trigger:2.7.1"
++  variables:
++    CHROMIUM_BRANCH: ${CI_COMMIT_BRANCH}
++    GIT_STRATEGY: "none"
++    TESTING_BRANCH: "main"
++    TESTING_PROJECT_ID: "34109517" #https://gitlab.com/eyeo/distpartners/eyeo-chromium-desktop-test-automation
++  before_script:
++    - apk update
++    # Install jq to parse the API response later
++    - apk add jq
++    # Update wget to prevent issues with TLS handshake (DPD-830)
++    - apk add wget
++    - pip3 install boto3
++  script:
++    # Download script to get pre-signed URL for artifacts used in the test
++    - wget $CI_PROJECT_URL/raw/$CI_COMMIT_SHA/.ci-scripts/s3_get_presigned_url.py
++    # Get URL for the linux installer
++    - "export BUILD_JOB_ID=$(wget  --header \"PRIVATE-TOKEN: ${CHROMIUM_GITLAB_COM_TOKEN}\" -O - ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/pipelines/${CI_PIPELINE_ID}/jobs | jq -c '.[] | select(.name == (\"build_and_test_desktop_release\")) | .id' | sort | tail -1)"
++    - export PREFIX="builds/${CI_PIPELINE_ID}/${BUILD_JOB_ID}/build-and-test-desktop-release/"
++    - "export CHROMIUM_FILE_URL=$(python3 s3_get_presigned_url.py $AWS_S3_BUCKET_CENTRAL_1 --prefix $PREFIX --search-pattern '*.deb')"
++    # Stop if we didn't get the URL
++    - if [[ -z "$CHROMIUM_FILE_URL" ]]; then
++        echo "Failed to get pre-signed URL for .deb file";
++        exit 1;
++      fi
++    - echo "Pre-signed URL with 1 day expiration is ${CHROMIUM_FILE_URL}"
++    # Start the pipeline and wait for it to finish
++    - trigger --api-token ${GITLAB_COM_TOKEN}
++        --pipeline-token ${DOWNSTREAM_DESKTOP_TESTING_TOKEN}
++        --target-ref $TESTING_BRANCH
++        --env CHROMIUM_FILE=${CHROMIUM_FILE_URL}
++        --env CHROMIUM_GIT_SHA=${CI_COMMIT_SHORT_SHA}
++        --env RUN_FULL_SUITE=${RUN_SELENIUM_TESTS}
++        --env CHROMIUM_BRANCH=${CHROMIUM_BRANCH}
++        ${TESTING_PROJECT_ID} | tee pipeline
++    # Use the API to download and extract the junit test results
++    - "export PIPELINE_ID=$(grep 'Pipeline created (id:' pipeline  | sed 's/[^0-9]*//g')"
++    - "export JOB_ID=$(wget --header \"PRIVATE-TOKEN: ${GITLAB_COM_TOKEN}\" -O - https://gitlab.com/api/v4/projects/${TESTING_PROJECT_ID}/pipelines/${PIPELINE_ID}/jobs | jq .[0].id)"
++    - "wget --header \"PRIVATE-TOKEN: ${GITLAB_COM_TOKEN}\" https://gitlab.com/api/v4/projects/${TESTING_PROJECT_ID}/jobs/${JOB_ID}/artifacts"
++    - "unzip artifacts"
++  rules:
++    - !reference [.rules_for_eyeo_chromium_jobs, rules, only_on_success_for_full_pipeline]
++    - !reference [.rules_for_eyeo_chromium_jobs, rules, run_for_mrs]
++    - !reference [.rules_for_custom_pipelines, rules, default_run]
++    - !reference [.rules_for_custom_pipelines, rules, run_selenium_tests]
++    - !reference [.rules_for_custom_pipelines, rules, not_run_job_for_weekly_full_pipeline]
++
++  artifacts:
++    expire_in: 6 months
++    reports:
++      junit: "$CI_PROJECT_DIR/target/cucumber-reports/*.xml"
++
++build_linux_installer_release:
++  extends: .common_build_chromium
++  variables:
++    ARTIFACTS: "out/Release/*.deb"
++    ARTIFACTS_EXPIRATION: 1
++  stage: build_installers
++  needs: []
++  before_script:
++    - *configure_linux_gclient
++    - *common_build_chromium_before
++  script:
++    - time gn gen --check --args='is_cfi=false is_debug=false is_component_build=false eyeo_application_name="app_name_from_ci_config" eyeo_application_version="app_version_from_ci_config" disable_fieldtrial_testing_config=true'"${GN_EXTRA_ARGS} ${GN_SCHEDULE_DEFAULT_PIPELINE_ARGS}" out/Release
++    - time autoninja -j${NUMJOBS} -C out/Release "chrome/installer/linux:unstable"
++    - !reference [.upload_artifacts_to_s3, script]
++    - if [[ ! $CI_PIPELINE_SOURCE == "pipeline" ]]; then
++        archive_artifacts;
++      fi
++  rules:
++    - !reference [.rules_for_custom_pipelines, rules, run_linux_installer_release_build]
++
++build_content_shell_arm64_release:
++  extends: .common_build_chromium
++  variables:
++    ARTIFACTS: "out/Release/apks/ChromePublic.apk"
++    ARTIFACTS_EXPIRATION: 1
++  stage: build_installers
++  needs: []
++  script:
++    - time gn gen --check --args='disable_fieldtrial_testing_config=true target_os="android" target_cpu="arm64" is_official_build=true is_debug=false symbol_level=1 chrome_pgo_phase=0 '"${GN_EXTRA_ARGS}" out/Release
++    - time autoninja -j${NUMJOBS} -C out/Release content_shell_apk
++    - !reference [.upload_artifacts_to_s3, script]
++    - if [[ ! $CI_PIPELINE_SOURCE == "pipeline" ]]; then
++        archive_artifacts;
++      fi
++  rules:
++    - !reference [.rules_for_custom_pipelines, rules, run_content_shell_release_build]
++
++
++build_x86_debug:
++  extends: .common_build_chromium
++  variables:
++    ARTIFACTS: >-
++      out/Release/apks/ChromePublic.apk
++      out/Release/apks/ContentShell.apk
++      out/Release/apks/AdblockShell.apk
++      out/Release/apks/SystemWebView.apk
++      out/Release/apks/SystemWebViewShell.apk
++    ARTIFACTS_EXPIRATION: 1
++  stage: build_installers
++  script:
++    - time gn gen --check --args='target_cpu="x86" disable_fieldtrial_testing_config=true target_os="android" is_official_build=false is_debug=true '"${GN_EXTRA_ARGS}" out/Release
++    - time autoninja -j${NUMJOBS} -C out/Release chrome_public_apk system_webview_apk system_webview_shell_apk adblock_shell_apk content_shell_apk
++    - !reference [.upload_artifacts_to_s3, script]
++    - archive_artifacts
++  rules:
++    - !reference [.rules_for_custom_pipelines, rules, run_android_x86_debug_job]
++
++build_arm64_apk_release:
++  extends: .common_build_chromium
++  variables:
++    ARTIFACTS: "out/Release/apks/ChromePublic.apk"
++    ARTIFACTS_EXPIRATION: 1
++  stage: build_installers
++  needs: []
++  script:
++    - time gn gen --check --args='disable_fieldtrial_testing_config=true target_os="android" target_cpu="arm64" is_official_build=true is_debug=false symbol_level=1 chrome_pgo_phase=0 '"${GN_EXTRA_ARGS}" out/Release
++    - time autoninja -j${NUMJOBS} -C out/Release chrome_public_apk
++    - !reference [.upload_artifacts_to_s3, script]
++    - if [[ ! $CI_PIPELINE_SOURCE == "pipeline" ]]; then
++        archive_artifacts;
++      fi
++  rules:
++    - !reference [.rules_for_eyeo_chromium_jobs, rules, only_on_success_for_full_pipeline]
++    - !reference [.rules_for_eyeo_chromium_jobs, rules,  manual_job_for_mrs]
++    - !reference [.rules_for_eyeo_chromium_jobs, rules, run_for_tags]
++    - !reference [.rules_for_vanilla, rules, generic]
++    - !reference [.rules_for_custom_pipelines, rules, run_mobile_perf_tests]
++    - !reference [.rules_for_custom_pipelines, rules, default_run]
++    - !reference [.rules_for_custom_pipelines, rules, run_android_arm64_apk_release_build]
++
++build_arm64_apk_debug:
++  extends: .common_build_chromium
++  variables:
++    ARTIFACTS: "out/Debug/apks/ChromePublic.apk"
++    ARTIFACTS_EXPIRATION: 1
++  stage: build_installers
++  needs: []
++  script:
++    - time gn gen --check --args='disable_fieldtrial_testing_config=true target_os="android" target_cpu="arm64" is_debug=true '"${GN_EXTRA_ARGS}" out/Debug
++    - time autoninja -j${NUMJOBS} -C out/Debug chrome_public_apk
++    - !reference [.upload_artifacts_to_s3, script]
++    - archive_artifacts
++  rules:
++    - !reference [.rules_for_eyeo_chromium_jobs, rules, manual_job_for_mrs]
++    - !reference [.rules_for_eyeo_chromium_jobs, rules, only_on_success_for_full_pipeline]
++    - !reference [.rules_for_custom_pipelines, rules, default_run_manual]
++    - !reference [.rules_for_custom_pipelines, rules, run_android_arm64_apk_debug_build]
++
++build_arm64_webview_release:
++  extends: .common_build_chromium
++  variables:
++    ARTIFACTS: >-
++      out/Release/apks/AdblockShell.apk
++      out/Release/apks/SystemWebView.apk
++      out/Release/apks/SystemWebViewShell.apk
++    ARTIFACTS_EXPIRATION: 1
++  stage: build_installers
++  needs: []
++  script:
++    - time gn gen --check --args='disable_fieldtrial_testing_config=true target_cpu="arm64" target_os="android" is_official_build=true is_debug=false symbol_level=1 chrome_pgo_phase=0 '"${GN_EXTRA_ARGS}" out/Release
++    - time autoninja -j${NUMJOBS} -C out/Release system_webview_apk system_webview_shell_apk
++    # For unknown reasons, we can't build adblock_shell_apk and system_webview_shell_apk in the same ninja invocation.
++    # This causes a permission error in build/toolchain/gcc_solink_wrapper.py. See DPD-2473.
++    - !reference [.upload_artifacts_to_s3, script]
++    - time autoninja -j${NUMJOBS} -C out/Release adblock_shell_apk
++    - archive_artifacts
++  rules:
++    - !reference [.rules_for_eyeo_chromium_jobs, rules, only_on_success_for_full_pipeline]
++    - !reference [.rules_for_eyeo_chromium_jobs, rules, run_for_tags]
++    - !reference [.rules_for_eyeo_chromium_jobs, rules, manual_job_for_mrs]
++    - !reference [.rules_for_custom_pipelines, rules, run_android_arm64_webview_release_build]
++
++# Release builds use is_component_build=false by default
++# Debug builds use is_component_build=true by default
++# We build both for windows in nightly to ensure there are no linkage errors in either
++build_windows_release:
++  variables:
++    ARTIFACTS: >-
++      out/Win/mini_installer.exe
++      out/Win/eyeometry_test_server.7z
++      out/Win/eyeo_benchmarks.7z
++      out/Win/content_shell.zip
++    ARTIFACTS_EXPIRATION: 1
++  extends: .windows_build_common
++  script:
++    - time gn gen --check --args='is_debug=false is_component_build=false disable_fieldtrial_testing_config=true clang_use_default_sample_profile=false is_cfi=false symbol_level=0 blink_symbol_level=0 dcheck_always_on=false target_os="win" '"${GN_EXTRA_ARGS}" out/Win
++    - BUILD_TARGETS="chrome mini_installer unit_tests components_unittests components_perftests components_browsertests browser_tests adblock_flatbuffer_converter content_shell verify_flatbuffer_adblocking archive_eyeometry_test_server archive_eyeo_benchmarks"
++    - time autoninja -j${NUMJOBS} -C out/Win ${BUILD_TARGETS}
++    - CONTENT_SHELL_FILES='
++      out/Win/content_shell.exe
++      out/Win/crashpad_handler.exe
++      out/Win/content_shell.pak
++      out/Win/shell_resources.pak
++      out/Win/ui_resources_100_percent.pak
++      out/Win/ui_test.pak
++      out/Win/VkICD_mock_icd.dll
++      out/Win/VkLayer_khronos_validation.dll
++      out/Win/d3dcompiler_47.dll
++      out/Win/dbgcore.dll
++      out/Win/dbghelp.dll
++      out/Win/dxcompiler.dll
++      out/Win/dxil.dll
++      out/Win/libEGL.dll
++      out/Win/libGLESv2.dll
++      out/Win/msdia140.dll
++      out/Win/msvcp140.dll
++      out/Win/test_trace_processor.dll
++      out/Win/vccorlib140.dll
++      out/Win/vcruntime140.dll
++      out/Win/vcruntime140_1.dll
++      out/Win/vk_swiftshader.dll
++      out/Win/vulkan-1.dll
++      out/Win/snapshot_blob.bin
++      out/Win/icudtl.dat'
++    - zip out/Win/content_shell.zip $CONTENT_SHELL_FILES
++    - !reference [.upload_artifacts_to_s3, script]
++    - archive_artifacts
++  rules:
++    - !reference [.rules_for_eyeo_chromium_jobs, rules, manual_job_for_mrs]
++    - !reference [.rules_for_eyeo_chromium_jobs, rules, always_run_job_for_full_pipeline]
++    - !reference [.rules_for_eyeo_chromium_jobs, rules, run_for_tags]
++    - !reference [.rules_for_custom_pipelines, rules, default_run_manual]
++    - !reference [.rules_for_custom_pipelines, rules, run_windows_release_build]
++
++build_windows_debug:
++  extends: .windows_build_common
++  script:
++    - time gn gen --check --args='is_debug=true is_component_build=true disable_fieldtrial_testing_config=true clang_use_default_sample_profile=false is_cfi=false symbol_level=0 blink_symbol_level=0 dcheck_always_on=false target_os="win" '"${GN_EXTRA_ARGS}" out/Win
++    - BUILD_TARGETS="chrome unit_tests components_unittests components_perftests components_browsertests browser_tests adblock_flatbuffer_converter content_shell verify_flatbuffer_adblocking archive_eyeometry_test_server archive_eyeo_benchmarks"
++    - time autoninja -j${NUMJOBS} -C out/Win ${BUILD_TARGETS}
++  rules:
++    - !reference [.rules_for_eyeo_chromium_jobs, rules, manual_job_for_mrs]
++    - !reference [.rules_for_eyeo_chromium_jobs, rules, always_run_job_for_full_pipeline]
++    - !reference [.rules_for_eyeo_chromium_jobs, rules, run_for_tags]
++    - !reference [.rules_for_custom_pipelines, rules, default_run_manual]
++    - !reference [.rules_for_custom_pipelines, rules, run_windows_debug_build]
++
++performance_telemetry_tests:
++  stage: performance_tests
++  needs: ["build_arm64_apk_release"]
++  dependencies: []
++  tags:
++    - aws-docker
++  image: "registry.gitlab.com/eyeo/docker/pipeline-trigger:2.7.1"
++  variables:
++    GIT_STRATEGY: "none"
++    TESTING_BRANCH: "feature/telemetry"
++    TESTING_PROJECT_ID: "19526376" # https://gitlab.com/eyeo/distpartners/perf_test_automation
++    RUN_ALL_PLT_TEST_CASES: "false"
++    CHROMIUM_BRANCH: ${CI_COMMIT_BRANCH}
++  before_script:
++    - apk update
++    - apk add jq wget py3-pip
++    - pip3 install boto3
++  script:
++    # Download script to get pre-signed URL for artifacts used in the test
++    - wget $CI_PROJECT_URL/raw/$CI_COMMIT_SHA/.ci-scripts/s3_get_presigned_url.py
++    # Get URL for the ARM APK
++    - "export BUILD_JOB_ID=$(wget  --header \"PRIVATE-TOKEN: ${CHROMIUM_GITLAB_COM_TOKEN}\" -O - ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/pipelines/${CI_PIPELINE_ID}/jobs | jq -c '.[] | select(.name == (\"build_arm64_apk_release\")) | .id' | sort | tail -1)"
++    - |
++      if [ -n "$CI_COMMIT_TAG" ] && echo "$CI_COMMIT_TAG" | grep -qE '^eyeo-(beta|release|rc).*-v[0-9]+$'; then
++        S3_KEY="builds-archive/${CI_COMMIT_TAG}/build-arm64-apk-release/ChromePublic.apk"
++      else
++        S3_KEY="builds/${CI_PIPELINE_ID}/${BUILD_JOB_ID}/build-arm64-apk-release/ChromePublic.apk"
++      fi
++      export S3_KEY
++    - "export APK_ARM=$(python3 s3_get_presigned_url.py $AWS_S3_BUCKET_CENTRAL_1 --s3_key $S3_KEY)"
++    # Stop if we didn't get the URL
++    - if ! echo "$APK_ARM" | grep -qE '^https?://'; then
++        echo "Failed to get pre-signed URL for ARM APK";
++        exit 1;
++      fi
++    - echo "Pre-signed URL with 1 day expiration is ${APK_ARM}"
++    # Start the pipeline
++    - echo "Triggering pipeline for ref ${TESTING_BRANCH} and project ID ${TESTING_PROJECT_ID}"
++    # Make sure correct branch_for_report is passed for beta tags
++    - if echo "$CI_COMMIT_TAG" | grep -q '^eyeo-beta'; then
++        CHROMIUM_MAJOR_VERSION=$(echo "$CI_COMMIT_TAG" | grep -o '[0-9]\+' | head -1);
++        CHROMIUM_BRANCH="eyeo-${CHROMIUM_MAJOR_VERSION}-beta";
++      fi
++    # Start the pipeline and wait for it to finish
++    - trigger --api-token ${GITLAB_COM_TOKEN}
++        --pipeline-token ${DOWNSTREAM_PERF_TESTING_TOKEN}
++        --target-ref $TESTING_BRANCH
++        --env APK_URL=${APK_ARM}
++        --env RUN_ALL_PLT_TEST_CASES=${RUN_ALL_PLT_TEST_CASES}
++        --env BRANCH_FOR_REPORT=${CHROMIUM_BRANCH}
++        ${TESTING_PROJECT_ID} | tee pipeline
++  # Due to a bug in gitlab, it's necessary to explicitly set allow_failure as true to avoid having the pipeline set as blocked
++  rules:
++    # Always run full test suite on beta tags or for custom pipelines
++    - if: '$CI_COMMIT_TAG =~ /^eyeo-beta/'
++      variables:
++          RUN_ALL_PLT_TEST_CASES: "true"
++    - !reference [.rules_for_eyeo_chromium_jobs, rules, on_success_for_full_scheduled_pipeline]
++    - !reference [.rules_for_eyeo_chromium_jobs, rules, run_for_tags]
++    - !reference [.rules_for_eyeo_chromium_jobs, rules, manual_job_for_mrs]
++    - !reference [.rules_for_custom_pipelines, rules, run_mobile_perf_tests]
++
++### Chromium Vanilla Jobs ###
++
++# For each test suite, obtain the list of failing tests. These will be excluded when running against eyeo Chromium SDK,
++# because we aren't the reason they fail.
++# In order for the whole job to run to completion even with failing tests, the exit code for each test command must be ignored.
++vanilla_build_and_test_desktop_release:
++  extends: .common_build_chromium
++  stage: build_and_run_unit_tests
++  variables:
++    ARTIFACTS: >-
++      out/Release/unit_tests_failed.txt
++      out/Release/unit_tests.log
++      out/Release/components_unittests_failed.txt
++      out/Release/components_unittests.log
++      out/Release/browser_tests_failed.txt
++      out/Release/browser_tests.log
++  before_script:
++    - *configure_linux_gclient
++    - *common_build_chromium_before
++  script:
++    - if [[ ${WEEKLY_PIPELINE} == "true" ]]; then
++          ASAN_CONFIG=" is_asan=true is_lsan=true ";
++          ASAN_FLAG="--asan";
++      fi
++    - time gn gen --check --args='disable_fieldtrial_testing_config=true is_debug=false '"${ASAN_CONFIG} ${GN_EXTRA_ARGS}" out/Release
++    - time autoninja -j${NUMJOBS} -C out/Release unit_tests components_unittests components_perftests browser_tests chrome_sandbox
++    - export BUILDTYPE=Release
++    - export CHROME_DEVEL_SANDBOX=/usr/local/sbin/chrome-devel-sandbox
++    - time build/update-linux-sandbox.sh
++    # Run tests suites 2 times to detect flaky tests.
++    - |+
++      for i in $(seq 1 2)
++      do
++        python3 ${GIT_CLONE_PATH}/.ci-scripts/run_chromium_tests.py ${ASAN_FLAG} --update_flake_list out/Release unit_tests -- --test-launcher-retry-limit=0
++      done
++    - |+
++      for i in $(seq 1 2)
++      do
++        python3 ${GIT_CLONE_PATH}/.ci-scripts/run_chromium_tests.py ${ASAN_FLAG} --update_flake_list out/Release components_unittests -- --test-launcher-retry-limit=0
++      done
++    # Browser tests are too slow to run twice, so we only run them once. Subsequent nightly jobs will append to the flake list.
++    - python3 ${GIT_CLONE_PATH}/.ci-scripts/run_chromium_tests.py --update_flake_list out/Release browser_tests -- --test-launcher-retry-limit=0 --test-launcher-jobs=24 | grep -v -e "error [0-9]\+.*Bad"
++    - !reference [.upload_artifacts_to_s3, script]
++    - archive_artifacts
++  rules:
++    - !reference [.rules_for_vanilla, rules, generic]
++    - !reference [.rules_for_vanilla, rules, flake_detection]
++  allow_failure:
++    exit_codes: 200
++  artifacts:
++    expire_in: 3 months
++    reports:
++      junit:
++        - "out/Release/unit_tests_report.xml"
++        - "out/Release/components_unittests_report.xml"
++        - "out/Release/browser_tests_report.xml"
++    when: always
++
++vanilla_performance_tests:
++  stage: performance_tests
++  needs: ["build_arm64_apk_release"]
++  dependencies: []
++  tags:
++    - aws-docker
++  image: "registry.gitlab.com/eyeo/docker/pipeline-trigger:2.7.1"
++  variables:
++    GIT_STRATEGY: "none"
++    TESTING_BRANCH: "feature/telemetry"
++    TESTING_PROJECT_ID: "19526376" # https://gitlab.com/eyeo/distpartners/perf_test_automation
++    # For vanilla, always trigger all plt page sets tests
++    RUN_ALL_PLT_TEST_CASES: "true"
++    # For vanilla, always run with disable_adblock configuration
++    ADBLOCKING_CONFIG: "disable_adblock"
++    MEMORY_TEST_CASES: "eyeo.memory_full_filter_list_pageset_small_disable_adblock"
++    APPLICATION_NAME: "Vanilla"
++  before_script:
++    - apk update
++    - apk add jq wget py3-pip android-tools
++    - pip3 install boto3
++  script:
++    # Download script to get pre-signed URL for artifacts used in the test
++    - wget $CI_PROJECT_URL/raw/$CI_COMMIT_SHA/.ci-scripts/s3_get_presigned_url.py
++    # Get URL for the ARM APK
++    - export S3_KEY="builds-archive/${CI_COMMIT_BRANCH}/build-arm64-apk-release/ChromePublic.apk"
++    - "export APK_ARM=$(python3 s3_get_presigned_url.py $AWS_S3_BUCKET_CENTRAL_1 --s3_key $S3_KEY)"
++    # Stop if we didn't get the URL
++    - if ! echo "$APK_ARM" | grep -qE '^https?://'; then
++        echo "Failed to get pre-signed URL for ARM APK";
++        exit 1;
++      fi
++    - echo "Pre-signed URL with 1 day expiration is ${APK_ARM}"
++    # Start the pipeline
++    - echo "Triggering pipeline for ref ${TESTING_BRANCH} and project ID ${TESTING_PROJECT_ID}"
++    # Make sure correct branch_for_report is passed for beta tags
++    # Start the pipeline and wait for it to finish
++    - trigger --api-token ${GITLAB_COM_TOKEN}
++        --pipeline-token ${DOWNSTREAM_PERF_TESTING_TOKEN}
++        --target-ref $TESTING_BRANCH
++        --env APK_URL=${APK_ARM}
++        --env USER_APPLICATION_NAME=${APPLICATION_NAME}
++        --env ADBLOCKING_CONFIG=${ADBLOCKING_CONFIG}
++        --env RUN_ALL_PLT_TEST_CASES=${RUN_ALL_PLT_TEST_CASES}
++        --env MEMORY_TEST_CASES=${MEMORY_TEST_CASES}
++        ${TESTING_PROJECT_ID} | tee pipeline
++  rules:
++    - !reference [.rules_for_vanilla, rules, performance_tests]
++
++mac_os_release_build_and_test:
++  extends: .mac_build_common
++  stage: build_and_run_unit_tests
++  tags:
++    - macos
++  needs: []
++  variables:
++    ARTIFACTS_EXPIRATION: 1
++    ARTIFACTS: >-
++      out/Release/signed/*.dmg
++  script:
++    - time gn gen --check --args='disable_fieldtrial_testing_config=true is_debug=false is_component_build=false eyeo_application_name="app_name_from_ci_config" eyeo_application_version="app_version_from_ci_config" '"${GN_EXTRA_ARGS} ${GN_SCHEDULE_DEFAULT_PIPELINE_ARGS}" out/Release
++    - time autoninja -j${NUMJOBS} -C out/Release chrome unit_tests components_unittests browser_tests chrome/installer/mac content_shell
++    - time ./out/Release/Chromium\ Packaging/sign_chrome.py --input out/Release --output out/Release/signed --identity "Apple Development" --development
++    - |
++      if [ "$BUILD_ONLY" == "true" ]; then
++        python3 .ci-scripts/s3_upload_files.py $AWS_S3_BUCKET_WEST_1 $ARTIFACTS --expiration_days $ARTIFACTS_EXPIRATION;
++        echo "BUILD_ONLY is set to true. Skipping tests.";
++        exit 0
++      fi
++    - time ./out/Release/bin/run_components_unittests --test-launcher-retry-limit=0 --gtest_output="xml:out/Release/components_unittests_report.xml" --gtest_filter="*Adblock*:*Eyeo*";
++    - time ./out/Release/bin/run_unit_tests --gtest_output="xml:out/Release/unit_tests_report.xml" --gtest_filter="*Adblock*:*Eyeo*";
++    - time ./out/Release/bin/run_browser_tests --gtest_output="xml:out/Release/browser_tests_report.xml" --test-launcher-jobs=12 --gtest_filter="*Adblock*:*Eyeo*" | grep -v -e "error [0-9]\+.*Bad";
++    - |
++      if [[ ${ARCHIVE_ARTIFACTS} == "true" ]]; then
++        python3 .ci-scripts/s3_upload_files.py $AWS_S3_BUCKET_WEST_1 $ARTIFACTS --archive_artifacts;
++      else
++        python3 .ci-scripts/s3_upload_files.py $AWS_S3_BUCKET_WEST_1 $ARTIFACTS --expiration_days $ARTIFACTS_EXPIRATION;
++      fi
++  artifacts:
++    reports:
++      junit:
++        - "out/Release/unit_tests_report.xml"
++        - "out/Release/components_unittests_report.xml"
++    when: always
++
++linting-and-formatting:
++  extends: .common_build_chromium
++  variables:
++    GIT_DEPTH: 30
++  stage: mr-check
++  only:
++    - merge_requests
++  script:
++    - git checkout -f
++    - .ci-scripts/lint_and_format_merge_request.sh
++  allow_failure: true
++
++update_badges:
++  image: python:3.11.3
++  tags:
++    - aws-docker
++  stage: update_badges
++  variables:
++    GIT_STRATEGY: "none"
++  before_script:
++    - apt-get update
++    - apt-get install -qqy libvips-dev
++    - pip3 install --upgrade python-gitlab pyvips boto3
++    # Download script to get pre-signed URL for artifacts used in the test
++    - wget $CI_PROJECT_URL/raw/$CI_COMMIT_SHA/.ci-scripts/update_badges.py
++    - wget $CI_PROJECT_URL/raw/$CI_COMMIT_SHA/.ci-scripts/s3_upload_files.py
++    - wget $CI_PROJECT_URL/raw/$CI_COMMIT_SHA/.ci-scripts/s3_get_presigned_url.py
++  script:
++    - python3 update_badges.py --branch-name ${CI_DEFAULT_BRANCH} --update-release --update-dev-version
++  rules:
++    - if: $CI_PIPELINE_SOURCE == "schedule" && $RUN_UPDATE_BADGES == "true"
++
++slack_message:
++  image: python:3.11.3
++  tags:
++    - aws-docker
++  stage: slack_message
++  variables:
++    GIT_STRATEGY: "none"
++  before_script:
++    - apt-get update
++    - pip3 install --upgrade python-gitlab
++  script:
++    - wget $CI_PROJECT_URL/raw/$CI_COMMIT_SHA/.ci-scripts/post_open_mrs_on_slack.py
++    - python3 post_open_mrs_on_slack.py
++  rules:
++    - if: $RUN_SLACK_MESSAGE == "true"
++
+diff --git a/.pre-commit-config.yaml b/.pre-commit-config.yaml
+new file mode 100644
+index 0000000000000..e9a7b85323b0e
+--- /dev/null
++++ b/.pre-commit-config.yaml
+@@ -0,0 +1,55 @@
++# This file is part of eyeo Chromium SDK,
++# Copyright (C) 2006-present eyeo GmbH
++# eyeo Chromium SDK is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License version 3 as
++# published by the Free Software Foundation.
++# eyeo Chromium SDK is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# You should have received a copy of the GNU General Public License
++# along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++
++# See https://pre-commit.com for more information
++# See https://pre-commit.com/hooks.html for more hooks
++# Motivation to use hooks and internal agreements are discussed here:
++# https://confluence.eyeo.com/display/DP/Using+pre-commit+to+make+better+commits
++repos:
++  - repo: https://github.com/pre-commit/pre-commit-hooks
++    rev: v4.4.0
++    hooks:
++      - id: trailing-whitespace
++      - id: check-added-large-files
++  - repo: https://github.com/adrienverge/yamllint.git
++    rev: v1.31.0
++    hooks:
++      - id: yamllint
++        args: [-d relaxed]
++  - repo: https://github.com/bjd2385/pre-commit-gitlabci-lint
++    rev: v1.3.0
++    hooks:
++      - id: gitlabci-lint
++        files: .gitlab-ci.yml
++        # argument: Gitlab Project ID
++        args: ['-p','26591639']
++  - repo: git@gitlab.com:eyeo/distpartners/chromium-precommit-hooks.git
++    rev: e68962b17fae82aaf9a60fd1be8e404ecb94356c
++    hooks:
++      - id: no-forbidden-words-in-branch-name
++      - id: no-forbidden-words-in-diff
++      - id: eyeo-license-headers-check
++      - id: no-cc-includes
++  - repo: "local"
++    hooks:
++      - id: git-cl-format
++        name: git-cl-format
++        description: Correct formatting errors found with git cl format.
++        entry: "third_party/depot_tools/git-cl format"
++        language: system
++        args: ['--upstream=HEAD^', '--python']
++        # it seems git cl format doesn't like to be called concurrently
++        # as it modifies .git/config and fails with:
++        # error: could not lock config file .git/config: File exists
++        require_serial: true
++        # git cl format figures out which files to format on its own.
++        pass_filenames: false
+diff --git a/gclient/.gclient b/gclient/.gclient
+new file mode 100644
+index 0000000000000..335bc356e1242
+--- /dev/null
++++ b/gclient/.gclient
+@@ -0,0 +1,35 @@
++# This file is part of eyeo Chromium SDK,
++# Copyright (C) 2006-present eyeo GmbH
++# eyeo Chromium SDK is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License version 3 as
++# published by the Free Software Foundation.
++# eyeo Chromium SDK is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# You should have received a copy of the GNU General Public License
++# along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++#
++# This file configures a clone that contains a large submodule with
++# Web Page Replay recordings. These are only needed for performance testing.
++solutions = [
++  {
++    "url": "https://chromium.googlesource.com/chromium/src.git",
++    "managed": False,
++    "name": "src",
++    "deps_file": ".DEPS.git",
++    "custom_deps": {
++       "reclient-configs": 'https://github.com/EngFlow/reclient-configs@9748bcf10a7e245cb6d0c2129629ed40fe2b1047',
++                   },
++    "custom_hooks": [
++                     {'name': 'reclient_config',
++                      'pattern': '.',
++                      'action': ['python3', 'reclient-configs/configure_reclient.py', '--src_dir=src'],
++                     },
++                    ],
++    "custom_vars": {
++      "checkout_eyeo_wpr_archives": True,
++    },
++  },
++]
++target_os = ["android"]
+diff --git a/gclient/.gclient_ci_android b/gclient/.gclient_ci_android
+new file mode 100644
+index 0000000000000..3771d628e991b
+--- /dev/null
++++ b/gclient/.gclient_ci_android
+@@ -0,0 +1,33 @@
++# This file is part of eyeo Chromium SDK,
++# Copyright (C) 2006-present eyeo GmbH
++# eyeo Chromium SDK is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License version 3 as
++# published by the Free Software Foundation.
++# eyeo Chromium SDK is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# You should have received a copy of the GNU General Public License
++# along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++
++solutions = [
++  {
++    "url": "https://chromium.googlesource.com/chromium/src.git",
++    "managed": False,
++    "name": "src",
++    "deps_file": ".DEPS.git",
++    "custom_deps": {
++       "reclient-configs": 'https://github.com/EngFlow/reclient-configs@9748bcf10a7e245cb6d0c2129629ed40fe2b1047',
++                   },
++    "custom_hooks": [
++                     {'name': 'reclient_config',
++                      'pattern': '.',
++                      'action': ['python3', 'reclient-configs/configure_reclient.py', '--src_dir=src'],
++                     },
++                    ],
++    "custom_vars": {
++      "checkout_pgo_profiles": True,
++    },
++  },
++]
++target_os = ["android"]
+diff --git a/gclient/.gclient_ci_linux b/gclient/.gclient_ci_linux
+new file mode 100644
+index 0000000000000..7e1de67c82e7b
+--- /dev/null
++++ b/gclient/.gclient_ci_linux
+@@ -0,0 +1,30 @@
++# This file is part of eyeo Chromium SDK,
++# Copyright (C) 2006-present eyeo GmbH
++# eyeo Chromium SDK is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License version 3 as
++# published by the Free Software Foundation.
++# eyeo Chromium SDK is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# You should have received a copy of the GNU General Public License
++# along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++
++solutions = [
++  {
++    "url": "https://chromium.googlesource.com/chromium/src.git",
++    "managed": False,
++    "name": "src",
++    "deps_file": ".DEPS.git",
++    "custom_deps": {
++       "reclient-configs": 'https://github.com/EngFlow/reclient-configs@9748bcf10a7e245cb6d0c2129629ed40fe2b1047',
++                   },
++    "custom_hooks": [
++                     {'name': 'reclient_config',
++                      'pattern': '.',
++                      'action': ['python3', 'reclient-configs/configure_reclient.py', '--src_dir=src'],
++                     },
++                    ],
++    "custom_vars": {},
++  },
++]
+diff --git a/gclient/.gclient_ci_mac b/gclient/.gclient_ci_mac
+new file mode 100644
+index 0000000000000..0c69c2f70d20f
+--- /dev/null
++++ b/gclient/.gclient_ci_mac
+@@ -0,0 +1,31 @@
++# This file is part of eyeo Chromium SDK,
++# Copyright (C) 2006-present eyeo GmbH
++# eyeo Chromium SDK is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License version 3 as
++# published by the Free Software Foundation.
++# eyeo Chromium SDK is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# You should have received a copy of the GNU General Public License
++# along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++
++solutions = [
++  {
++    "url": "https://chromium.googlesource.com/chromium/src.git",
++    "managed": False,
++    "name": "src",
++    "deps_file": ".DEPS.git",
++    "custom_deps": {
++       "reclient-configs": 'https://github.com/EngFlow/reclient-configs@9748bcf10a7e245cb6d0c2129629ed40fe2b1047',
++                   },
++    "custom_hooks": [
++                     {'name': 'reclient_config',
++                      'pattern': '.',
++                      'action': ['python3', 'reclient-configs/configure_reclient.py', '--src_dir=src'],
++                     },
++                    ],
++    "custom_vars": {},
++  },
++]
++target_os = ["macos"]
+diff --git a/gclient/.gclient_ci_windows b/gclient/.gclient_ci_windows
+new file mode 100644
+index 0000000000000..1989f7d83d7c8
+--- /dev/null
++++ b/gclient/.gclient_ci_windows
+@@ -0,0 +1,31 @@
++# This file is part of eyeo Chromium SDK,
++# Copyright (C) 2006-present eyeo GmbH
++# eyeo Chromium SDK is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License version 3 as
++# published by the Free Software Foundation.
++# eyeo Chromium SDK is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# You should have received a copy of the GNU General Public License
++# along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++
++solutions = [
++  {
++    "url": "https://chromium.googlesource.com/chromium/src.git",
++    "managed": False,
++    "name": "src",
++    "deps_file": ".DEPS.git",
++    "custom_deps": {
++       "reclient-configs": 'https://github.com/EngFlow/reclient-configs@9748bcf10a7e245cb6d0c2129629ed40fe2b1047',
++                   },
++    "custom_hooks": [
++                     {'name': 'reclient_config',
++                      'pattern': '.',
++                      'action': ['python3', 'reclient-configs/configure_reclient.py', '--src_dir=src'],
++                     },
++                    ],
++    "custom_vars": {},
++  },
++]
++target_os = ["win"]
+-- 
+GitLab
+

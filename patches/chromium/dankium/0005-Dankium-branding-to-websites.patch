@@ -1,0 +1,24 @@
+From 81e7ae6d0513fe333bea9abbaea212db04158d29 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Mon, 2 Jun 2025 08:46:54 -0230
+Subject: [PATCH 36/45] Dankium branding to websites
+
+---
+ components/embedder_support/user_agent_utils.cc | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/components/embedder_support/user_agent_utils.cc b/components/embedder_support/user_agent_utils.cc
+index 47abbd2835a36..11d381d6f428d 100644
+--- a/components/embedder_support/user_agent_utils.cc
++++ b/components/embedder_support/user_agent_utils.cc
+@@ -203,6 +203,7 @@ const blink::UserAgentBrandList GetUserAgentBrandList(
+   bool parse_result = base::StringToInt(major_version, &major_version_number);
+   DCHECK(parse_result);
+   std::optional<std::string> brand;
++  brand = "Dankium";
+ #if !BUILDFLAG(CHROMIUM_BRANDING)
+   brand = version_info::GetProductName();
+ #endif
+-- 
+2.43.0
+
