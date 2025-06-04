@@ -16,7 +16,6 @@ v8_enable_webassembly = false
 v8_enable_sparkplug = false
 v8_enable_maglev = false
 v8_enable_turbofan = false
-v8_enable_drumbrake = true
 optimize_webui = true
 is_cfi = true
 use_cfi_cast = true
