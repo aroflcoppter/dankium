@@ -1,0 +1,25 @@
+From f112d10e5c640b0850e75e7e7a5c75cc12a39dc0 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Thu, 5 Jun 2025 04:23:12 -0230
+Subject: [PATCH 3/4] Disable payment support
+
+---
+ components/payments/core/payment_prefs.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/components/payments/core/payment_prefs.cc b/components/payments/core/payment_prefs.cc
+index d42858bde4cf7..7122cbfe7b4c0 100644
+--- a/components/payments/core/payment_prefs.cc
++++ b/components/payments/core/payment_prefs.cc
+@@ -11,7 +11,7 @@ namespace payments {
+ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
+   registry->RegisterBooleanPref(kPaymentsFirstTransactionCompleted, false);
+   registry->RegisterBooleanPref(
+-      kCanMakePaymentEnabled, true,
++      kCanMakePaymentEnabled, !true,
+       user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
+ }
+ 
+-- 
+2.43.0
+

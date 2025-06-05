@@ -1,0 +1,39 @@
+From 4039f88c7a53f8d1053612fb3b8809c1ddca4d18 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Thu, 5 Jun 2025 04:22:20 -0230
+Subject: [PATCH 2/4] Disable signon
+
+---
+ chrome/browser/signin/account_consistency_mode_manager.cc       | 2 +-
+ .../signin/internal/identity_manager/primary_account_manager.cc | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/chrome/browser/signin/account_consistency_mode_manager.cc b/chrome/browser/signin/account_consistency_mode_manager.cc
+index cc676d3c1b201..b033b915639d3 100644
+--- a/chrome/browser/signin/account_consistency_mode_manager.cc
++++ b/chrome/browser/signin/account_consistency_mode_manager.cc
+@@ -112,7 +112,7 @@ AccountConsistencyModeManager::~AccountConsistencyModeManager() = default;
+ // static
+ void AccountConsistencyModeManager::RegisterProfilePrefs(
+     user_prefs::PrefRegistrySyncable* registry) {
+-  registry->RegisterBooleanPref(prefs::kSigninAllowedOnNextStartup, true);
++  registry->RegisterBooleanPref(prefs::kSigninAllowedOnNextStartup, !true);
+ }
+ 
+ // static
+diff --git a/components/signin/internal/identity_manager/primary_account_manager.cc b/components/signin/internal/identity_manager/primary_account_manager.cc
+index a8d61c3c4b271..61540f5436a90 100644
+--- a/components/signin/internal/identity_manager/primary_account_manager.cc
++++ b/components/signin/internal/identity_manager/primary_account_manager.cc
+@@ -342,7 +342,7 @@ void PrimaryAccountManager::RegisterProfilePrefs(PrefRegistrySimple* registry) {
+       prefs::kGoogleServicesSyncingGaiaIdMigratedToSignedIn, std::string());
+   registry->RegisterStringPref(
+       prefs::kGoogleServicesSyncingUsernameMigratedToSignedIn, std::string());
+-  registry->RegisterBooleanPref(prefs::kSigninAllowed, true);
++  registry->RegisterBooleanPref(prefs::kSigninAllowed, !true);
+   registry->RegisterBooleanPref(prefs::kSignedInWithCredentialProvider, false);
+   registry->RegisterBooleanPref(kExplicitBrowserSigninWithoutFeatureEnabled,
+                                 false);
+-- 
+2.43.0
+

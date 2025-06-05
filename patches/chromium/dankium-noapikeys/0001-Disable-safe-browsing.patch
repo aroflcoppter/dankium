@@ -1,0 +1,32 @@
+From 7747f680a40d963b73ea2bb0fc6174b7d58349f0 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Thu, 5 Jun 2025 04:18:25 -0230
+Subject: [PATCH 1/4] Disable safe browsing
+
+---
+ components/safe_browsing/core/common/safe_browsing_prefs.cc | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/components/safe_browsing/core/common/safe_browsing_prefs.cc b/components/safe_browsing/core/common/safe_browsing_prefs.cc
+index 90ec1b9162127..e444aabdfc370 100644
+--- a/components/safe_browsing/core/common/safe_browsing_prefs.cc
++++ b/components/safe_browsing/core/common/safe_browsing_prefs.cc
+@@ -211,13 +211,13 @@ void RegisterProfilePrefs(PrefRegistrySimple* registry) {
+   registry->RegisterBooleanPref(
+       prefs::kSafeBrowsingSawInterstitialScoutReporting, false);
+   registry->RegisterBooleanPref(
+-      prefs::kSafeBrowsingExtendedReportingOptInAllowed, true);
++      prefs::kSafeBrowsingExtendedReportingOptInAllowed, !true);
+   registry->RegisterTimePref(
+       prefs::kSafeBrowsingEsbProtegoPingWithTokenLastLogTime, base::Time());
+   registry->RegisterTimePref(
+       prefs::kSafeBrowsingEsbProtegoPingWithoutTokenLastLogTime, base::Time());
+   registry->RegisterBooleanPref(
+-      prefs::kSafeBrowsingEnabled, true,
++      prefs::kSafeBrowsingEnabled, !true,
+       user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
+   if (base::FeatureList::IsEnabled(kEsbAsASyncedSetting)) {
+     registry->RegisterBooleanPref(
+-- 
+2.43.0
+
