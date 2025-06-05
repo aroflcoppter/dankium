@@ -1,15 +1,28 @@
-From 06176e567fb626e7048e1e3203a331e540e75a37 Mon Sep 17 00:00:00 2001
+From 1a2191d388af0b3c769b2f267500faec10208b56 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Thu, 5 Jun 2025 04:07:01 -0230
 Subject: [PATCH] Specify dangerous instead of warning
 
 ---
+ chrome/browser/devtools/protocol/security_handler.cc  | 1 +
  components/omnibox/browser/location_bar_model_util.cc | 1 +
  components/payments/content/ssl_validity_checker.cc   | 1 +
  components/security_state/core/security_state.cc      | 7 ++++---
  components/security_state/core/security_state.h       | 1 +
- 4 files changed, 7 insertions(+), 3 deletions(-)
+ 5 files changed, 8 insertions(+), 3 deletions(-)
 
+diff --git a/chrome/browser/devtools/protocol/security_handler.cc b/chrome/browser/devtools/protocol/security_handler.cc
+index 5a7095533ca0e..fdfd34d2f903e 100644
+--- a/chrome/browser/devtools/protocol/security_handler.cc
++++ b/chrome/browser/devtools/protocol/security_handler.cc
+@@ -46,6 +46,7 @@ std::string SecurityLevelToProtocolSecurityState(
+       return protocol::Security::SecurityStateEnum::Insecure;
+     case security_state::SECURE:
+       return protocol::Security::SecurityStateEnum::Secure;
++    case security_state::NONDANK:
+     case security_state::DANGEROUS:
+       return protocol::Security::SecurityStateEnum::InsecureBroken;
+     case security_state::SECURITY_LEVEL_COUNT:
 diff --git a/components/omnibox/browser/location_bar_model_util.cc b/components/omnibox/browser/location_bar_model_util.cc
 index 8f467ed6b5913..4c9149c42d658 100644
 --- a/components/omnibox/browser/location_bar_model_util.cc
