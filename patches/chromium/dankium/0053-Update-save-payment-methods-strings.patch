@@ -1,0 +1,46 @@
+From e88323645c970ef191954795dac006327809f921 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Thu, 5 Jun 2025 15:50:27 -0230
+Subject: [PATCH] Update save payment methods strings
+
+---
+ components/autofill_payments_strings.grdp       | 2 +-
+ components/strings/components_strings_en-GB.xtb | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/components/autofill_payments_strings.grdp b/components/autofill_payments_strings.grdp
+index cfc400c4ff538..e7301054b0d61 100644
+--- a/components/autofill_payments_strings.grdp
++++ b/components/autofill_payments_strings.grdp
+@@ -1160,7 +1160,7 @@
+       Check out faster with autofill
+     </message>
+     <message name="IDS_AUTOFILL_CREATE_FIRST_CREDIT_CARD_SUMMARY" desc="Summary for a call to action settings preference to add a new autofill credit card when the user does not have any cards added." formatter_data="android_java">
+-      Save a payment method in your Google Account to autofill it for purchases made in Chrome
++      Save a payment method to Dankium to autofill it for purchases
+     </message>
+     <message name="IDS_AUTOFILL_CREATE_FIRST_CREDIT_CARD_BUTTON_TEXT" desc="Button text for a call to action settings preference to add a new autofill credit card when the user does not have any cards added." formatter_data="android_java">
+       Add payment method
+diff --git a/components/strings/components_strings_en-GB.xtb b/components/strings/components_strings_en-GB.xtb
+index 003817c60cf23..0e0d158f60136 100644
+--- a/components/strings/components_strings_en-GB.xtb
++++ b/components/strings/components_strings_en-GB.xtb
+@@ -1635,7 +1635,7 @@ This will otherwise be blocked by your privacy settings. This will allow the con
+ <translation id="380329542618494757">Name</translation>
+ <translation id="3803481123869276674">When you make purchases in Chrome, see eWallet as an option</translation>
+ <translation id="3803801106042434208">These search engines are popular in your region</translation>
+-<translation id="380666903981445943">Save a payment method in your Google Account to autofill it for purchases made in Chrome</translation>
++<translation id="380666903981445943">Save a payment method in Dankium to autofill it for purchases</translation>
+ <translation id="3807366285948165054">Image X shift</translation>
+ <translation id="3807709094043295184">Classic rock and oldies</translation>
+ <translation id="3807873520724684969">Harmful content blocked.</translation>
+@@ -4804,4 +4804,4 @@ Additional details:
+ <translation id="995755448277384931">Add IBAN</translation>
+ <translation id="995782501881226248">YouTube</translation>
+ <translation id="997986563973421916">From Google Pay</translation>
+-</translationbundle>
+\ No newline at end of file
++</translationbundle>
+-- 
+2.43.0
+

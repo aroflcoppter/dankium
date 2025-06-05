@@ -1,24 +1,79 @@
-From e1db6f67bc16c18a372b573ffe6191bf1203b15c Mon Sep 17 00:00:00 2001
+From 75a5d5d2ab9da224f3256749cbdf9908546e0065 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Tue, 3 Jun 2025 12:02:37 -0230
-Subject: [PATCH 5/6] Settings main page fixup
+Subject: [PATCH] Settings main page fixup
 
 ---
- chrome/android/java/res/xml/main_preferences.xml | 1 -
- 1 file changed, 1 deletion(-)
+ .../android/java/res/xml/main_preferences.xml | 26 +++++++++++++------
+ 1 file changed, 18 insertions(+), 8 deletions(-)
 
 diff --git a/chrome/android/java/res/xml/main_preferences.xml b/chrome/android/java/res/xml/main_preferences.xml
-index f032c32654c47..95c1c752a0e91 100644
+index f032c32654c47..c2dbf53a9a75e 100644
 --- a/chrome/android/java/res/xml/main_preferences.xml
 +++ b/chrome/android/java/res/xml/main_preferences.xml
-@@ -32,7 +32,6 @@ for the previous order (main_preferences_legacy). -->
+@@ -17,23 +17,26 @@ for the previous order (main_preferences_legacy). -->
+     <PreferenceCategory
+         android:key="account_and_google_services_section"
+         android:order="1"
+-        android:title="@string/prefs_section_account_and_google_services"/>
++        android:title="@string/prefs_section_account_and_google_services"
++        app:isPreferenceVisible="false"/>
+     <org.chromium.chrome.browser.sync.settings.SignInPreference
+         android:key="sign_in"
+         android:order="2"
+-        android:title="@string/sign_in_to_chrome"/>
++        android:title="@string/sign_in_to_chrome"
++        app:isPreferenceVisible="false"/>
+     <org.chromium.components.browser_ui.settings.ChromeBasePreference
+         android:key="manage_sync"
+         android:order="3"
+         android:layout="@layout/account_management_account_row"
+-        android:title="@string/sync_category_title"/>
++        android:title="@string/sync_category_title"
++        app:isPreferenceVisible="false"/>
+     <org.chromium.components.browser_ui.settings.ChromeBasePreference
+         android:key="google_services"
          android:order="4"
          android:layout="@layout/account_management_account_row"
          android:title="@string/prefs_google_services"
 -        android:icon="@drawable/ic_google_services_48dp_with_bg"
-         android:fragment="org.chromium.chrome.browser.sync.settings.GoogleServicesSettings"/>
+-        android:fragment="org.chromium.chrome.browser.sync.settings.GoogleServicesSettings"/>
++        android:fragment="org.chromium.chrome.browser.sync.settings.GoogleServicesSettings"
++        app:isPreferenceVisible="false"/>
  
      <PreferenceCategory
+         android:key="basics_section"
+@@ -44,6 +47,12 @@ for the previous order (main_preferences_legacy). -->
+         android:key="search_engine"
+         android:order="6"
+         android:title="@string/search_engine_settings"/>
++    <org.chromium.components.browser_ui.settings.ChromeBasePreference
++        android:key="google_services"
++        android:order="4"
++        android:layout="@layout/account_management_account_row"
++        android:title="@string/prefs_google_services"
++        android:fragment="org.chromium.chrome.browser.sync.settings.GoogleServicesSettings"/>
+     <org.chromium.components.browser_ui.settings.ChromeBasePreference
+         android:fragment="org.chromium.chrome.browser.toolbar.settings.AddressBarSettingsFragment"
+         android:key="address_bar"
+@@ -58,13 +67,14 @@ for the previous order (main_preferences_legacy). -->
+         android:fragment="org.chromium.chrome.browser.safety_check.SafetyCheckSettingsFragment"
+         android:key="safety_check"
+         android:order="9"
+-        android:title="@string/prefs_safety_check"/>
++        android:title="@string/prefs_safety_check"
++        app:isPreferenceVisible="false"/>
+     <Preference
+         android:fragment="org.chromium.chrome.browser.safety_hub.SafetyHubFragment"
+         android:key="safety_hub"
+         android:order="10"
+-        android:title="@string/prefs_safety_check"/>
+-
++        android:title="@string/prefs_safety_check"
++        app:isPreferenceVisible="false"/>
+     <PreferenceCategory
+         android:key="autofill_section"
+         android:order="11"
 -- 
 2.43.0
 

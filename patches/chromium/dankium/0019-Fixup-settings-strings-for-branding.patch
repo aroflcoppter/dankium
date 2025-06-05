@@ -1,14 +1,14 @@
-From b0d1e1896f0552f51651311ea3edce848a1b2478 Mon Sep 17 00:00:00 2001
+From b3a4d0ee08be9d3a078c1e797b249feb8c7ea718 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Tue, 3 Jun 2025 03:34:41 -0230
-Subject: [PATCH 3/4] Fixup settings strings for branding
+Subject: [PATCH] Fixup settings strings for branding
 
 ---
- .../strings/android_chrome_strings.grd        | 24 +++++++++----------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ .../strings/android_chrome_strings.grd        | 26 +++++++++----------
+ 1 file changed, 13 insertions(+), 13 deletions(-)
 
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index 151d037f64820..ea70aa49e2119 100644
+index 151d037f64820..9082f7765f0ff 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
 @@ -287,7 +287,7 @@ CHAR_LIMIT guidelines:
@@ -38,8 +38,12 @@ index 151d037f64820..ea70aa49e2119 100644
        </message>
        <message name="IDS_PASSWORD_SAVING_ON_BY_ADMINISTRATOR" desc="Subtitle for the settings menu item leading to the Password Manager UI surface, shown when the device administrator set saving passwords to enabled.">
          Password saving is turned on by your administrator
-@@ -2344,7 +2344,7 @@ Your Google account may have other forms of browsing history like searches and a
-         Copyright <ph name="year">%1$d<ex>2014</ex></ph> Google LLC. All rights reserved.
+@@ -2341,10 +2341,10 @@ Your Google account may have other forms of browsing history like searches and a
+         About Chrome
+       </message>
+       <message name="IDS_LEGAL_INFORMATION_SUMMARY" desc="Summary for legal information" meaning="Android">
+-        Copyright <ph name="year">%1$d<ex>2014</ex></ph> Google LLC. All rights reserved.
++        Copyright <ph name="year">%1$d<ex>2025</ex></ph> aroflcoppter. GPL 3.0 or later.
        </message>
        <message name="IDS_APPLICATION_VERSION_TITLE" desc="Title for application version">
 -        Application version
@@ -52,7 +56,7 @@ index 151d037f64820..ea70aa49e2119 100644
        <!-- Legal information preferences -->
        <message name="IDS_LEGAL_INFORMATION_TITLE" desc="Title for legal information [CHAR_LIMIT=32]">
 -        Legal information
-+        Chromium Legal information
++        Dankium Legal information
        </message>
        <message name="IDS_OPEN_SOURCE_LICENSE_TITLE" desc="Title for open source license">
          Open source licenses
