@@ -13,12 +13,16 @@ Dankium is a chromium based browser focused on providing top of the line securit
 * GPL 3.0 license to protect your rights
 * much more
 
+### Release Signing Key
+`contact@dankium.ca ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINZmfylHw5KGY3bgHr3wtnXAbx1gXifBZDfupD4RuCJ1`
+
 ### Installing
 
 To install from play store first join [Dankium Google Group](https://groups.google.com/g/dankium/).
 Then join the [test program](https://play.google.com/apps/testing/app.dankium.browser) and it should appear in the [play store](https://play.google.com/store/apps/details?id=app.dankium.browser).
 
 Alternatively you may download an apk for sideloading from [github releases](https://github.com/aroflcoppter/dankium/releases) but it won't automatically update so be sure to check back at least once a week if you don't know there's an update.
+You can verify the release before installation with `ssh-keygen -Y verify -f dankium_public_key -I contact@dankium.ca -n "Dankium Browser" -s Dankium.apk.sig < Dankium.apk` or on windows `cmd /c 'ssh-keygen -Y verify -f dankium_public_key -I contact@dankium.ca -n "Dankium Browser" -s Dankium.apk.sig < Dankium.apk'`provided you downloaded the public key.
 
 ### Building
 
@@ -44,6 +48,7 @@ Alternatively you may download an apk for sideloading from [github releases](htt
 ### Installing
 
 You may download an installer.exe from [github releases](https://github.com/aroflcoppter/dankium/releases) but it won't automatically update so be sure to check back at least once a week if you don't know there's an update.
+You can verify the release before installation with `ssh-keygen -Y verify -f dankium_public_key -I contact@dankium.ca -n "Dankium Browser" -s Dankium_Installer.exe.sig < Dankium_Installer.exe` or on windows `cmd /c 'ssh-keygen -Y verify -f dankium_public_key -I contact@dankium.ca -n "Dankium Browser" -s Dankium_Installer.exe.sig < Dankium_Installer.exe'`provided you downloaded the public key.
 You can use [API keys](https://www.chromium.org/developers/how-tos/api-keys/) from google as enviroment variables to sign into Dankium.
 
 ### Building
