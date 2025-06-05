@@ -1,0 +1,32 @@
+From 5e4ab99693f3cb89992c2bed4252afcafcd2b709 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Thu, 5 Jun 2025 17:05:18 -0230
+Subject: [PATCH] Update desktop about page
+
+---
+ .../browser/resources/settings/about_page/about_page.html   | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/chrome/browser/resources/settings/about_page/about_page.html b/chrome/browser/resources/settings/about_page/about_page.html
+index a2e3ef715fef2..44549cd2e2183 100644
+--- a/chrome/browser/resources/settings/about_page/about_page.html
++++ b/chrome/browser/resources/settings/about_page/about_page.html
+@@ -149,11 +149,13 @@
+       <div class="info-sections">
+         <div class="info-section">
+           <div class="secondary">$i18n{aboutProductTitle}</div>
+-          <div class="secondary">$i18n{aboutProductCopyright}</div>
++          <div class="secondary">Copyright (C) 2006-present eyeo GmbH. (Adblock code)</div>
++          <div class="secondary">Copyright 2025 The Chromium Authors. All rights reserved. (Most source code)</div>
++          <div class="secondary">Copyright 2025 aroflcoppter. (Dankium changes)</div>
+         </div>
+ 
+         <div class="info-section">
+-          <div class="secondary">$i18nRaw{aboutProductLicense}</div>
++          <div class="secondary">Dankium and the eyeo adblocking code are GPL 3.0 or later and Chromium is 3-clause BSD license</div>
+         </div>
+ <if expr="_google_chrome or _is_chrome_for_testing_branded">
+         <div class="secondary">
+-- 
+2.43.0
+

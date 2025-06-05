@@ -1,4 +1,4 @@
-From 53249b8103626952cb8bbb94310ed6f4e8611d50 Mon Sep 17 00:00:00 2001
+From ccde52389e516bdec6c3c1bed135c25e7939a22e Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Thu, 5 Jun 2025 15:54:27 -0230
 Subject: [PATCH] First Run Dialog Disable
@@ -22,7 +22,7 @@ index 413ccd41b4bb2..d76d43e1db4e8 100644
                  javaPrefs.writeBoolean(ChromePreferenceKeys.FIRST_RUN_CACHED_TOS_ACCEPTED, true);
              }
 diff --git a/chrome/browser/first_run/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunStatus.java b/chrome/browser/first_run/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunStatus.java
-index ae781f16eb405..cb25fdb9a5a57 100644
+index ae781f16eb405..789ae7ce925f2 100644
 --- a/chrome/browser/first_run/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunStatus.java
 +++ b/chrome/browser/first_run/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunStatus.java
 @@ -52,8 +52,8 @@ public class FirstRunStatus {
@@ -32,7 +32,7 @@ index ae781f16eb405..cb25fdb9a5a57 100644
 -        return ChromeSharedPreferences.getInstance()
 -                .readBoolean(ChromePreferenceKeys.FIRST_RUN_FLOW_COMPLETE, false);
 +        ChromeSharedPreferences.getInstance().readBoolean(ChromePreferenceKeys.FIRST_RUN_FLOW_COMPLETE, true);
-+    return !false
++    return !false;
      }
  
      /**
