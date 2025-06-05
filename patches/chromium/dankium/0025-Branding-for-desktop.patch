@@ -1,12 +1,69 @@
-From 6732856c5fc120741e0371408daa747ff77e975f Mon Sep 17 00:00:00 2001
+From 5371ccd82a2774f4f318dfcee21d8ed1b625e152 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Wed, 4 Jun 2025 03:34:36 -0230
-Subject: [PATCH 1/2] Branding for desktop
+Subject: [PATCH] Branding for desktop
 
 ---
- chrome/app/theme/chromium/BRANDING | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ chrome/app/chromium_strings.grd                 | 14 +++++++-------
+ chrome/app/theme/chromium/BRANDING              | 12 ++++++------
+ chrome/common/url_constants.h                   |  6 +++---
+ chrome/install_static/chromium_install_modes.cc |  6 +++---
+ 4 files changed, 19 insertions(+), 19 deletions(-)
 
+diff --git a/chrome/app/chromium_strings.grd b/chrome/app/chromium_strings.grd
+index 2e5d2a8929ca8..7614a8e23c2b3 100644
+--- a/chrome/app/chromium_strings.grd
++++ b/chrome/app/chromium_strings.grd
+@@ -294,10 +294,10 @@ If you update this file, be sure also to update google_chrome_strings.grd. -->
+         </then>
+         <else>
+           <message name="IDS_PRODUCT_NAME" desc="The Chrome application name" translateable="false">
+-            Chromium
++            Dankium
+           </message>
+           <message name="IDS_SHORT_PRODUCT_NAME" desc="The Chrome application short name." translateable="false">
+-            Chromium
++            Dankium
+           </message>
+         </else>
+       </if>
+@@ -309,15 +309,15 @@ If you update this file, be sure also to update google_chrome_strings.grd. -->
+         <message name="IDS_SHORTCUT_NAME_DEV" desc="Unused in Chromium builds" translateable="false">
+         </message>
+         <message name="IDS_PRODUCT_DESCRIPTION" desc="Browser description">
+-          Chromium is a web browser that runs webpages and applications with lightning speed. It's fast, stable, and easy to use. Browse the web more safely with malware and phishing protection built into Chromium.
++          Dankium an Adblocker, secure, and private
+         </message>
+         <message name="IDS_WELCOME_TO_CHROME" desc="Welcoming text announced via screen readers the first time Chrome is launched at the conclusion of installation.">
+-          Welcome to Chromium; new browser window opened
++          Welcome to Dankium; new browser window opened
+         </message>
+       </if>
+       <if expr="is_macosx or is_linux">
+         <message name="IDS_FIRST_RUN_DIALOG_WINDOW_TITLE" desc="Window title of First Run dialog on Mac and Linux, displayed in title bar">
+-          Welcome to Chromium
++          Welcome to Dankium
+         </message>
+       </if>
+       <if expr="is_chromeos">
+@@ -1301,7 +1301,7 @@ Chromium is unable to recover your settings.
+ 
+       <!-- App shortcuts -->
+       <message name="IDS_APP_SHORTCUTS_SUBDIR_NAME" desc="Name for the Chromium Apps Start Menu folder name.">
+-        Chromium Apps
++        Dankium Apps
+       </message>
+       <message name="IDS_APP_SHORTCUTS_SUBDIR_NAME_CANARY" desc="Name for the Chrome Apps Start Menu folder name.">
+         Chromium Apps
+@@ -1439,7 +1439,7 @@ Chromium is unable to recover your settings.
+       <!-- Windows firewall rule strings. -->
+       <if expr="is_win">
+         <message name="IDS_INBOUND_MDNS_RULE_NAME" desc="The name of the firewall rule allowing inbound mDNS traffic.">
+-          Chromium (mDNS-In)
++          Dankium (mDNS-In)
+         </message>
+         <message name="IDS_INBOUND_MDNS_RULE_NAME_BETA" desc="Unused in Chromium builds" translateable="false">
+         </message>
 diff --git a/chrome/app/theme/chromium/BRANDING b/chrome/app/theme/chromium/BRANDING
 index f8363d5b294fe..20ab62a0236fd 100644
 --- a/chrome/app/theme/chromium/BRANDING
@@ -28,6 +85,55 @@ index f8363d5b294fe..20ab62a0236fd 100644
 +MAC_BUNDLE_ID=app.dankium.browser
  MAC_CREATOR_CODE=Cr24
  MAC_TEAM_ID=
+diff --git a/chrome/common/url_constants.h b/chrome/common/url_constants.h
+index dfc4fd76bf02d..3571afad48979 100644
+--- a/chrome/common/url_constants.h
++++ b/chrome/common/url_constants.h
+@@ -135,13 +135,13 @@ inline constexpr char kChromeHelpViaMenuURL[] =
+ #endif  // BUILDFLAG(IS_CHROMEOS)
+ 
+ inline constexpr char kChromeHelpViaWebUIURL[] =
+-    "https://support.google.com/chrome?p=help&ctx=settings";
++    "https://github.com/aroflcoppter/dankium/issues";
+ #if BUILDFLAG(IS_CHROMEOS)
+ inline constexpr char kChromeOsHelpViaWebUIURL[] =
+ #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
+     "chrome-extension://honijodknafkokifofgiaalefdiedpko/main.html";
+ #else
+-    "https://support.google.com/chromebook?p=help&ctx=settings";
++    "https://github.com/aroflcoppter/dankium/issues";
+ #endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING)
+ #endif  // BUILDFLAG(IS_CHROMEOS)
+ 
+@@ -198,7 +198,7 @@ inline constexpr char kChromeUIUntrustedNewTabPageUrl[] =
+     "chrome-untrusted://new-tab-page/";
+ 
+ // The URL for the Chromium project used in the About dialog.
+-inline constexpr char16_t kChromiumProjectURL[] = u"https://www.chromium.org/";
++inline constexpr char16_t kChromiumProjectURL[] = u"https://dankium.ca/";
+ 
+ #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
+ // The URL for the "Clear browsing data in Chrome" help center article.
+diff --git a/chrome/install_static/chromium_install_modes.cc b/chrome/install_static/chromium_install_modes.cc
+index f5af44ca1c489..21ee38d240376 100644
+--- a/chrome/install_static/chromium_install_modes.cc
++++ b/chrome/install_static/chromium_install_modes.cc
+@@ -12,12 +12,12 @@
+ 
+ namespace install_static {
+ 
+-const wchar_t kCompanyPathName[] = L"";
++const wchar_t kCompanyPathName[] = L"aroflcoppter";
+ 
+-const wchar_t kProductPathName[] = L"Chromium";
++const wchar_t kProductPathName[] = L"Dankium";
+ 
+ const size_t kProductPathNameLength = _countof(kProductPathName) - 1;
+ 
+-const char kSafeBrowsingName[] = "chromium";
++const char kSafeBrowsingName[] = "dankium";
+ 
+ }  // namespace install_static
 -- 
 2.43.0
 

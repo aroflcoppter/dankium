@@ -1,17 +1,17 @@
-From 75a5d5d2ab9da224f3256749cbdf9908546e0065 Mon Sep 17 00:00:00 2001
+From 4544a3f057cba5d9f69f37652333a6e473121263 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Tue, 3 Jun 2025 12:02:37 -0230
 Subject: [PATCH] Settings main page fixup
 
 ---
- .../android/java/res/xml/main_preferences.xml | 26 +++++++++++++------
- 1 file changed, 18 insertions(+), 8 deletions(-)
+ .../android/java/res/xml/main_preferences.xml | 27 ++++++++++---------
+ 1 file changed, 15 insertions(+), 12 deletions(-)
 
 diff --git a/chrome/android/java/res/xml/main_preferences.xml b/chrome/android/java/res/xml/main_preferences.xml
-index f032c32654c47..c2dbf53a9a75e 100644
+index f032c32654c47..41c0a4655b261 100644
 --- a/chrome/android/java/res/xml/main_preferences.xml
 +++ b/chrome/android/java/res/xml/main_preferences.xml
-@@ -17,23 +17,26 @@ for the previous order (main_preferences_legacy). -->
+@@ -17,32 +17,34 @@ for the previous order (main_preferences_legacy). -->
      <PreferenceCategory
          android:key="account_and_google_services_section"
          android:order="1"
@@ -33,8 +33,9 @@ index f032c32654c47..c2dbf53a9a75e 100644
 +        app:isPreferenceVisible="false"/>
      <org.chromium.components.browser_ui.settings.ChromeBasePreference
          android:key="google_services"
-         android:order="4"
-         android:layout="@layout/account_management_account_row"
+-        android:order="4"
+-        android:layout="@layout/account_management_account_row"
++        android:order="6"
          android:title="@string/prefs_google_services"
 -        android:icon="@drawable/ic_google_services_48dp_with_bg"
 -        android:fragment="org.chromium.chrome.browser.sync.settings.GoogleServicesSettings"/>
@@ -43,20 +44,18 @@ index f032c32654c47..c2dbf53a9a75e 100644
  
      <PreferenceCategory
          android:key="basics_section"
-@@ -44,6 +47,12 @@ for the previous order (main_preferences_legacy). -->
-         android:key="search_engine"
-         android:order="6"
-         android:title="@string/search_engine_settings"/>
-+    <org.chromium.components.browser_ui.settings.ChromeBasePreference
-+        android:key="google_services"
+-        android:order="5"
 +        android:order="4"
-+        android:layout="@layout/account_management_account_row"
-+        android:title="@string/prefs_google_services"
-+        android:fragment="org.chromium.chrome.browser.sync.settings.GoogleServicesSettings"/>
+         android:title="@string/prefs_section_basics"/>
+     <org.chromium.components.browser_ui.settings.ChromeBasePreference
+         android:fragment="org.chromium.chrome.browser.search_engines.settings.SearchEngineSettings"
+         android:key="search_engine"
+-        android:order="6"
++        android:order="5"
+         android:title="@string/search_engine_settings"/>
      <org.chromium.components.browser_ui.settings.ChromeBasePreference
          android:fragment="org.chromium.chrome.browser.toolbar.settings.AddressBarSettingsFragment"
-         android:key="address_bar"
-@@ -58,13 +67,14 @@ for the previous order (main_preferences_legacy). -->
+@@ -58,13 +60,14 @@ for the previous order (main_preferences_legacy). -->
          android:fragment="org.chromium.chrome.browser.safety_check.SafetyCheckSettingsFragment"
          android:key="safety_check"
          android:order="9"
