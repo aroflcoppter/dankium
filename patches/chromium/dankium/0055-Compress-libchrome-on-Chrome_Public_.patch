@@ -1,0 +1,25 @@
+From 5937a3052956ff608e444bb90b3331d31d8cff76 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Thu, 5 Jun 2025 20:22:33 -0230
+Subject: [PATCH] Compress libchrome on Chrome_Public_*
+
+---
+ chrome/android/chrome_public_apk_tmpl.gni | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/chrome/android/chrome_public_apk_tmpl.gni b/chrome/android/chrome_public_apk_tmpl.gni
+index 4bb91169abffe..e253c25bea688 100644
+--- a/chrome/android/chrome_public_apk_tmpl.gni
++++ b/chrome/android/chrome_public_apk_tmpl.gni
+@@ -664,7 +664,7 @@ template("chrome_common_apk_or_module_tmpl") {
+       deps +=
+           [ "//components/crash/core/app:chrome_crashpad_handler_named_as_so" ]
+       loadable_modules += [ "$root_out_dir/libchrome_crashpad_handler.so" ]
+-      library_always_compress += [ "libchrome_crashpad_handler.so" ]
++      library_always_compress += [ "libchrome_crashpad_handler.so", "libchrome.so" ]
+     } else if (!_is_trichrome) {
+       # Crashpad trampoline lives in TrichromeLibrary.apk.
+       # https://chromium.googlesource.com/chromium/src/+/main/docs/android_native_libraries.md#Crashpad-Packaging
+-- 
+2.43.0
+
