@@ -1,26 +1,25 @@
-From 4bd4b6113cb596ea58751641af0456c4692d4e01 Mon Sep 17 00:00:00 2001
+From aeda7557266f707242652e6f85d2e28ac6c4ce05 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
-Date: Thu, 5 Jun 2025 04:29:40 -0230
-Subject: [PATCH 4/4] Always remove insecure urls internally
+Date: Thu, 5 Jun 2025 05:37:53 -0230
+Subject: [PATCH] Always remove insecure urls internally
 
 ---
- components/component_updater/configurator_impl.cc | 2 --
- 1 file changed, 2 deletions(-)
+ components/component_updater/configurator_impl.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/components/component_updater/configurator_impl.cc b/components/component_updater/configurator_impl.cc
-index 042e1026c76e7..83913c6a9ecdd 100644
+index 042e1026c76e7..57e444060eb89 100644
 --- a/components/component_updater/configurator_impl.cc
 +++ b/components/component_updater/configurator_impl.cc
-@@ -83,9 +83,7 @@ std::vector<GURL> ConfiguratorImpl::UpdateUrl() const {
- 
-   std::vector<GURL> urls{GURL(kUpdaterJSONDefaultUrl),
-                          GURL(kUpdaterJSONFallbackUrl)};
--  if (require_encryption_) {
-     update_client::RemoveUnsecureUrls(&urls);
--  }
- 
-   return urls;
- }
+@@ -41,7 +41,7 @@ ConfiguratorImpl::ConfiguratorImpl(
+       deltas_enabled_(config_policy.DeltaUpdatesEnabled()),
+       fast_update_(config_policy.FastUpdate()),
+       pings_enabled_(config_policy.PingsEnabled()),
+-      require_encryption_(require_encryption),
++      require_encryption_(true),
+       url_source_override_(config_policy.UrlSourceOverride()),
+       initial_delay_(config_policy.InitialDelay()) {
+   if (config_policy.TestRequest()) {
 -- 
 2.43.0
 
