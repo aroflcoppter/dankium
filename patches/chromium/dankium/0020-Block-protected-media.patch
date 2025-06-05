@@ -1,24 +1,25 @@
-From 8287f01e6fd56acf1f9232069b813c1b7b7ffe7e Mon Sep 17 00:00:00 2001
+From d833031c6f599058f5ed7a9cc55497856ea40965 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
-Date: Wed, 4 Jun 2025 23:53:15 -0230
-Subject: [PATCH 2/3] Block protected media
+Date: Thu, 5 Jun 2025 03:52:48 -0230
+Subject: [PATCH] Block protected media
 
 ---
  .../core/browser/content_settings_registry.cc                 | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/components/content_settings/core/browser/content_settings_registry.cc b/components/content_settings/core/browser/content_settings_registry.cc
-index bae43002e9289..857455b9acce7 100644
+index 20e44439d566d..abb7d8377a791 100644
 --- a/components/content_settings/core/browser/content_settings_registry.cc
 +++ b/components/content_settings/core/browser/content_settings_registry.cc
-@@ -212,7 +212,9 @@ void ContentSettingsRegistry::Init() {
+@@ -211,8 +211,10 @@ void ContentSettingsRegistry::Init() {
+            ContentSettingsInfo::INHERIT_IF_LESS_PERMISSIVE,
             ContentSettingsInfo::EXCEPTIONS_ON_SECURE_ORIGINS_ONLY);
  
++  const ContentSetting kDefaultPmiSetting = CONTENT_SETTING_BLOCK;
++
    Register(ContentSettingsType::PROTECTED_MEDIA_IDENTIFIER,
 -           "protected-media-identifier", CONTENT_SETTING_ALLOW,
-+           "protected-media-identifier",
-+           const ContentSetting kDefaultPmiSetting = CONTENT_SETTING_BLOCK;
-+           kDefaultPmiSetting,
++           "protected-media-identifier", kDefaultPmiSetting,
             WebsiteSettingsInfo::UNSYNCABLE, /*allowlisted_primary_schemes=*/{},
  #if BUILDFLAG(IS_ANDROID)
             /*valid_settings=*/

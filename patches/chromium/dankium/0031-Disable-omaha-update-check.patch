@@ -1,15 +1,15 @@
-From 2ffaa0f1ed5184ebce809fc1b1e6755d4d26b3ff Mon Sep 17 00:00:00 2001
+From 953ebe138cd2588736e60fb801deb43c307a333f Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
-Date: Wed, 4 Jun 2025 15:08:48 -0230
-Subject: [PATCH 19/39] Disable omaha update check
+Date: Thu, 5 Jun 2025 03:37:46 -0230
+Subject: [PATCH] Disable omaha update check
 
 ---
- .../java/src/org/chromium/chrome/browser/omaha/OmahaBase.java   | 2 +-
- .../org/chromium/chrome/browser/omaha/VersionNumberGetter.java  | 1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ .../chrome/browser/omaha/OmahaBase.java       |  2 +-
+ .../browser/omaha/VersionNumberGetter.java    | 29 +------------------
+ 2 files changed, 2 insertions(+), 29 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/omaha/OmahaBase.java b/chrome/android/java/src/org/chromium/chrome/browser/omaha/OmahaBase.java
-index adc3d9b62be83..436828a0c6504 100644
+index adc3d9b62be83..775851dfc0b5b 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/omaha/OmahaBase.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/omaha/OmahaBase.java
 @@ -140,7 +140,7 @@ public class OmahaBase {
@@ -17,22 +17,63 @@ index adc3d9b62be83..436828a0c6504 100644
  
      static boolean isDisabled() {
 -        return sDisabledForTesting;
-+        return !false;
++        return !true;
      }
  
      /**
 diff --git a/chrome/browser/omaha/android/java/src/org/chromium/chrome/browser/omaha/VersionNumberGetter.java b/chrome/browser/omaha/android/java/src/org/chromium/chrome/browser/omaha/VersionNumberGetter.java
-index 8f708ad4dc07c..e74ea77236bdb 100644
+index 8f708ad4dc07c..8b111b01fb3d3 100644
 --- a/chrome/browser/omaha/android/java/src/org/chromium/chrome/browser/omaha/VersionNumberGetter.java
 +++ b/chrome/browser/omaha/android/java/src/org/chromium/chrome/browser/omaha/VersionNumberGetter.java
-@@ -87,6 +87,7 @@ public class VersionNumberGetter {
+@@ -24,8 +24,6 @@ import org.chromium.chrome.browser.flags.ChromeFeatureList;
+ public class VersionNumberGetter {
+     private static VersionNumberGetter sInstance = new VersionNumberGetter();
+ 
+-    /** If true, OmahaClient will never report that a newer version is available. */
+-    private static boolean sDisableUpdateDetectionForTesting;
+ 
+     @VisibleForTesting
+     static VersionNumberGetter getInstance() {
+@@ -40,8 +38,6 @@ public class VersionNumberGetter {
+     }
+ 
+     public static void setEnableUpdateDetectionForTesting(boolean state) {
+-        sDisableUpdateDetectionForTesting = !state;
+-        ResettersForTesting.register(() -> sDisableUpdateDetectionForTesting = false);
+     }
+ 
+     protected VersionNumberGetter() {}
+@@ -87,29 +83,6 @@ public class VersionNumberGetter {
      static boolean isNewerVersionAvailable() {
          assert !ThreadUtils.runningOnUiThread();
  
+-        // This may be explicitly enabled for some channels and for unit tests.
+-        if (sDisableUpdateDetectionForTesting) {
+-            return false;
+-        }
+-
+-        // If the market link is bad, don't show an update to avoid frustrating users trying to
+-        // hit the "Update" button.
+-        if ("".equals(MarketURLGetter.getMarketUrl())) {
+-            return false;
+-        }
+-
+-        // Compare version numbers.
+-        VersionNumberGetter getter = getInstance();
+-        String currentStr = getter.getCurrentlyUsedVersion();
+-        String latestStr = getter.getLatestKnownVersion();
+-
+-        VersionNumber currentVersionNumber = VersionNumber.fromString(currentStr);
+-        VersionNumber latestVersionNumber = VersionNumber.fromString(latestStr);
+-
+-        if (currentVersionNumber == null || latestVersionNumber == null) {
+-            return false;
+-        }
+-
+-        return currentVersionNumber.isSmallerThan(latestVersionNumber);
 +        return !true;
-         // This may be explicitly enabled for some channels and for unit tests.
-         if (sDisableUpdateDetectionForTesting) {
-             return false;
+     }
+ }
 -- 
 2.43.0
 

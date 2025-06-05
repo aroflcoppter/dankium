@@ -1,67 +1,69 @@
-From 6e6e5e07f36cf631846800f569d7406f55ae6b62 Mon Sep 17 00:00:00 2001
+From 19122cc75742aca68f3ca41db12538756929add2 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
-Date: Thu, 5 Jun 2025 00:09:52 -0230
+Date: Thu, 5 Jun 2025 04:11:16 -0230
 Subject: [PATCH] Disable optimization guides
 
 ---
- .../core/optimization_guide_features.cc       | 19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ .../core/optimization_guide_features.cc          | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
 diff --git a/components/optimization_guide/core/optimization_guide_features.cc b/components/optimization_guide/core/optimization_guide_features.cc
-index 8b6cb44ef9df0..8a7cde7d58f82 100644
+index 8b6cb44ef9df0..2b5c62d6c0eb1 100644
 --- a/components/optimization_guide/core/optimization_guide_features.cc
 +++ b/components/optimization_guide/core/optimization_guide_features.cc
-@@ -50,16 +50,19 @@ constexpr auto enabled_by_default_mobile_only =
+@@ -46,20 +46,22 @@ constexpr auto enabled_by_default_mobile_only =
+ 
+ }  // namespace
+ 
++const base::FeatureState kDisabledByDefault = base::FEATURE_DISABLED_BY_DEFAULT;
++
+ // Enables the syncing of the Optimization Hints component, which provides
  // hints for what optimizations can be applied on a page load.
  BASE_FEATURE(kOptimizationHints,
               "OptimizationHints",
 -             base::FEATURE_ENABLED_BY_DEFAULT);
--
-+             // Define a constant for the disabled state at file scope
-+             namespace {
-+             const base::FeatureState kDisabledByDefault = base::FEATURE_DISABLED_BY_DEFAULT;
-+             } // namespace
-+             kDisabledByDefault);
++             kDisabledByDefault);
+ 
  // Enables fetching from a remote Optimization Guide Service.
  BASE_FEATURE(kRemoteOptimizationGuideFetching,
               "OptimizationHintsFetching",
 -             base::FEATURE_ENABLED_BY_DEFAULT);
-+             kDisabledByDefault);
++             kDisabledByDefault);
  
  BASE_FEATURE(kRemoteOptimizationGuideFetchingAnonymousDataConsent,
               "OptimizationHintsFetchingAnonymousDataConsent",
 -             base::FEATURE_ENABLED_BY_DEFAULT);
-+             kDisabledByDefault);
++             kDisabledByDefault);
  
  // Enables the prediction of optimization targets.
  BASE_FEATURE(kOptimizationTargetPrediction,
-@@ -70,9 +73,9 @@ BASE_FEATURE(kOptimizationTargetPrediction,
+@@ -70,9 +72,9 @@ BASE_FEATURE(kOptimizationTargetPrediction,
  BASE_FEATURE(kOptimizationGuideModelDownloading,
               "OptimizationGuideModelDownloading",
  #if BUILDFLAG(BUILD_WITH_TFLITE_LIB)
 -             base::FEATURE_ENABLED_BY_DEFAULT
-+             kDisabledByDefault
++             kDisabledByDefault
  #else   // BUILD_WITH_TFLITE_LIB
 -             base::FEATURE_DISABLED_BY_DEFAULT
-+             kDisabledByDefault
++             kDisabledByDefault
  #endif  // !BUILD_WITH_TFLITE_LIB
  );
  
-@@ -113,7 +116,7 @@ BASE_FEATURE(kOptimizationGuideFetchingForSRP,
+@@ -113,7 +115,7 @@ BASE_FEATURE(kOptimizationGuideFetchingForSRP,
  // Kill switch for disabling model quality logging.
  BASE_FEATURE(kModelQualityLogging,
               "ModelQualityLogging",
 -             base::FEATURE_ENABLED_BY_DEFAULT);
-+             kDisabledByDefault);
++             kDisabledByDefault);
  
  // Enables fetching personalized metadata from Optimization Guide Service.
  BASE_FEATURE(kOptimizationGuidePersonalizedFetching,
-@@ -157,7 +160,7 @@ BASE_FEATURE(kLogOnDeviceMetricsOnStartup,
+@@ -157,7 +159,7 @@ BASE_FEATURE(kLogOnDeviceMetricsOnStartup,
  // Whether to download the text safety classifier model.
  BASE_FEATURE(kTextSafetyClassifier,
               "TextSafetyClassifier",
 -             base::FEATURE_ENABLED_BY_DEFAULT);
-+             kDisabledByDefault);
++             kDisabledByDefault);
  
  // Whether to scan the full text when running the language detection in the text
  // safety classifier.

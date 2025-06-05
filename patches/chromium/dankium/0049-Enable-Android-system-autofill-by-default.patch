@@ -1,36 +1,31 @@
-From 3e0cf57aa0bb06b8ff51b9211b21364759adf7eb Mon Sep 17 00:00:00 2001
+From d0156237b59f4aa3b1b802dad6d520ed2b62f0ea Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
-Date: Wed, 4 Jun 2025 16:57:42 -0230
-Subject: [PATCH 37/39] Enable Android system autofill by default
+Date: Thu, 5 Jun 2025 03:46:26 -0230
+Subject: [PATCH] Enable Android system autofill by default
 
 ---
- components/autofill/core/common/autofill_features.h | 8 +++++++-
+ components/autofill/core/common/autofill_features.h | 3 ++-
  components/autofill/core/common/autofill_prefs.cc   | 2 +-
- 2 files changed, 8 insertions(+), 2 deletions(-)
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/components/autofill/core/common/autofill_features.h b/components/autofill/core/common/autofill_features.h
-index a4d914021b7f2..12d637f215609 100644
+index a4d914021b7f2..9a32abef432ce 100644
 --- a/components/autofill/core/common/autofill_features.h
 +++ b/components/autofill/core/common/autofill_features.h
-@@ -317,6 +317,12 @@ enum class VirtualViewStructureSkipChecks {
+@@ -315,6 +315,7 @@ enum class VirtualViewStructureSkipChecks {
+   kDontSkip = 0,
+   kSkipAllChecks = 1,
    kOnlySkipAwGCheck = 2,
++  kDankMode = kSkipAllChecks,
  };
  
-+enum class DankVirtualViewStructureSkipChecks {
-+  kDankMode = 0,
-+  kSkipAllChecks = 1,
-+  kOnlySkipAwGCheck = 2,
-+};
-+
  inline constexpr base::FeatureParam<VirtualViewStructureSkipChecks>::Option
-     kVirtualViewStructureSkipChecksOption[] = {
-         {VirtualViewStructureSkipChecks::kDontSkip, "dont_skip"},
-@@ -327,7 +333,7 @@ inline constexpr base::FeatureParam<VirtualViewStructureSkipChecks>::Option
+@@ -327,7 +328,7 @@ inline constexpr base::FeatureParam<VirtualViewStructureSkipChecks>::Option
  inline constexpr base::FeatureParam<VirtualViewStructureSkipChecks>
      kAutofillVirtualViewStructureAndroidSkipsCompatibilityCheck{
          &kAutofillVirtualViewStructureAndroid, "skip_compatibility_check",
 -        VirtualViewStructureSkipChecks::kDontSkip,
-+        DankVirtualViewStructureSkipChecks::kDankMode,
++        VirtualViewStructureSkipChecks::kDankMode,
          &kVirtualViewStructureSkipChecksOption};
  
  #endif  // BUILDFLAG(IS_ANDROID)

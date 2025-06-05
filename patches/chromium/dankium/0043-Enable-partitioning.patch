@@ -1,19 +1,17 @@
-From 8a6731a2039c332304572a734c66788cf74dd088 Mon Sep 17 00:00:00 2001
+From 2b7b6b8544894ed16069ef49a1420e4b402d5f2b Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
-Date: Thu, 5 Jun 2025 00:39:33 -0230
-Subject: [PATCH] Enable partitioning
+Date: Thu, 5 Jun 2025 03:29:26 -0230
+Subject: [PATCH 1/2] Enable partitioning
 
 ---
- net/base/features.cc | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/base/features.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/net/base/features.cc b/net/base/features.cc
-index 45c7c6c029ea8..ee50df8a046f3 100644
+index bad06c9cdc423..c4ac8133a1a7a 100644
 --- a/net/base/features.cc
 +++ b/net/base/features.cc
-@@ -138,9 +138,11 @@ BASE_FEATURE(kSplitCodeCacheByNetworkIsolationKey,
-              "SplitCodeCacheByNetworkIsolationKey",
-              kEnabledByDefault);
+@@ -138,7 +138,7 @@ BASE_FEATURE(kSplitCodeCacheByNetworkIsolationKey,
  
  BASE_FEATURE(kPartitionConnectionsByNetworkIsolationKey,
               "PartitionConnectionsByNetworkIsolationKey",

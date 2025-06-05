@@ -1,24 +1,24 @@
-From 57c04e3062d68abf7646267e4c41c48ac52ef832 Mon Sep 17 00:00:00 2001
+From dc910b75dd0ca17ac3ad9c429300125464fbb2e6 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
-Date: Wed, 4 Jun 2025 23:56:11 -0230
-Subject: [PATCH 3/3] Disable sensors by default
+Date: Thu, 5 Jun 2025 03:59:30 -0230
+Subject: [PATCH] Disable sensors by default
 
 ---
  .../core/browser/content_settings_registry.cc                 | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/components/content_settings/core/browser/content_settings_registry.cc b/components/content_settings/core/browser/content_settings_registry.cc
-index 857455b9acce7..b951d3281117e 100644
+index 1e848312342b1..467172c6ad31b 100644
 --- a/components/content_settings/core/browser/content_settings_registry.cc
 +++ b/components/content_settings/core/browser/content_settings_registry.cc
-@@ -387,7 +387,9 @@ void ContentSettingsRegistry::Init() {
+@@ -389,7 +389,9 @@ void ContentSettingsRegistry::Init() {
    // TODO(crbug.com/40602007): Update this to "SECURE_ONLY" once
    // DeviceOrientationEvents and DeviceMotionEvents are only fired in secure
    // contexts.
 -  Register(ContentSettingsType::SENSORS, "sensors", CONTENT_SETTING_ALLOW,
-+   // Define a local constant for the default sensor setting
-+   const ContentSetting kDefaultSensorSetting = CONTENT_SETTING_BLOCK;
-+  Register(ContentSettingsType::SENSORS, "sensors", kDefaultSensorSetting,
++  const ContentSetting kDefaultSensorSetting = CONTENT_SETTING_BLOCK;
++
++  Register(ContentSettingsType::SENSORS, "sensors", kDefaultSensorSetting,
             WebsiteSettingsInfo::UNSYNCABLE, /*allowlisted_primary_schemes=*/{},
             /*valid_settings=*/{CONTENT_SETTING_ALLOW, CONTENT_SETTING_BLOCK},
             WebsiteSettingsInfo::TOP_ORIGIN_ONLY_SCOPE,

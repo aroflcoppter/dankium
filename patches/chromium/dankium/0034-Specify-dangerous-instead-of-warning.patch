@@ -1,27 +1,52 @@
-From 73c6d96f02193d69d9d576e5a016872e1278c06b Mon Sep 17 00:00:00 2001
+From 06176e567fb626e7048e1e3203a331e540e75a37 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
-Date: Wed, 4 Jun 2025 15:48:42 -0230
-Subject: [PATCH 22/39] Specify dangerous instead of warning
+Date: Thu, 5 Jun 2025 04:07:01 -0230
+Subject: [PATCH] Specify dangerous instead of warning
 
 ---
- components/security_state/core/security_state.cc | 8 +++++---
- components/security_state/core/security_state.h  | 1 +
- 2 files changed, 6 insertions(+), 3 deletions(-)
+ components/omnibox/browser/location_bar_model_util.cc | 1 +
+ components/payments/content/ssl_validity_checker.cc   | 1 +
+ components/security_state/core/security_state.cc      | 7 ++++---
+ components/security_state/core/security_state.h       | 1 +
+ 4 files changed, 7 insertions(+), 3 deletions(-)
 
+diff --git a/components/omnibox/browser/location_bar_model_util.cc b/components/omnibox/browser/location_bar_model_util.cc
+index 8f467ed6b5913..4c9149c42d658 100644
+--- a/components/omnibox/browser/location_bar_model_util.cc
++++ b/components/omnibox/browser/location_bar_model_util.cc
+@@ -32,6 +32,7 @@ const gfx::VectorIcon& GetSecurityVectorIcon(
+       return omnibox::kSecurePageInfoChromeRefreshIcon;
+     case security_state::WARNING:
+       return vector_icons::kNotSecureWarningChromeRefreshIcon;
++    case security_state::NONDANK:
+     case security_state::DANGEROUS:
+       if (malicious_content_status ==
+               security_state::MALICIOUS_CONTENT_STATUS_MANAGED_POLICY_WARN ||
+diff --git a/components/payments/content/ssl_validity_checker.cc b/components/payments/content/ssl_validity_checker.cc
+index 1a1ba1df4280f..e5f4530ce8cfb 100644
+--- a/components/payments/content/ssl_validity_checker.cc
++++ b/components/payments/content/ssl_validity_checker.cc
+@@ -37,6 +37,7 @@ std::string SslValidityChecker::GetInvalidSslCertificateErrorMessage(
+     case security_state::WARNING:
+       level = "WARNING";
+       break;
++    case security_state::NONDANK:
+     case security_state::DANGEROUS:
+       level = "DANGEROUS";
+       break;
 diff --git a/components/security_state/core/security_state.cc b/components/security_state/core/security_state.cc
-index 16da2d3f268d9..2436597f22249 100644
+index 16da2d3f268d9..681b2d3c2e66f 100644
 --- a/components/security_state/core/security_state.cc
 +++ b/components/security_state/core/security_state.cc
-@@ -31,6 +31,8 @@ std::string GetHistogramSuffixForSecurityLevel(
+@@ -29,6 +29,7 @@ std::string GetHistogramSuffixForSecurityLevel(
+       return "NONE";
+     case WARNING:
        return "WARNING";
++    case NONDANK:
      case DANGEROUS:
        return "DANGEROUS";
-+    case NONDANK:
-+      return "DANGEROUS";
      default:
-       return "OTHER";
-   }
-@@ -74,7 +76,7 @@ SecurityLevel GetSecurityLevel(
+@@ -74,7 +75,7 @@ SecurityLevel GetSecurityLevel(
    // occurred due to an upgraded main-frame navigation).
    if (visible_security_state.is_https_only_mode_upgraded &&
        visible_security_state.is_error_page) {
@@ -30,7 +55,7 @@ index 16da2d3f268d9..2436597f22249 100644
    }
  
    if (!visible_security_state.connection_info_initialized) {
-@@ -92,7 +94,7 @@ SecurityLevel GetSecurityLevel(
+@@ -92,7 +93,7 @@ SecurityLevel GetSecurityLevel(
    // data: URLs don't define a secure context, and are a vector for spoofing.
    // Display a "Not secure" badge for all these URLs.
    if (url.SchemeIs(url::kDataScheme)) {
@@ -39,7 +64,7 @@ index 16da2d3f268d9..2436597f22249 100644
    }
  
    // Display DevTools pages as neutral since we can't be confident the page
-@@ -133,7 +135,7 @@ SecurityLevel GetSecurityLevel(
+@@ -133,7 +134,7 @@ SecurityLevel GetSecurityLevel(
          return NONE;
        }
  #endif  // !BUILDFLAG(IS_ANDROID)
@@ -49,17 +74,17 @@ index 16da2d3f268d9..2436597f22249 100644
      return NONE;
    }
 diff --git a/components/security_state/core/security_state.h b/components/security_state/core/security_state.h
-index 04f8bbd2faa1b..0e866065da47b 100644
+index 04f8bbd2faa1b..4ba0837746b7a 100644
 --- a/components/security_state/core/security_state.h
 +++ b/components/security_state/core/security_state.h
-@@ -68,6 +68,7 @@ enum SecurityLevel {
+@@ -67,6 +67,7 @@ enum SecurityLevel {
+   // Attempted HTTPS and failed, page not authenticated, HTTPS with
    // insecure active content on the page, malware, phishing, or any other
    // serious security issue that could be dangerous.
++  NONDANK = 69,
    DANGEROUS = 5,
-+  NONDANK = 5,
  
    // Pages deemed insecure, where we should show a warning indicator. This
-   // includes HTTP pages (previously these were HTTP_SHOW_WARNING) and cases
 -- 
 2.43.0
 
