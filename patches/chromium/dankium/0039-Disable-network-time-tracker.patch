@@ -1,0 +1,36 @@
+From 3ac28d39d80df317c82a602e51c01702a7d98dc1 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Thu, 5 Jun 2025 00:14:53 -0230
+Subject: [PATCH] Disable network time tracker
+
+---
+ components/network_time/network_time_tracker.cc | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/components/network_time/network_time_tracker.cc b/components/network_time/network_time_tracker.cc
+index 2d767ab2fc611..ead90c3183daf 100644
+--- a/components/network_time/network_time_tracker.cc
++++ b/components/network_time/network_time_tracker.cc
+@@ -56,16 +56,17 @@
+ 
+ namespace network_time {
+ 
++const base::FeatureState kDisabledByDefault = base::FEATURE_DISABLED_BY_DEFAULT;
+ // Network time queries are enabled on Android and all desktop platforms except
+ // Chrome OS, which uses tlsdated to set the system time.
+ #if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_IOS)
+ BASE_FEATURE(kNetworkTimeServiceQuerying,
+              "NetworkTimeServiceQuerying",
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             kDisabledByDefault);
+ #else
+ BASE_FEATURE(kNetworkTimeServiceQuerying,
+              "NetworkTimeServiceQuerying",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             kDisabledByDefault);
+ #endif
+ 
+ namespace {
+-- 
+2.43.0
+

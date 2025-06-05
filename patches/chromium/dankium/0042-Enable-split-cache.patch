@@ -1,36 +1,40 @@
-From c0b17fceae75bd0d51b5bbf522c063d2af11735c Mon Sep 17 00:00:00 2001
+From d11b5595b59ca1b24eba744ce3396c06519e7296 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
-Date: Wed, 4 Jun 2025 16:41:38 -0230
-Subject: [PATCH 30/39] Enable split cache
+Date: Thu, 5 Jun 2025 00:37:15 -0230
+Subject: [PATCH] Enable split cache
 
 ---
- net/base/features.cc | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/base/features.cc | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
 diff --git a/net/base/features.cc b/net/base/features.cc
-index bad06c9cdc423..ad9d8a2a9081a 100644
+index bad06c9cdc423..45c7c6c029ea8 100644
 --- a/net/base/features.cc
 +++ b/net/base/features.cc
-@@ -119,11 +119,11 @@ const base::FeatureParam<base::TimeDelta>
+@@ -117,13 +117,15 @@ const base::FeatureParam<base::TimeDelta>
+         &kNetworkQualityEstimator,
+         "EffectiveConnectionTypeRecomputationInterval", base::Seconds(10)};
  
++const base::FeatureState kEnabledByDefault = base::FEATURE_ENABLED_BY_DEFAULT;
++
  BASE_FEATURE(kSplitCacheByIncludeCredentials,
               "SplitCacheByIncludeCredentials",
 -             base::FEATURE_DISABLED_BY_DEFAULT);
-+             base::DANK_FEATURE_ENABLED);
++             kEnabledByDefault);
  
  BASE_FEATURE(kSplitCacheByNetworkIsolationKey,
               "SplitCacheByNetworkIsolationKey",
 -             base::FEATURE_DISABLED_BY_DEFAULT);
-+             base::DANK_FEATURE_ENABLED);
++             kEnabledByDefault);
  
  // Note: Use of this feature is gated on the HTTP cache itself being
  // partitioned, which is controlled by the kSplitCacheByNetworkIsolationKey
-@@ -134,7 +134,7 @@ BASE_FEATURE(kSplitCacheByCrossSiteMainFrameNavigationBoolean,
+@@ -134,7 +136,7 @@ BASE_FEATURE(kSplitCacheByCrossSiteMainFrameNavigationBoolean,
  
  BASE_FEATURE(kSplitCodeCacheByNetworkIsolationKey,
               "SplitCodeCacheByNetworkIsolationKey",
 -             base::FEATURE_DISABLED_BY_DEFAULT);
-+             base::DANK_FEATURE_ENABLED);
++             kEnabledByDefault);
  
  BASE_FEATURE(kPartitionConnectionsByNetworkIsolationKey,
               "PartitionConnectionsByNetworkIsolationKey",

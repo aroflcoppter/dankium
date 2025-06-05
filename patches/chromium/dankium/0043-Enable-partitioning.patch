@@ -1,0 +1,29 @@
+From 8a6731a2039c332304572a734c66788cf74dd088 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Thu, 5 Jun 2025 00:39:33 -0230
+Subject: [PATCH] Enable partitioning
+
+---
+ net/base/features.cc | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/net/base/features.cc b/net/base/features.cc
+index 45c7c6c029ea8..ee50df8a046f3 100644
+--- a/net/base/features.cc
++++ b/net/base/features.cc
+@@ -138,9 +138,11 @@ BASE_FEATURE(kSplitCodeCacheByNetworkIsolationKey,
+              "SplitCodeCacheByNetworkIsolationKey",
+              kEnabledByDefault);
+ 
++const base::FeatureState kEnabledByDefault = base::FEATURE_ENABLED_BY_DEFAULT;
++
+ BASE_FEATURE(kPartitionConnectionsByNetworkIsolationKey,
+              "PartitionConnectionsByNetworkIsolationKey",
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             kEnabledByDefault);
+ 
+ BASE_FEATURE(kPostQuantumKyber,
+              "PostQuantumKyber",
+-- 
+2.43.0
+

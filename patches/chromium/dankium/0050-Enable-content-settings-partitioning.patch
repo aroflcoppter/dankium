@@ -1,0 +1,29 @@
+From 9deb7a5d49dccb1dc4660018f0b56fffe8c8b536 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Thu, 5 Jun 2025 00:34:12 -0230
+Subject: [PATCH] Enable content settings partitioning
+
+---
+ components/content_settings/core/common/features.cc | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/components/content_settings/core/common/features.cc b/components/content_settings/core/common/features.cc
+index 3cfa770ae49b7..d4adb33e8090e 100644
+--- a/components/content_settings/core/common/features.cc
++++ b/components/content_settings/core/common/features.cc
+@@ -159,9 +159,11 @@ const base::FeatureParam<EnableForIframeTypes>
+         kTpcdPopupHeuristicEnableForIframeInitiatorName,
+         EnableForIframeTypes::kAll, &kEnableForIframeTypesOptions};
+ 
++const base::FeatureState kEnabledByDefault = base::FEATURE_ENABLED_BY_DEFAULT;
++
+ BASE_FEATURE(kContentSettingsPartitioning,
+              "ContentSettingsPartitioning",
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             kEnabledByDefault);
+ 
+ }  // namespace features
+ }  // namespace content_settings
+-- 
+2.43.0
+

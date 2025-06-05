@@ -1,57 +1,66 @@
-From 53f68455ffae66fcb85bd3bedb4c1308667d9fe5 Mon Sep 17 00:00:00 2001
+From 12007b63591fcf7f6f9d1574dd20cd1832491279 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
-Date: Wed, 4 Jun 2025 15:45:38 -0230
-Subject: [PATCH 21/39] Disable privacy sandbox features
+Date: Thu, 5 Jun 2025 00:28:56 -0230
+Subject: [PATCH] Disable privacy sandbox features
 
 ---
- components/privacy_sandbox/privacy_sandbox_features.cc | 2 +-
- services/network/public/cpp/features.cc                | 2 +-
- third_party/blink/common/features.cc                   | 4 ++--
- 3 files changed, 4 insertions(+), 4 deletions(-)
+ components/privacy_sandbox/privacy_sandbox_features.cc | 3 ++-
+ services/network/public/cpp/features.cc                | 3 ++-
+ third_party/blink/common/features.cc                   | 5 +++--
+ 3 files changed, 7 insertions(+), 4 deletions(-)
 
 diff --git a/components/privacy_sandbox/privacy_sandbox_features.cc b/components/privacy_sandbox/privacy_sandbox_features.cc
-index 03301e5ff2980..d7edf711d4ac0 100644
+index 03301e5ff2980..05f7115c61d92 100644
 --- a/components/privacy_sandbox/privacy_sandbox_features.cc
 +++ b/components/privacy_sandbox/privacy_sandbox_features.cc
-@@ -21,7 +21,7 @@ const base::FeatureParam<std::string> kPrivacySandboxAdsNoticeCCTAppId{
+@@ -19,9 +19,10 @@ const base::FeatureParam<std::string> kPrivacySandboxAdsNoticeCCTAppId{
+     &kPrivacySandboxAdsNoticeCCT, kPrivacySandboxAdsNoticeCCTAppIdName, ""};
+ #endif  // BUILDFLAG(IS_ANDROID)
  
++const base::FeatureState kDisabledByDefault = base::FEATURE_DISABLED_BY_DEFAULT;
  BASE_FEATURE(kPrivacySandboxSettings4,
               "PrivacySandboxSettings4",
 -             base::FEATURE_ENABLED_BY_DEFAULT);
-+             base::NONDANK_FEATURE_DISABLED);
++             kDisabledByDefault);
  
  const char kPrivacySandboxSettings4ConsentRequiredName[] = "consent-required";
  const char kPrivacySandboxSettings4NoticeRequiredName[] = "notice-required";
 diff --git a/services/network/public/cpp/features.cc b/services/network/public/cpp/features.cc
-index 50aeaa0a1beee..b1289a72f2064 100644
+index 50aeaa0a1beee..6eadd1ab99467 100644
 --- a/services/network/public/cpp/features.cc
 +++ b/services/network/public/cpp/features.cc
-@@ -476,7 +476,7 @@ BASE_FEATURE(kUpdateRequestForCorsRedirect,
+@@ -474,9 +474,10 @@ BASE_FEATURE(kUpdateRequestForCorsRedirect,
+ 
+ // https://github.com/patcg-individual-drafts/topics
  // Kill switch for the Topics API.
++const base::FeatureState kDisabledByDefault = base::FEATURE_DISABLED_BY_DEFAULT;
  BASE_FEATURE(kBrowsingTopics,
               "BrowsingTopics",
 -             base::FEATURE_ENABLED_BY_DEFAULT);
-+             base::NONDANK_FEATURE_DISABLED);
++             kDisabledByDefault);
  
  // Enable the shared storage API. Note that enabling this feature does not
  // automatically expose this API to the web, it only allows the element to be
 diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
-index 3e6b78be4bc3c..36916eb9ce90b 100644
+index 3e6b78be4bc3c..b7a51ac04195a 100644
 --- a/third_party/blink/common/features.cc
 +++ b/third_party/blink/common/features.cc
-@@ -249,13 +249,13 @@ BASE_FEATURE(kBrowsingTopicsBypassIPIsPubliclyRoutableCheck,
+@@ -247,15 +247,16 @@ BASE_FEATURE(kBrowsingTopicsBypassIPIsPubliclyRoutableCheck,
+ // feature has to be enabled first (i.e. `kBrowsingTopics` is enabled, and,
+ // either a valid Origin Trial token exists or `kPrivacySandboxAdsAPIsOverride`
  // is enabled.)
++const base::FeatureState kDisabledByDefault = base::FEATURE_DISABLED_BY_DEFAULT;
  BASE_FEATURE(kBrowsingTopicsDocumentAPI,
               "BrowsingTopicsDocumentAPI",
 -             base::FEATURE_ENABLED_BY_DEFAULT);
-+             base::NONDANK_FEATURE_DISABLED);
++             kDisabledByDefault);
  
  // Decoupled with the main `kBrowsingTopics` feature, so it allows us to
  // decouple the server side configs.
  BASE_FEATURE(kBrowsingTopicsParameters,
               "BrowsingTopicsParameters",
 -             base::FEATURE_ENABLED_BY_DEFAULT);
-+             base::NONDANK_FEATURE_DISABLED);
++             kDisabledByDefault);
  // The periodic topics calculation interval.
  BASE_FEATURE_PARAM(base::TimeDelta,
                     kBrowsingTopicsTimePeriodPerEpoch,

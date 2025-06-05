@@ -1,60 +1,67 @@
-From aed23a5017b3ec50e6ebd5d0bcbdd913db42d93d Mon Sep 17 00:00:00 2001
+From 6e6e5e07f36cf631846800f569d7406f55ae6b62 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
-Date: Wed, 4 Jun 2025 16:23:52 -0230
-Subject: [PATCH 26/39] Disable optimziation guides
+Date: Thu, 5 Jun 2025 00:09:52 -0230
+Subject: [PATCH] Disable optimization guides
 
 ---
- .../core/optimization_guide_features.cc              | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ .../core/optimization_guide_features.cc       | 19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
 diff --git a/components/optimization_guide/core/optimization_guide_features.cc b/components/optimization_guide/core/optimization_guide_features.cc
-index 8b6cb44ef9df0..79fa13b04f112 100644
+index 8b6cb44ef9df0..8a7cde7d58f82 100644
 --- a/components/optimization_guide/core/optimization_guide_features.cc
 +++ b/components/optimization_guide/core/optimization_guide_features.cc
-@@ -50,16 +50,16 @@ constexpr auto enabled_by_default_mobile_only =
+@@ -50,16 +50,19 @@ constexpr auto enabled_by_default_mobile_only =
  // hints for what optimizations can be applied on a page load.
  BASE_FEATURE(kOptimizationHints,
               "OptimizationHints",
 -             base::FEATURE_ENABLED_BY_DEFAULT);
-+             base::NONDANK_FEATURE_DISABLED);
- 
+-
++             // Define a constant for the disabled state at file scope
++             namespace {
++             const base::FeatureState kDisabledByDefault = base::FEATURE_DISABLED_BY_DEFAULT;
++             } // namespace
++             kDisabledByDefault);
  // Enables fetching from a remote Optimization Guide Service.
  BASE_FEATURE(kRemoteOptimizationGuideFetching,
               "OptimizationHintsFetching",
 -             base::FEATURE_ENABLED_BY_DEFAULT);
-+             base::NONDANK_FEATURE_DISABLED);
++             kDisabledByDefault);
  
  BASE_FEATURE(kRemoteOptimizationGuideFetchingAnonymousDataConsent,
               "OptimizationHintsFetchingAnonymousDataConsent",
 -             base::FEATURE_ENABLED_BY_DEFAULT);
-+             base::NONDANK_FEATURE_DISABLED);
++             kDisabledByDefault);
  
  // Enables the prediction of optimization targets.
  BASE_FEATURE(kOptimizationTargetPrediction,
-@@ -70,7 +70,7 @@ BASE_FEATURE(kOptimizationTargetPrediction,
+@@ -70,9 +73,9 @@ BASE_FEATURE(kOptimizationTargetPrediction,
  BASE_FEATURE(kOptimizationGuideModelDownloading,
               "OptimizationGuideModelDownloading",
  #if BUILDFLAG(BUILD_WITH_TFLITE_LIB)
 -             base::FEATURE_ENABLED_BY_DEFAULT
-+             base::NONDANK_FEATURE_DISABLED
++             kDisabledByDefault
  #else   // BUILD_WITH_TFLITE_LIB
-              base::FEATURE_DISABLED_BY_DEFAULT
+-             base::FEATURE_DISABLED_BY_DEFAULT
++             kDisabledByDefault
  #endif  // !BUILD_WITH_TFLITE_LIB
-@@ -118,7 +118,7 @@ BASE_FEATURE(kModelQualityLogging,
+ );
+ 
+@@ -113,7 +116,7 @@ BASE_FEATURE(kOptimizationGuideFetchingForSRP,
+ // Kill switch for disabling model quality logging.
+ BASE_FEATURE(kModelQualityLogging,
+              "ModelQualityLogging",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             kDisabledByDefault);
+ 
  // Enables fetching personalized metadata from Optimization Guide Service.
  BASE_FEATURE(kOptimizationGuidePersonalizedFetching,
-              "OptimizationPersonalizedHintsFetching",
--             base::FEATURE_ENABLED_BY_DEFAULT);
-+             base::NONDANK_FEATURE_DISABLED);
- 
- // An emergency kill switch feature to stop serving certain model versions per
- // optimization target. This is useful in exceptional situations when a bad
-@@ -157,7 +157,7 @@ BASE_FEATURE(kLogOnDeviceMetricsOnStartup,
+@@ -157,7 +160,7 @@ BASE_FEATURE(kLogOnDeviceMetricsOnStartup,
  // Whether to download the text safety classifier model.
  BASE_FEATURE(kTextSafetyClassifier,
               "TextSafetyClassifier",
 -             base::FEATURE_ENABLED_BY_DEFAULT);
-+             base::NONDANK_FEATURE_DISABLED);
++             kDisabledByDefault);
  
  // Whether to scan the full text when running the language detection in the text
  // safety classifier.

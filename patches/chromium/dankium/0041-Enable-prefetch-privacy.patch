@@ -1,0 +1,29 @@
+From cbba940451eda35ddffe60dbc8c7c8216f513f7c Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Thu, 5 Jun 2025 00:41:42 -0230
+Subject: [PATCH] Enable prefetch privacy
+
+---
+ third_party/blink/common/features.cc | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
+index b7a51ac04195a..e989b2d80e42f 100644
+--- a/third_party/blink/common/features.cc
++++ b/third_party/blink/common/features.cc
+@@ -2088,9 +2088,11 @@ BASE_FEATURE(kPrefetchFontLookupTables,
+ 
+ // Prefetch request properties are updated to be privacy-preserving. See
+ // crbug.com/988956.
++const base::FeatureState kEnabledByDefault = base::FEATURE_ENABLED_BY_DEFAULT;
++
+ BASE_FEATURE(kPrefetchPrivacyChanges,
+              "PrefetchPrivacyChanges",
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             kEnabledByDefault);
+ 
+ BASE_FEATURE(kPreloadingHeuristicsMLModel,
+              "PreloadingHeuristicsMLModel",
+-- 
+2.43.0
+

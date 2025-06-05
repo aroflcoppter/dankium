@@ -1,0 +1,30 @@
+From 8e5579d6e43ae6b59d878b2ced0fefd4a9209ed1 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Thu, 5 Jun 2025 00:54:46 -0230
+Subject: [PATCH] Enable strict origin isolation
+
+---
+ content/public/common/content_features.cc | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/content/public/common/content_features.cc b/content/public/common/content_features.cc
+index 2016abf289e54..2a5b5bd7d7bfb 100644
+--- a/content/public/common/content_features.cc
++++ b/content/public/common/content_features.cc
+@@ -1130,9 +1130,12 @@ BASE_FEATURE(kSpareRendererForSitePerProcess,
+ 
+ // Controls whether site isolation should use origins instead of scheme and
+ // eTLD+1.
++
++const base::FeatureState kEnabledByDefault = base::FEATURE_ENABLED_BY_DEFAULT;
++
+ BASE_FEATURE(kStrictOriginIsolation,
+              "StrictOriginIsolation",
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             kEnabledByDefault);
+ 
+ // Controls whether subframe process reuse should be restricted according to
+ // resource usage policies. Namely, a process that is already consuming too
+-- 
+2.43.0
+

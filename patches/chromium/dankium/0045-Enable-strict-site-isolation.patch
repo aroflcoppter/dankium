@@ -1,12 +1,12 @@
-From 365718cd5961d45d9d7794fc9f6b37cf0b24dee9 Mon Sep 17 00:00:00 2001
+From d74b6dcd21a625917cc66c7bf7599aca783842f1 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Wed, 4 Jun 2025 16:51:10 -0230
-Subject: [PATCH 3/6] Enable strict site isolation
+Subject: [PATCH] Enable strict site isolation
 
 ---
  chrome/browser/about_flags.cc    | 4 ++--
- chrome/common/chrome_features.cc | 6 +-----
- 2 files changed, 3 insertions(+), 7 deletions(-)
+ chrome/common/chrome_features.cc | 8 +++-----
+ 2 files changed, 5 insertions(+), 7 deletions(-)
 
 diff --git a/chrome/browser/about_flags.cc b/chrome/browser/about_flags.cc
 index f70ad7d822c4a..80f6c29a43b77 100644
@@ -31,11 +31,15 @@ index f70ad7d822c4a..80f6c29a43b77 100644
  #if !BUILDFLAG(IS_CHROMEOS)
      {"enable-isolated-web-apps", flag_descriptions::kEnableIsolatedWebAppsName,
 diff --git a/chrome/common/chrome_features.cc b/chrome/common/chrome_features.cc
-index c948e61ad53ed..984716fcc463b 100644
+index c948e61ad53ed..bd82588885353 100644
 --- a/chrome/common/chrome_features.cc
 +++ b/chrome/common/chrome_features.cc
-@@ -1393,11 +1393,7 @@ const base::FeatureParam<base::TimeDelta> kSCTLogMaxIngestionRandomDelay{
+@@ -1391,13 +1391,11 @@ const base::FeatureParam<base::TimeDelta> kSCTLogMaxIngestionRandomDelay{
+ //
+ // TODO(alexmos): Move this and the other site isolation features below to
  // browser_features, as they are only used on the browser side.
++const base::FeatureState kEnabledByDefault = base::FEATURE_ENABLED_BY_DEFAULT;
++
  BASE_FEATURE(kSitePerProcess,
               "SitePerProcess",
 -#if BUILDFLAG(IS_ANDROID) && !BUILDFLAG(ENABLE_ANDROID_SITE_ISOLATION)
@@ -43,7 +47,7 @@ index c948e61ad53ed..984716fcc463b 100644
 -#else
 -             base::FEATURE_ENABLED_BY_DEFAULT
 -#endif
-+             base::DANK_FEATURE_ENABLED
++             kEnabledByDefault
  );
  
  // The default behavior to opt devtools users out of

@@ -1,0 +1,28 @@
+From b31e5641548b1421ec01d000607ac4c6466707c4 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Thu, 5 Jun 2025 00:19:36 -0230
+Subject: [PATCH] Disable content feed suggestions
+
+---
+ components/feed/feed_feature_list.cc | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/components/feed/feed_feature_list.cc b/components/feed/feed_feature_list.cc
+index 5353c654dcd4c..550abfc00d164 100644
+--- a/components/feed/feed_feature_list.cc
++++ b/components/feed/feed_feature_list.cc
+@@ -24,9 +24,10 @@ const char kFeedHeaderRemovalTreatmentValue2[] = "none";
+ // InterestFeedV2 takes precedence over InterestFeedContentSuggestions.
+ // InterestFeedV2 is cached in ChromeCachedFlags. If the default value here is
+ // changed, please update the cached one's default value in CachedFeatureFlags.
++const base::FeatureState kDisabledByDefault = base::FEATURE_DISABLED_BY_DEFAULT;
+ BASE_FEATURE(kInterestFeedV2,
+              "InterestFeedV2",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             kDisabledByDefault);
+ 
+ BASE_FEATURE(kDiscoFeedEndpoint,
+              "DiscoFeedEndpoint",
+-- 
+2.43.0
+
