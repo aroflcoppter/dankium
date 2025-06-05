@@ -1,11 +1,12 @@
-From 191c2b908d567b91c99815fa6ed216c88b40611a Mon Sep 17 00:00:00 2001
+From f8a097bae89fd724261b2d852c10f4d22becdb30 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Wed, 4 Jun 2025 13:33:13 -0230
-Subject: [PATCH 04/39] Disable fetching variations on android
+Subject: [PATCH 6/6] Disable fetching variations on android
 
 ---
  .../chromium/chrome/browser/init/AsyncInitTaskRunner.java   | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ .../service/variations_field_trial_creator_base.cc          | 1 -
+ 2 files changed, 5 insertions(+), 2 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/init/AsyncInitTaskRunner.java b/chrome/android/java/src/org/chromium/chrome/browser/init/AsyncInitTaskRunner.java
 index 56c7d503f3fed..7ee30e848e7e7 100644
@@ -24,6 +25,18 @@ index 56c7d503f3fed..7ee30e848e7e7 100644
      }
  
      @VisibleForTesting
+diff --git a/components/variations/service/variations_field_trial_creator_base.cc b/components/variations/service/variations_field_trial_creator_base.cc
+index 49902902081c5..d5b5fb349017b 100644
+--- a/components/variations/service/variations_field_trial_creator_base.cc
++++ b/components/variations/service/variations_field_trial_creator_base.cc
+@@ -303,7 +303,6 @@ bool VariationsFieldTrialCreatorBase::SetUpFieldTrials(
+   // instance is set.
+   feature_list->RegisterExtraFeatureOverrides(extra_overrides);
+ 
+-  bool used_testing_config = false;
+   // TODO(crbug.com/40230862): Remove this code path.
+ #if BUILDFLAG(FIELDTRIAL_TESTING_ENABLED)
+   if (ShouldUseFieldTrialTestingConfig(command_line)) {
 -- 
 2.43.0
 

@@ -1,25 +1,33 @@
-From 92b406dafcbc59ea47b605118d101e8417677ae5 Mon Sep 17 00:00:00 2001
+From 6724f3210dc5ce4e337b13054236044aeb825bad Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Wed, 4 Jun 2025 13:55:15 -0230
-Subject: [PATCH 13/39] Block third party cookies
+Subject: [PATCH 5/6] Block third party cookies
 
 ---
- components/content_settings/core/browser/cookie_settings.cc | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../content_settings/core/browser/cookie_settings.cc   | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
 diff --git a/components/content_settings/core/browser/cookie_settings.cc b/components/content_settings/core/browser/cookie_settings.cc
-index f5567359dd911..8bd265d32a77b 100644
+index f5567359dd911..8ae284e68bfac 100644
 --- a/components/content_settings/core/browser/cookie_settings.cc
 +++ b/components/content_settings/core/browser/cookie_settings.cc
-@@ -94,7 +94,7 @@ void CookieSettings::RegisterProfilePrefs(
+@@ -92,10 +92,12 @@ ContentSettingsForOneType CookieSettings::GetCookieSettings() const {
+ 
+ void CookieSettings::RegisterProfilePrefs(
      user_prefs::PrefRegistrySyncable* registry) {
-   registry->RegisterIntegerPref(
-       prefs::kCookieControlsMode,
+-  registry->RegisterIntegerPref(
+-      prefs::kCookieControlsMode,
 -      static_cast<int>(CookieControlsMode::kIncognitoOnly),
-+      int block_mode_int = CookieControlsMode::kBlockThirdParty;
-       user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
+-      user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
++int default_cookie_mode_value = static_cast<int>(CookieControlsMode::kBlockThirdParty);
++
++    registry->RegisterIntegerPref(
++    prefs::kCookieControlsMode,
++    default_cookie_mode_value,
++    user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
  }
  
+ void CookieSettings::SetDefaultCookieSetting(ContentSetting setting) {
 -- 
 2.43.0
 

@@ -1,12 +1,12 @@
-From 1cd52586e09fa2153e82f54db4d2dab72d3fec7a Mon Sep 17 00:00:00 2001
+From d43526744a848ccf8549e6c770948456923e496a Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Wed, 4 Jun 2025 13:29:53 -0230
-Subject: [PATCH 03/39] Disable seed based field trials
+Subject: [PATCH 1/6] Disable seed based field trials
 
 ---
- .../variations_field_trial_creator_base.cc     | 12 +-----------
- .../variations/synthetic_trial_registry.cc     | 18 ------------------
- 2 files changed, 1 insertion(+), 29 deletions(-)
+ .../variations_field_trial_creator_base.cc    | 12 +----------
+ .../variations/synthetic_trial_registry.cc    | 20 +------------------
+ 2 files changed, 2 insertions(+), 30 deletions(-)
 
 diff --git a/components/variations/service/variations_field_trial_creator_base.cc b/components/variations/service/variations_field_trial_creator_base.cc
 index 4d71cf267b23a..49902902081c5 100644
@@ -39,13 +39,14 @@ index 4d71cf267b23a..49902902081c5 100644
  
    base::FeatureList::SetInstance(std::move(feature_list));
 diff --git a/components/variations/synthetic_trial_registry.cc b/components/variations/synthetic_trial_registry.cc
-index cd3eac8828f2e..07f4c88aa251d 100644
+index cd3eac8828f2e..310c9850c308e 100644
 --- a/components/variations/synthetic_trial_registry.cc
 +++ b/components/variations/synthetic_trial_registry.cc
-@@ -121,24 +121,6 @@ SyntheticTrialRegistry::GetCurrentSyntheticFieldTrialsForTest() const {
+@@ -120,25 +120,7 @@ SyntheticTrialRegistry::GetCurrentSyntheticFieldTrialsForTest() const {
+   return synthetic_trials;
  }
  
- void SyntheticTrialRegistry::RegisterSyntheticFieldTrial(
+-void SyntheticTrialRegistry::RegisterSyntheticFieldTrial(
 -    const SyntheticTrialGroup& trial) {
 -  for (auto& entry : synthetic_trial_groups_) {
 -    if (entry.id().name == trial.id().name) {
@@ -64,6 +65,7 @@ index cd3eac8828f2e..07f4c88aa251d 100644
 -  trial_group.SetStartTime(base::TimeTicks::Now());
 -  synthetic_trial_groups_.push_back(trial_group);
 -  NotifySyntheticTrialObservers({trial_group}, {});
++void SyntheticTrialRegistry::RegisterSyntheticFieldTrial(const SyntheticTrialGroup& trial){
  }
  
  std::string_view SyntheticTrialRegistry::GetStudyNameForExpId(

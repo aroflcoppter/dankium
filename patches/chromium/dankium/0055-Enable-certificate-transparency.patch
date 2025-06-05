@@ -1,22 +1,23 @@
-From c3a255fc7be2f4fd20d4b2626e1f352937aad8c5 Mon Sep 17 00:00:00 2001
+From e47a85bb3343b06ec1c90ca7421a06f40e9b7e76 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Wed, 4 Jun 2025 16:59:24 -0230
-Subject: [PATCH 39/39] Enable certificate transparency
+Subject: [PATCH 4/6] Enable certificate transparency
 
 ---
- chrome/browser/browser_features.cc | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ chrome/browser/browser_features.cc | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/chrome/browser/browser_features.cc b/chrome/browser/browser_features.cc
-index fdf45d1c2c8ea..759a1bcff8473 100644
+index fdf45d1c2c8ea..6b1d0d6c87c0f 100644
 --- a/chrome/browser/browser_features.cc
 +++ b/chrome/browser/browser_features.cc
-@@ -49,7 +49,7 @@ BASE_FEATURE(kBookmarkTriggerForPrerender2,
+@@ -49,7 +49,8 @@ BASE_FEATURE(kBookmarkTriggerForPrerender2,
  // switch.
  BASE_FEATURE(kCertificateTransparencyAskBeforeEnabling,
               "CertificateTransparencyAskBeforeEnabling",
 -#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
-+#if BUILDFLAG(!GOOGLE_CHROME_BRANDING)
++#if (BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_IOS) || BUILDFLAG(IS_BSD) || \
++     BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_FUCHSIA))
               base::FEATURE_ENABLED_BY_DEFAULT);
  #else
               base::FEATURE_DISABLED_BY_DEFAULT);
