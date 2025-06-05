@@ -15,8 +15,6 @@ index 45c7c6c029ea8..ee50df8a046f3 100644
               "SplitCodeCacheByNetworkIsolationKey",
               kEnabledByDefault);
  
-+const base::FeatureState kEnabledByDefault = base::FEATURE_ENABLED_BY_DEFAULT;
-+
  BASE_FEATURE(kPartitionConnectionsByNetworkIsolationKey,
               "PartitionConnectionsByNetworkIsolationKey",
 -             base::FEATURE_DISABLED_BY_DEFAULT);
