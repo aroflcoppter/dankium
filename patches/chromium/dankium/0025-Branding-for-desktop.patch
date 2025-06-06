@@ -1,14 +1,14 @@
-From 5371ccd82a2774f4f318dfcee21d8ed1b625e152 Mon Sep 17 00:00:00 2001
+From 0708f4bc25ed02d4e1970f01f106b65b4098df24 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Wed, 4 Jun 2025 03:34:36 -0230
 Subject: [PATCH] Branding for desktop
 
 ---
- chrome/app/chromium_strings.grd                 | 14 +++++++-------
- chrome/app/theme/chromium/BRANDING              | 12 ++++++------
- chrome/common/url_constants.h                   |  6 +++---
- chrome/install_static/chromium_install_modes.cc |  6 +++---
- 4 files changed, 19 insertions(+), 19 deletions(-)
+ chrome/app/chromium_strings.grd                | 14 +++++++-------
+ chrome/app/theme/chromium/BRANDING             | 18 +++++++++---------
+ chrome/common/url_constants.h                  | 16 ++++++++--------
+ .../install_static/chromium_install_modes.cc   |  6 +++---
+ 4 files changed, 27 insertions(+), 27 deletions(-)
 
 diff --git a/chrome/app/chromium_strings.grd b/chrome/app/chromium_strings.grd
 index 2e5d2a8929ca8..7614a8e23c2b3 100644
@@ -65,28 +65,31 @@ index 2e5d2a8929ca8..7614a8e23c2b3 100644
          <message name="IDS_INBOUND_MDNS_RULE_NAME_BETA" desc="Unused in Chromium builds" translateable="false">
          </message>
 diff --git a/chrome/app/theme/chromium/BRANDING b/chrome/app/theme/chromium/BRANDING
-index f8363d5b294fe..20ab62a0236fd 100644
+index f8363d5b294fe..d703208ef7e19 100644
 --- a/chrome/app/theme/chromium/BRANDING
 +++ b/chrome/app/theme/chromium/BRANDING
 @@ -1,10 +1,10 @@
- COMPANY_FULLNAME=The Chromium Authors
- COMPANY_SHORTNAME=The Chromium Authors
+-COMPANY_FULLNAME=The Chromium Authors
+-COMPANY_SHORTNAME=The Chromium Authors
 -PRODUCT_FULLNAME=Chromium
 -PRODUCT_SHORTNAME=Chromium
 -PRODUCT_INSTALLER_FULLNAME=Chromium Installer
 -PRODUCT_INSTALLER_SHORTNAME=Chromium Installer
 -COPYRIGHT=Copyright @LASTCHANGE_YEAR@ The Chromium Authors. All rights reserved.
 -MAC_BUNDLE_ID=org.chromium.Chromium
+-MAC_CREATOR_CODE=Cr24
++COMPANY_FULLNAME=aroflcoppter
++COMPANY_SHORTNAME=aroflcoppter
 +PRODUCT_FULLNAME=Dankium
 +PRODUCT_SHORTNAME=Dankium
 +PRODUCT_INSTALLER_FULLNAME=Dankium Installer
 +PRODUCT_INSTALLER_SHORTNAME=Dankium Installer
 +COPYRIGHT=Copyright @LASTCHANGE_YEAR@ aroflcopper.
 +MAC_BUNDLE_ID=app.dankium.browser
- MAC_CREATOR_CODE=Cr24
++MAC_CREATOR_CODE=arof
  MAC_TEAM_ID=
 diff --git a/chrome/common/url_constants.h b/chrome/common/url_constants.h
-index dfc4fd76bf02d..3571afad48979 100644
+index dfc4fd76bf02d..ed894a31a1e4b 100644
 --- a/chrome/common/url_constants.h
 +++ b/chrome/common/url_constants.h
 @@ -135,13 +135,13 @@ inline constexpr char kChromeHelpViaMenuURL[] =
@@ -114,6 +117,39 @@ index dfc4fd76bf02d..3571afad48979 100644
  
  #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
  // The URL for the "Clear browsing data in Chrome" help center article.
+@@ -635,19 +635,19 @@ inline constexpr char16_t kCwsEnhancedSafeBrowsingLearnMoreURL[] =
+ 
+ // The URL path to Google's Privacy Policy page.
+ inline constexpr char kPrivacyPolicyURL[] =
+-    "https://policies.google.com/privacy";
++    "https://dankium.ca/privacy.html";
+ 
+ // The URL path to Google's Privacy Policy page for users in China.
+ inline constexpr char kPrivacyPolicyURLChina[] =
+-    "https://policies.google.cn/privacy";
++    "https://dankium.ca/privacy.html";
+ 
+ // The URL path to Google's Embedded Privacy Policy page.
+ inline constexpr char kPrivacyPolicyOnlineURLPath[] =
+-    "https://policies.google.com/privacy/embedded";
++    "https://dankium.ca/privacy.html";
+ 
+ // The URL path to Google's Embedded Privacy Policy page for users in China.
+ inline constexpr char kPrivacyPolicyEmbeddedURLPathChina[] =
+-    "https://policies.google.cn/privacy/embedded";
++    "https://dankium.ca/privacy.html";
+ 
+ #if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
+ // "Learn more" URL for the enhanced playback notification dialog.
+@@ -851,7 +851,7 @@ inline constexpr char kGoogleEulaOnlineURLPath[] =
+ 
+ // The URL path to Online Chrome and Chrome OS terms of service.
+ inline constexpr char kCrosEulaOnlineURLPath[] =
+-    "https://www.google.com/intl/%s/chrome/terms/";
++    "https://dankium.ca/tos.html";
+ 
+ // The URL path to online ARC++ terms of service.
+ inline constexpr char kArcTosOnlineURLPath[] =
 diff --git a/chrome/install_static/chromium_install_modes.cc b/chrome/install_static/chromium_install_modes.cc
 index f5af44ca1c489..21ee38d240376 100644
 --- a/chrome/install_static/chromium_install_modes.cc
