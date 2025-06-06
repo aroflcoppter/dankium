@@ -1,14 +1,14 @@
-From eb3db2b85269e44c105c2f18686c120162268073 Mon Sep 17 00:00:00 2001
+From 47b8496f9eccf2067cbe1321917f7c670813e58e Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Tue, 3 Jun 2025 03:34:41 -0230
 Subject: [PATCH] Fixup settings strings for branding
 
 ---
- .../strings/android_chrome_strings.grd        | 27 ++++++++++---------
- 1 file changed, 15 insertions(+), 12 deletions(-)
+ .../strings/android_chrome_strings.grd        | 31 ++++++++++---------
+ 1 file changed, 17 insertions(+), 14 deletions(-)
 
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index 151d037f64820..d671fbd74b5ae 100644
+index 151d037f64820..b2f66c78d2d33 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
 @@ -287,7 +287,7 @@ CHAR_LIMIT guidelines:
@@ -42,11 +42,13 @@ index 151d037f64820..d671fbd74b5ae 100644
          About Chrome
        </message>
        <message name="IDS_LEGAL_INFORMATION_SUMMARY" desc="Summary for legal information" meaning="Android">
-+        Copyright <ph name="year">%1$d<ex>2025</ex></ph> aroflcoppter.
-         Copyright <ph name="year">%1$d<ex>2014</ex></ph> Google LLC. All rights reserved.
-+        Copyright (C) 2006-present eyeo GmbH.
-+        Copyright 2021 qua3kr@gmail.com.
-       </message>
+-        Copyright <ph name="year">%1$d<ex>2014</ex></ph> Google LLC. All rights reserved.
+-      </message>
++        &lt;p align="center"&gt;Copyright <ph name="year">%1$d<ex>2025</ex></ph> aroflcoppter.&lt;/p&gt;
++        &lt;p align="center"&gt;Copyright <ph name="year">%1$d<ex>2014</ex></ph> Google LLC. All rights reserved.&lt;/p&gt;
++        &lt;p align="center"&gt;Copyright (C) 2006-present eyeo GmbH.&lt;/p&gt;
++        &lt;p align="center"&gt;Copyright 2021 qua3kr@gmail.com.&lt;/p&gt;
++</message>
        <message name="IDS_APPLICATION_VERSION_TITLE" desc="Title for application version">
 -        Application version
 +        Dankium version
