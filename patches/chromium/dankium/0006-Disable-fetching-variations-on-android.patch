@@ -1,12 +1,12 @@
-From f8a097bae89fd724261b2d852c10f4d22becdb30 Mon Sep 17 00:00:00 2001
+From 1e46cbe0d2399cc2ed90c486086fdbc14536f7db Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Wed, 4 Jun 2025 13:33:13 -0230
-Subject: [PATCH 6/6] Disable fetching variations on android
+Subject: [PATCH] Disable fetching variations on android
 
 ---
  .../chromium/chrome/browser/init/AsyncInitTaskRunner.java   | 6 +++++-
- .../service/variations_field_trial_creator_base.cc          | 1 -
- 2 files changed, 5 insertions(+), 2 deletions(-)
+ .../service/variations_field_trial_creator_base.cc          | 2 --
+ 2 files changed, 5 insertions(+), 3 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/init/AsyncInitTaskRunner.java b/chrome/android/java/src/org/chromium/chrome/browser/init/AsyncInitTaskRunner.java
 index 56c7d503f3fed..7ee30e848e7e7 100644
@@ -26,10 +26,10 @@ index 56c7d503f3fed..7ee30e848e7e7 100644
  
      @VisibleForTesting
 diff --git a/components/variations/service/variations_field_trial_creator_base.cc b/components/variations/service/variations_field_trial_creator_base.cc
-index 49902902081c5..d5b5fb349017b 100644
+index 4d71cf267b23a..5bf9dd6d31427 100644
 --- a/components/variations/service/variations_field_trial_creator_base.cc
 +++ b/components/variations/service/variations_field_trial_creator_base.cc
-@@ -303,7 +303,6 @@ bool VariationsFieldTrialCreatorBase::SetUpFieldTrials(
+@@ -304,12 +304,10 @@ bool VariationsFieldTrialCreatorBase::SetUpFieldTrials(
    // instance is set.
    feature_list->RegisterExtraFeatureOverrides(extra_overrides);
  
@@ -37,6 +37,11 @@ index 49902902081c5..d5b5fb349017b 100644
    // TODO(crbug.com/40230862): Remove this code path.
  #if BUILDFLAG(FIELDTRIAL_TESTING_ENABLED)
    if (ShouldUseFieldTrialTestingConfig(command_line)) {
+     ApplyFieldTrialTestingConfig(feature_list.get());
+-    used_testing_config = true;
+   }
+ #else
+   if (command_line->HasSwitch(switches::kEnableFieldTrialTestingConfig)) {
 -- 
 2.43.0
 
