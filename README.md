@@ -12,6 +12,8 @@ Please read and agree to the [Terms of Service](https://dankium.ca/tos.html) and
 * Strong Android 13 Sandbox with minsdk bump
 * External password manager first
 * GPL 3.0 license to protect your rights
+* No p2p webRTC to protect IP
+* Disabled background sync to reduce attack surface
 * much more
 
 ### Release Signing Key
@@ -44,6 +46,9 @@ You can verify the release before installation with `ssh-keygen -Y verify -f dan
 * Compiler mitigations
 * Adblocking
 * GPL 3.0 license to protect your rights
+* No p2p webRTC to protect IP
+* Interpreted only JavaScript to reduce security risk
+* Disabled background sync to reduce attack surface
 * much more
 
 ### Installing

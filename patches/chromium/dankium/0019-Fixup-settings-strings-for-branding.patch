@@ -1,4 +1,4 @@
-From 47b8496f9eccf2067cbe1321917f7c670813e58e Mon Sep 17 00:00:00 2001
+From 865ac27821f50623b9b49bc9b328cfbe583a7f66 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Tue, 3 Jun 2025 03:34:41 -0230
 Subject: [PATCH] Fixup settings strings for branding
@@ -8,7 +8,7 @@ Subject: [PATCH] Fixup settings strings for branding
  1 file changed, 17 insertions(+), 14 deletions(-)
 
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index 151d037f64820..b2f66c78d2d33 100644
+index 151d037f64820..5cc31e59f482f 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
 @@ -287,7 +287,7 @@ CHAR_LIMIT guidelines:
@@ -25,7 +25,7 @@ index 151d037f64820..b2f66c78d2d33 100644
        </message>
        <message name="IDS_PREFS_GOOGLE_SERVICES" desc="Title for the group of preferences that control non-personalized Google services. This group contains preferences for data that is not tied to user's Google Account. [CHAR_LIMIT=40]">
 -        Google services
-+        Search Services
++        Advanced search settings
        </message>
        <message name="IDS_ALLOW_CHROME_SIGNIN_TITLE" desc="Title for a checkbox in Google services that controls sign-in and sync prompts.">
          Allow Chrome sign-in
