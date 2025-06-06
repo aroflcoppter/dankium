@@ -1,0 +1,26 @@
+From 7ca9d2be8e5b426c9ebd07ce3e21af5125d960bd Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Fri, 6 Jun 2025 05:32:23 -0230
+Subject: [PATCH] Dankium - Hide acceptable ads
+
+---
+ .../adblock/android/java/res/xml/adblock_preferences.xml       | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/chrome/browser/adblock/android/java/res/xml/adblock_preferences.xml b/chrome/browser/adblock/android/java/res/xml/adblock_preferences.xml
+index dd31643077c1f..93f58eb4ab601 100644
+--- a/chrome/browser/adblock/android/java/res/xml/adblock_preferences.xml
++++ b/chrome/browser/adblock/android/java/res/xml/adblock_preferences.xml
+@@ -37,7 +37,8 @@
+         android:key="fragment_adblock_settings_aa_enabled_key"
+         android:title="@string/fragment_adblock_settings_aa_enabled_title"
+         app:iconSpaceReserved="false"
+-        android:summary="@string/fragment_adblock_settings_aa_enabled_summary" />
++        android:summary="@string/fragment_adblock_settings_aa_enabled_summary"
++        app:isPreferenceVisible="false"  />
+ 
+     <!-- AutoInstall: enabled/disabled -->
+     <org.chromium.components.browser_ui.settings.ChromeSwitchPreference
+-- 
+2.43.0
+
