@@ -20,7 +20,7 @@ Please read and agree to the [Terms of Service](https://dankium.ca/tos.html) and
 The key is `contact@dankium.ca ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINZmfylHw5KGY3bgHr3wtnXAbx1gXifBZDfupD4RuCJ1` which you can also verify at the bottom of [dankium.ca](https://dankium.ca). The cert key for the apk is also `Signer #1 certificate DN: CN=aroflcoppter
 Signer #1 certificate SHA-256 digest: dc52ec905e655c69602645c63ea41e82594d652d0d4b88f1ff7831d5f27da3b4
 Signer #1 certificate SHA-1 digest: 0e246844630d81c2b4da2616756829f4677f5c9a
-Signer #1 certificate MD5 digest: 1542441f5569f30f1d1cc75bbfcd5e09`.
+Signer #1 certificate MD5 digest: 1542441f5569f30f1d1cc75bbfcd5e09` and also at the bottom of [dankium.ca](https://dankium.ca).
 
 
 ### Installing
@@ -30,6 +30,7 @@ Then join the [test program](https://play.google.com/apps/testing/app.dankium.br
 
 Alternatively you may download an apk for sideloading from [github releases](https://github.com/aroflcoppter/dankium/releases) but it won't automatically update so be sure to check back at least once a week if you don't know there's an update.
 You can verify the release before installation with `ssh-keygen -Y verify -f dankium_public_key -I contact@dankium.ca -n "Dankium Browser" -s Dankium.apk.sig < Dankium.apk` or on windows `cmd /c 'ssh-keygen -Y verify -f dankium_public_key -I contact@dankium.ca -n "Dankium Browser" -s Dankium.apk.sig < Dankium.apk'`provided you downloaded the public key.
+There is a third method where you can use [obtanium](https://github.com/ImranR98/Obtainium) to update the sideloaded apk and check the signature but play store is prefered. 
 
 ### Building
 
