@@ -1,15 +1,14 @@
-From bab5b7327409ecc3cdb75a758de5392bba92474d Mon Sep 17 00:00:00 2001
-From: aroflcoppter <contact@dankium.ca>
-Date: Tue, 3 Jun 2025 03:00:04 -0230
+From 90f25ea0ed53ed9df36962f71c6ccd874cebf0d7 Mon Sep 17 00:00:00 2001
+From: Mitchell Renouf <quietlymitchell@google.com>
+Date: Fri, 6 Jun 2025 17:56:54 -0230
 Subject: [PATCH] Dankium rebranding script
 
-Based on chromites rebranding script https://github.com/uazo/cromite/blob/master/build/patches/Cromite-Branding.patch
 ---
- tools/grit/grit/grd_reader.py | 34 ++++++++++++++++++++++++++++++++++
- 1 file changed, 34 insertions(+)
+ tools/grit/grit/grd_reader.py | 42 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 42 insertions(+)
 
 diff --git a/tools/grit/grit/grd_reader.py b/tools/grit/grit/grd_reader.py
-index 16397abea2a82..82b49bb1e9ab6 100755
+index 16397abea2a82..63da74d06602a 100755
 --- a/tools/grit/grit/grd_reader.py
 +++ b/tools/grit/grit/grd_reader.py
 @@ -112,6 +112,7 @@ class GrdContentHandler(xml.sax.handler.ContentHandler):
@@ -20,46 +19,54 @@ index 16397abea2a82..82b49bb1e9ab6 100755
          self.stack[-1].AppendContent(content)
  
    def ignorableWhitespace(self, whitespace):
-@@ -119,6 +120,39 @@ class GrdContentHandler(xml.sax.handler.ContentHandler):
+@@ -119,6 +120,47 @@ class GrdContentHandler(xml.sax.handler.ContentHandler):
      # parser?
      pass
  
 +  def replace_browser(self, content_orig):
-+    content = content_orig.replace("Chromiumdontreplace", "zzzyyyyxxxx1")
-+    content = content.replace("Chromedontreplace", "zzzyyyyxxxx2")
-+    content = content.replace("chromedontreplace", "zzzyyyyxxxx3")
-+    content = content.replace("//chrome", "zzzyyyyxxxx4")
-+    content = content.replace("chrome://", "zzzyyyyxxxx5")
-+    content = content.replace("/chrome/", "zzzyyyyxxxx6")
-+    content = content.replace("chrome_", "zzzyyyyxxxx7")
-+    content = content.replace(".chromium.org", "zzzyyyyxxxx8")
-+    content = content.replace("chromebook", "zzzyyyyxxxx9")
-+    content = content.replace("chromeos", "zzzyyyyxxxxA")
++    content = content_orig
 +
-+    content = content.replace("google chrome", "dankium")
-+    content = content.replace("Google Chrome", "Dankium")
-+    content = content.replace("Chrome", "Dankium")
-+    content = content.replace("Chromium", "Dankium")
-+    content = content.replace("chrome", "dankium")
-+    content = content.replace("chromium", "dankium")
++    # Define terms that should NOT be rebranded and their temporary placeholders.
++    protected_map = {
++        "Chromiumdontreplace": "zzzyyyyxxxx1",
++        "Chromedontreplace": "zzzyyyyxxxx2",
++        "chromedontreplace": "zzzyyyyxxxx3",
++        "//chrome": "zzzyyyyxxxx4",
++        "chrome://": "zzzyyyyxxxx5",
++        "/chrome/": "zzzyyyyxxxx6",
++        "chrome_": "zzzyyyyxxxx7",
++        ".chromium.org": "zzzyyyyxxxx8",
++        "chromebook": "zzzyyyyxxxx9",
++        "chromeos": "zzzyyyyxxxxA"
++    }
 +
-+    content = content.replace("zzzyyyyxxxx1", "Chromium")
-+    content = content.replace("zzzyyyyxxxx2", "Chrome")
-+    content = content.replace("zzzyyyyxxxx3", "chrome")
-+    content = content.replace("zzzyyyyxxxx4", "//chrome")
-+    content = content.replace("zzzyyyyxxxx5", "chrome://")
-+    content = content.replace("zzzyyyyxxxx6", "/chrome/")
-+    content = content.replace("zzzyyyyxxxx7", "chrome_")
-+    content = content.replace("zzzyyyyxxxx8", ".chromium.org")
-+    content = content.replace("zzzyyyyxxxx9", "chromebook")
-+    content = content.replace("zzzyyyyxxxxA", "chromeos")
-+    # if "dontreplace" in content_orig:
-+    #   raise exception.MissingElement("stop")
-+    #   print(content + " <-- " + content_orig)
++    # Apply temporary placeholders to protect specific terms.
++    for old, new in protected_map.items():
++        content = content.replace(old, new)
++
++    # Define the main rebranding terms.
++    rebranding_map = {
++        "google chrome": "dankium",
++        "Google Chrome": "Dankium",
++        "Chrome": "Dankium",
++        "Chromium": "Dankium",
++        "chrome": "dankium",
++        "chromium": "dankium"
++    }
++
++    # Apply the rebranding replacements.
++    for old, new in rebranding_map.items():
++        content = content.replace(old, new)
++
++    # Restore the original, protected terms from their placeholders.
++    reverse_protected_map = {v: k for k, v in protected_map.items()}
++    for old, new in reverse_protected_map.items():
++        content = content.replace(old, new)
++
 +    return content
  
  class GrdPartContentHandler(xml.sax.handler.ContentHandler):
    def __init__(self, parent):
 -- 
-2.43.0
+2.49.0.windows.1
 
