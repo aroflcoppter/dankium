@@ -1,0 +1,81 @@
+From 5f837fee40cc7a4523edc562bd0d57101224f31a Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Fri, 6 Jun 2025 12:58:14 -0230
+Subject: [PATCH] Remove uneeded settings
+
+---
+ .../settings/privacy_page/security_page.html   |  5 -----
+ .../site_settings_page/site_settings_page.ts   | 18 ------------------
+ third_party/angle                              |  2 +-
+ third_party/libunwind/src                      |  2 +-
+ 4 files changed, 2 insertions(+), 25 deletions(-)
+
+diff --git a/chrome/browser/resources/settings/privacy_page/security_page.html b/chrome/browser/resources/settings/privacy_page/security_page.html
+index c804cdffe2df5..aca9de3ad4607 100644
+--- a/chrome/browser/resources/settings/privacy_page/security_page.html
++++ b/chrome/browser/resources/settings/privacy_page/security_page.html
+@@ -268,11 +268,6 @@
+         </cr-link-row>
+     </template>
+ </if>
+-    <cr-link-row id="v8-setting-link" class="hr" on-click="onV8SettingsClick_"
+-        label="$i18n{securityV8LinkTitle}"
+-        sub-label="$i18n{securityV8LinkDescription}"
+-        role-description="$i18n{subpageArrowRoleDescription}">
+-    </cr-link-row>
+     <template is="dom-if" if="[[enableSecurityKeysSubpage_]]">
+         <cr-link-row id="security-keys-subpage-trigger" class="hr"
+             label="$i18n{securityKeysTitle}"
+diff --git a/chrome/browser/resources/settings/site_settings_page/site_settings_page.ts b/chrome/browser/resources/settings/site_settings_page/site_settings_page.ts
+index 3fb0ca4a77c4b..272759f818fbd 100644
+--- a/chrome/browser/resources/settings/site_settings_page/site_settings_page.ts
++++ b/chrome/browser/resources/settings/site_settings_page/site_settings_page.ts
+@@ -48,16 +48,6 @@ function getCategoryItemMap(): Map<ContentSettingsTypes, CategoryListItem> {
+   // The following list is ordered alphabetically by |id|. The order in which
+   // these appear in the UI is determined elsewhere in this file.
+   const categoryList: CategoryListItem[] = [
+-    {
+-      route: routes.SITE_SETTINGS_ADS,
+-      id: Id.ADS,
+-      label: 'siteSettingsAds',
+-      icon: 'privacy:web-asset',
+-      enabledLabel: 'siteSettingsAdsAllowed',
+-      disabledLabel: 'siteSettingsAdsBlocked',
+-      shouldShow: () =>
+-          loadTimeData.getBoolean('enableSafeBrowsingSubresourceFilter'),
+-    },
+     {
+       route: routes.SITE_SETTINGS_AUTO_VERIFY,
+       id: Id.ANTI_ABUSE,
+@@ -221,14 +211,6 @@ function getCategoryItemMap(): Map<ContentSettingsTypes, CategoryListItem> {
+       enabledLabel: 'siteSettingsJavascriptAllowed',
+       disabledLabel: 'siteSettingsJavascriptBlocked',
+     },
+-    {
+-      route: routes.SITE_SETTINGS_JAVASCRIPT_OPTIMIZER,
+-      id: Id.JAVASCRIPT_OPTIMIZER,
+-      label: 'siteSettingsJavascriptOptimizer',
+-      icon: 'privacy:v8',
+-      enabledLabel: 'siteSettingsJavascriptOptimizerAllowed',
+-      disabledLabel: 'siteSettingsJavascriptOptimizerBlocked',
+-    },
+     {
+       route: routes.SITE_SETTINGS_KEYBOARD_LOCK,
+       id: Id.KEYBOARD_LOCK,
+diff --git a/third_party/angle b/third_party/angle
+index df9c59dcacff7..fa3cf6630aed7 160000
+--- a/third_party/angle
++++ b/third_party/angle
+@@ -1 +1 @@
+-Subproject commit df9c59dcacff7d186d00e3263a1aa68f8059137c
++Subproject commit fa3cf6630aed75e36f102e3fdbe9b843d2bfbbeb
+diff --git a/third_party/libunwind/src b/third_party/libunwind/src
+index 81e2cb40a70de..3e4b8ccf92634 160000
+--- a/third_party/libunwind/src
++++ b/third_party/libunwind/src
+@@ -1 +1 @@
+-Subproject commit 81e2cb40a70de2b6978e6d8658891ded9a77f7e3
++Subproject commit 3e4b8ccf926340ddd8c25d0a9c0be246a75830ce
+-- 
+2.43.0
+
