@@ -1,30 +1,34 @@
-From 29cfc7745fc456e1b3c702b8e355e4599023bc5a Mon Sep 17 00:00:00 2001
+From 21e9fffd65d0e8100df5f30820cf571f68c0b1a6 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Thu, 5 Jun 2025 17:05:18 -0230
 Subject: [PATCH] Update desktop about page
 
 ---
- .../browser/resources/settings/about_page/about_page.html  | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ .../resources/settings/about_page/about_page.html     | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
 diff --git a/chrome/browser/resources/settings/about_page/about_page.html b/chrome/browser/resources/settings/about_page/about_page.html
-index a2e3ef715fef2..be3f4353d6fdd 100644
+index a2e3ef715fef2..498ae5aa2702f 100644
 --- a/chrome/browser/resources/settings/about_page/about_page.html
 +++ b/chrome/browser/resources/settings/about_page/about_page.html
-@@ -149,11 +149,14 @@
+@@ -149,11 +149,18 @@
        <div class="info-sections">
          <div class="info-section">
            <div class="secondary">$i18n{aboutProductTitle}</div>
 -          <div class="secondary">$i18n{aboutProductCopyright}</div>
-+          <div class="secondary">Copyright 2025 aroflcoppter. (Dankium)</div>
-+          <div class="secondary">Copyright 2025 The Chromium Authors. All rights reserved. (Chromium)</div>
-+          <div class="secondary">Copyright (C) 2006-present eyeo GmbH. (Adblock)</div>
-+          <div class="secondary">Copyright 2021 qua3kr@gmail.com. (Android/Linux Dynamic code restrictions)</div>
++          <div class="secondary">Copyright 2025 aroflcoppter.</div>
++          <div class="secondary">Copyright 2025 The Chromium Authors. All rights reserved.</div>
++          <div class="secondary">Copyright (C) 2006-present eyeo GmbH.</div>
++          <div class="secondary">Copyright 2021 qua3kr@gmail.com.</div>
          </div>
  
          <div class="info-section">
 -          <div class="secondary">$i18nRaw{aboutProductLicense}</div>
-+          <div class="secondary">Dankium and the eyeo adblocking code are GPL 3.0 or later, qua3kr@gmail.com code is Clear BSD License, Chromium code is 3-clause BSD license</div>
++          <div class="secondary">Dankium and the eyeo adblocking code are GPL 3.0 or later, qua3kr@gmail.com code is Clear BSD License, Chromium code is 3-clause BSD license.</div>
++          <div class="secondary"><a href="https://dankium.ca/tos.html" style="margin-right: 20px;">Terms of Service</a>
++                                 <a href="https://dankium.ca/privacy.html" style="margin-right: 20px;">Privacy Policy</a>
++                                 <a href="https://dankium.ca/license.html">License</a>
++          </div>
          </div>
  <if expr="_google_chrome or _is_chrome_for_testing_branded">
          <div class="secondary">

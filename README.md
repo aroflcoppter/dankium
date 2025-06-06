@@ -17,7 +17,8 @@ Please read and agree to the [Terms of Service](https://dankium.ca/tos.html) and
 * much more
 
 ### Release Signing Key
-`contact@dankium.ca ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINZmfylHw5KGY3bgHr3wtnXAbx1gXifBZDfupD4RuCJ1`
+The key is `contact@dankium.ca ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINZmfylHw5KGY3bgHr3wtnXAbx1gXifBZDfupD4RuCJ1` which you can also verify at the bottom of [dankium.ca](https://dankium.ca).
+
 
 ### Installing
 
