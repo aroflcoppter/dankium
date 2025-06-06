@@ -1,0 +1,27 @@
+From ddb9a1bd55f012ca61c53917638a65a136430430 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Fri, 6 Jun 2025 05:46:15 -0230
+Subject: [PATCH] Hide parts of site settings
+
+---
+ .../browser/site_settings/ChromeSiteSettingsDelegate.java     | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java b/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java
+index 6a70a5d78d285..4197dc7020ad3 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java
+@@ -148,7 +148,9 @@ public class ChromeSiteSettingsDelegate implements SiteSettingsDelegate {
+                 // TODO(csharrison): Remove this condition once the experimental UI lands. It is
+                 // not great to dynamically remove the preference in this way.
+             case SiteSettingsCategory.Type.ADS:
+-                return SiteSettingsCategory.adsCategoryEnabled();
++                return !true;
++            case SiteSettingsCategory.Type.JAVASCRIPT_OPTIMIZER:
++                return !true;
+             case SiteSettingsCategory.Type.AUTO_DARK_WEB_CONTENT:
+                 return ChromeFeatureList.isEnabled(
+                         ChromeFeatureList.DARKEN_WEBSITES_CHECKBOX_IN_THEMES_SETTING);
+-- 
+2.43.0
+
