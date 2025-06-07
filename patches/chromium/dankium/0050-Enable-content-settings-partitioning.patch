@@ -1,6 +1,6 @@
-From 9deb7a5d49dccb1dc4660018f0b56fffe8c8b536 Mon Sep 17 00:00:00 2001
+From 2ad66a2f4ea4a1940ebc25cad00c8207cc1d9971 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
-Date: Thu, 5 Jun 2025 00:34:12 -0230
+Date: Sat, 7 Jun 2025 04:58:07 -0230
 Subject: [PATCH] Enable content settings partitioning
 
 ---
@@ -8,7 +8,7 @@ Subject: [PATCH] Enable content settings partitioning
  1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/components/content_settings/core/common/features.cc b/components/content_settings/core/common/features.cc
-index 3cfa770ae49b7..d4adb33e8090e 100644
+index 95cc0f9cc4a4a..6d2e6609d8f6a 100644
 --- a/components/content_settings/core/common/features.cc
 +++ b/components/content_settings/core/common/features.cc
 @@ -159,9 +159,11 @@ const base::FeatureParam<EnableForIframeTypes>
@@ -22,8 +22,8 @@ index 3cfa770ae49b7..d4adb33e8090e 100644
 -             base::FEATURE_DISABLED_BY_DEFAULT);
 +             kEnabledByDefault);
  
- }  // namespace features
- }  // namespace content_settings
+ BASE_FEATURE(kForceAllowStorageAccess,
+              "ForceAllowStorageAccess",
 -- 
 2.43.0
 

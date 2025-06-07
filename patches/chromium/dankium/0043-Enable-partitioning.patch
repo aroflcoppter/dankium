@@ -1,25 +1,25 @@
-From 2b7b6b8544894ed16069ef49a1420e4b402d5f2b Mon Sep 17 00:00:00 2001
+From ec00745f8d9755d8e62db2df7d11055e24313494 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
-Date: Thu, 5 Jun 2025 03:29:26 -0230
-Subject: [PATCH 1/2] Enable partitioning
+Date: Sat, 7 Jun 2025 04:49:48 -0230
+Subject: [PATCH] Enable partitioning
 
 ---
  net/base/features.cc | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/net/base/features.cc b/net/base/features.cc
-index bad06c9cdc423..c4ac8133a1a7a 100644
+index d7d7795cff28e..74398d6b66f85 100644
 --- a/net/base/features.cc
 +++ b/net/base/features.cc
-@@ -138,7 +138,7 @@ BASE_FEATURE(kSplitCodeCacheByNetworkIsolationKey,
+@@ -144,7 +144,7 @@ BASE_FEATURE(kSplitCodeCacheByNetworkIsolationKey,
  
  BASE_FEATURE(kPartitionConnectionsByNetworkIsolationKey,
               "PartitionConnectionsByNetworkIsolationKey",
 -             base::FEATURE_DISABLED_BY_DEFAULT);
 +             kEnabledByDefault);
  
- BASE_FEATURE(kPostQuantumKyber,
-              "PostQuantumKyber",
+ BASE_FEATURE(kSearchEnginePreconnectInterval,
+              "SearchEnginePreconnectInterval",
 -- 
 2.43.0
 

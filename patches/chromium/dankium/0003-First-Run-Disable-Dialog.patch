@@ -1,0 +1,51 @@
+From c28da182f3440cdd73e5d8234b47da4d97282f19 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Sat, 7 Jun 2025 04:53:02 -0230
+Subject: [PATCH] First Run Disable Dialog
+
+---
+ .../org/chromium/chrome/browser/firstrun/FirstRunUtils.java   | 4 ----
+ .../org/chromium/chrome/browser/firstrun/FirstRunStatus.java  | 4 ++--
+ 2 files changed, 2 insertions(+), 6 deletions(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunUtils.java b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunUtils.java
+index cec90104e8a96..8dae1cabdff56 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunUtils.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunUtils.java
+@@ -29,9 +29,7 @@ public class FirstRunUtils {
+         // Backup and restore does not restore native pref, so this needs to update it. Note that
+         // these prefs are slightly different, the eula is set when the ToS is accepted (early in
+         // the FRE), while the FRE flow is only complete at the end.
+-        if (FirstRunStatus.getFirstRunFlowComplete() && !isFirstRunEulaAccepted()) {
+             setEulaAccepted();
+-        }
+     }
+ 
+     /**
+@@ -41,8 +39,6 @@ public class FirstRunUtils {
+      *     collect stats.
+      */
+     static void acceptTermsOfService(boolean allowMetricsAndCrashUploading) {
+-        UmaSessionStats.changeMetricsReportingConsent(
+-                allowMetricsAndCrashUploading, ChangeMetricsReportingStateCalledFrom.UI_FIRST_RUN);
+         setEulaAccepted();
+     }
+ 
+diff --git a/chrome/browser/first_run/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunStatus.java b/chrome/browser/first_run/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunStatus.java
+index ae781f16eb405..470139dd7f887 100644
+--- a/chrome/browser/first_run/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunStatus.java
++++ b/chrome/browser/first_run/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunStatus.java
+@@ -52,8 +52,8 @@ public class FirstRunStatus {
+      * includes ToS and Sign In pages if necessary.
+      */
+     public static boolean getFirstRunFlowComplete() {
+-        return ChromeSharedPreferences.getInstance()
+-                .readBoolean(ChromePreferenceKeys.FIRST_RUN_FLOW_COMPLETE, false);
++        ChromeSharedPreferences.getInstance().readBoolean(ChromePreferenceKeys.FIRST_RUN_FLOW_COMPLETE, false);
++        return !false;
+     }
+ 
+     /**
+-- 
+2.43.0
+

@@ -1,20 +1,20 @@
-From 745c300acbe078a37b4d9928b1666a7942638812 Mon Sep 17 00:00:00 2001
+From 1c0c0f8f8bfc215b4e2eceb434786aa834b3071a Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
-Date: Mon, 2 Jun 2025 20:35:54 -0230
-Subject: [PATCH 4/7] Bump minSDK to 33
+Date: Sat, 7 Jun 2025 04:26:18 -0230
+Subject: [PATCH 1/2] Bump minSDK to 33
 
 ---
- android_webview/system_webview_apk_tmpl.gni               | 2 +-
- android_webview/system_webview_bundle.gni                 | 2 +-
- build/config/android/config.gni                           | 8 ++++----
- chrome/android/chrome_public_apk_tmpl.gni                 | 2 +-
- chrome/android/modules/chrome_bundle_tmpl.gni             | 2 +-
- chrome/android/trichrome.gni                              | 2 +-
- .../partner_browser_customizations_provider/BUILD.gn      | 4 ++--
- media/audio/android/opensles_input.cc                     | 2 ++
- media/audio/android/opensles_output.cc                    | 2 ++
- tools/android/customtabs_benchmark/BUILD.gn               | 4 ++--
- 10 files changed, 17 insertions(+), 13 deletions(-)
+ android_webview/system_webview_apk_tmpl.gni            |  2 +-
+ android_webview/system_webview_bundle.gni              |  2 +-
+ build/config/android/config.gni                        | 10 +++++-----
+ chrome/android/chrome_public_apk_tmpl.gni              |  2 +-
+ chrome/android/modules/chrome_bundle_tmpl.gni          |  2 +-
+ chrome/android/trichrome.gni                           |  2 +-
+ .../partner_browser_customizations_provider/BUILD.gn   |  4 ++--
+ media/audio/android/opensles_input.cc                  |  2 ++
+ media/audio/android/opensles_output.cc                 |  2 ++
+ tools/android/customtabs_benchmark/BUILD.gn            |  4 ++--
+ 10 files changed, 18 insertions(+), 14 deletions(-)
 
 diff --git a/android_webview/system_webview_apk_tmpl.gni b/android_webview/system_webview_apk_tmpl.gni
 index 63d01350b695a..82de05922f98d 100644
@@ -43,10 +43,10 @@ index 79eca5e537c70..58d76c54aa20b 100644
      system_image_locale_allowlist = platform_pak_locales
      if (android_64bit_target_cpu) {
 diff --git a/build/config/android/config.gni b/build/config/android/config.gni
-index c86e623b7c3a7..c549c17c27ba7 100644
+index 701181f55e0e6..8894a880f1334 100644
 --- a/build/config/android/config.gni
 +++ b/build/config/android/config.gni
-@@ -71,9 +71,9 @@ if (is_android) {
+@@ -73,12 +73,12 @@ if (is_android) {
  
      # The default to use for android:minSdkVersion for targets that do
      # not explicitly set it.
@@ -56,9 +56,13 @@ index c86e623b7c3a7..c549c17c27ba7 100644
 -      default_min_sdk_version = 27
 +      default_min_sdk_version = 33
      }
+     if (enable_javaless_renderers) {
+-      default_min_sdk_version = 29
++      default_min_sdk_version = 33
+     }
  
      # Static analysis can be either "on" or "off" or "build_server". This
-@@ -112,12 +112,12 @@ if (is_android) {
+@@ -117,12 +117,12 @@ if (is_android) {
    }
  
    # Our build system no longer supports legacy multidex.
@@ -74,7 +78,7 @@ index c86e623b7c3a7..c549c17c27ba7 100644
  
    assert(
 diff --git a/chrome/android/chrome_public_apk_tmpl.gni b/chrome/android/chrome_public_apk_tmpl.gni
-index 4bb91169abffe..99ec2b1002c46 100644
+index 7270905628652..150690ee7975a 100644
 --- a/chrome/android/chrome_public_apk_tmpl.gni
 +++ b/chrome/android/chrome_public_apk_tmpl.gni
 @@ -253,7 +253,7 @@ template("chrome_common_apk_or_module_tmpl") {
@@ -128,14 +132,14 @@ index dea3b4859c34a..73b6d00603608 100644
    deps = [ ":partner_browser_customizations_example_apk_resources" ]
    chromium_code = false
 diff --git a/media/audio/android/opensles_input.cc b/media/audio/android/opensles_input.cc
-index 5466afb3bded1..fe66859b4c471 100644
+index 5466afb3bded1..180d4a21f3a71 100644
 --- a/media/audio/android/opensles_input.cc
 +++ b/media/audio/android/opensles_input.cc
 @@ -7,6 +7,8 @@
  #pragma allow_unsafe_buffers
  #endif
  
-+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
++pragma clang diagnostic ignored "-Wdeprecated-declarations"
 +
  #include "media/audio/android/opensles_input.h"
  
