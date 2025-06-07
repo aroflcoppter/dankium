@@ -1,5 +1,5 @@
-From 90f25ea0ed53ed9df36962f71c6ccd874cebf0d7 Mon Sep 17 00:00:00 2001
-From: Mitchell Renouf <quietlymitchell@google.com>
+From 09aca36ec9cefcc76346cd252005616be19c1a8a Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
 Date: Fri, 6 Jun 2025 17:56:54 -0230
 Subject: [PATCH] Dankium rebranding script
 
@@ -68,5 +68,5 @@ index 16397abea2a82..63da74d06602a 100755
  class GrdPartContentHandler(xml.sax.handler.ContentHandler):
    def __init__(self, parent):
 -- 
-2.49.0.windows.1
+2.43.0
 
