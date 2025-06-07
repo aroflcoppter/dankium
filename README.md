@@ -36,7 +36,7 @@ There is a third method where you can use [obtanium](https://github.com/ImranR98
 
 1. First clone the dankium repo and follow the [official instructions](https://chromium.googlesource.com/chromium/src/+/HEAD/docs/android_build_instructions.md) with the dankium repo directory instead of making a chromium folder.
 2. Make sure you download the entire history of chromium and refer back to this guide for modified steps.
-3. Make sure you apply the patches while in the src directory with `git am --whitespace=nowarn --keep-non-patch ../patches/chromium/eyeo/*.patch && git am --whitespace=nowarn --keep-non-patch ../patches/chromium/hexavalent/*.patch && git am --whitespace=nowarn --keep-non-patch ../patches/chromium/dankium/*.patch  && git am --whitespace=nowarn --keep-non-patch ../patches/chromium/dankium-noapikeys/*.patch`.
+3. Make sure you apply the patches while in the src directory with `git am --whitespace=nowarn --keep-non-patch ../patches/chromium/eyeo-dankium/*.patch && git am --whitespace=nowarn --keep-non-patch ../patches/chromium/hexavalent/*.patch && git am --whitespace=nowarn --keep-non-patch ../patches/chromium/dankium/*.patch  && git am --whitespace=nowarn --keep-non-patch ../patches/chromium/dankium-noapikeys/*.patch`.
 4. The proper gclient command is `gclient sync -D --with_branch_heads --with_tags --jobs 32` which is ran after checking out the right tag for the dankium build for example `git checkout 137.0.7151.72` in both the dankium folder and src folder.
 5. Make sure you apply the angle patch `cd third_party/angle && git am --whitespace=nowarn --keep-non-patch ../../../patches/submodules/angle/*.patch && cd ../..`
 6. Also make sure you apply the libunwind patch `cd third_party/libunwind/src && git am --whitespace=nowarn --keep-non-patch ../../../../patches/submodules/libunwind/*.patch && cd ../../..`
@@ -66,7 +66,7 @@ You can use [API keys](https://www.chromium.org/developers/how-tos/api-keys/) fr
 
 1. First clone the dankium repo and follow the [official instructions](https://chromium.googlesource.com/chromium/src/+/HEAD/docs/windows_build_instructions.md) with the dankium repo directory instead of making a chromium folder.
 2. Make sure you download the entire history of chromium and refer back to this guide for modified steps.
-3. Make sure you apply the patches while in the src directory with `git am --whitespace=nowarn --keep-non-patch ../patches/chromium/eyeo/*.patch` and`git am --whitespace=nowarn --keep-non-patch ../patches/chromium/dankium/*.patch` and if you are not gonna provide apikeys `git am --whitespace=nowarn --keep-non-patch ../patches/chromium/dankium-noapikeys/*.patch`.
+3. Make sure you apply the patches while in the src directory with `git am --whitespace=nowarn --keep-non-patch ../patches/chromium/eyeo-dankium/*.patch` and`git am --whitespace=nowarn --keep-non-patch ../patches/chromium/dankium/*.patch` and if you are not gonna provide apikeys `git am --whitespace=nowarn --keep-non-patch ../patches/chromium/dankium-noapikeys/*.patch`.
 4. The proper gclient command is `gclient sync -D --with_branch_heads --with_tags --jobs 32` which is ran after checking out the right tag for the dankium build for example `git checkout 137.0.7151.72` in both the dankium folder and src folder.
 5. When you run `gn args out/Default` be sure to paste in the contents of windows_args.gn from the dankium repo.
 6. Build with `autoninja -C out/Default mini_installer` and your mini_installer.exe will be in out/Default.
