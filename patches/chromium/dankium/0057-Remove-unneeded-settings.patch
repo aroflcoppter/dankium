@@ -1,4 +1,4 @@
-From e8c0d986f9e030cba8d79776efb8decce8a0c261 Mon Sep 17 00:00:00 2001
+From 34c6c72c6465c21785d8b1d127475a12517a0297 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Fri, 6 Jun 2025 23:45:00 -0230
 Subject: [PATCH] Remove unneeded settings
@@ -84,7 +84,7 @@ index 8f49926d3fd95..b722ea214d5b7 100644
            category="[[contentSettingsTypesEnum_.FEDERATED_IDENTITY_API]]"
            icon="privacy:account-circle"
 diff --git a/chrome/browser/resources/settings/site_settings_page/site_settings_page.ts b/chrome/browser/resources/settings/site_settings_page/site_settings_page.ts
-index 3fb0ca4a77c4b..cff0d64a0bb58 100644
+index 3fb0ca4a77c4b..6d61e23d3e8bf 100644
 --- a/chrome/browser/resources/settings/site_settings_page/site_settings_page.ts
 +++ b/chrome/browser/resources/settings/site_settings_page/site_settings_page.ts
 @@ -56,7 +56,7 @@ function getCategoryItemMap(): Map<ContentSettingsTypes, CategoryListItem> {
@@ -92,7 +92,7 @@ index 3fb0ca4a77c4b..cff0d64a0bb58 100644
        disabledLabel: 'siteSettingsAdsBlocked',
        shouldShow: () =>
 -          loadTimeData.getBoolean('enableSafeBrowsingSubresourceFilter'),
-+          false),
++          false,
      },
      {
        route: routes.SITE_SETTINGS_AUTO_VERIFY,
