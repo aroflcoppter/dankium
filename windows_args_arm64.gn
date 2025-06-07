@@ -1,0 +1,16 @@
+target_cpu = "arm64"
+is_component_build = false
+win_enable_cfg_guards = true
+v8_jitless = true
+v8_enable_webassembly = false
+v8_enable_sparkplug = false
+v8_enable_maglev = false
+v8_enable_turbofan = false
+optimize_webui = true
+is_official_build = true
+enable_shadow_call_stack = true
+enable_reporting = false
+enable_remoting = false
+is_debug = false
+symbol_level = 0
+disable_fieldtrial_testing_config = true

@@ -1,3 +1,4 @@
+target_cpu = "x64"
 is_component_build = false
 win_enable_cfg_guards = true
 v8_jitless = true
