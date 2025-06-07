@@ -1,12 +1,13 @@
-From bf0631d3864978891513fbdadd21f9c2d349bbfb Mon Sep 17 00:00:00 2001
+From 555e00bf8b95aab1d6604141fbc7f6bc90421ad3 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
-Date: Fri, 6 Jun 2025 13:17:35 -0230
+Date: Fri, 6 Jun 2025 23:45:00 -0230
 Subject: [PATCH] Remove unneeded settings
 
 ---
  .../settings/privacy_page/security_page.html  | 24 -------------------
- .../site_settings_page/site_settings_page.ts  | 18 --------------
- 2 files changed, 42 deletions(-)
+ .../settings/site_settings/site_details.html  | 13 ----------
+ .../site_settings_page/site_settings_page.ts  |  3 ++-
+ 3 files changed, 2 insertions(+), 38 deletions(-)
 
 diff --git a/chrome/browser/resources/settings/privacy_page/security_page.html b/chrome/browser/resources/settings/privacy_page/security_page.html
 index c804cdffe2df5..1f70b43119639 100644
@@ -44,42 +45,65 @@ index c804cdffe2df5..1f70b43119639 100644
      <template is="dom-if" if="[[enableSecurityKeysSubpage_]]">
          <cr-link-row id="security-keys-subpage-trigger" class="hr"
              label="$i18n{securityKeysTitle}"
+diff --git a/chrome/browser/resources/settings/site_settings/site_details.html b/chrome/browser/resources/settings/site_settings/site_details.html
+index 8f49926d3fd95..b722ea214d5b7 100644
+--- a/chrome/browser/resources/settings/site_settings/site_details.html
++++ b/chrome/browser/resources/settings/site_settings/site_details.html
+@@ -170,9 +170,6 @@
+       <site-details-permission category="[[contentSettingsTypesEnum_.POPUPS]]"
+           icon="cr:open-in-new" label="$i18n{siteSettingsPopups}">
+       </site-details-permission>
+-      <site-details-permission category="[[contentSettingsTypesEnum_.ADS]]"
+-          icon="privacy:web-asset" label="$i18n{siteSettingsAds}">
+-      </site-details-permission>
+       <site-details-permission
+           category="[[contentSettingsTypesEnum_.BACKGROUND_SYNC]]"
+           icon="cr:sync" label="$i18n{siteSettingsBackgroundSync}">
+@@ -230,11 +227,6 @@
+           icon="privacy:videogame-asset" label="$i18n{siteSettingsHidDevices}">
+       </site-details-permission>
+ <if expr="is_chromeos or is_win">
+-      <site-details-permission
+-          category="[[contentSettingsTypesEnum_.PROTECTED_CONTENT]]"
+-          icon="privacy:sync-saved-locally"
+-          label="$i18n{siteSettingsProtectedContentIdentifiers}">
+-      </site-details-permission>
+ </if>
+       <site-details-permission category="[[contentSettingsTypesEnum_.CLIPBOARD]]"
+           icon="privacy:content-paste" label="$i18n{siteSettingsClipboard}">
+@@ -256,11 +248,6 @@
+           icon="privacy:warning"
+           label="$i18n{siteSettingsInsecureContent}">
+       </site-details-permission>
+-      <site-details-permission
+-          category="[[contentSettingsTypesEnum_.JAVASCRIPT_OPTIMIZER]]"
+-          icon="privacy:v8"
+-          label="$i18n{siteSettingsJavascriptOptimizer}">
+-      </site-details-permission>
+       <site-details-permission
+           category="[[contentSettingsTypesEnum_.FEDERATED_IDENTITY_API]]"
+           icon="privacy:account-circle"
 diff --git a/chrome/browser/resources/settings/site_settings_page/site_settings_page.ts b/chrome/browser/resources/settings/site_settings_page/site_settings_page.ts
-index 3fb0ca4a77c4b..272759f818fbd 100644
+index 3fb0ca4a77c4b..8e5f5265209a6 100644
 --- a/chrome/browser/resources/settings/site_settings_page/site_settings_page.ts
 +++ b/chrome/browser/resources/settings/site_settings_page/site_settings_page.ts
-@@ -48,16 +48,6 @@ function getCategoryItemMap(): Map<ContentSettingsTypes, CategoryListItem> {
-   // The following list is ordered alphabetically by |id|. The order in which
-   // these appear in the UI is determined elsewhere in this file.
-   const categoryList: CategoryListItem[] = [
--    {
--      route: routes.SITE_SETTINGS_ADS,
--      id: Id.ADS,
--      label: 'siteSettingsAds',
--      icon: 'privacy:web-asset',
--      enabledLabel: 'siteSettingsAdsAllowed',
--      disabledLabel: 'siteSettingsAdsBlocked',
--      shouldShow: () =>
+@@ -56,7 +56,7 @@ function getCategoryItemMap(): Map<ContentSettingsTypes, CategoryListItem> {
+       enabledLabel: 'siteSettingsAdsAllowed',
+       disabledLabel: 'siteSettingsAdsBlocked',
+       shouldShow: () =>
 -          loadTimeData.getBoolean('enableSafeBrowsingSubresourceFilter'),
--    },
++          false'),
+     },
      {
        route: routes.SITE_SETTINGS_AUTO_VERIFY,
-       id: Id.ANTI_ABUSE,
-@@ -221,14 +211,6 @@ function getCategoryItemMap(): Map<ContentSettingsTypes, CategoryListItem> {
-       enabledLabel: 'siteSettingsJavascriptAllowed',
-       disabledLabel: 'siteSettingsJavascriptBlocked',
+@@ -228,6 +228,7 @@ function getCategoryItemMap(): Map<ContentSettingsTypes, CategoryListItem> {
+       icon: 'privacy:v8',
+       enabledLabel: 'siteSettingsJavascriptOptimizerAllowed',
+       disabledLabel: 'siteSettingsJavascriptOptimizerBlocked',
++      shouldShow: () => false,
      },
--    {
--      route: routes.SITE_SETTINGS_JAVASCRIPT_OPTIMIZER,
--      id: Id.JAVASCRIPT_OPTIMIZER,
--      label: 'siteSettingsJavascriptOptimizer',
--      icon: 'privacy:v8',
--      enabledLabel: 'siteSettingsJavascriptOptimizerAllowed',
--      disabledLabel: 'siteSettingsJavascriptOptimizerBlocked',
--    },
      {
        route: routes.SITE_SETTINGS_KEYBOARD_LOCK,
-       id: Id.KEYBOARD_LOCK,
 -- 
 2.43.0
 
