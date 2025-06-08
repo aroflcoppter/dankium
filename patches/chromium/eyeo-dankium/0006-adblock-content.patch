@@ -1,4 +1,4 @@
-From 9027d5228baf70f374bc48c84a741ea63703b491 Mon Sep 17 00:00:00 2001
+From 06f9b0bbe29a4e25de59eebf6253d8d3518a8fc6 Mon Sep 17 00:00:00 2001
 From: vanilla-chromium-builder <project_26591639_bot@noreply.gitlab.com>
 Date: Thu, 22 May 2025 15:50:31 +0000
 Subject: [PATCH] adblock content
@@ -2435,7 +2435,7 @@ index 0000000000000..bfc02244b4c6b
 +}
 diff --git a/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesHelper.java b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesHelper.java
 new file mode 100644
-index 0000000000000..9adc59fd1ae64
+index 0000000000000..13ca1077a3fac
 --- /dev/null
 +++ b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesHelper.java
 @@ -0,0 +1,67 @@
@@ -2501,7 +2501,7 @@ index 0000000000000..9adc59fd1ae64
 +            mActivityTestRule.loadUrl(
 +                    getWebContents().getNavigationController(),
 +                    new TestCallbackHelperContainer(getWebContents()),
-+                    new LoadUrlParams(Shell.sanitizeUrl(url)));
++                    new LoadUrlParams(url));
 +        } catch (Throwable t) {
 +        }
 +    }

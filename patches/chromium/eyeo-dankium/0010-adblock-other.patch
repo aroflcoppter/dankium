@@ -1,0 +1,499 @@
+From 145edede7c8ee40209acd708e9bc65e4924116d9 Mon Sep 17 00:00:00 2001
+From: vanilla-chromium-builder <project_26591639_bot@noreply.gitlab.com>
+Date: Thu, 22 May 2025 15:50:31 +0000
+Subject: [PATCH] adblock other
+
+---
+ base/threading/thread_restrictions.h          |  9 +++++
+ base/trace_event/builtin_categories.h         |  5 +++
+ build/install-build-deps.py                   | 10 +++++-
+ chrome/android/BUILD.gn                       | 16 +++++++++
+ chrome/android/chrome_java_sources.gni        |  4 +++
+ .../android/java/res/xml/main_preferences.xml |  8 +++++
+ .../java/res/xml/main_preferences_legacy.xml  |  8 +++++
+ .../browser/adblock/TabIdTranslator.java      | 36 +++++++++++++++++++
+ chrome/app/chrome_main_delegate.cc            | 11 ++++--
+ chrome/chrome_paks.gni                        |  5 +++
+ ...web_request_proxying_url_loader_factory.cc |  5 +++
+ .../browser/extension_event_histogram_value.h |  7 +++-
+ .../common/mojom/api_permission_id.mojom      |  7 ++++
+ net/url_request/redirect_info.h               |  8 +++++
+ .../network/public/cpp/net_ipc_param_traits.h |  5 +++
+ 15 files changed, 140 insertions(+), 4 deletions(-)
+ create mode 100644 chrome/android/java/src/org/chromium/chrome/browser/adblock/TabIdTranslator.java
+
+diff --git a/base/threading/thread_restrictions.h b/base/threading/thread_restrictions.h
+index b1abcfaab58df..e654dbba44198 100644
+--- a/base/threading/thread_restrictions.h
++++ b/base/threading/thread_restrictions.h
+@@ -1,6 +1,10 @@
+ // Copyright 2012 The Chromium Authors
+ // Use of this source code is governed by a BSD-style license that can be
+ // found in the LICENSE file.
++//
++// This source code is a part of eyeo Chromium SDK.
++// Use of this source code is governed by the GPLv3 that can be found in the
++// components/adblock/LICENSE file.
+ 
+ #ifndef BASE_THREADING_THREAD_RESTRICTIONS_H_
+ #define BASE_THREADING_THREAD_RESTRICTIONS_H_
+@@ -170,6 +174,9 @@ class OverlayProcessorWebView;
+ class ScopedAllowInitGLBindings;
+ class VizCompositorThreadRunnerWebView;
+ }  // namespace android_webview
++namespace adblock {
++class SubscriptionServiceFactory;
++}  // namespace adblock
+ namespace ash {
+ class LoginEventRecorder;
+ class StartupCustomizationDocument;
+@@ -661,6 +668,8 @@ class BASE_EXPORT ScopedAllowBlocking {
+   friend class ::BrowserStateDirectoryBuilder;
+ #endif
+ 
++  friend class adblock::SubscriptionServiceFactory;
++
+   // Sorted by function name (with namespace), ignoring the return type.
+   friend Profile* ::GetLastProfileMac();  // http://crbug.com/1176734
+   // Note: This function return syntax is required so the "::" doesn't get
+diff --git a/base/trace_event/builtin_categories.h b/base/trace_event/builtin_categories.h
+index 31c41cb8e8cc0..ce0821dfb8a51 100644
+--- a/base/trace_event/builtin_categories.h
++++ b/base/trace_event/builtin_categories.h
+@@ -1,6 +1,10 @@
+ // Copyright 2018 The Chromium Authors
+ // Use of this source code is governed by a BSD-style license that can be
+ // found in the LICENSE file.
++//
++// This source code is a part of eyeo Chromium SDK.
++// Use of this source code is governed by the GPLv3 that can be found in the
++// components/adblock/LICENSE file.
+ 
+ #ifndef BASE_TRACE_EVENT_BUILTIN_CATEGORIES_H_
+ #define BASE_TRACE_EVENT_BUILTIN_CATEGORIES_H_
+@@ -123,6 +127,7 @@ PERFETTO_DEFINE_CATEGORIES_IN_NAMESPACE_WITH_ATTRS(
+     perfetto::Category("exo"),
+     perfetto::Category("extensions"),
+     perfetto::Category("explore_sites"),
++    perfetto::Category("eyeo"),
+     perfetto::Category("FileSystem"),
+     perfetto::Category("file_system_provider"),
+     perfetto::Category("fledge"),
+diff --git a/build/install-build-deps.py b/build/install-build-deps.py
+index f699b9b876e58..fa6a3e3d7e98d 100755
+--- a/build/install-build-deps.py
++++ b/build/install-build-deps.py
+@@ -8,6 +8,14 @@
+ # including items requiring sudo privileges.
+ # See https://chromium.googlesource.com/chromium/src/+/main/docs/linux/build_instructions.md
+ 
++# eyeo Chromium SDK is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++#
++# You should have received a copy of the GNU General Public License
++# along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++
+ import argparse
+ import functools
+ import os
+@@ -582,7 +590,7 @@ def backwards_compatible_list(options):
+       "msttcorefonts",
+       "python-dev",
+       "python-setuptools",
+-      "snapcraft",
++      #"snapcraft",
+       "ttf-dejavu-core",
+       "ttf-indic-fonts",
+       "ttf-kochi-gothic",
+diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
+index 53e1d8a325bd9..1bac7c349042c 100644
+--- a/chrome/android/BUILD.gn
++++ b/chrome/android/BUILD.gn
+@@ -1,6 +1,9 @@
+ # Copyright 2014 The Chromium Authors
+ # Use of this source code is governed by a BSD-style license that can be
+ # found in the LICENSE file.
++#
++# This source code is a part of eyeo Chromium SDK.
++# Use of this source code is governed by the GPLv3 that can be found in the components/adblock/LICENSE file.
+ 
+ import("//build/config/android/config.gni")
+ import("//build/config/cronet/config.gni")
+@@ -293,6 +296,10 @@ if (_is_default_toolchain) {
+     }
+   }
+ 
++    ### Android UI module start
++    deps += [ "//chrome/browser/adblock/android:java_ui_resources" ]
++
++    ### Android UI module end
+   android_resources("java_overlay_resources") {
+     # Target for overrides of //ui/android:ui_java_resources
+     resource_overlay = true
+@@ -554,6 +561,7 @@ if (_is_default_toolchain) {
+       "//chrome/browser/xsurface:java",
+       "//chrome/browser/xsurface_provider:dependency_provider_impl_java",
+       "//chrome/browser/xsurface_provider:java",
++      "//components/adblock/android:adblock_controller_java",
+       "//components/android_autofill/browser:java",
+       "//components/autofill/android:autofill_features_java",
+       "//components/autofill/android:autofill_java",
+@@ -786,6 +794,11 @@ if (_is_default_toolchain) {
+       "//url/mojom:url_mojom_origin_java",
+     ]
+ 
++    ### Android UI module start
++    deps += [ "//chrome/browser/adblock/android:adblock_ui_java" ]
++
++    ### Android UI module end
++
+     deps += feed_deps
+ 
+     srcjar_deps = [
+@@ -1356,6 +1369,7 @@ if (_is_default_toolchain) {
+       "javatests:chrome_test_java_org.chromium.chrome.browser.toolbar",
+       "javatests:chrome_test_java_org.chromium.chrome.browser.webapps",
+       "javatests:chrome_test_java_various",
++      "//chrome/browser/adblock/android:adblock_java_tests",
+       "//chrome/browser/android/browserservices/verification:javatests",
+       "//chrome/browser/android/httpclient:javatests",
+       "//chrome/browser/android/metrics:ukm_javatests",
+@@ -1427,6 +1441,7 @@ if (_is_default_toolchain) {
+       "//chrome/test/data/translate/",
+       "//chrome/test/data/webauthn/",
+       "//chrome/test/media_router/resources/",
++      "//components/test/data/adblock/",
+       "//components/test/data/autofill/",
+       "//components/test/data/payments/",
+       "//content/test/data/browsing_data/",
+@@ -3334,6 +3349,7 @@ if (_is_default_toolchain) {
+       "//chrome/browser/ui/plus_addresses/android:jni_headers",
+       "//chrome/browser/util:jni_headers",
+       "//chrome/browser/webauthn/android:jni_headers",
++      "//components/adblock/android:jni_headers",
+       "//components/browser_ui/device_lock/android:device_lock_bridge_jni_headers",
+       "//components/content_relationship_verification/android:jni_headers",
+       "//components/image_fetcher:jni_headers",
+diff --git a/chrome/android/chrome_java_sources.gni b/chrome/android/chrome_java_sources.gni
+index f0bffc5abbf9c..d02502e556efb 100644
+--- a/chrome/android/chrome_java_sources.gni
++++ b/chrome/android/chrome_java_sources.gni
+@@ -1,6 +1,9 @@
+ # Copyright 2019 The Chromium Authors
+ # Use of this source code is governed by a BSD-style license that can be
+ # found in the LICENSE file.
++#
++# This source code is a part of eyeo Chromium SDK.
++# Use of this source code is governed by the GPLv3 that can be found in the components/adblock/LICENSE file.
+ 
+ import("//content/public/common/features.gni")
+ 
+@@ -55,6 +58,7 @@ chrome_java_sources = [
+   "java/src/org/chromium/chrome/browser/accessibility/AccessibilityTabHelper.java",
+   "java/src/org/chromium/chrome/browser/accessibility/PageZoomIphController.java",
+   "java/src/org/chromium/chrome/browser/accessibility/settings/ChromeAccessibilitySettingsDelegate.java",
++  "java/src/org/chromium/chrome/browser/adblock/TabIdTranslator.java",
+   "java/src/org/chromium/chrome/browser/ai/AiAssistantService.java",
+   "java/src/org/chromium/chrome/browser/ai/PageSummaryButtonController.java",
+   "java/src/org/chromium/chrome/browser/ai/SystemAiProvider.java",
+diff --git a/chrome/android/java/res/xml/main_preferences.xml b/chrome/android/java/res/xml/main_preferences.xml
+index f032c32654c47..65efe162bdc6b 100644
+--- a/chrome/android/java/res/xml/main_preferences.xml
++++ b/chrome/android/java/res/xml/main_preferences.xml
+@@ -3,6 +3,9 @@
+ Copyright 2015 The Chromium Authors
+ Use of this source code is governed by a BSD-style license that can be
+ found in the LICENSE file.
++
++This source code is a part of eyeo Chromium SDK.
++Use of this source code is governed by the GPLv3 that can be found in the components/adblock/LICENSE file.
+ -->
+ 
+ <!-- The main_preferences file will be reordered with the upcoming autofill
+@@ -95,6 +98,11 @@ for the previous order (main_preferences_legacy). -->
+         android:key="autofill_options"
+         android:order="16"
+         android:title="@string/autofill_options_title" />
++    <Preference
++        android:fragment="org.chromium.chrome.browser.adblock.settings.AdblockSettingsFragment"
++        android:key="adblock"
++        android:order="17"
++        android:title="@string/adblock_settings_title" />
+ 
+     <PreferenceCategory
+         android:key="advanced_section"
+diff --git a/chrome/android/java/res/xml/main_preferences_legacy.xml b/chrome/android/java/res/xml/main_preferences_legacy.xml
+index a048f0ad3f7b6..d6d3aa5af3a19 100644
+--- a/chrome/android/java/res/xml/main_preferences_legacy.xml
++++ b/chrome/android/java/res/xml/main_preferences_legacy.xml
+@@ -3,6 +3,9 @@
+ Copyright 2024 The Chromium Authors
+ Use of this source code is governed by a BSD-style license that can be
+ found in the LICENSE file.
++
++This source code is a part of eyeo Chromium SDK.
++Use of this source code is governed by the GPLv3 that can be found in the components/adblock/LICENSE file.
+ -->
+ 
+ <!-- The main_preferences file will be reordered with the upcoming autofill
+@@ -105,6 +108,11 @@ with the new order (main_preferences). -->
+         android:key="ui_theme"
+         android:order="18"
+         android:title="@string/theme_settings" />
++    <Preference
++        android:fragment="org.chromium.chrome.browser.adblock.settings.AdblockSettingsFragment"
++        android:key="adblock"
++        android:order="18"
++        android:title="@string/adblock_settings_title" />
+ 
+     <PreferenceCategory
+         android:key="advanced_section"
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/adblock/TabIdTranslator.java b/chrome/android/java/src/org/chromium/chrome/browser/adblock/TabIdTranslator.java
+new file mode 100644
+index 0000000000000..163fdf2a7d623
+--- /dev/null
++++ b/chrome/android/java/src/org/chromium/chrome/browser/adblock/TabIdTranslator.java
+@@ -0,0 +1,36 @@
++/*
++ * This file is part of eyeo Chromium SDK,
++ * Copyright (C) 2006-present eyeo GmbH
++ *
++ * eyeo Chromium SDK is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 3 as
++ * published by the Free Software Foundation.
++ *
++ * eyeo Chromium SDK is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++package chromium.chrome.browser.adblock;
++
++import org.jni_zero.NativeMethods;
++
++import org.chromium.content_public.browser.GlobalRenderFrameHostId;
++
++/**
++ * @brief Helper class to translate AdblockCounters.ResourceInfo.mMainFrameId to TabId.
++ */
++public final class TabIdTranslator {
++    public static int fromRenderFrameHostId(GlobalRenderFrameHostId id) {
++        return TabIdTranslatorJni.get().fromRenderFrameHostId(id.childId(), id.frameRoutingId());
++    }
++
++    @NativeMethods
++    public interface Natives {
++        int fromRenderFrameHostId(int renderProcessId, int renderFrameId);
++    }
++}
+diff --git a/chrome/app/chrome_main_delegate.cc b/chrome/app/chrome_main_delegate.cc
+index e65fddc7cc743..fafc0000d6a29 100644
+--- a/chrome/app/chrome_main_delegate.cc
++++ b/chrome/app/chrome_main_delegate.cc
+@@ -1,6 +1,10 @@
+ // Copyright 2012 The Chromium Authors
+ // Use of this source code is governed by a BSD-style license that can be
+ // found in the LICENSE file.
++//
++// This source code is a part of eyeo Chromium SDK.
++// Use of this source code is governed by the GPLv3 that can be found in the
++// components/adblock/LICENSE file.
+ 
+ #ifdef UNSAFE_BUFFERS_BUILD
+ // TODO(crbug.com/40285824): Remove this and convert code to safer constructs.
+@@ -43,6 +47,7 @@
+ #include "base/timer/timer.h"
+ #include "base/trace_event/trace_event_impl.h"
+ #include "build/build_config.h"
++#include "chrome/browser/adblock/adblock_chrome_content_browser_client.h"
+ #include "chrome/browser/buildflags.h"
+ #include "chrome/browser/chrome_content_browser_client.h"
+ #include "chrome/browser/chrome_resource_bundle_helper.h"
+@@ -72,6 +77,7 @@
+ #include "chrome/grit/generated_resources.h"
+ #include "chrome/renderer/chrome_content_renderer_client.h"
+ #include "chrome/utility/chrome_content_utility_client.h"
++#include "components/adblock/content/renderer/adblock_content_renderer_client.h"
+ #include "components/component_updater/component_updater_paths.h"
+ #include "components/content_settings/core/common/content_settings_pattern.h"
+ #include "components/crash/core/app/crash_reporter_client.h"
+@@ -227,7 +233,8 @@
+ 
+ base::LazyInstance<ChromeContentGpuClient>::DestructorAtExit
+     g_chrome_content_gpu_client = LAZY_INSTANCE_INITIALIZER;
+-base::LazyInstance<ChromeContentRendererClient>::DestructorAtExit
++base::LazyInstance<adblock::AdblockContentRendererClient<
++    ChromeContentRendererClient>>::DestructorAtExit
+     g_chrome_content_renderer_client = LAZY_INSTANCE_INITIALIZER;
+ 
+ extern int NaClMain(content::MainFunctionParams);
+@@ -1616,7 +1623,7 @@ content::ContentClient* ChromeMainDelegate::CreateContentClient() {
+ content::ContentBrowserClient*
+ ChromeMainDelegate::CreateContentBrowserClient() {
+   chrome_content_browser_client_ =
+-      std::make_unique<ChromeContentBrowserClient>();
++      std::make_unique<AdblockChromeContentBrowserClient>();
+ #if !BUILDFLAG(IS_ANDROID)
+   // Android does this in `ChromeMainDelegateAndroid::PreSandboxStartup`.
+   CHECK(sampling_profiler_);
+diff --git a/chrome/chrome_paks.gni b/chrome/chrome_paks.gni
+index 388b83742657c..92e2ce51f7ff7 100644
+--- a/chrome/chrome_paks.gni
++++ b/chrome/chrome_paks.gni
+@@ -1,6 +1,9 @@
+ # Copyright 2016 The Chromium Authors
+ # Use of this source code is governed by a BSD-style license that can be
+ # found in the LICENSE file.
++#
++# This source code is a part of eyeo Chromium SDK.
++# Use of this source code is governed by the GPLv3 that can be found in the components/adblock/LICENSE file.
+ 
+ import("//ash/ambient/resources/resources.gni")
+ import("//build/config/chrome_build.gni")
+@@ -124,6 +127,7 @@ template("chrome_extra_paks") {
+       "$root_gen_dir/chrome/common_resources.pak",
+       "$root_gen_dir/chrome/saved_tab_groups_unsupported_resources.pak",
+       "$root_gen_dir/chrome/segmentation_internals_resources.pak",
++      "$root_gen_dir/components/adblock/core/resources/adblock_resources.pak",
+       "$root_gen_dir/components/autofill/core/browser/geo/autofill_address_rewriter_resources.pak",
+       "$root_gen_dir/components/autofill_and_password_manager_internals_resources.pak",
+       "$root_gen_dir/components/chrome_urls_resources.pak",
+@@ -158,6 +162,7 @@ template("chrome_extra_paks") {
+       "//chrome/browser/resources:resources",
+       "//chrome/browser/resources/saved_tab_groups_unsupported:resources",
+       "//chrome/common:resources",
++      "//components/adblock/core/resources:adblock_resources",
+       "//components/autofill/core/browser:autofill_address_rewriter_resources",
+       "//components/metrics:server_urls_grd",
+       "//components/resources",
+diff --git a/extensions/browser/api/web_request/web_request_proxying_url_loader_factory.cc b/extensions/browser/api/web_request/web_request_proxying_url_loader_factory.cc
+index 8f02078823e76..90f30c9ac79e7 100644
+--- a/extensions/browser/api/web_request/web_request_proxying_url_loader_factory.cc
++++ b/extensions/browser/api/web_request/web_request_proxying_url_loader_factory.cc
+@@ -2,6 +2,10 @@
+ // Use of this source code is governed by a BSD-style license that can be
+ // found in the LICENSE file.
+ 
++// This source code is a part of eyeo Chromium SDK.
++// Use of this source code is governed by the GPLv3 that can be found in the
++// components/adblock/LICENSE file.
++
+ #include "extensions/browser/api/web_request/web_request_proxying_url_loader_factory.h"
+ 
+ #include <memory>
+@@ -452,6 +456,7 @@ void WebRequestProxyingURLLoaderFactory::InProgressRequest::OnReceiveRedirect(
+       TRACE_EVENT_FLAG_FLOW_IN | TRACE_EVENT_FLAG_FLOW_OUT);
+ 
+   if (redirect_url_ != redirect_info.new_url &&
++      !redirect_info.bypass_redirect_checks &&
+       !IsRedirectSafe(request_.url, redirect_info.new_url,
+                       info_->is_navigation_request)) {
+     OnNetworkError(CreateURLLoaderCompletionStatus(net::ERR_UNSAFE_REDIRECT));
+diff --git a/extensions/browser/extension_event_histogram_value.h b/extensions/browser/extension_event_histogram_value.h
+index 70feb9a38de0b..7f0af3a56ef28 100644
+--- a/extensions/browser/extension_event_histogram_value.h
++++ b/extensions/browser/extension_event_histogram_value.h
+@@ -1,6 +1,10 @@
+ // Copyright 2015 The Chromium Authors
+ // Use of this source code is governed by a BSD-style license that can be
+ // found in the LICENSE file.
++//
++// This source code is a part of eyeo Chromium SDK.
++// Use of this source code is governed by the GPLv3 that can be found in the
++// components/adblock/LICENSE file.
+ 
+ #ifndef EXTENSIONS_BROWSER_EXTENSION_EVENT_HISTOGRAM_VALUE_H_
+ #define EXTENSIONS_BROWSER_EXTENSION_EVENT_HISTOGRAM_VALUE_H_
+@@ -42,7 +46,8 @@ enum HistogramValue {
+   APP_WINDOW_ON_MAXIMIZED = 19,
+   APP_WINDOW_ON_MINIMIZED = 20,
+   APP_WINDOW_ON_RESTORED = 21,
+-  DELETED_AUDIO_MODEM_ON_RECEIVED = 22,
++  EYEO_EVENT = 22,  // Reusing a DELETED_AUDIO_MODEM_ON_RECEIVED to avoid merge
++                    // conflicts.
+   DELETED_AUDIO_MODEM_ON_TRANSMIT_FAIL = 23,
+   DELETED_AUDIO_ON_DEVICE_CHANGED = 24,
+   AUDIO_ON_DEVICES_CHANGED = 25,
+diff --git a/extensions/common/mojom/api_permission_id.mojom b/extensions/common/mojom/api_permission_id.mojom
+index cbc30277e2a5a..4157698818e9e 100644
+--- a/extensions/common/mojom/api_permission_id.mojom
++++ b/extensions/common/mojom/api_permission_id.mojom
+@@ -1,6 +1,10 @@
+ // Copyright 2021 The Chromium Authors
+ // Use of this source code is governed by a BSD-style license that can be
+ // found in the LICENSE file.
++//
++// This source code is a part of eyeo Chromium SDK.
++// Use of this source code is governed by the GPLv3 that can be found in the
++// components/adblock/LICENSE file.
+ 
+ module extensions.mojom;
+ 
+@@ -287,6 +291,9 @@ enum APIPermissionID {
+   kExperimentalAiData = 260,
+   kOmniboxDirectInput = 261,
+   kExperimentalActor = 262,
++  kEyeoDevToolsPrivate = 998,
++  kAdblockPrivate = 999,
++  kEyeoFilteringPrivate = 1000,
+ 
+   // Add new entries at the end of the enum and be sure to update the
+   // "ExtensionPermission3" enum in
+diff --git a/net/url_request/redirect_info.h b/net/url_request/redirect_info.h
+index 810eaf97d91a6..39f0cf337d93e 100644
+--- a/net/url_request/redirect_info.h
++++ b/net/url_request/redirect_info.h
+@@ -2,6 +2,10 @@
+ // Use of this source code is governed by a BSD-style license that can be
+ // found in the LICENSE file.
+ 
++// This source code is a part of eyeo Chromium SDK.
++// Use of this source code is governed by the GPLv3 that can be found in the
++// components/adblock/LICENSE file.
++
+ #ifndef NET_URL_REQUEST_REDIRECT_INFO_H_
+ #define NET_URL_REQUEST_REDIRECT_INFO_H_
+ 
+@@ -83,6 +87,10 @@ struct NET_EXPORT RedirectInfo {
+   // True if this is a redirect from Signed Exchange to its fallback URL.
+   bool is_signed_exchange_fallback_redirect = false;
+ 
++  // True if this is redirect done by rewrite filter (adblocking). This allows
++  // redirecting ads served over https into empty media through data:// URLs.
++  bool bypass_redirect_checks = false;
++
+   // The new referrer policy that should be obeyed if there are
+   // subsequent redirects.
+   ReferrerPolicy new_referrer_policy =
+diff --git a/services/network/public/cpp/net_ipc_param_traits.h b/services/network/public/cpp/net_ipc_param_traits.h
+index aeb766e32fa6c..cf92d65e4b812 100644
+--- a/services/network/public/cpp/net_ipc_param_traits.h
++++ b/services/network/public/cpp/net_ipc_param_traits.h
+@@ -2,6 +2,10 @@
+ // Use of this source code is governed by a BSD-style license that can be
+ // found in the LICENSE file.
+ 
++// This source code is a part of eyeo Chromium SDK.
++// Use of this source code is governed by the GPLv3 that can be found in the
++// components/adblock/LICENSE file.
++
+ #ifndef SERVICES_NETWORK_PUBLIC_CPP_NET_IPC_PARAM_TRAITS_H_
+ #define SERVICES_NETWORK_PUBLIC_CPP_NET_IPC_PARAM_TRAITS_H_
+ 
+@@ -275,6 +279,7 @@ IPC_STRUCT_TRAITS_BEGIN(net::RedirectInfo)
+   IPC_STRUCT_TRAITS_MEMBER(new_referrer)
+   IPC_STRUCT_TRAITS_MEMBER(insecure_scheme_was_upgraded)
+   IPC_STRUCT_TRAITS_MEMBER(is_signed_exchange_fallback_redirect)
++  IPC_STRUCT_TRAITS_MEMBER(bypass_redirect_checks)
+   IPC_STRUCT_TRAITS_MEMBER(new_referrer_policy)
+   IPC_STRUCT_TRAITS_MEMBER(critical_ch_restart_time)
+ IPC_STRUCT_TRAITS_END()
+-- 
+2.43.0
+
