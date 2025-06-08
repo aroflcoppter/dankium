@@ -1,0 +1,25 @@
+From cce1414e746a92036d5f330eddb5c751c557cf6d Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Sun, 8 Jun 2025 19:17:05 -0230
+Subject: [PATCH] Enable local network access checks
+
+---
+ services/network/public/cpp/features.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/services/network/public/cpp/features.cc b/services/network/public/cpp/features.cc
+index eb2d653f58db6..7b057fd47f537 100644
+--- a/services/network/public/cpp/features.cc
++++ b/services/network/public/cpp/features.cc
+@@ -221,7 +221,7 @@ BASE_FEATURE(kPrivateNetworkAccessPermissionPrompt,
+ // https://github.com/explainers-by-googlers/local-network-access
+ BASE_FEATURE(kLocalNetworkAccessChecks,
+              "LocalNetworkAccessChecks",
+-             base::FEATURE_DISABLED_BY_DEFAULT);
++             kEnabledByDefault);
+ 
+ // If true, local network access checks will only be warnings.
+ BASE_FEATURE_PARAM(bool,
+-- 
+2.43.0
+
