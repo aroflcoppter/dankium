@@ -1,0 +1,722 @@
+From d4e16f514dda8a0bd2cb563c54790164b1a012a4 Mon Sep 17 00:00:00 2001
+From: vanilla-chromium-builder <project_26591639_bot@noreply.gitlab.com>
+Date: Thu, 22 May 2025 15:50:31 +0000
+Subject: [PATCH] adblock chrome common
+
+---
+ chrome/common/BUILD.gn                        |   3 +
+ .../common/extensions/api/_api_features.json  |  26 ++
+ .../extensions/api/_permission_features.json  |  21 ++
+ .../common/extensions/api/adblock_private.idl | 180 ++++++++++++++
+ chrome/common/extensions/api/api_sources.gni  |   7 +
+ .../extensions/api/eyeo_dev_tools_private.idl |  88 +++++++
+ .../extensions/api/eyeo_filtering_private.idl | 229 ++++++++++++++++++
+ .../permissions/chrome_api_permissions.cc     |  10 +
+ .../permissions/permission_set_unittest.cc    |   9 +
+ 9 files changed, 573 insertions(+)
+ create mode 100644 chrome/common/extensions/api/adblock_private.idl
+ create mode 100644 chrome/common/extensions/api/eyeo_dev_tools_private.idl
+ create mode 100644 chrome/common/extensions/api/eyeo_filtering_private.idl
+
+diff --git a/chrome/common/BUILD.gn b/chrome/common/BUILD.gn
+index 7c4b57024e244..de0d937603709 100644
+--- a/chrome/common/BUILD.gn
++++ b/chrome/common/BUILD.gn
+@@ -1,6 +1,9 @@
+ # Copyright 2014 The Chromium Authors
+ # Use of this source code is governed by a BSD-style license that can be
+ # found in the LICENSE file.
++#
++# This source code is a part of eyeo Chromium SDK.
++# Use of this source code is governed by the GPLv3 that can be found in the components/adblock/LICENSE file.
+ 
+ import("//build/buildflag_header.gni")
+ import("//build/config/chrome_build.gni")
+diff --git a/chrome/common/extensions/api/_api_features.json b/chrome/common/extensions/api/_api_features.json
+index b00e576dea758..fa5e0e026e4ae 100644
+--- a/chrome/common/extensions/api/_api_features.json
++++ b/chrome/common/extensions/api/_api_features.json
+@@ -70,6 +70,16 @@
+     "dependencies": ["permission:experimentalAiData"],
+     "channel": "stable"
+   },
++  "adblockPrivate": [{
++    "dependencies": ["permission:adblockPrivate"],
++    "contexts": ["privileged_extension"]
++  }, {
++    "contexts": ["webui"],
++    "dependencies": [],
++    "matches": [
++      "chrome://settings/*"
++    ]
++  }],
+   "app": {
+     "blocklist": [
+       "2FC374607C2DF285634B67C64A2E356C607091C3",  // Quickoffice
+@@ -534,6 +544,22 @@
+     "channel": "stable",
+     "contexts": []
+   },
++  "eyeoDevToolsPrivate": [{
++    "dependencies": ["permission:eyeoDevToolsPrivate"],
++    "contexts": ["privileged_extension"]
++  }, {
++    "contexts": ["webui"],
++    "dependencies": [],
++    "matches": ["chrome://settings/*"]
++  }],
++  "eyeoFilteringPrivate": [{
++    "dependencies": ["permission:eyeoFilteringPrivate"],
++    "contexts": ["privileged_extension"]
++  }, {
++    "contexts": ["webui"],
++    "dependencies": [],
++    "matches": ["chrome://settings/*"]
++  }],
+   "fileBrowserHandler": {
+     "dependencies": ["permission:fileBrowserHandler"],
+     "contexts": ["privileged_extension"],
+diff --git a/chrome/common/extensions/api/_permission_features.json b/chrome/common/extensions/api/_permission_features.json
+index 80bff6566bb76..3800d83dd1131 100644
+--- a/chrome/common/extensions/api/_permission_features.json
++++ b/chrome/common/extensions/api/_permission_features.json
+@@ -56,6 +56,13 @@
+       "5107DE9024C329EEA9C9A72D94C16723790C6422"   // Apps Developer Tool Dev.
+     ]
+   },
++  "adblockPrivate": {
++    "channel": "stable",
++    "extension_types": ["extension", "platform_app"],
++    "allowlist" : [
++      "664F11343A17783FC7F6DC994BBC8AAF6823739C"  // eyeo test extension
++    ]
++  },
+   "autofillPrivate": {
+     "channel": "trunk",
+     "extension_types": ["extension", "platform_app"],
+@@ -375,6 +382,20 @@
+     "channel": "stable",
+     "command_line_switch": "extension-ai-data-collection"
+   },
++  "eyeoDevToolsPrivate": {
++    "channel": "stable",
++    "extension_types": ["extension"],
++    "allowlist" : [
++      "664F11343A17783FC7F6DC994BBC8AAF6823739C"  // eyeo test extension
++    ]
++  },
++  "eyeoFilteringPrivate": {
++    "channel": "stable",
++    "extension_types": ["extension", "platform_app"],
++    "allowlist" : [
++      "664F11343A17783FC7F6DC994BBC8AAF6823739C"  // eyeo test extension
++    ]
++  },
+   "favicon": {
+     "channel": "stable",
+     "extension_types": ["extension"]
+diff --git a/chrome/common/extensions/api/adblock_private.idl b/chrome/common/extensions/api/adblock_private.idl
+new file mode 100644
+index 0000000000000..6cad537a202e6
+--- /dev/null
++++ b/chrome/common/extensions/api/adblock_private.idl
+@@ -0,0 +1,180 @@
++// This file is part of eyeo Chromium SDK,
++// Copyright (C) 2006-present eyeo GmbH
++//
++// eyeo Chromium SDK is free software: you can redistribute it and/or modify
++// it under the terms of the GNU General Public License version 3 as
++// published by the Free Software Foundation.
++//
++// eyeo Chromium SDK is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License
++// along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++
++// DEPRECATED: Prefer eyeoFilteringPrivate API.
++//
++// This is a private API exposing ability to control ad-filtering settings via adblockPrivate API.
++//
++// Devs: when modifying this file, ensure you update
++// tools/typescript/definitions/adblock_private.d.ts as well.
++// See DPD-1870 for more information.
++namespace adblockPrivate {
++
++dictionary BuiltInSubscription {
++  // Subscription url
++  DOMString url;
++  // Subscription title (may be empty)
++  DOMString title;
++  // list of languages this subscription is relevant for.
++  DOMString[] languages;
++};
++
++dictionary Subscription {
++  // Subscription url
++  DOMString url;
++  // Current state of the subscription. Allowed values are:
++  // "Installed"
++  // "Preloaded"
++  // "Installing"
++  // See components/adblock/core/subscription/subscription.h for description.
++  DOMString installation_state;
++  // Subscription title (may be empty)
++  DOMString title;
++  // Subscription version (may be empty)
++  DOMString current_version;
++  // Time of last successful installation or update, in ISO 8601 format.
++  // May be passed directly to the Date constructor.
++  // Empty for subscriptions that are not installed yet.
++  DOMString last_installation_time;
++};
++
++dictionary SessionStatsEntry {
++  // Subscription url or "adblock:custom" when custom filter was matched
++  DOMString url;
++  // Subscription hits
++  long count;
++};
++
++dictionary AdInfo {
++  // URL of the ad element which has been matched.
++  DOMString url;
++  // URLs of the parent frames.
++  DOMString[] parent_frame_urls;
++  // URL of subscription having the filter which matched for the ad.
++  DOMString subscription;
++  // Configuration name containing subscription with matched filer.
++  DOMString configuration_name;
++  // A string representation of matched ad's resource type.
++  // Possible values are:
++  // - "SCRIPT"
++  // - "IMAGE"
++  // - "STYLESHEET"
++  // - "OBJECT"
++  // - "SUBDOCUMENT"
++  // - "WEBSOCKET"
++  // - "WEBRTC"
++  // - "PING"
++  // - "XMLHTTPREQUEST"
++  // - "MEDIA"
++  // - "FONT"
++  // - "OTHER" (when none of the above matches)
++  // See: components/adblock/core/common/content_type.h
++  DOMString content_type;
++  // Tab id for which the event is fired. Defaults to -1, a numerical value of
++  // api::tabs::TAB_ID_NONE which means tab id cannot be obtained.
++  long tab_id;
++  // Window id for which the event is fired. Defaults to -1 which is a value
++  // of SessionID::InvalidValue() which means window id cannot be obtained.
++  long window_id;
++};
++
++callback BuiltInSubscriptionsCallback = void(BuiltInSubscription[] result);
++callback SubscriptionsCallback = void(Subscription[] result);
++callback StateCallback = void(boolean result);
++callback CompletionCallback = void();
++callback ListCallback = void(DOMString[] result);
++callback SessionStatsCallback = void(SessionStatsEntry[] result);
++
++[deprecated="Use eyeoFilteringPrivate methods instead."]
++interface Functions {
++  // Allows to turn Adblock on or off.
++  static void setEnabled(boolean enabled);
++  // Returns whether Adblock is on.
++  static void isEnabled(StateCallback callback);
++  // Allows to turn Acceptable Ads on or off.
++  static void setAcceptableAdsEnabled(boolean enabled);
++  // Returns whether Acceptable Ads is on.
++  static void isAcceptableAdsEnabled(StateCallback callback);
++  // Allows to turn autoinstalling geolocation recommendation on or off.
++  static void setAutoInstallEnabled(boolean enabled);
++  // Returns whether autoinstalling geolocation recommendation is on.
++  static void isAutoInstallEnabled(StateCallback callback);
++  // Gets the list of built-in subscriptions.
++  static void getBuiltInSubscriptions(BuiltInSubscriptionsCallback callback);
++  // Adds a domain ads should not be blocked on.
++  static void addAllowedDomain(DOMString domain);
++  // Removes a domain ads should not be blocked on.
++  static void removeAllowedDomain(DOMString domain);
++  // Returns a list of domains ads are not blocked on.
++  static void getAllowedDomains(ListCallback callback);
++  // Adds a custom filter.
++  static void addCustomFilter(DOMString filter);
++  // Removes a custom filter.
++  static void removeCustomFilter(DOMString filter);
++  // Returns a list of custom filters a user set.
++  static void getCustomFilters(ListCallback callback);
++  // Returns number of allowlisted requests in a current session (runtime).
++  static void getSessionAllowedAdsCount(SessionStatsCallback callback);
++  // Returns number of blocked requests in a current session (runtime).
++  static void getSessionBlockedAdsCount(SessionStatsCallback callback);
++  // Compiles a list of currently installed subscriptions. Filter lists that are
++  // still being installed and don't yet participate in ad filtering also appear
++  // on this list and can be discerned by their installation_state.
++  static void getInstalledSubscriptions(SubscriptionsCallback callback);
++  // Subscribes to a filter list. If subscription was already done and not
++  // removed later by "uninstallSubscription()" call then this is a no-op call,
++  // otherwise it initiates a download. |url| must point to a https URL.
++  static void installSubscription(DOMString url,
++                                  optional CompletionCallback feedback);
++  // Removes a subscription to a filter list downloaded from |url| and deletes
++  // corresponding files from disk. Does nothing if the filter list was never
++  // subscribed to.
++  static void uninstallSubscription(DOMString url,
++                                    optional CompletionCallback feedback);
++};
++
++interface Events {
++  // Fired when an ad is explicitly allowed by an exception rule.
++  static void onAdAllowed(AdInfo info);
++
++  // Fired when an ad is blocked.
++  static void onAdBlocked(AdInfo info);
++
++  // Fired when a whole page is allowlisted.
++  static void onPageAllowed(AdInfo info);
++
++  // Fired when a popup is blocked.
++  static void onPopupBlocked(AdInfo info);
++
++  // Fired when a popup is allowlisted.
++  static void onPopupAllowed(AdInfo info);
++
++  // Fired when a subscription has been updated.
++  static void onSubscriptionUpdated(DOMString subscription_url);
++
++  // Fired when ad-filtering enable state changed
++  static void onEnabledStateChanged();
++
++  // Fired when subscription added or removed.
++  static void onFilterListsChanged();
++
++  // Fired when allowed domain list has been updated.
++  static void onAllowedDomainsChanged();
++
++  // Fired when custom filter added or removed.
++  static void onCustomFiltersChanged();
++};
++
++};
+diff --git a/chrome/common/extensions/api/api_sources.gni b/chrome/common/extensions/api/api_sources.gni
+index d79675efd36dd..ba6201f3102db 100644
+--- a/chrome/common/extensions/api/api_sources.gni
++++ b/chrome/common/extensions/api/api_sources.gni
+@@ -1,6 +1,9 @@
+ # Copyright 2018 The Chromium Authors
+ # Use of this source code is governed by a BSD-style license that can be
+ # found in the LICENSE file.
++#
++# This source code is a part of eyeo Chromium SDK.
++# Use of this source code is governed by the GPLv3 that can be found in the components/adblock/LICENSE file.
+ 
+ import("//build/config/features.gni")
+ import("//chrome/common/features.gni")
+@@ -92,6 +95,10 @@ if (enable_extensions) {
+     "webrtc_logging_private.idl",
+ 
+     "windows.json",
++
++    "adblock_private.idl",
++    "eyeo_dev_tools_private.idl",
++    "eyeo_filtering_private.idl",
+   ]
+ 
+   if (!is_android) {
+diff --git a/chrome/common/extensions/api/eyeo_dev_tools_private.idl b/chrome/common/extensions/api/eyeo_dev_tools_private.idl
+new file mode 100644
+index 0000000000000..e22fcf5210249
+--- /dev/null
++++ b/chrome/common/extensions/api/eyeo_dev_tools_private.idl
+@@ -0,0 +1,88 @@
++// This file is part of eyeo Chromium SDK,
++// Copyright (C) 2006-present eyeo GmbH
++//
++// eyeo Chromium SDK is free software: you can redistribute it and/or modify
++// it under the terms of the GNU General Public License version 3 as
++// published by the Free Software Foundation.
++//
++// eyeo Chromium SDK is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License
++// along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++
++// This is a private API exposing remote CDP targets and allowing to call
++// a custom CDP commands upon them.
++
++namespace eyeoDevToolsPrivate {
++
++  dictionary RemoteTargetInfo {
++    // Current page
++    DOMString page_url;
++    // Socket name
++    DOMString socket_name;
++  };
++
++  dictionary RequestInfo {
++    // URL of the request element which has been matched.
++    DOMString url;
++    // URL of subscription having the filter which matched for the request.
++    DOMString subscription;
++  };
++
++  dictionary PageElementInfo {
++    // Selector for the page element which has been targeted.
++    DOMString selector;
++    // The action executed upon the selector.
++    DOMString action;
++  };
++
++  interface Events {
++    // Fired when a new remote target is found.
++    static void onRemoteTargetFound(RemoteTargetInfo info);
++
++    // Fired when a remote target is lost.
++    // RemoteTargetInfo#page_url is empty for this event.
++    static void onRemoteTargetLost(RemoteTargetInfo info);
++
++    // Fired when a whole page is allowlisted.
++    static void onPageAllowed(RequestInfo info);
++
++    // Fired when a request (incl. popup) is explicitly allowed.
++    static void onRequestAllowed(RequestInfo info);
++
++    // Fired when a request(incl. popup) is blocked.
++    static void onRequestBlocked(RequestInfo info);
++
++    // Fired for a page element which was targeted by EH or EHE filter.
++    static void onPageElementMatched(PageElementInfo info);
++  };
++
++  // Returns command result as a JSON string.
++  callback CommandCallback = void(DOMString result_json_string);
++  // Called when the connection is ready.
++  callback ConnectCallback = void();
++  // Returns disconnected socket name or empty string if
++  // there was no connection established.
++  callback DisconnectCallback = void(DOMString socket_name);
++
++  interface Functions {
++    // Connect to requested socket.
++    static void connect(
++        DOMString socket_name,
++        ConnectCallback callback);
++    // Cancel any established connection.
++    static void disconnect(
++        optional DisconnectCallback callback);
++    // Restart device discovery, needed in case onRemoteTargetFound
++    // events were missed or not delivered.
++    static void restartDiscovery();
++    // Call a remote method with optional json string params.
++    static void sendRemoteCommand(
++        DOMString method,
++        optional DOMString params_json_string,
++        CommandCallback callback);
++  };
++};
+diff --git a/chrome/common/extensions/api/eyeo_filtering_private.idl b/chrome/common/extensions/api/eyeo_filtering_private.idl
+new file mode 100644
+index 0000000000000..5f0a8836df49b
+--- /dev/null
++++ b/chrome/common/extensions/api/eyeo_filtering_private.idl
+@@ -0,0 +1,229 @@
++// This file is part of eyeo Chromium SDK,
++// Copyright (C) 2006-present eyeo GmbH
++//
++// eyeo Chromium SDK is free software: you can redistribute it and/or modify
++// it under the terms of the GNU General Public License version 3 as
++// published by the Free Software Foundation.
++//
++// eyeo Chromium SDK is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License
++// along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++
++// This is a private API exposing control over resource filtering via eyeoFilteringPrivate API.
++//
++// Devs: when modifying this file, ensure you update
++// tools/typescript/definitions/eyeo_filtering_private.d.ts as well.
++// See DPD-1870 for more information.
++namespace eyeoFilteringPrivate {
++
++  dictionary Subscription {
++    // Subscription url
++    DOMString url;
++    // Current state of the subscription. Allowed values are:
++    // "Installed"
++    // "Preloaded"
++    // "Installing"
++    // See components/adblock/core/subscription/subscription.h for description.
++    DOMString installation_state;
++    // Subscription title (may be empty)
++    DOMString title;
++    // Subscription version (may be empty)
++    DOMString current_version;
++    // Time of last successful installation or update, in ISO 8601 format.
++    // May be passed directly to the Date constructor.
++    DOMString last_installation_time;
++  };
++
++  dictionary SessionStatsEntry {
++    // Subscription url or "adblock:custom" when custom filter was matched
++    DOMString url;
++    // Subscription hits
++    long count;
++  };
++
++  dictionary RequestInfo {
++    // URL of the request element which has been matched.
++    DOMString url;
++    // URLs of the parent frames.
++    DOMString[] parent_frame_urls;
++    // URL of subscription having the filter which matched for the request.
++    DOMString subscription;
++    // Configuration name containing subscription with matched filer.
++    DOMString configuration_name;
++    // A string representation of matched request's resource type.
++    // Possible values are:
++    // - "SCRIPT"
++    // - "IMAGE"
++    // - "STYLESHEET"
++    // - "OBJECT"
++    // - "SUBDOCUMENT"
++    // - "WEBSOCKET"
++    // - "WEBRTC"
++    // - "PING"
++    // - "XMLHTTPREQUEST"
++    // - "MEDIA"
++    // - "FONT"
++    // - "OTHER" (when none of the above matches)
++    // See: components/adblock/core/common/content_type.h
++    DOMString content_type;
++    // Tab id for which the event is fired. Defaults to -1, a numerical value of
++    // api::tabs::TAB_ID_NONE which means tab id cannot be obtained.
++    long tab_id;
++    // Window id for which the event is fired. Defaults to -1 which is a value
++    // of SessionID::InvalidValue() which means window id cannot be obtained.
++    long window_id;
++  };
++
++  enum ElementHideAction {
++    HIDE,
++    REMOVE,
++    INLINE_CSS
++  };
++
++  dictionary PageElementInfo {
++    // Selector for the page element which has been targeted.
++    DOMString selector;
++    // The action executed upon the selector.
++    ElementHideAction action;
++    // Tab id for which the event is fired. Defaults to -1, a numerical value of
++    // api::tabs::TAB_ID_NONE which means tab id cannot be obtained.
++    long tab_id;
++    // Window id for which the event is fired. Defaults to -1 which is a value
++    // of SessionID::InvalidValue() which means window id cannot be obtained.
++    long window_id;
++  };
++
++  callback CompletionCallback = void();
++  callback ListCallback = void(DOMString[] result);
++  callback SessionStatsCallback = void(SessionStatsEntry[] result);
++  callback StateCallback = void(boolean result);
++  callback SubscriptionsCallback = void(Subscription[] result);
++  callback UrlCallback = void(DOMString result);
++
++  // In order to use any configuration it needs to be created first
++  // in the backend, for example by using $(ref:createConfiguration) call.
++  // Names of all existing configurations can be fetched via
++  // (ref:getConfigurations) call.
++  interface Functions {
++    // Creates new filtering configuration. It is a no-op call if configuration
++    // already exists.
++    static void createConfiguration(DOMString config_name);
++    // Removes existing configuration, no-op when configuration does not exist.
++    // Use it only when |configuration| is no longer needed, otherwise prefer
++    // to disable |configuration| using (ref:setEnabled).
++    static void removeConfiguration(DOMString config_name);
++    // Returns a list of existing configurations.
++    static void getConfigurations(ListCallback callback);
++    // Returns whether autoinstalling geolocation recommendation is on.
++    static void isAutoInstallEnabled(
++        StateCallback callback);
++    // Allows to turn autoinstalling geolocation recommendation on or off.
++    static void setAutoInstallEnabled(
++        boolean enabled,
++        optional CompletionCallback status);
++    // Allows to turn filtering configuration on or off.
++    static void setEnabled(
++        DOMString configuration,
++        boolean enabled,
++        optional CompletionCallback status);
++    // Returns whether filtering configuration is on.
++    static void isEnabled(
++        DOMString configuration,
++        StateCallback callback);
++    // Adds a domain requests should not be blocked on.
++    static void addAllowedDomain(
++        DOMString configuration,
++        DOMString domain,
++        optional CompletionCallback status);
++    // Removes a domain requests should not be blocked on.
++    static void removeAllowedDomain(
++        DOMString configuration,
++        DOMString domain,
++        optional CompletionCallback status);
++    // Returns a list of domains requests are not blocked on.
++    static void getAllowedDomains(
++        DOMString configuration,
++        ListCallback callback);
++    // Adds a custom filter.
++    static void addCustomFilter(
++        DOMString configuration,
++        DOMString filter,
++        optional CompletionCallback status);
++    // Removes a custom filter.
++    static void removeCustomFilter(
++        DOMString configuration,
++        DOMString filter,
++        optional CompletionCallback status);
++    // Returns a list of custom filters a user set.
++    static void getCustomFilters(
++        DOMString configuration,
++        ListCallback callback);
++    // Subscribes to a filter list. If subscription was already done and not
++    // removed later by "removeFilterList()" call then this is a no-op
++    // call, otherwise it initiates a download. |url| must point to a https URL.
++    static void addFilterList(
++        DOMString configuration,
++        DOMString url,
++        optional CompletionCallback status);
++    // Removes a subscription to a filter list downloaded from |url| and deletes
++    // corresponding files from disk. Does nothing if the filter list was never
++    // subscribed to.
++    static void removeFilterList(
++        DOMString configuration,
++        DOMString url,
++        optional CompletionCallback status);
++    // Compiles a list of currently installed subscriptions. Filter lists that
++    // are still being installed and don't yet participate in filtering also
++    // appear on this list and can be discerned by their installation_state.
++    static void getFilterLists(
++        DOMString configuration,
++        SubscriptionsCallback callback);
++    static void getSessionAllowedRequestsCount(
++        SessionStatsCallback callback);
++    // Returns number of blocked requests in a current session (runtime).
++    static void getSessionBlockedRequestsCount(
++        SessionStatsCallback callback);
++    // Returns Acceptable Ads url which can be passed to
++    // (ref:addFilterList) or (ref:removeFilterList).
++    static void getAcceptableAdsUrl(UrlCallback callback);
++  };
++
++  interface Events {
++    // Fired when an request is explicitly allowed by an exception rule.
++    static void onRequestAllowed(RequestInfo info);
++
++    // Fired when an request is blocked.
++    static void onRequestBlocked(RequestInfo info);
++
++    // Fired when a whole page is allowlisted in every filtering configuration.
++    static void onPageAllowed(RequestInfo info);
++
++    // Fired when a popup is blocked.
++    static void onPopupBlocked(RequestInfo info);
++
++    // Fired when a popup is allowlisted.
++    static void onPopupAllowed(RequestInfo info);
++
++    // Fired for a page element which was targeted by EH or EHE filter.
++    static void onPageElementMatched(PageElementInfo info);
++
++    // Fired when a subscription has been updated.
++    static void onSubscriptionUpdated(DOMString subscription_url);
++
++    // Fired when configuration enable state changed
++    static void onEnabledStateChanged(DOMString config_name);
++
++    // Fired when subscription added or removed.
++    static void onFilterListsChanged(DOMString config_name);
++
++    // Fired when allowed domain list has been updated.
++    static void onAllowedDomainsChanged(DOMString config_name);
++
++    // Fired when custom filter added or removed.
++    static void onCustomFiltersChanged(DOMString config_name);
++  };
++};
+diff --git a/chrome/common/extensions/permissions/chrome_api_permissions.cc b/chrome/common/extensions/permissions/chrome_api_permissions.cc
+index 25cf790f04e87..3213f2a6e9f13 100644
+--- a/chrome/common/extensions/permissions/chrome_api_permissions.cc
++++ b/chrome/common/extensions/permissions/chrome_api_permissions.cc
+@@ -1,6 +1,10 @@
+ // Copyright 2013 The Chromium Authors
+ // Use of this source code is governed by a BSD-style license that can be
+ // found in the LICENSE file.
++//
++// This source code is a part of eyeo Chromium SDK.
++// Use of this source code is governed by the GPLv3 that can be found in the
++// components/adblock/LICENSE file.
+ 
+ #include "chrome/common/extensions/permissions/chrome_api_permissions.h"
+ 
+@@ -32,6 +36,8 @@ std::unique_ptr<APIPermission> CreateAPIPermission(
+ // ChromePermissionMessageProvider::GetPermissionMessages as well.
+ constexpr APIPermissionInfo::InitInfo permissions_to_register[] = {
+     // Register permissions for all extension types.
++    {APIPermissionID::kAdblockPrivate, "adblockPrivate",
++     APIPermissionInfo::kFlagCannotBeOptional},
+     {APIPermissionID::kBackground, "background",
+      APIPermissionInfo::kFlagDoesNotRequireManagedSessionFullLoginWarning},
+     {APIPermissionID::kDeclarativeContent, "declarativeContent"},
+@@ -86,6 +92,10 @@ constexpr APIPermissionInfo::InitInfo permissions_to_register[] = {
+     {APIPermissionID::kEnterpriseNetworkingAttributes,
+      "enterprise.networkingAttributes",
+      APIPermissionInfo::kFlagDoesNotRequireManagedSessionFullLoginWarning},
++    {APIPermissionID::kEyeoDevToolsPrivate, "eyeoDevToolsPrivate",
++     APIPermissionInfo::kFlagCannotBeOptional},
++    {APIPermissionID::kEyeoFilteringPrivate, "eyeoFilteringPrivate",
++     APIPermissionInfo::kFlagCannotBeOptional},
+     {APIPermissionID::kEnterprisePlatformKeys, "enterprise.platformKeys",
+      APIPermissionInfo::kFlagDoesNotRequireManagedSessionFullLoginWarning},
+     {APIPermissionID::kFavicon, "favicon"},
+diff --git a/chrome/common/extensions/permissions/permission_set_unittest.cc b/chrome/common/extensions/permissions/permission_set_unittest.cc
+index 078594058aed4..10bbcf3009bc6 100644
+--- a/chrome/common/extensions/permissions/permission_set_unittest.cc
++++ b/chrome/common/extensions/permissions/permission_set_unittest.cc
+@@ -1,6 +1,10 @@
+ // Copyright 2012 The Chromium Authors
+ // Use of this source code is governed by a BSD-style license that can be
+ // found in the LICENSE file.
++//
++// This source code is a part of eyeo Chromium SDK.
++// Use of this source code is governed by the GPLv3 that can be found in the
++// components/adblock/LICENSE file.
+ 
+ #include "extensions/common/permissions/permission_set.h"
+ 
+@@ -875,6 +879,11 @@ TEST(PermissionsTest, PermissionMessages) {
+   skip.insert(APIPermissionID::kSystemLog);
+   skip.insert(APIPermissionID::kOdfsConfigPrivate);
+ 
++  // Adblock API is also private (in separate block to minimize conflicts).
++  skip.insert(APIPermissionID::kAdblockPrivate);
++  skip.insert(APIPermissionID::kEyeoDevToolsPrivate);
++  skip.insert(APIPermissionID::kEyeoFilteringPrivate);
++
+   // Warned as part of host permissions.
+   skip.insert(APIPermissionID::kDevtools);
+ 
+-- 
+2.43.0
+

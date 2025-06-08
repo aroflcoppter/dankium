@@ -1,0 +1,1586 @@
+From c0fef5dfc8e832b2c8ec70abe9ab7264d2b8a9b3 Mon Sep 17 00:00:00 2001
+From: vanilla-chromium-builder <project_26591639_bot@noreply.gitlab.com>
+Date: Thu, 22 May 2025 15:50:31 +0000
+Subject: [PATCH] adblock chrome test
+
+---
+ chrome/test/BUILD.gn                          |  25 +
+ chrome/test/base/in_process_browser_test.cc   |  24 +-
+ .../api_test/adblock_private/empty.js         |  14 +
+ .../api_test/adblock_private/main.html        |  29 +
+ .../api_test/adblock_private/manifest.json    |  32 +
+ .../api_test/adblock_private/some-popup.html  |  24 +
+ .../api_test/adblock_private/test.html        |  25 +
+ .../api_test/adblock_private/test.js          | 609 ++++++++++++++++++
+ .../api_test/eyeo_dev_tools_private/empty.js  |  14 +
+ .../api_test/eyeo_dev_tools_private/main.html |  29 +
+ .../eyeo_dev_tools_private/manifest.json      |  31 +
+ .../api_test/eyeo_dev_tools_private/test.js   |  16 +
+ .../api_test/eyeo_filtering_private/empty.js  |  14 +
+ .../api_test/eyeo_filtering_private/main.html |  29 +
+ .../eyeo_filtering_private/manifest.json      |  31 +
+ .../api_test/eyeo_filtering_private/test.js   | 429 ++++++++++++
+ 16 files changed, 1374 insertions(+), 1 deletion(-)
+ create mode 100644 chrome/test/data/extensions/api_test/adblock_private/empty.js
+ create mode 100644 chrome/test/data/extensions/api_test/adblock_private/main.html
+ create mode 100644 chrome/test/data/extensions/api_test/adblock_private/manifest.json
+ create mode 100644 chrome/test/data/extensions/api_test/adblock_private/some-popup.html
+ create mode 100644 chrome/test/data/extensions/api_test/adblock_private/test.html
+ create mode 100644 chrome/test/data/extensions/api_test/adblock_private/test.js
+ create mode 100644 chrome/test/data/extensions/api_test/eyeo_dev_tools_private/empty.js
+ create mode 100644 chrome/test/data/extensions/api_test/eyeo_dev_tools_private/main.html
+ create mode 100644 chrome/test/data/extensions/api_test/eyeo_dev_tools_private/manifest.json
+ create mode 100644 chrome/test/data/extensions/api_test/eyeo_dev_tools_private/test.js
+ create mode 100644 chrome/test/data/extensions/api_test/eyeo_filtering_private/empty.js
+ create mode 100644 chrome/test/data/extensions/api_test/eyeo_filtering_private/main.html
+ create mode 100644 chrome/test/data/extensions/api_test/eyeo_filtering_private/manifest.json
+ create mode 100644 chrome/test/data/extensions/api_test/eyeo_filtering_private/test.js
+
+diff --git a/chrome/test/BUILD.gn b/chrome/test/BUILD.gn
+index 0f493aeb49901..a0e8b79828bc2 100644
+--- a/chrome/test/BUILD.gn
++++ b/chrome/test/BUILD.gn
+@@ -1766,6 +1766,7 @@ if (is_android) {
+       "//chrome/test/data/webui:browser_tests",
+       "//chrome/test/data/webui:interactive_ui_tests",
+       "//chrome/test/data/webui:resources",
++      "//components/adblock/content:browser",
+       "//components/autofill/content/browser:test_support",
+       "//components/autofill/content/renderer:test_support",
+       "//components/autofill/core/common:common",
+@@ -2390,6 +2391,7 @@ if (!is_android) {
+       "//chrome/test/media_router/access_code_cast:access_code_cast_integration_base",
+       "//chrome/test/payments:test_support",
+       "//chrome/test/supervised_user:test_support",
++      "//components/adblock/content:browser",
+       "//components/affiliations/core/browser:affiliation_proto",
+       "//components/affiliations/core/browser:test_support",
+       "//components/autofill/content/browser:autofill_shared_storage_proto",
+@@ -2893,6 +2895,7 @@ if (!is_android) {
+       "//chrome/renderer/resources/extensions/",
+       "//chrome/test/data/cart/",
+       "//components/test/data/ad_tagging/",
++      "//components/test/data/adblock/",
+       "//components/test/data/ads_observer/",
+       "//components/test/data/autofill/",
+       "//components/test/data/custom_handlers",
+@@ -2982,6 +2985,9 @@ if (!is_android) {
+       "../browser/accessibility/live_translate_controller_browsertest.cc",
+       "../browser/accessibility/page_colors_browsertest.cc",
+       "../browser/accessibility/phrase_segmentation/dependency_parser_model_loader_browsertest.cc",
++      "../browser/adblock/test/adblock_frame_hierarchy_builder_browsertest.cc",
++      "../browser/adblock/test/adblock_multiple_tabs_browsertest.cc",
++      "../browser/adblock/test/adblock_popup_browsertest.cc",
+       "../browser/ai/ai_data_keyed_service_browsertest.cc",
+       "../browser/attribution_reporting/chrome_attribution_browsertest.cc",
+       "../browser/autocomplete/autocomplete_browsertest.cc",
+@@ -4533,6 +4539,21 @@ if (!is_android) {
+         ]
+       }
+ 
++      ### Extensions API module start
++      sources += [
++        "../browser/extensions/api/adblock_private/adblock_private_apitest.cc",
++        "../browser/extensions/api/adblock_private/adblock_private_apitest_backgroundpage.cc",
++        "../browser/extensions/api/adblock_private/adblock_private_apitest_base.cc",
++        "../browser/extensions/api/adblock_private/adblock_private_apitest_base.h",
++        "../browser/extensions/api/adblock_private/adblock_private_filter_lists_with_http_server_apitest.cc",
++        "../browser/extensions/api/eyeo_dev_tools_private/eyeo_dev_tools_private_apitest.cc",
++        "../browser/extensions/api/eyeo_filtering_private/eyeo_filtering_private_apitest.cc",
++      ]
++
++      deps += [ "//components/adblock/content/browser:browser_tests_support" ]
++
++      ### Extensions API module end
++
+       if (is_chromeos) {
+         deps +=
+             [ "//chromeos/ash/components/network/portal_detector:test_support" ]
+@@ -6051,6 +6072,7 @@ test("unit_tests") {
+   sources = [
+     # All unittests in browser, common, renderer and service.
+     "../browser/about_flags_unittest.cc",
++    "../browser/adblock/adblock_chrome_content_browser_client_unittest.cc",
+     "../browser/after_startup_task_utils_unittest.cc",
+     "../browser/apps/icon_standardizer_unittest.cc",
+     "../browser/apps/user_type_filter_unittest.cc",
+@@ -6748,6 +6770,8 @@ test("unit_tests") {
+     "//chrome/common/themes:unit_tests",
+     "//chrome/services/file_util:unit_tests",
+     "//components/account_id",
++    "//components/adblock/content/browser:test_support",
++    "//components/adblock/core:test_support",
+     "//components/affiliations/core/browser:test_support",
+     "//components/assist_ranker/proto",
+     "//components/autofill/content/browser:test_support",
+@@ -10583,6 +10607,7 @@ if (!is_android) {
+       "//chrome/browser:test_support_ui",
+       "//chrome/browser/ui/exclusive_access",
+       "//chrome/browser/ui/views/side_panel",
++      "//components/adblock/core:test_support",
+       "//components/supervised_user/core/browser",
+       "//components/webui/chrome_urls",
+       "//content/public/browser",
+diff --git a/chrome/test/base/in_process_browser_test.cc b/chrome/test/base/in_process_browser_test.cc
+index 14c0963a93aa5..60a2e8eccb03e 100644
+--- a/chrome/test/base/in_process_browser_test.cc
++++ b/chrome/test/base/in_process_browser_test.cc
+@@ -2,6 +2,10 @@
+ // Use of this source code is governed by a BSD-style license that can be
+ // found in the LICENSE file.
+ 
++// This source code is a part of eyeo Chromium SDK.
++// Use of this source code is governed by the GPLv3 that can be found in the
++// components/adblock/LICENSE file.
++
+ #include "chrome/test/base/in_process_browser_test.h"
+ 
+ #include <map>
+@@ -155,6 +159,10 @@
+ #include "ui/views/widget/widget.h"
+ #endif
+ 
++#include "components/adblock/content/browser/factories/subscription_service_factory.h"
++#include "components/adblock/core/common/adblock_constants.h"
++#include "components/adblock/core/subscription/subscription_service.h"
++
+ namespace {
+ 
+ #if BUILDFLAG(IS_CHROMEOS)
+@@ -595,8 +603,22 @@ void InProcessBrowserTest::CreatedBrowserMainParts(
+ 
+ void InProcessBrowserTest::SelectFirstBrowser() {
+   const BrowserList* browser_list = BrowserList::GetInstance();
+-  if (!browser_list->empty())
++  if (!browser_list->empty()) {
+     browser_ = browser_list->get(0);
++    // Adding an allowing filter that overrides and disables all blocking
++    // filters in order to avoid unwanted interactions with simulated network
++    // loads. This custom filter is removed for tests that specifically verify
++    // ad-filtering.
++    auto* adblock_configuration =
++        adblock::SubscriptionServiceFactory::GetForBrowserContext(
++            browser_->profile()->GetOriginalProfile())
++            ->GetFilteringConfiguration(
++                adblock::kAdblockFilteringConfigurationName);
++    if (adblock_configuration) {
++      adblock_configuration->AddCustomFilter(
++          adblock::kAllowlistEverythingFilter);
++    }
++  }
+ }
+ 
+ void InProcessBrowserTest::RecordPropertyFromMap(
+diff --git a/chrome/test/data/extensions/api_test/adblock_private/empty.js b/chrome/test/data/extensions/api_test/adblock_private/empty.js
+new file mode 100644
+index 0000000000000..74f54af885ded
+--- /dev/null
++++ b/chrome/test/data/extensions/api_test/adblock_private/empty.js
+@@ -0,0 +1,14 @@
++// This file is part of eyeo Chromium SDK,
++// Copyright (C) 2006-present eyeo GmbH
++//
++// eyeo Chromium SDK is free software: you can redistribute it and/or modify
++// it under the terms of the GNU General Public License version 3 as
++// published by the Free Software Foundation.
++//
++// eyeo Chromium SDK is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License
++// along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
+diff --git a/chrome/test/data/extensions/api_test/adblock_private/main.html b/chrome/test/data/extensions/api_test/adblock_private/main.html
+new file mode 100644
+index 0000000000000..8eb0792089564
+--- /dev/null
++++ b/chrome/test/data/extensions/api_test/adblock_private/main.html
+@@ -0,0 +1,29 @@
++<!--
++* This file is part of eyeo Chromium SDK,
++* Copyright (C) 2006-present eyeo GmbH
++*
++* eyeo Chromium SDK is free software: you can redistribute it and/or modify
++* it under the terms of the GNU General Public License version 3 as
++* published by the Free Software Foundation.
++*
++* eyeo Chromium SDK is distributed in the hope that it will be useful,
++* but WITHOUT ANY WARRANTY; without even the implied warranty of
++* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++* GNU General Public License for more details.
++*
++* You should have received a copy of the GNU General Public License
++* along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++-->
++<script src="test.js"></script>
++
++<html>
++
++<head>
++  <title>Adblock private API test</title>
++</head>
++
++<body>
++  <h2>chrome.adblockPrivate.* tests</h2>
++</body>
++
++</html>
+diff --git a/chrome/test/data/extensions/api_test/adblock_private/manifest.json b/chrome/test/data/extensions/api_test/adblock_private/manifest.json
+new file mode 100644
+index 0000000000000..1461ba9b3eb30
+--- /dev/null
++++ b/chrome/test/data/extensions/api_test/adblock_private/manifest.json
+@@ -0,0 +1,32 @@
++// This file is part of eyeo Chromium SDK,
++// Copyright (C) 2006-present eyeo GmbH
++//
++// eyeo Chromium SDK is free software: you can redistribute it and/or modify
++// it under the terms of the GNU General Public License version 3 as
++// published by the Free Software Foundation.
++//
++// eyeo Chromium SDK is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License
++// along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++{
++  "name": "adblockPrivate API test",
++  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyURY+BO7WO3B/dixoRSitosEKb1OOCsS1EF8dRoywUP+iQlHDJw2JL2A7d/E6JpoBQ/CUxX8lcHcsAs7zC31zb2iosBbfd5mCDd24bjLaIF/WNBRno6QYwbM/J7gCxn/aGFvAXdLnPhs2XFiP7iSQEY67NtTlah9EFGalB45UFUssrxFOXTFWT/gJmRIHqfCSUzHdPmFRJ1Sk6UpyZBPxp2MJAISbfTUhWIXa7WG+JxW95OEtNggfhYzX9wbCVSEU18RiMiMLdqNwHf7hYI30KiwrQhWcaB5kCnvJYEa43JggcE9xAaHV+1t2hSMyo5Xbz2YslI5UfDe8112hGVIUQIDAQAB",
++  "version": "0.1",
++  "incognito": "split",
++  "manifest_version": 2,
++  "background": {
++    "scripts": [
++      "empty.js"
++    ]
++  },
++  "description": "Test of chrome.adblockPrivate interface",
++  "permissions": [
++    "adblockPrivate",
++    "eyeoFilteringPrivate",
++    "<all_urls>"
++  ]
++}
+diff --git a/chrome/test/data/extensions/api_test/adblock_private/some-popup.html b/chrome/test/data/extensions/api_test/adblock_private/some-popup.html
+new file mode 100644
+index 0000000000000..b891c0059da6b
+--- /dev/null
++++ b/chrome/test/data/extensions/api_test/adblock_private/some-popup.html
+@@ -0,0 +1,24 @@
++<!--
++* This file is part of eyeo Chromium SDK,
++* Copyright (C) 2006-present eyeo GmbH
++*
++* eyeo Chromium SDK is free software: you can redistribute it and/or modify
++* it under the terms of the GNU General Public License version 3 as
++* published by the Free Software Foundation.
++*
++* eyeo Chromium SDK is distributed in the hope that it will be useful,
++* but WITHOUT ANY WARRANTY; without even the implied warranty of
++* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++* GNU General Public License for more details.
++*
++* You should have received a copy of the GNU General Public License
++* along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++-->
++<html>
++<head>
++  <title>Popup content</title>
++</head>
++<body>
++  <p>I am a popup</p>
++</body>
++</html>
+diff --git a/chrome/test/data/extensions/api_test/adblock_private/test.html b/chrome/test/data/extensions/api_test/adblock_private/test.html
+new file mode 100644
+index 0000000000000..89d7cf4e9d812
+--- /dev/null
++++ b/chrome/test/data/extensions/api_test/adblock_private/test.html
+@@ -0,0 +1,25 @@
++<!--
++* This file is part of eyeo Chromium SDK,
++* Copyright (C) 2006-present eyeo GmbH
++*
++* eyeo Chromium SDK is free software: you can redistribute it and/or modify
++* it under the terms of the GNU General Public License version 3 as
++* published by the Free Software Foundation.
++*
++* eyeo Chromium SDK is distributed in the hope that it will be useful,
++* but WITHOUT ANY WARRANTY; without even the implied warranty of
++* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++* GNU General Public License for more details.
++*
++* You should have received a copy of the GNU General Public License
++* along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++-->
++<html>
++<head>
++  <title>Test file</title>
++</head>
++<body>
++  <img src="some_ad.png">
++  <a href="some-popup.html" id="popup_id" target="_blank">popup link</a>
++</body>
++</html>
+diff --git a/chrome/test/data/extensions/api_test/adblock_private/test.js b/chrome/test/data/extensions/api_test/adblock_private/test.js
+new file mode 100644
+index 0000000000000..be8600640c15d
+--- /dev/null
++++ b/chrome/test/data/extensions/api_test/adblock_private/test.js
+@@ -0,0 +1,609 @@
++// This file is part of eyeo Chromium SDK,
++// Copyright (C) 2006-present eyeo GmbH
++//
++// eyeo Chromium SDK is free software: you can redistribute it and/or modify
++// it under the terms of the GNU General Public License version 3 as
++// published by the Free Software Foundation.
++//
++// eyeo Chromium SDK is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License
++// along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++
++'use strict';
++
++const urlParams = new URLSearchParams(window.location.search);
++
++// This class binds 1st argument for chrome.eyeoFilteringPrivate to 'adblock'
++// configuration and redirects methods renamed in chrome.eyeoFilteringPrivate
++// (eg. `onAdAllowed` => `onRequestAllowed`) which allows test code to
++// seamlessly call the same methods on chrome.adblockPrivate and on
++// chrome.eyeoFilteringPrivate.
++class FilteringPrivateBoundWithAdblock {
++  constructor() {
++    this.delegate = chrome.eyeoFilteringPrivate;
++    this.configuration = 'adblock';
++    this.getSessionAllowedAdsCount =
++        this.delegate.getSessionAllowedRequestsCount;
++    this.getSessionBlockedAdsCount =
++        this.delegate.getSessionBlockedRequestsCount;
++    this.onAdAllowed = this.delegate.onRequestAllowed;
++    this.onAdBlocked = this.delegate.onRequestBlocked;
++    this.onAllowedDomainsChanged = this.delegate.onAllowedDomainsChanged;
++    this.onCustomFiltersChanged = this.delegate.onCustomFiltersChanged;
++    this.onEnabledStateChanged = this.delegate.onEnabledStateChanged;
++    this.onFilterListsChanged = this.delegate.onFilterListsChanged;
++    this.onSubscriptionUpdated = this.delegate.onSubscriptionUpdated;
++    const methodsToBind = [
++      'isEnabled', 'setEnabled', 'getAllowedDomains', 'addAllowedDomain',
++      'removeAllowedDomain', 'getCustomFilters', 'addCustomFilter',
++      'removeCustomFilter'
++    ];
++    for (const method of methodsToBind) {
++      this[method] = function() {
++        const args = Array.from(arguments);
++        args.unshift(this.configuration);
++        this.delegate[method].apply(this.delegate, args);
++      }
++    }
++    const methodsToBindWithoutConfigurationParam = [
++      'isAutoInstallEnabled', 'setAutoInstallEnabled'
++    ];
++    for (const method of methodsToBindWithoutConfigurationParam) {
++      this[method] = function() {
++        const args = Array.from(arguments);
++        this.delegate[method].apply(this.delegate, args);
++      }
++    }
++    const methodsToBindRenamed = new Map([
++      ['installSubscription', 'addFilterList'],
++      ['uninstallSubscription', 'removeFilterList'],
++      ['getInstalledSubscriptions', 'getFilterLists'],
++    ]);
++    methodsToBindRenamed.forEach((value, key) => {
++      this[key] =
++          function() {
++            const args = Array.from(arguments);
++            args.unshift(this.configuration);
++            this.delegate[value].apply(this.delegate, args);
++          }
++    });
++  }
++};
++
++// Set API object for tests, defaults to chrome.adblockPrivate
++let apiObject = chrome.adblockPrivate;
++if (urlParams.get('api') === 'eyeoFilteringPrivate') {
++  apiObject = new FilteringPrivateBoundWithAdblock;
++}
++
++function findEnglishEasyList(item) {
++  console.log(item.title + ' ' + item.url + ' ' + item.languages);
++  return item.title.toLowerCase().includes('easylist') &&
++      item.url.toLowerCase().includes('easylist') &&
++      item.languages.includes('en');
++}
++
++function containsSubscription(subscriptions, url) {
++  for (const subscription of subscriptions) {
++    if (subscription.url === url) {
++      return true;
++    }
++  }
++  return false;
++}
++
++// Checks that session stats data contains expected filter list url entry with a
++// single hit
++function verifySessionStats(sessionStats) {
++  let index = -1;
++  for (let i = 0; i < sessionStats.length; i++) {
++    if (sessionStats[i].url === 'adblock:custom') {
++      index = i;
++      break;
++    }
++  }
++  if (index == -1) {
++    chrome.test.fail('Failed: Missing entry in sessionStats');
++    return;
++  }
++  if (sessionStats[index].count != 1) {
++    chrome.test.fail(
++        'Failed: Expected a single subscription hit number, got: ' +
++        sessionStats[index].count);
++  }
++}
++
++// Checks that even contains no error and expected filter list url
++function verifyEventData(event) {
++  if (event.tab_id < 1) {
++    chrome.test.fail('Failed: Wrong tab_id value');
++  }
++  if (event.window_id < 1) {
++    chrome.test.fail('Failed: Wrong window_id value');
++  }
++  if (event.content_type !== 'XMLHTTPREQUEST') {
++    chrome.test.fail('Failed: Wrong content_type value: ' + event.content_type);
++  }
++  if (event.subscription !== 'adblock:custom') {
++    chrome.test.fail('Failed: Wrong subscription value: ' + event.subscription);
++  }
++}
++
++function arrayEquals(a, b) {
++  if (a === b)
++    return true;
++  if (a === null || b === null)
++    return false;
++  if (a.length !== b.length)
++    return false;
++  for (var i = 0; i < a.length; i++) {
++    if (a[i] !== b[i])
++      return false;
++  }
++  return true;
++};
++
++const availableTests = [
++  function setEnabled_isEnabled() {
++    apiObject.setEnabled(false);
++    apiObject.isEnabled(function(enabled) {
++      if (enabled)
++        chrome.test.fail('Failed: ad blocking should NOT be enabled');
++    });
++    apiObject.setEnabled(true);
++    apiObject.isEnabled(function(enabled) {
++      if (enabled)
++        chrome.test.succeed();
++      else
++        chrome.test.fail('Failed: ad blocking should be enabled');
++    });
++  },
++  function setAAEnabled_isAAEnabled() {
++    chrome.adblockPrivate.setAcceptableAdsEnabled(false);
++    chrome.adblockPrivate.isAcceptableAdsEnabled(function(enabled) {
++      if (enabled)
++        chrome.test.fail('Failed: AA should NOT be enabled');
++    });
++    chrome.adblockPrivate.setAcceptableAdsEnabled(true);
++    chrome.adblockPrivate.getInstalledSubscriptions(function(selected) {
++      if (!containsSubscription(
++              selected,
++              'https://easylist-downloads.adblockplus.org/exceptionrules.txt')) {
++        chrome.test.fail('Failed: AA subscription should be on the list');
++      }
++    });
++    chrome.adblockPrivate.isAcceptableAdsEnabled(function(enabled) {
++      if (enabled)
++        chrome.test.succeed();
++      else
++        chrome.test.fail('Failed: AA should be enabled');
++    });
++  },
++  function setAAEnabled_isAAEnabled_newAPI() {
++    const default_config = 'adblock';
++    chrome.eyeoFilteringPrivate.getAcceptableAdsUrl(function(aa_url) {
++      chrome.eyeoFilteringPrivate.removeFilterList(
++          default_config, aa_url);
++      chrome.adblockPrivate.isAcceptableAdsEnabled(function(enabled) {
++        if (enabled)
++          chrome.test.fail('Failed: AA should NOT be enabled');
++      });
++      chrome.eyeoFilteringPrivate.getAcceptableAdsUrl(function(aa_url) {
++        chrome.eyeoFilteringPrivate.addFilterList(
++            default_config, aa_url);
++        chrome.adblockPrivate.isAcceptableAdsEnabled(function(enabled) {
++          if (enabled)
++            chrome.test.succeed();
++          else
++            chrome.test.fail('Failed: AA should be enabled');
++        });
++      });
++    });
++  },
++  function getBuiltInSubscriptions() {
++    chrome.adblockPrivate.getBuiltInSubscriptions(function(recommended) {
++      const found = recommended.find(findEnglishEasyList);
++      if (found) {
++        chrome.test.succeed();
++      } else {
++        chrome.test.fail('Failed: invalid built-in subscriptions');
++      }
++    });
++  },
++  // This test works because at the beginning getInstalledSubscriptions returns
++  // just default entries from recommended subscriptions.
++  function installedSubscriptionsDataSchema() {
++    const disabled = !!urlParams.get('disabled');
++    if (disabled) {
++      apiObject.setEnabled(false);
++    }
++    apiObject.getInstalledSubscriptions(function(installed) {
++      for (const subscription of installed) {
++        if (!subscription.url)
++          chrome.test.fail('Failed: Must contain "url" property');
++        if (!(subscription.installation_state == 'Unknown' && disabled ||
++              subscription.installation_state != 'Unknown' && !disabled))
++          chrome.test.fail(
++              'Failed: Must contain valid "installation_state" property');
++        if (disabled)
++          continue;
++        const pathname = new URL(subscription.url).pathname;
++        if (subscription.title != pathname)
++          chrome.test.fail('Failed: Must contain expected "title" property');
++        if (subscription.current_version != pathname.length)
++          chrome.test.fail('Failed: Must contain expected "current_version" property');
++        if (!subscription.last_installation_time)
++          chrome.test.fail(
++              'Failed: Installed subscription must contain "last_installation_time" property');
++      }
++      chrome.test.succeed();
++    });
++  },
++  function installSubscriptionInvalidURL() {
++    apiObject.installSubscription('http://', function() {
++      if (!chrome.runtime.lastError)
++        chrome.test.fail('Failed: invalid input accepted');
++      else
++        chrome.test.succeed();
++    });
++  },
++  function uninstallSubscriptionInvalidURL() {
++    apiObject.uninstallSubscription('http://', function() {
++      if (!chrome.runtime.lastError)
++        chrome.test.fail('Failed: invalid input accepted');
++      else
++        chrome.test.succeed();
++    });
++  },
++  function subscriptionsManagement() {
++    const kEasylist = urlParams.get('easylist');
++    const kExceptionrules = urlParams.get('exceptions');
++    const kABPFilters = urlParams.get('snippets');
++    const kCustom = 'https://example.com/subscription.txt';
++
++    function containsDefaultSubscriptions(subscriptions) {
++      return containsSubscription(subscriptions, kEasylist) &&
++          containsSubscription(subscriptions, kExceptionrules) &&
++          containsSubscription(subscriptions, kABPFilters);
++    }
++
++    if (urlParams.get('disabled')) {
++      apiObject.setEnabled(false);
++    }
++
++    apiObject.getInstalledSubscriptions(function(installed) {
++      if (installed.length) {
++        if (!containsDefaultSubscriptions(installed)) {
++          chrome.test.fail('Failed: Should contain all default subscriptions');
++        }
++        for (const subscription of installed) {
++          apiObject.uninstallSubscription(subscription.url);
++        }
++      } else {
++        chrome.test.fail('Failed: Should contain default subscriptions');
++      }
++      apiObject.getInstalledSubscriptions(function(installed) {
++        if (installed.length) {
++          chrome.test.fail(
++              'Failed: There shouldn\'t be any installed subscriptions');
++        }
++        apiObject.installSubscription(kEasylist);
++        apiObject.installSubscription(kExceptionrules);
++        apiObject.installSubscription(kABPFilters);
++        apiObject.getInstalledSubscriptions(function(installed) {
++          if (installed.length) {
++            if (!containsDefaultSubscriptions(installed)) {
++              chrome.test.fail(
++                  'Failed: Should contain all default subscriptions');
++            }
++          } else {
++            chrome.test.fail('Failed: Should contain default subscriptions');
++          }
++          apiObject.installSubscription(kCustom);
++          apiObject.getInstalledSubscriptions(function(installed) {
++            if (!containsSubscription(installed, kCustom)) {
++              chrome.test.fail('Failed: Should contain custom subscription');
++            }
++            apiObject.uninstallSubscription(kCustom);
++            apiObject.getInstalledSubscriptions(function(installed) {
++              if (containsSubscription(installed, kCustom)) {
++                chrome.test.fail(
++                    'Failed: Should not contain custom subscription');
++              } else {
++                chrome.test.succeed();
++              }
++            });
++          });
++        });
++      });
++    });
++  },
++  function allowedDomainsManagement() {
++    apiObject.getAllowedDomains(function(domains) {
++      if (domains.length) {
++        for (const domain of domains)
++          apiObject.removeAllowedDomain(domain);
++      }
++
++      apiObject.getAllowedDomains(function(domains) {
++        if (domains.length) {
++          chrome.test.fail('Failed: There shouldn\'t be any allowed domains');
++          return;
++        }
++
++        apiObject.addAllowedDomain('foo.bar');
++        apiObject.addAllowedDomain('bar.baz');
++        apiObject.getAllowedDomains(function(domains) {
++          if (domains.length != 2) {
++            chrome.test.fail('Failed: There should be 2 allowed domains');
++            return;
++          }
++
++          if (domains.indexOf('foo.bar') == -1 ||
++              domains.indexOf('bar.baz') == -1) {
++            chrome.test.fail('Failed: Didn\'t find expected allowed domains');
++            return;
++          }
++
++          apiObject.removeAllowedDomain('foo.bar');
++          apiObject.removeAllowedDomain('bar.baz');
++
++          apiObject.getAllowedDomains(function(domains) {
++            if (domains.length)
++              chrome.test.fail('Failed: Still have allowed domains');
++            else
++              chrome.test.succeed();
++          });
++        });
++      });
++    });
++  },
++  function customFiltersManagement() {
++    apiObject.getCustomFilters(function(filters) {
++      if (filters.length) {
++        for (const filter of filters)
++          apiObject.removeCustomFilter(filter);
++      }
++
++      apiObject.getCustomFilters(function(filters) {
++        if (filters.length) {
++          chrome.test.fail('Failed: There shouldn\'t be any custom filters');
++          return;
++        }
++
++        apiObject.addCustomFilter('foo.bar');
++        apiObject.addCustomFilter('bar.baz');
++        apiObject.getCustomFilters(function(filters) {
++          if (filters.length != 2) {
++            chrome.test.fail('Failed: There should be 2 custom filters');
++            return;
++          }
++
++          if (filters.indexOf('foo.bar') == -1 ||
++              filters.indexOf('bar.baz') == -1) {
++            chrome.test.fail('Failed: Didn\'t find expected custom filters');
++            return;
++          }
++
++          apiObject.removeCustomFilter('foo.bar');
++          apiObject.removeCustomFilter('bar.baz');
++
++          apiObject.getCustomFilters(function(filters) {
++            if (filters.length)
++              chrome.test.fail('Failed: Still have custom filters');
++            else
++              chrome.test.succeed();
++          });
++        });
++      });
++    });
++  },
++  function adBlockedEvents() {
++    let expected_filters_count = 1;
++    apiObject.onCustomFiltersChanged.addListener(function(filter) {
++      if (--expected_filters_count)
++        return;
++
++      apiObject.onAdBlocked.addListener(function(e) {
++        verifyEventData(e);
++        if (e.url.includes('test1.png')) {
++          chrome.test.succeed();
++        }
++      });
++      // External request to delay triggering test request
++      const delaying_wrapper_request = new XMLHttpRequest();
++      const delaying_wrapper_request_handler = function() {
++        // Internal request expected by test logic
++        const blocked_url_request = new XMLHttpRequest();
++        const blocked_url_request_handler = function() {};
++        blocked_url_request.onload = blocked_url_request_handler;
++        blocked_url_request.onerror = blocked_url_request_handler;
++        blocked_url_request.open('GET', 'https://example.com/test1.png', true);
++        blocked_url_request.send();
++      };
++      delaying_wrapper_request.onload = delaying_wrapper_request_handler;
++      delaying_wrapper_request.onerror = delaying_wrapper_request_handler;
++      delaying_wrapper_request.open('GET', 'https://example.com/', true);
++      delaying_wrapper_request.send();
++    });
++    apiObject.addCustomFilter('test1.png');
++  },
++  function adAllowedEvents() {
++    let expected_filters_count = 2;
++    apiObject.onCustomFiltersChanged.addListener(function(filter) {
++      if (--expected_filters_count)
++        return;
++
++      apiObject.onAdAllowed.addListener(function(e) {
++        verifyEventData(e);
++        if (e.url.includes('test2.png')) {
++          chrome.test.succeed();
++        }
++      });
++      // External request to delay triggering test request
++      const delaying_wrapper_request = new XMLHttpRequest();
++      const delaying_wrapper_request_handler = function() {
++        // Internal request expected by test logic
++        const allowed_url_request = new XMLHttpRequest();
++        const allowed_url_request_handler = function() {};
++        allowed_url_request.onload = allowed_url_request_handler;
++        allowed_url_request.onerror = allowed_url_request_handler;
++        allowed_url_request.open('GET', 'https://example.com/test2.png', true);
++        allowed_url_request.send();
++      };
++      delaying_wrapper_request.onload = delaying_wrapper_request_handler;
++      delaying_wrapper_request.onerror = delaying_wrapper_request_handler;
++      delaying_wrapper_request.open('GET', 'https://example.com/', true);
++      delaying_wrapper_request.send();
++    });
++    apiObject.addCustomFilter('test2.png');
++    apiObject.addCustomFilter('@@test2.png');
++  },
++  function sessionStats() {
++    let expected_filters_count = 3;
++    apiObject.onCustomFiltersChanged.addListener(function(filter) {
++      if (--expected_filters_count)
++        return;
++
++      const blocked_request_handler = function() {
++        apiObject.getSessionBlockedAdsCount(function(sessionStats) {
++          verifySessionStats(sessionStats);
++          const allowed_request_handler = function() {
++            apiObject.getSessionAllowedAdsCount(function(sessionStats) {
++              verifySessionStats(sessionStats);
++              chrome.test.succeed();
++            });
++          };
++          const request = new XMLHttpRequest();
++          request.onload = allowed_request_handler;
++          request.onerror = allowed_request_handler;
++          request.open('GET', 'https://example.com/test4.png', true);
++          request.send();
++        });
++      };
++      const request = new XMLHttpRequest();
++      request.onload = blocked_request_handler;
++      request.onerror = blocked_request_handler;
++      request.open('GET', 'https://example.com/test3.png', true);
++      request.send();
++    });
++    apiObject.addCustomFilter('test3.png');
++    apiObject.addCustomFilter('test4.png');
++    apiObject.addCustomFilter('@@test4.png');
++  },
++  function allowedDomainsEvent() {
++    const domain = 'domain.com';
++    let data = [domain];
++    let attempts = 2;
++    apiObject.onAllowedDomainsChanged.addListener(function() {
++      apiObject.getAllowedDomains(function(domains) {
++        if (!arrayEquals(data, domains)) {
++          chrome.test.fail('Unexpected domain list');
++        }
++        if (--attempts == 0) {
++          chrome.test.succeed();
++        }
++      });
++    });
++    apiObject.addAllowedDomain(domain);
++    data = [];
++    apiObject.removeAllowedDomain(domain);
++  },
++  function enabledStateEvent() {
++    let state = false;
++    let attempts = 2;
++    apiObject.onEnabledStateChanged.addListener(function() {
++      apiObject.isEnabled(function(enabled) {
++        if (enabled !== state) {
++          chrome.test.fail('Unexpected enabled state');
++        }
++        if (--attempts == 0) {
++          chrome.test.succeed();
++        }
++      });
++    });
++    apiObject.setEnabled(false);
++    state = true;
++    apiObject.setEnabled(true);
++  },
++  function filterListsEvent() {
++    const kCustom = 'https://example.com/subscription.txt';
++    let data = [kCustom];
++    let attempts = 2;
++    apiObject.onFilterListsChanged.addListener(function() {
++      apiObject.getInstalledSubscriptions(function(custom) {
++        if (!(data.length + 3, custom.length)) {
++          chrome.test.fail('Unexpected subscription list');
++        }
++        if (--attempts == 0) {
++          chrome.test.succeed();
++        }
++        data = [];
++        apiObject.uninstallSubscription(kCustom);
++      });
++    });
++    apiObject.installSubscription(kCustom);
++  },
++  function customFiltersEvent() {
++    const filter = 'foo.bar';
++    let data = [filter];
++    let attempts = 2;
++    apiObject.onCustomFiltersChanged.addListener(function() {
++      apiObject.getCustomFilters(function(filters) {
++        if (!arrayEquals(data, filters)) {
++          chrome.test.fail('Unexpected custom filter list');
++        }
++        if (--attempts == 0) {
++          chrome.test.succeed();
++        }
++      });
++    });
++    apiObject.addCustomFilter(filter);
++    data = [];
++    apiObject.removeCustomFilter(filter);
++  },
++  function disableGeolocation() {
++    const geoLocatedList1 = urlParams.get('geolocated_list_1');
++    const geoLocatedList2 = urlParams.get('geolocated_list_2');
++    if (!geoLocatedList1 || !geoLocatedList2) {
++      chrome.test.fail('Failed: missing expected filter list param(s)');
++    }
++    apiObject.isAutoInstallEnabled(function(enabled) {
++      if (!enabled) {
++        chrome.test.fail('Failed: auto installed FL feature should be enabled by default');
++      }
++      apiObject.getInstalledSubscriptions(function(installed) {
++        if (!containsSubscription(installed, geoLocatedList1)
++            || !containsSubscription(installed, geoLocatedList2)) {
++          chrome.test.fail('Failed: Should contain expected auto installed filter lists');
++        }
++        // Make geoLocatedList1 not auto-installed
++        apiObject.uninstallSubscription(geoLocatedList1);
++        apiObject.installSubscription(geoLocatedList1);
++        apiObject.setAutoInstallEnabled(false);
++        apiObject.isAutoInstallEnabled(function(enabled) {
++          if (enabled) {
++            chrome.test.fail('Failed: auto installed FL feature should be disabled');
++          }
++          apiObject.getInstalledSubscriptions(function(installed) {
++            if (!containsSubscription(installed, geoLocatedList1)) {
++              chrome.test.fail('Failed: Should contain manually installed filter list');
++            }
++            if (containsSubscription(installed, geoLocatedList2)) {
++              chrome.test.fail('Failed: Should NOT contain auto installed filter list');
++            }
++            chrome.test.succeed();
++          });
++        });
++      });
++    });
++  },
++];
++
++chrome.test.runTests(availableTests.filter(function(op) {
++  return op.name == urlParams.get('subtest');
++}));
+diff --git a/chrome/test/data/extensions/api_test/eyeo_dev_tools_private/empty.js b/chrome/test/data/extensions/api_test/eyeo_dev_tools_private/empty.js
+new file mode 100644
+index 0000000000000..74f54af885ded
+--- /dev/null
++++ b/chrome/test/data/extensions/api_test/eyeo_dev_tools_private/empty.js
+@@ -0,0 +1,14 @@
++// This file is part of eyeo Chromium SDK,
++// Copyright (C) 2006-present eyeo GmbH
++//
++// eyeo Chromium SDK is free software: you can redistribute it and/or modify
++// it under the terms of the GNU General Public License version 3 as
++// published by the Free Software Foundation.
++//
++// eyeo Chromium SDK is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License
++// along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
+diff --git a/chrome/test/data/extensions/api_test/eyeo_dev_tools_private/main.html b/chrome/test/data/extensions/api_test/eyeo_dev_tools_private/main.html
+new file mode 100644
+index 0000000000000..3bbcef024122f
+--- /dev/null
++++ b/chrome/test/data/extensions/api_test/eyeo_dev_tools_private/main.html
+@@ -0,0 +1,29 @@
++<!--
++* This file is part of eyeo Chromium SDK,
++* Copyright (C) 2006-present eyeo GmbH
++*
++* eyeo Chromium SDK is free software: you can redistribute it and/or modify
++* it under the terms of the GNU General Public License version 3 as
++* published by the Free Software Foundation.
++*
++* eyeo Chromium SDK is distributed in the hope that it will be useful,
++* but WITHOUT ANY WARRANTY; without even the implied warranty of
++* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++* GNU General Public License for more details.
++*
++* You should have received a copy of the GNU General Public License
++* along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++-->
++<script src="test.js"></script>
++
++<html>
++
++<head>
++  <title>Eyeo dev tools private API test</title>
++</head>
++
++<body>
++  <h2>chrome.eyeoDevToolsPrivate.* tests</h2>
++</body>
++
++</html>
+diff --git a/chrome/test/data/extensions/api_test/eyeo_dev_tools_private/manifest.json b/chrome/test/data/extensions/api_test/eyeo_dev_tools_private/manifest.json
+new file mode 100644
+index 0000000000000..ea63e5676307c
+--- /dev/null
++++ b/chrome/test/data/extensions/api_test/eyeo_dev_tools_private/manifest.json
+@@ -0,0 +1,31 @@
++// This file is part of eyeo Chromium SDK,
++// Copyright (C) 2006-present eyeo GmbH
++//
++// eyeo Chromium SDK is free software: you can redistribute it and/or modify
++// it under the terms of the GNU General Public License version 3 as
++// published by the Free Software Foundation.
++//
++// eyeo Chromium SDK is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License
++// along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++{
++  "name": "eyeoDevToolsPrivate API test",
++  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlSrsWm4movjkRdZ8lJJVXtWimiC0Xguji4AqSTwZ5hGcpRMDInoenfd8XxCypcKsOkV8hWKDGC86Ba7om256a8/VHJLgGFLg+WOQmpAtMaEs3EdkoGNB/KmphNU/clMPK43JUrKnJHLLO/V9NvVhqi6VgAubnlN/iuttSNAw+SscgXRUB4W4msL6KqmsELG7cycIQF666Po37lCdadZ3ggfAqepjICotPJb0O2BqUGZonYH7PtJHdBPS+ufpURLb37s2Sz+0Xd4XCyRxmYwEdToBtQjq6opEJnnRnIj0k5sB2y9R+RXE4WBmbbTJMr9Sj+7M5eTscM7hc8r0OijN/wIDAQAB",
++  "version": "0.1",
++  "incognito": "split",
++  "manifest_version": 3,
++  "background": {
++    "service_worker": "empty.js"
++  },
++  "description": "Test of chrome.eyeoDevToolsPrivate interface",
++  "host_permissions": [
++    "<all_urls>"
++  ],
++  "permissions": [
++    "eyeoDevToolsPrivate"
++  ]
++}
+diff --git a/chrome/test/data/extensions/api_test/eyeo_dev_tools_private/test.js b/chrome/test/data/extensions/api_test/eyeo_dev_tools_private/test.js
+new file mode 100644
+index 0000000000000..f3c233aea101d
+--- /dev/null
++++ b/chrome/test/data/extensions/api_test/eyeo_dev_tools_private/test.js
+@@ -0,0 +1,16 @@
++// This file is part of eyeo Chromium SDK,
++// Copyright (C) 2006-present eyeo GmbH
++//
++// eyeo Chromium SDK is free software: you can redistribute it and/or modify
++// it under the terms of the GNU General Public License version 3 as
++// published by the Free Software Foundation.
++//
++// eyeo Chromium SDK is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License
++// along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++
++'use strict';
+diff --git a/chrome/test/data/extensions/api_test/eyeo_filtering_private/empty.js b/chrome/test/data/extensions/api_test/eyeo_filtering_private/empty.js
+new file mode 100644
+index 0000000000000..74f54af885ded
+--- /dev/null
++++ b/chrome/test/data/extensions/api_test/eyeo_filtering_private/empty.js
+@@ -0,0 +1,14 @@
++// This file is part of eyeo Chromium SDK,
++// Copyright (C) 2006-present eyeo GmbH
++//
++// eyeo Chromium SDK is free software: you can redistribute it and/or modify
++// it under the terms of the GNU General Public License version 3 as
++// published by the Free Software Foundation.
++//
++// eyeo Chromium SDK is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License
++// along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
+diff --git a/chrome/test/data/extensions/api_test/eyeo_filtering_private/main.html b/chrome/test/data/extensions/api_test/eyeo_filtering_private/main.html
+new file mode 100644
+index 0000000000000..28fd0e89c22c3
+--- /dev/null
++++ b/chrome/test/data/extensions/api_test/eyeo_filtering_private/main.html
+@@ -0,0 +1,29 @@
++<!--
++* This file is part of eyeo Chromium SDK,
++* Copyright (C) 2006-present eyeo GmbH
++*
++* eyeo Chromium SDK is free software: you can redistribute it and/or modify
++* it under the terms of the GNU General Public License version 3 as
++* published by the Free Software Foundation.
++*
++* eyeo Chromium SDK is distributed in the hope that it will be useful,
++* but WITHOUT ANY WARRANTY; without even the implied warranty of
++* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++* GNU General Public License for more details.
++*
++* You should have received a copy of the GNU General Public License
++* along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++-->
++<script src="test.js"></script>
++
++<html>
++
++<head>
++  <title>Eyeo filtering private API test</title>
++</head>
++
++<body>
++  <h2>chrome.eyeoFilteringPrivate.* tests</h2>
++</body>
++
++</html>
+diff --git a/chrome/test/data/extensions/api_test/eyeo_filtering_private/manifest.json b/chrome/test/data/extensions/api_test/eyeo_filtering_private/manifest.json
+new file mode 100644
+index 0000000000000..f8407c4d80b2e
+--- /dev/null
++++ b/chrome/test/data/extensions/api_test/eyeo_filtering_private/manifest.json
+@@ -0,0 +1,31 @@
++// This file is part of eyeo Chromium SDK,
++// Copyright (C) 2006-present eyeo GmbH
++//
++// eyeo Chromium SDK is free software: you can redistribute it and/or modify
++// it under the terms of the GNU General Public License version 3 as
++// published by the Free Software Foundation.
++//
++// eyeo Chromium SDK is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License
++// along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++{
++  "name": "eyeoFilteringPrivate API test",
++  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkRxyv6tzqVnC+2gR3QxaN32fynw6GBZd9CXH8huHopx5xZ0fE1gScXnnjna7YW2sc6dhZZv326lRwmsJRwJN+RZpxBQbTD4CuCiqfUo+Xdyigh91QqyScLLRmg3SPsBBF9X/M50LO/6MD2eETiWbQQRy1TXNz52lt6NtjXKmS2lVZzR/jnGyAA96vMOmxeNIJmSYHFOHlSIphAJr/Erd0v1ZcBjJnZxqSrKZwUTHHc/FxcN1YqJkU/6O6gjMLNo3Uv33bqRAYmGUq+TTftwLg2hzEE1OllThcF9VVmQ3HZ5eTqqw/XP/tiQ/vUBflKer2mSVk708VBNpktao44kAtQIDAQAB",
++  "version": "0.1",
++  "incognito": "split",
++  "manifest_version": 3,
++  "background": {
++    "service_worker": "empty.js"
++  },
++  "description": "Test of chrome.eyeoFilteringPrivate interface",
++  "host_permissions": [
++    "<all_urls>"
++  ],
++  "permissions": [
++    "eyeoFilteringPrivate"
++  ]
++}
+diff --git a/chrome/test/data/extensions/api_test/eyeo_filtering_private/test.js b/chrome/test/data/extensions/api_test/eyeo_filtering_private/test.js
+new file mode 100644
+index 0000000000000..64e1fe2a08dc0
+--- /dev/null
++++ b/chrome/test/data/extensions/api_test/eyeo_filtering_private/test.js
+@@ -0,0 +1,429 @@
++// This file is part of eyeo Chromium SDK,
++// Copyright (C) 2006-present eyeo GmbH
++//
++// eyeo Chromium SDK is free software: you can redistribute it and/or modify
++// it under the terms of the GNU General Public License version 3 as
++// published by the Free Software Foundation.
++//
++// eyeo Chromium SDK is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License
++// along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++
++'use strict';
++
++const custom_config = 'custom';
++
++async function pollUntil(predicate, pollEveryMs) {
++  return new Promise(r => {
++    const id = setInterval(() => {
++      let ret;
++      if (ret = predicate()) {
++        clearInterval(id);
++        r(ret);
++      }
++    }, pollEveryMs);
++  });
++}
++
++function containsSubscription(subscriptions, url) {
++  for (const subscription of subscriptions) {
++    if (subscription.url === url) {
++      return true;
++    }
++  }
++  return false;
++}
++
++function arrayEquals(a, b) {
++  if (a === b)
++    return true;
++  if (a === null || b === null)
++    return false;
++  if (a.length !== b.length)
++    return false;
++  for (var i = 0; i < a.length; i++) {
++    if (a[i] !== b[i])
++      return false;
++  }
++  return true;
++};
++
++const availableTests = [
++  function createRemoveAndGetConfigurations() {
++    chrome.eyeoFilteringPrivate.getConfigurations(function(configs) {
++      if (configs.includes(custom_config)) {
++        chrome.test.fail('Failed: There should NOT be a custom configuration');
++      }
++      chrome.eyeoFilteringPrivate.createConfiguration(custom_config);
++      chrome.eyeoFilteringPrivate.getConfigurations(function(configs) {
++        if (!configs.includes(custom_config)) {
++          chrome.test.fail('Failed: There should be a custom configuration');
++        }
++        chrome.eyeoFilteringPrivate.removeConfiguration(custom_config);
++        chrome.eyeoFilteringPrivate.getConfigurations(function(configs) {
++          if (configs.includes(custom_config)) {
++            chrome.test.fail('Failed: There should NOT be a custom configuration');
++          }
++          chrome.test.succeed();
++        });
++      });
++    });
++  },
++  async function createRemoveAndGetConfigurationsWithPromises() {
++    let configs = await chrome.eyeoFilteringPrivate.getConfigurations();
++    if (configs.includes(custom_config)) {
++      chrome.test.fail('Failed: There should NOT be a custom configuration');
++    }
++    chrome.eyeoFilteringPrivate.createConfiguration(custom_config);
++    configs = await chrome.eyeoFilteringPrivate.getConfigurations();
++    if (!configs.includes(custom_config)) {
++      chrome.test.fail('Failed: There should be a custom configuration');
++    }
++    chrome.eyeoFilteringPrivate.removeConfiguration(custom_config);
++    configs = await chrome.eyeoFilteringPrivate.getConfigurations();
++    if (configs.includes(custom_config)) {
++      chrome.test.fail('Failed: There should NOT be a custom configuration');
++    } else {
++      chrome.test.succeed();
++    }
++  },
++  function enableAndDisableConfiguration() {
++    chrome.eyeoFilteringPrivate.createConfiguration(custom_config);
++    chrome.eyeoFilteringPrivate.isEnabled(custom_config, function(enabled) {
++      if (!enabled) {
++        chrome.test.fail('Failed: Configuration should be enabled');
++      }
++      chrome.eyeoFilteringPrivate.setEnabled(custom_config, false);
++      chrome.eyeoFilteringPrivate.isEnabled(custom_config, function(enabled) {
++        if (enabled) {
++          chrome.test.fail('Failed: Configuration should NOT be enabled');
++        }
++        chrome.eyeoFilteringPrivate.setEnabled(custom_config, true);
++        chrome.eyeoFilteringPrivate.isEnabled(custom_config, function(enabled) {
++          if (!enabled) {
++            chrome.test.fail('Failed: Configuration should be enabled');
++          }
++          chrome.test.succeed();
++        });
++      });
++    });
++  },
++  function enableAndDisableConfigurationWithPromises() {
++    chrome.eyeoFilteringPrivate.createConfiguration(custom_config);
++    chrome.eyeoFilteringPrivate.isEnabled(custom_config)
++      .then(enabled => {
++        if (!enabled) {
++          throw 'Failed: Configuration should be enabled';
++        }
++        chrome.eyeoFilteringPrivate.setEnabled(custom_config, false);
++      })
++      .then(() => chrome.eyeoFilteringPrivate.isEnabled(custom_config))
++      .then(enabled => {
++        if (enabled) {
++          throw 'Failed: Configuration should NOT be enabled';
++        }
++        chrome.eyeoFilteringPrivate.setEnabled(custom_config, true);
++      })
++      .then(() => chrome.eyeoFilteringPrivate.isEnabled(custom_config))
++      .then(enabled => {
++        if (!enabled) {
++          throw 'Failed: Configuration should be enabled';
++        }
++        chrome.test.succeed();
++      })
++      .catch(message => chrome.test.fail(message))
++  },
++  function addAllowedDomainToCustomConfiguration() {
++    const domain = 'domain.com';
++    chrome.eyeoFilteringPrivate.createConfiguration(custom_config);
++    chrome.eyeoFilteringPrivate.addAllowedDomain(custom_config, domain);
++    chrome.eyeoFilteringPrivate.getAllowedDomains(
++        custom_config, function(domains) {
++      if (domains.length != 1 || domains.indexOf(domain) == -1) {
++        chrome.test.fail('Failed: There should be a custom domain');
++      }
++      chrome.eyeoFilteringPrivate.removeAllowedDomain(custom_config, domain);
++      chrome.eyeoFilteringPrivate.getAllowedDomains(
++          custom_config, function(domains) {
++        if (domains.length) {
++          chrome.test.fail('Failed: Still have custom domain(s)');
++        }
++        chrome.test.succeed();
++      });
++    });
++  },
++  function addAllowedDomainToCustomConfigurationWithPromises() {
++    const domain = 'domain.com';
++    chrome.eyeoFilteringPrivate.createConfiguration(custom_config);
++    chrome.eyeoFilteringPrivate.addAllowedDomain(custom_config, domain)
++      .then(() => chrome.eyeoFilteringPrivate.getAllowedDomains(custom_config))
++      .then(domains => {
++        if (domains.length != 1 || domains.indexOf(domain) == -1) {
++          throw 'Failed: There should be a custom domain';
++        }
++        chrome.eyeoFilteringPrivate.removeAllowedDomain(custom_config, domain);
++      })
++      .then(() => chrome.eyeoFilteringPrivate.getAllowedDomains(custom_config))
++      .then(domains => {
++        if (domains.length) {
++          throw 'Failed: Still have custom domain(s)';
++        }
++        chrome.test.succeed();
++      })
++      .catch(message => chrome.test.fail(message))
++  },
++  function addCustomFilterToCustomConfiguration() {
++    const filter = '||foo.bar';
++    chrome.eyeoFilteringPrivate.createConfiguration(custom_config);
++    chrome.eyeoFilteringPrivate.addCustomFilter(custom_config, filter);
++    chrome.eyeoFilteringPrivate.getCustomFilters(
++        custom_config, function(filters) {
++      if (filters.length != 1 || filters.indexOf(filter) == -1) {
++        chrome.test.fail('Failed: There should be a custom filter');
++      }
++      chrome.eyeoFilteringPrivate.removeCustomFilter(custom_config, filter);
++      chrome.eyeoFilteringPrivate.getCustomFilters(
++          custom_config, function(filters) {
++        if (filters.length) {
++          chrome.test.fail('Failed: Still have custom filter(s)');
++        }
++        chrome.test.succeed();
++      });
++    });
++  },
++  function addCustomFilterToCustomConfigurationWithPromises() {
++    const filter = '||foo.bar';
++    chrome.eyeoFilteringPrivate.createConfiguration(custom_config);
++    chrome.eyeoFilteringPrivate.addCustomFilter(custom_config, filter)
++      .then(() => chrome.eyeoFilteringPrivate.getCustomFilters(custom_config))
++      .then(filters => {
++        if (filters.length != 1 || filters.indexOf(filter) == -1) {
++          throw 'Failed: There should be a custom filter';
++        }
++        chrome.eyeoFilteringPrivate.removeCustomFilter(custom_config, filter);
++      })
++      .then(() => chrome.eyeoFilteringPrivate.getCustomFilters(custom_config))
++      .then(filters => {
++        if (filters.length) {
++          throw 'Failed: Still have custom filter(s)';
++        }
++        chrome.test.succeed();
++      })
++      .catch(message => chrome.test.fail(message));
++  },
++  function addFilterListInCustomConfiguration() {
++    const subscription = 'https://example.com/subscription.txt';
++    chrome.eyeoFilteringPrivate.createConfiguration(custom_config);
++    chrome.eyeoFilteringPrivate.addFilterList(custom_config, subscription);
++    chrome.eyeoFilteringPrivate.getFilterLists(
++        custom_config, function(subscriptions) {
++      if (subscriptions.length != 1 || !containsSubscription(subscriptions, subscription)) {
++        chrome.test.fail('Failed: There should be a single custom subscription');
++      }
++      chrome.eyeoFilteringPrivate.removeFilterList(custom_config, subscription);
++      chrome.eyeoFilteringPrivate.getFilterLists(
++          custom_config, function(subscriptions) {
++        if (subscriptions.length) {
++          chrome.test.fail('Failed: Still have custom subscription(s)');
++        }
++        chrome.test.succeed();
++      });
++    });
++  },
++  function addFilterListInCustomConfigurationWithPromises() {
++    const subscription = 'https://example.com/subscription.txt';
++    chrome.eyeoFilteringPrivate.createConfiguration(custom_config);
++    chrome.eyeoFilteringPrivate.addFilterList(custom_config, subscription)
++      .then(() => chrome.eyeoFilteringPrivate.getFilterLists(custom_config))
++      .then(subscriptions => {
++        if (subscriptions.length != 1 || !containsSubscription(subscriptions, subscription)) {
++          throw 'Failed: There should be a single custom subscription';
++        }
++        chrome.eyeoFilteringPrivate.removeFilterList(custom_config, subscription);
++      })
++      .then(() => chrome.eyeoFilteringPrivate.getFilterLists(custom_config))
++      .then(subscriptions => {
++        if (subscriptions.length) {
++          throw 'Failed: Still have custom subscription(s)';
++        }
++        chrome.test.succeed();
++      })
++      .catch(message => chrome.test.fail(message));
++  },
++  async function missingConfiguration() {
++    const input = 'https://dummy.com';
++    const expectedError = 'Configuration with name \'custom\' does not exist!';
++    const setters = [
++      'addFilterList', 'removeFilterList', 'addAllowedDomain',
++      'removeAllowedDomain', 'addCustomFilter', 'removeCustomFilter'
++    ];
++    const getters = [
++      'isEnabled', 'getFilterLists', 'getAllowedDomains', 'getCustomFilters'
++    ];
++    const allMethodsCount = 1 + setters.length + getters.length;
++    let counter = 0;
++    chrome.eyeoFilteringPrivate.setEnabled(custom_config, false, function() {
++      if (!chrome.runtime.lastError) {
++        chrome.test.fail('Failed: missing configuration accepted');
++      }
++      chrome.test.assertEq(expectedError, chrome.runtime.lastError.message);
++      ++counter;
++    });
++    for (const method of setters) {
++      chrome.eyeoFilteringPrivate[method](custom_config, input, function() {
++        if (!chrome.runtime.lastError) {
++          chrome.test.fail('Failed: missing configuration accepted');
++        }
++        chrome.test.assertEq(expectedError, chrome.runtime.lastError.message);
++        ++counter;
++      });
++    }
++    for (const method of getters) {
++      chrome.eyeoFilteringPrivate[method](custom_config, function(result) {
++        if (!chrome.runtime.lastError) {
++          chrome.test.fail('Failed: missing configuration accepted');
++        }
++        chrome.test.assertEq(expectedError, chrome.runtime.lastError.message);
++        ++counter;
++      });
++    }
++    await pollUntil(() => counter === allMethodsCount, 100);
++    chrome.test.succeed();
++  },
++  async function missingConfigurationWithPromises() {
++    const input = 'https://dummy.com';
++    const expectedError =
++        'Error: Configuration with name \'custom\' does not exist!'
++    const setters = [
++      'addFilterList', 'removeFilterList', 'addAllowedDomain',
++      'removeAllowedDomain', 'addCustomFilter', 'removeCustomFilter'
++    ];
++    const getters = [
++      'isEnabled', 'getFilterLists', 'getAllowedDomains', 'getCustomFilters'
++    ];
++    const allMethodsCount = 1 + setters.length + getters.length;
++    let counter = 0;
++    const errorHandler = function(error) {
++      chrome.test.assertEq(expectedError, error.toString());
++      ++counter;
++    };
++    await chrome.eyeoFilteringPrivate.setEnabled(custom_config, false)
++        .catch(error => errorHandler(error));
++    for (const method of setters) {
++      await chrome.eyeoFilteringPrivate[method](custom_config, input)
++          .catch(error => errorHandler(error));
++    }
++    for (const method of getters) {
++      await chrome.eyeoFilteringPrivate[method](custom_config)
++          .catch(error => errorHandler(error));
++    }
++    if (counter == allMethodsCount) {
++      chrome.test.succeed();
++    } else {
++      chrome.test.fail('Failed: expected missing configuration for every call');
++    }
++  },
++  function allowedDomainsEvent() {
++    const domain = 'domain.com';
++    let data = [domain];
++    let attempts = 2;
++    chrome.eyeoFilteringPrivate.onAllowedDomainsChanged.addListener(function(
++        config_name) {
++      if (config_name != custom_config) {
++        chrome.test.fail('Failed: Wrong config name');
++      }
++      chrome.eyeoFilteringPrivate.getAllowedDomains(
++          custom_config, function(domains) {
++            if (!arrayEquals(data, domains)) {
++              chrome.test.fail('Unexpected domain list');
++            }
++            if (--attempts == 0) {
++              chrome.test.succeed();
++            }
++          });
++    });
++    chrome.eyeoFilteringPrivate.createConfiguration(custom_config);
++    chrome.eyeoFilteringPrivate.addAllowedDomain(custom_config, domain);
++    data = [];
++    chrome.eyeoFilteringPrivate.removeAllowedDomain(custom_config, domain);
++  },
++  function enabledStateEvent() {
++    let state = false;
++    let attempts = 2;
++    chrome.eyeoFilteringPrivate.onEnabledStateChanged.addListener(function(
++        config_name) {
++      if (config_name != custom_config) {
++        chrome.test.fail('Failed: Wrong config name');
++      }
++      chrome.eyeoFilteringPrivate.isEnabled(custom_config, function(enabled) {
++        if (enabled !== state) {
++          chrome.test.fail('Unexpected enabled state');
++        }
++        if (--attempts == 0) {
++          chrome.test.succeed();
++        }
++      });
++    });
++    chrome.eyeoFilteringPrivate.createConfiguration(custom_config);
++    chrome.eyeoFilteringPrivate.setEnabled(custom_config, false);
++    state = true;
++    chrome.eyeoFilteringPrivate.setEnabled(custom_config, true);
++  },
++  function filterListsEvent() {
++    const list = 'http://example.com/list.txt';
++    let data = [list];
++    let attempts = 2;
++    chrome.eyeoFilteringPrivate.onFilterListsChanged.addListener(function(
++        config_name) {
++      if (config_name != custom_config) {
++        chrome.test.fail('Failed: Wrong config name');
++      }
++      chrome.eyeoFilteringPrivate.getFilterLists(
++          custom_config, function(custom) {
++            if (!arrayEquals(data, custom)) {
++              chrome.test.fail('Unexpected subscription list');
++            }
++            if (--attempts == 0) {
++              chrome.test.succeed();
++            }
++          });
++    });
++    chrome.eyeoFilteringPrivate.createConfiguration(custom_config);
++    chrome.eyeoFilteringPrivate.addFilterList(custom_config, list);
++    data = [];
++    chrome.eyeoFilteringPrivate.removeFilterList(custom_config, list);
++  },
++  function customFiltersEvent() {
++    const filter = 'foo.bar';
++    let data = [filter];
++    let attempts = 2;
++    chrome.eyeoFilteringPrivate.onCustomFiltersChanged.addListener(function(
++        config_name) {
++      if (config_name != custom_config) {
++        chrome.test.fail('Failed: Wrong config name');
++      }
++      chrome.eyeoFilteringPrivate.getCustomFilters(
++          custom_config, function(filters) {
++            if (!arrayEquals(data, filters)) {
++              chrome.test.fail('Unexpected custom filter list');
++            }
++            if (--attempts == 0) {
++              chrome.test.succeed();
++            }
++          });
++    });
++    chrome.eyeoFilteringPrivate.createConfiguration(custom_config);
++    chrome.eyeoFilteringPrivate.addCustomFilter(custom_config, filter);
++    data = [];
++    chrome.eyeoFilteringPrivate.removeCustomFilter(custom_config, filter);
++  },
++];
++
++const urlParams = new URLSearchParams(window.location.search);
++chrome.test.runTests(availableTests.filter(function(op) {
++  return op.name == urlParams.get('subtest');
++}));
+-- 
+2.43.0
+

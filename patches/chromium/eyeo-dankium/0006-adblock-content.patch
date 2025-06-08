@@ -1,0 +1,3290 @@
+From 9027d5228baf70f374bc48c84a741ea63703b491 Mon Sep 17 00:00:00 2001
+From: vanilla-chromium-builder <project_26591639_bot@noreply.gitlab.com>
+Date: Thu, 22 May 2025 15:50:31 +0000
+Subject: [PATCH] adblock content
+
+---
+ content/browser/BUILD.gn                      |  18 +
+ content/browser/devtools/BUILD.gn             |   2 +
+ content/browser/devtools/devtools_session.h   |   2 +
+ .../devtools_eyeo_handler_browsertest.cc      | 561 ++++++++++++++++++
+ .../browser/devtools/protocol/eyeo_handler.cc | 467 +++++++++++++++
+ .../browser/devtools/protocol/eyeo_handler.h  | 130 ++++
+ content/browser/devtools/protocol_config.json |  28 +
+ .../render_frame_devtools_agent_host.cc       |   2 +
+ .../loader/navigation_url_loader_impl.cc      |   6 +-
+ .../renderer_host/render_frame_host_impl.cc   |  10 +
+ .../renderer_host/render_frame_host_impl.h    |   8 +
+ content/public/browser/render_frame_host.h    |   7 +
+ content/public/common/isolated_world_ids.h    |   8 +
+ content/public/test/fake_local_frame.cc       |   7 +
+ content/public/test/fake_local_frame.h        |   5 +
+ content/shell/BUILD.gn                        |  31 +
+ content/shell/android/BUILD.gn                |  25 +
+ .../adblock/shell_browser_context_android.cc  |  44 ++
+ .../adblock/shell_browser_context_android.h   |  38 ++
+ .../adblock/ShellBrowserContext.java          |  58 ++
+ .../adblock/AdblockControllerTest.java        |  47 ++
+ .../adblock/DefaultSettingsTest.java          |  48 ++
+ .../adblock/TestPagesCircumventionTest.java   |  46 ++
+ .../adblock/TestPagesCspTest.java             |  46 ++
+ .../adblock/TestPagesElemhideEmuInvTest.java  |  46 ++
+ .../adblock/TestPagesElemhideEmuTest.java     |  46 ++
+ .../adblock/TestPagesElemhideTest.java        |  46 ++
+ .../adblock/TestPagesExceptionTest.java       |  46 ++
+ .../adblock/TestPagesFilterTest.java          |  46 ++
+ .../adblock/TestPagesHeaderFilterTest.java    |  46 ++
+ .../adblock/TestPagesHelper.java              |  67 +++
+ .../adblock/TestPagesInlineCssTest.java       |  46 ++
+ .../adblock/TestPagesRemoveTest.java          |  46 ++
+ .../adblock/TestPagesRewriteTest.java         |  46 ++
+ .../adblock/TestPagesSiteKeyTest.java         |  46 ++
+ .../adblock/TestPagesSnippetsTest.java        |  46 ++
+ .../adblock/TestPagesWebsocketTest.java       |  46 ++
+ .../adblock/TestPagesWildcardDomainTest.java  |  46 ++
+ content/shell/app/shell_main_delegate.cc      |   8 +-
+ .../adblock/adblock_shell_browser_context.cc  |  69 +++
+ .../adblock/adblock_shell_browser_context.h   |  38 ++
+ .../adblock_shell_content_browser_client.cc   |  30 +
+ .../adblock_shell_content_browser_client.h    |  35 ++
+ content/shell/browser/shell.cc                |  13 +
+ content/shell/browser/shell_browser_context.h |   7 +
+ .../shell/browser/shell_browser_main_parts.cc |  10 +-
+ content/test/BUILD.gn                         |  14 +
+ 47 files changed, 2528 insertions(+), 5 deletions(-)
+ create mode 100644 content/browser/devtools/protocol/devtools_eyeo_handler_browsertest.cc
+ create mode 100644 content/browser/devtools/protocol/eyeo_handler.cc
+ create mode 100644 content/browser/devtools/protocol/eyeo_handler.h
+ create mode 100644 content/shell/android/adblock/shell_browser_context_android.cc
+ create mode 100644 content/shell/android/adblock/shell_browser_context_android.h
+ create mode 100644 content/shell/android/java/src/org/chromium/content_shell/adblock/ShellBrowserContext.java
+ create mode 100644 content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/AdblockControllerTest.java
+ create mode 100644 content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/DefaultSettingsTest.java
+ create mode 100644 content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesCircumventionTest.java
+ create mode 100644 content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesCspTest.java
+ create mode 100644 content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesElemhideEmuInvTest.java
+ create mode 100644 content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesElemhideEmuTest.java
+ create mode 100644 content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesElemhideTest.java
+ create mode 100644 content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesExceptionTest.java
+ create mode 100644 content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesFilterTest.java
+ create mode 100644 content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesHeaderFilterTest.java
+ create mode 100644 content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesHelper.java
+ create mode 100644 content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesInlineCssTest.java
+ create mode 100644 content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesRemoveTest.java
+ create mode 100644 content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesRewriteTest.java
+ create mode 100644 content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesSiteKeyTest.java
+ create mode 100644 content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesSnippetsTest.java
+ create mode 100644 content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesWebsocketTest.java
+ create mode 100644 content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesWildcardDomainTest.java
+ create mode 100644 content/shell/browser/adblock/adblock_shell_browser_context.cc
+ create mode 100644 content/shell/browser/adblock/adblock_shell_browser_context.h
+ create mode 100644 content/shell/browser/adblock/adblock_shell_content_browser_client.cc
+ create mode 100644 content/shell/browser/adblock/adblock_shell_content_browser_client.h
+
+diff --git a/content/browser/BUILD.gn b/content/browser/BUILD.gn
+index 933abcca124ae..f5679e4cfb4ee 100644
+--- a/content/browser/BUILD.gn
++++ b/content/browser/BUILD.gn
+@@ -1,6 +1,10 @@
+ # Copyright 2014 The Chromium Authors
+ # Use of this source code is governed by a BSD-style license that can be
+ # found in the LICENSE file.
++#
++# This source code is a part of eyeo Chromium SDK.
++# Use of this source code is governed by the GPLv3 that can be found in the
++# components/adblock/LICENSE file.
+ 
+ import("//base/allocator/partition_allocator/partition_alloc.gni")
+ import("//build/buildflag_header.gni")
+@@ -10,6 +14,7 @@ import("//build/config/linux/pangocairo/pangocairo.gni")
+ import("//build/config/ozone.gni")
+ import("//build/config/ui.gni")
+ import("//chromeos/ash/components/assistant/assistant.gni")
++import("//components/adblock/features.gni")
+ import("//components/viz/common/debugger/viz_debugger.gni")
+ import("//content/browser/devtools/features.gni")
+ import("//content/common/features.gni")
+@@ -97,6 +102,10 @@ source_set("browser") {
+     "//cc/animation",
+     "//cc/mojo_embedder",
+     "//cc/paint",
++    "//components/adblock/core:core",
++    "//components/adblock/core/common:adblock_content_keys",
++    "//components/adblock/core/configuration",
++    "//components/adblock/core/subscription",
+     "//components/attribution_reporting:data_host_mojom",
+     "//components/attribution_reporting:mojom",
+     "//components/back_forward_cache:enum",
+@@ -373,6 +382,8 @@ source_set("browser") {
+     "$target_gen_dir/devtools/protocol/dom.h",
+     "$target_gen_dir/devtools/protocol/emulation.cc",
+     "$target_gen_dir/devtools/protocol/emulation.h",
++    "$target_gen_dir/devtools/protocol/eyeo.cc",
++    "$target_gen_dir/devtools/protocol/eyeo.h",
+     "$target_gen_dir/devtools/protocol/fed_cm.cc",
+     "$target_gen_dir/devtools/protocol/fed_cm.h",
+     "$target_gen_dir/devtools/protocol/fetch.cc",
+@@ -929,6 +940,8 @@ source_set("browser") {
+     "devtools/protocol/dom_handler.h",
+     "devtools/protocol/emulation_handler.cc",
+     "devtools/protocol/emulation_handler.h",
++    "devtools/protocol/eyeo_handler.cc",
++    "devtools/protocol/eyeo_handler.h",
+     "devtools/protocol/fedcm_handler.cc",
+     "devtools/protocol/fedcm_handler.h",
+     "devtools/protocol/fetch_handler.cc",
+@@ -3703,6 +3716,11 @@ source_set("browser") {
+     ]
+   }
+ 
++  if (eyeo_extend_chrome_devtools_protocol) {
++    print("WARNING! Enabled eyeo commands in ChromeDevToolsProtocol")
++    defines += [ "EYEO_EXTEND_CHROME_DEVTOOLS_PROTOCOL=1" ]
++  }
++
+   # TODO(crbug.com/371609830): Remove dep on experiment end.
+   if (is_chromeos) {
+     deps += [ "//ash/constants:constants" ]
+diff --git a/content/browser/devtools/BUILD.gn b/content/browser/devtools/BUILD.gn
+index 4cecc088a0ba9..43e91f9348314 100644
+--- a/content/browser/devtools/BUILD.gn
++++ b/content/browser/devtools/BUILD.gn
+@@ -99,6 +99,8 @@ inspector_protocol_generate("protocol_sources") {
+ 
+   # These are relative to $target_gen_dir.
+   outputs = [
++    "protocol/eyeo.cc",
++    "protocol/eyeo.h",
+     "protocol/audits.cc",
+     "protocol/audits.h",
+     "protocol/background_service.cc",
+diff --git a/content/browser/devtools/devtools_session.h b/content/browser/devtools/devtools_session.h
+index e74e6346c556a..13850bda951e7 100644
+--- a/content/browser/devtools/devtools_session.h
++++ b/content/browser/devtools/devtools_session.h
+@@ -36,6 +36,7 @@ class AuditsHandler;
+ class DOMHandler;
+ class DeviceOrientationHandler;
+ class EmulationHandler;
++class EyeoHandler;
+ class InputHandler;
+ class InspectorHandler;
+ class IOHandler;
+@@ -202,6 +203,7 @@ class DevToolsSession : public protocol::FrontendChannel,
+         std::is_same<T, protocol::DOMHandler>,
+         std::is_same<T, protocol::DeviceOrientationHandler>,
+         std::is_same<T, protocol::EmulationHandler>,
++        std::is_same<T, protocol::EyeoHandler>,
+         std::is_same<T, protocol::InputHandler>,
+         std::is_same<T, protocol::InspectorHandler>,
+         std::is_same<T, protocol::IOHandler>,
+diff --git a/content/browser/devtools/protocol/devtools_eyeo_handler_browsertest.cc b/content/browser/devtools/protocol/devtools_eyeo_handler_browsertest.cc
+new file mode 100644
+index 0000000000000..a68936e27eace
+--- /dev/null
++++ b/content/browser/devtools/protocol/devtools_eyeo_handler_browsertest.cc
+@@ -0,0 +1,561 @@
++// This file is part of eyeo Chromium SDK,
++// Copyright (C) 2006-present eyeo GmbH
++//
++// eyeo Chromium SDK is free software: you can redistribute it and/or modify
++// it under the terms of the GNU General Public License version 3 as
++// published by the Free Software Foundation.
++//
++// eyeo Chromium SDK is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License
++// along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++
++#include <string>
++#include <vector>
++
++#include "components/adblock/core/common/adblock_constants.h"
++#include "components/adblock/core/common/adblock_content_user_data_keys.h"
++#include "components/adblock/core/common/adblock_keyed_service_ptr_holder.h"
++#include "components/adblock/core/configuration/filtering_configuration.h"
++#include "components/adblock/core/subscription/subscription_service.h"
++#include "content/browser/devtools/protocol/devtools_protocol_test_support.h"
++#include "content/browser/devtools/protocol/eyeo_handler.h"
++#include "content/public/browser/browser_context.h"
++#include "content/public/test/browser_test.h"
++#include "content/public/test/content_browser_test.h"
++#include "content/public/test/content_browser_test_utils.h"
++#include "content/public/test/test_utils.h"
++#include "content/shell/app/shell_main_delegate.h"
++#include "content/shell/browser/shell.h"
++#include "net/dns/mock_host_resolver.h"
++#include "net/test/embedded_test_server/embedded_test_server.h"
++#include "testing/gmock/include/gmock/gmock.h"
++#include "testing/gtest/include/gtest/gtest.h"
++
++namespace content {
++
++namespace {
++class SubscriptionInstalledWaiter
++    : public adblock::SubscriptionService::SubscriptionObserver {
++ public:
++  explicit SubscriptionInstalledWaiter(
++      adblock::SubscriptionService* subscription_service);
++
++  ~SubscriptionInstalledWaiter() override;
++
++  void WaitUntilSubscriptionsInstalled(std::vector<GURL> subscriptions);
++
++  void OnSubscriptionInstalled(const GURL& subscription_url) override;
++
++ protected:
++  raw_ptr<adblock::SubscriptionService> subscription_service_;
++  base::RunLoop run_loop_;
++  std::vector<GURL> awaited_subscriptions_;
++};
++}  // namespace
++
++class DevToolsEyeoHandlerBrowserTest
++    : public DevToolsProtocolTest,
++      public testing::WithParamInterface<
++          std::tuple<std::string, std::string, std::string>> {
++ public:
++  DevToolsEyeoHandlerBrowserTest()
++      : https_server_(net::EmbeddedTestServer::TYPE_HTTPS) {
++    net::EmbeddedTestServer::ServerCertificateConfig cert_config;
++    cert_config.dns_names = {"example.com"};
++    https_server_.SetSSLConfig(cert_config);
++
++    https_server_.RegisterRequestHandler(
++        base::BindRepeating(&DevToolsEyeoHandlerBrowserTest::RequestHandler,
++                            base::Unretained(this)));
++    EXPECT_TRUE(https_server_.Start());
++  }
++
++  const base::Value::Dict* TriggerCommand(
++      std::string cmd,
++      std::map<std::string_view, std::string_view> params_map) {
++    base::Value::Dict params;
++    for (auto const& param_entry : params_map) {
++      params.Set(param_entry.first, param_entry.second);
++    }
++    return SendCommandSync(cmd, std::move(params));
++  }
++
++  void VerifyError(
++      const base::Value::Dict* result,
++      crdtp::DispatchCode expected_code = crdtp::DispatchCode::SERVER_ERROR) {
++    EXPECT_FALSE(result);
++    EXPECT_THAT(error()->FindInt("code"),
++                testing::Optional(static_cast<int>(expected_code)));
++  }
++
++  std::vector<std::string> ExtractResponseData(const base::Value::Dict* result,
++                                               const std::string& key) {
++    auto* data = result->FindList(key);
++    EXPECT_TRUE(data);
++    std::vector<std::string> actual_values;
++    if (data) {
++      for (base::Value::List::const_iterator it = data->cbegin();
++           it != data->cend(); ++it) {
++        actual_values.push_back(it->GetString());
++      }
++    }
++    return actual_values;
++  }
++
++  void WaitForEventNotification(const std::string& event_name,
++                                const std::string& data_key) {
++    base::Value::Dict notification = WaitForNotification(event_name, true);
++    EXPECT_EQ(*notification.FindStringByDottedPath("configuration"), "adblock");
++    EXPECT_NE(notification.FindByDottedPath(data_key), nullptr);
++  }
++
++  void WaitForFilterHitEvent(const std::string& event_name, const GURL& url) {
++    base::Value::Dict notification = WaitForNotification(event_name, true);
++    EXPECT_EQ(*notification.FindStringByDottedPath("subscription"),
++              adblock::CustomFiltersUrl().spec());
++    EXPECT_EQ(*notification.FindStringByDottedPath("url"),
++              GetUrlmatchingServerPort(url).spec());
++  }
++
++  void WaitForPageElementMatchedEvent(const std::string& selector,
++                                      const std::string& action) {
++    base::Value::Dict notification =
++        WaitForNotification("Eyeo.pageElementMatched", true);
++    EXPECT_EQ(*notification.FindStringByDottedPath("selector"), selector);
++    EXPECT_EQ(*notification.FindStringByDottedPath("action"), action);
++    EXPECT_EQ(
++        *notification.FindStringByDottedPath("frame_url"),
++        GetUrlmatchingServerPort(GURL("https://example.com/test_page.html")));
++  }
++
++  void AddCustomFilters(std::vector<std::string> filters) {
++    for (const auto& filter : filters) {
++      GetAdblockFilteringConfiguration()->AddCustomFilter(filter);
++    }
++  }
++
++  void RegisterHtmlContent(std::string_view path, std::string_view content) {
++    mock_websites_.push_back({path, content});
++  }
++
++  void NavigateToPage(GURL start_url) {
++    const GURL new_start_url = GetUrlmatchingServerPort(start_url);
++    ASSERT_TRUE(content::NavigateToURL(shell(), new_start_url));
++  }
++
++  std::unique_ptr<net::test_server::BasicHttpResponse> RespondWithContent(
++      std::string_view content,
++      std::string_view content_type) {
++    auto http_response =
++        std::make_unique<net::test_server::BasicHttpResponse>();
++    http_response->set_code(net::HTTP_OK);
++    http_response->set_content(content);
++    http_response->set_content_type(content_type);
++    return http_response;
++  }
++
++  std::unique_ptr<net::test_server::HttpResponse> RequestHandler(
++      const net::test_server::HttpRequest& request) {
++    const auto website = std::ranges::find_if(
++        mock_websites_, [&request](const MockWebsiteContent& website) {
++          return base::StartsWith(request.relative_url, website.url_path);
++        });
++    if (website != mock_websites_.end()) {
++      return RespondWithContent(website->html_content, "text/html");
++    }
++    // Unhandled requests result in the Embedded test server sending a 404. This
++    // is fine for the purpose of this test.
++    return nullptr;
++  }
++
++  content::ContentMainDelegate* GetOptionalContentMainDelegateOverride()
++      override {
++    return new content::ShellMainDelegate(true);
++  }
++
++ protected:
++  adblock::FilteringConfiguration* GetAdblockFilteringConfiguration() {
++    return adblock::KeyedServicePtrHolder<adblock::SubscriptionService>::Get(
++               shell()->web_contents()->GetBrowserContext(),
++               adblock::kSubscriptionServiceUserDataKey)
++        ->GetFilteringConfiguration(
++            adblock::kAdblockFilteringConfigurationName);
++  }
++
++  GURL GetUrlmatchingServerPort(const GURL& initial_url) {
++    // Replace the port to match the EmbeddedTestServer.
++    GURL::Replacements replacements;
++    const std::string port_str = base::NumberToString(https_server_.port());
++    replacements.SetPortStr(port_str);
++    return initial_url.ReplaceComponents(replacements);
++  }
++
++  struct MockWebsiteContent {
++    std::string_view url_path;  // All URLs are relative to localhost, only the
++                                // path matters. Eg. "/test_page.html"
++    std::string_view html_content;
++  };
++
++  static constexpr std::string_view kCustomList =
++      "https://example.org/list.txt";
++  static constexpr std::string_view kCustomFilter = "example.org##.ad";
++  static constexpr std::string_view kAllowedDomain = "example.org";
++  net::EmbeddedTestServer https_server_;
++  std::string mock_easylist_filters_;
++  std::vector<MockWebsiteContent> mock_websites_;
++};
++
++IN_PROC_BROWSER_TEST_F(DevToolsEyeoHandlerBrowserTest,
++                       TestFiltersListsCallsWithWrongParameters) {
++  EXPECT_TRUE(NavigateToURL(shell(), GURL("about:blank")));
++  Attach();
++
++  // DownloadStats
++  VerifyError(
++      TriggerCommand("Eyeo.getDownloadStats", {{"configuration", "dummy"}}));
++
++  // SessionStats
++  VerifyError(
++      TriggerCommand("Eyeo.getSessionStats", {{"configuration", "dummy"}}));
++
++  // FilterLists
++  VerifyError(
++      TriggerCommand("Eyeo.getFilterLists", {{"configuration", "dummy"}}));
++  VerifyError(
++      TriggerCommand("Eyeo.addFilterList", {{"configuration", "dummy"}}),
++      crdtp::DispatchCode::INVALID_PARAMS);
++  VerifyError(
++      TriggerCommand("Eyeo.removeFilterList", {{"configuration", "dummy"}}),
++      crdtp::DispatchCode::INVALID_PARAMS);
++  VerifyError(TriggerCommand("Eyeo.addFilterList", {{"configuration", "dummy"},
++                                                    {"url", kCustomList}}));
++  VerifyError(
++      TriggerCommand("Eyeo.removeFilterList",
++                     {{"configuration", "dummy"}, {"url", kCustomList}}));
++
++  // CustomFilters
++  VerifyError(
++      TriggerCommand("Eyeo.getCustomFilters", {{"configuration", "dummy"}}));
++  VerifyError(
++      TriggerCommand("Eyeo.addCustomFilter", {{"configuration", "dummy"}}),
++      crdtp::DispatchCode::INVALID_PARAMS);
++  VerifyError(
++      TriggerCommand("Eyeo.removeCustomFilter", {{"configuration", "dummy"}}),
++      crdtp::DispatchCode::INVALID_PARAMS);
++  VerifyError(
++      TriggerCommand("Eyeo.addCustomFilter",
++                     {{"configuration", "dummy"}, {"filter", kCustomFilter}}));
++  VerifyError(
++      TriggerCommand("Eyeo.removeCustomFilter",
++                     {{"configuration", "dummy"}, {"filter", kCustomFilter}}));
++}
++
++IN_PROC_BROWSER_TEST_F(DevToolsEyeoHandlerBrowserTest,
++                       TestGetConfigurationsCalls) {
++  EXPECT_TRUE(NavigateToURL(shell(), GURL("about:blank")));
++  Attach();
++  auto* result = TriggerCommand("Eyeo.getConfigurations", {});
++  ASSERT_TRUE(result);
++  auto actual_values = ExtractResponseData(result, "configurations");
++  EXPECT_THAT(actual_values, testing::Contains("adblock: enabled"));
++}
++
++IN_PROC_BROWSER_TEST_F(DevToolsEyeoHandlerBrowserTest,
++                       TestGetDownloadStatsInfoCall) {
++  EXPECT_TRUE(NavigateToURL(shell(), GURL("about:blank")));
++  Attach();
++  auto* result = TriggerCommand("Eyeo.getDownloadStats", {});
++  ASSERT_TRUE(result);
++  auto actual_values = ExtractResponseData(result, "download_stats");
++  EXPECT_FALSE(actual_values.empty());
++}
++
++IN_PROC_BROWSER_TEST_F(DevToolsEyeoHandlerBrowserTest,
++                       TestGetSessionStatsInfoCall) {
++  EXPECT_TRUE(NavigateToURL(shell(), GURL("about:blank")));
++  Attach();
++  auto* result = TriggerCommand("Eyeo.getSessionStats", {});
++  ASSERT_TRUE(result);
++  auto actual_values = ExtractResponseData(result, "session_stats");
++  EXPECT_FALSE(actual_values.empty());
++}
++
++IN_PROC_BROWSER_TEST_F(DevToolsEyeoHandlerBrowserTest,
++                       TestFiltersListsCallsWithDefaultConfiguration) {
++  EXPECT_TRUE(NavigateToURL(shell(), GURL("about:blank")));
++  Attach();
++  auto* result = TriggerCommand("Eyeo.getFilterLists", {});
++  ASSERT_TRUE(result);
++  auto actual_values = ExtractResponseData(result, "urls");
++  EXPECT_THAT(
++      actual_values,
++      testing::UnorderedElementsAre(
++          "https://easylist-downloads.adblockplus.org/easylist.txt",
++          "https://easylist-downloads.adblockplus.org/exceptionrules.txt",
++          "https://easylist-downloads.adblockplus.org/"
++          "abp-filters-anti-cv.txt"));
++
++  EXPECT_TRUE(TriggerCommand("Eyeo.addFilterList", {{"url", kCustomList}}));
++  result = TriggerCommand("Eyeo.getFilterLists", {});
++  ASSERT_TRUE(result);
++  actual_values = ExtractResponseData(result, "urls");
++  EXPECT_THAT(actual_values, testing::Contains(kCustomList));
++
++  EXPECT_TRUE(TriggerCommand("Eyeo.removeFilterList", {{"url", kCustomList}}));
++  result = TriggerCommand("Eyeo.getFilterLists", {});
++  ASSERT_TRUE(result);
++  actual_values = ExtractResponseData(result, "urls");
++  EXPECT_THAT(actual_values, testing::Not(testing::Contains(kCustomList)));
++}
++
++IN_PROC_BROWSER_TEST_F(DevToolsEyeoHandlerBrowserTest,
++                       TestFiltersListsCallsWithAdblockConfiguration) {
++  EXPECT_TRUE(NavigateToURL(shell(), GURL("about:blank")));
++  Attach();
++  auto* result =
++      TriggerCommand("Eyeo.getFilterLists", {{"configuration", "adblock"}});
++  ASSERT_TRUE(result);
++  auto actual_values = ExtractResponseData(result, "urls");
++  EXPECT_THAT(
++      actual_values,
++      testing::UnorderedElementsAre(
++          "https://easylist-downloads.adblockplus.org/easylist.txt",
++          "https://easylist-downloads.adblockplus.org/exceptionrules.txt",
++          "https://easylist-downloads.adblockplus.org/"
++          "abp-filters-anti-cv.txt"));
++
++  EXPECT_TRUE(
++      TriggerCommand("Eyeo.addFilterList",
++                     {{"configuration", "adblock"}, {"url", kCustomList}}));
++  result =
++      TriggerCommand("Eyeo.getFilterLists", {{"configuration", "adblock"}});
++  ASSERT_TRUE(result);
++  actual_values = ExtractResponseData(result, "urls");
++  EXPECT_THAT(actual_values, testing::Contains(kCustomList));
++
++  EXPECT_TRUE(
++      TriggerCommand("Eyeo.removeFilterList",
++                     {{"configuration", "adblock"}, {"url", kCustomList}}));
++  result =
++      TriggerCommand("Eyeo.getFilterLists", {{"configuration", "adblock"}});
++  ASSERT_TRUE(result);
++  actual_values = ExtractResponseData(result, "urls");
++  EXPECT_THAT(actual_values, testing::Not(testing::Contains(kCustomList)));
++}
++
++IN_PROC_BROWSER_TEST_F(DevToolsEyeoHandlerBrowserTest,
++                       TestCustomFiltersCallsWithDefaultConfiguration) {
++  EXPECT_TRUE(NavigateToURL(shell(), GURL("about:blank")));
++  Attach();
++  auto* result = TriggerCommand("Eyeo.getCustomFilters", {});
++  ASSERT_TRUE(result);
++  auto actual_values = ExtractResponseData(result, "filters");
++  EXPECT_TRUE(actual_values.empty());
++
++  EXPECT_TRUE(
++      TriggerCommand("Eyeo.addCustomFilter", {{"filter", kCustomFilter}}));
++  result = TriggerCommand("Eyeo.getCustomFilters", {});
++  ASSERT_TRUE(result);
++  actual_values = ExtractResponseData(result, "filters");
++  EXPECT_THAT(actual_values, testing::Contains(kCustomFilter));
++
++  EXPECT_TRUE(
++      TriggerCommand("Eyeo.removeCustomFilter", {{"filter", kCustomFilter}}));
++  result = TriggerCommand("Eyeo.getCustomFilters", {});
++  ASSERT_TRUE(result);
++  actual_values = ExtractResponseData(result, "filters");
++  EXPECT_TRUE(actual_values.empty());
++}
++
++IN_PROC_BROWSER_TEST_F(DevToolsEyeoHandlerBrowserTest,
++                       TestAllowedDomainsCallsWithDefaultConfiguration) {
++  EXPECT_TRUE(NavigateToURL(shell(), GURL("about:blank")));
++  Attach();
++  auto* result = TriggerCommand("Eyeo.getAllowedDomains", {});
++  ASSERT_TRUE(result);
++  auto actual_values = ExtractResponseData(result, "domains");
++  EXPECT_TRUE(actual_values.empty());
++
++  EXPECT_TRUE(
++      TriggerCommand("Eyeo.addAllowedDomain", {{"domain", kAllowedDomain}}));
++  result = TriggerCommand("Eyeo.getAllowedDomains", {});
++  ASSERT_TRUE(result);
++  actual_values = ExtractResponseData(result, "domains");
++  EXPECT_THAT(actual_values, testing::Contains(kAllowedDomain));
++
++  EXPECT_TRUE(
++      TriggerCommand("Eyeo.removeAllowedDomain", {{"domain", kAllowedDomain}}));
++  result = TriggerCommand("Eyeo.getAllowedDomains", {});
++  ASSERT_TRUE(result);
++  actual_values = ExtractResponseData(result, "domains");
++  EXPECT_TRUE(actual_values.empty());
++}
++
++IN_PROC_BROWSER_TEST_F(DevToolsEyeoHandlerBrowserTest,
++                       TestGetTelemetryDebugInfoCall) {
++  EXPECT_TRUE(NavigateToURL(shell(), GURL("about:blank")));
++  Attach();
++  auto* result = TriggerCommand("Eyeo.getTelemetryDebugInfo", {});
++  ASSERT_TRUE(result);
++  auto* actual_values = result->FindString("telemetry_ping");
++  EXPECT_FALSE(actual_values->empty());
++}
++
++IN_PROC_BROWSER_TEST_F(DevToolsEyeoHandlerBrowserTest,
++                       ConfigurationEventsTest) {
++  EXPECT_TRUE(NavigateToURL(shell(), GURL("about:blank")));
++  Attach();
++  SendCommandSync("Eyeo.enable");
++  // FilterLists
++  EXPECT_TRUE(TriggerCommand("Eyeo.addFilterList", {{"url", kCustomList}}));
++  WaitForEventNotification("Eyeo.filterListsChanged", "urls");
++  EXPECT_TRUE(TriggerCommand("Eyeo.removeFilterList", {{"url", kCustomList}}));
++  WaitForEventNotification("Eyeo.filterListsChanged", "urls");
++
++  // CustomFilters
++  EXPECT_TRUE(
++      TriggerCommand("Eyeo.addCustomFilter", {{"filter", kCustomFilter}}));
++  WaitForEventNotification("Eyeo.customFiltersChanged", "filters");
++  EXPECT_TRUE(
++      TriggerCommand("Eyeo.removeCustomFilter", {{"filter", kCustomFilter}}));
++  WaitForEventNotification("Eyeo.customFiltersChanged", "filters");
++}
++
++IN_PROC_BROWSER_TEST_F(DevToolsEyeoHandlerBrowserTest,
++                       PageAllowedFilterHitEventsTest) {
++  EXPECT_TRUE(NavigateToURL(shell(), GURL("about:blank")));
++  Attach();
++  SendCommandSync("Eyeo.enable");
++  AddCustomFilters({"@@||example.com^$document,domain=example.com"});
++  RegisterHtmlContent("/test_page.html", R"(
++    <html>
++    <head>
++    <title>Test page</title>
++    </head>
++    <body>
++    </body>
++    </html>
++  )");
++  NavigateToPage(GURL("https://example.com/test_page.html"));
++  WaitForFilterHitEvent("Eyeo.pageAllowed",
++                        GURL{"https://example.com/test_page.html"});
++}
++
++IN_PROC_BROWSER_TEST_F(DevToolsEyeoHandlerBrowserTest,
++                       RequestAllowedFilterHitEventsTest) {
++  EXPECT_TRUE(NavigateToURL(shell(), GURL("about:blank")));
++  Attach();
++  SendCommandSync("Eyeo.enable");
++  AddCustomFilters({"allowed_resource.png", "@@allowed_resource.png"});
++  RegisterHtmlContent("/test_page.html", R"(
++    <html>
++    <head>
++    <title>Test page</title>
++    </head>
++    <body>
++    <img src="allowed_resource.png">
++    </body>
++    </html>
++  )");
++  NavigateToPage(GURL("https://example.com/test_page.html"));
++  WaitForFilterHitEvent("Eyeo.requestAllowed",
++                        GURL{"https://example.com/allowed_resource.png"});
++}
++
++IN_PROC_BROWSER_TEST_F(DevToolsEyeoHandlerBrowserTest,
++                       RequestBlockedFilterHitEventsTest) {
++  EXPECT_TRUE(NavigateToURL(shell(), GURL("about:blank")));
++  Attach();
++  SendCommandSync("Eyeo.enable");
++  AddCustomFilters({"blocked_resource.png"});
++  RegisterHtmlContent("/test_page.html", R"(
++    <html>
++    <head>
++    <title>Test page</title>
++    </head>
++    <body>
++    <img src="blocked_resource.png">
++    </body>
++    </html>
++  )");
++  NavigateToPage(GURL("https://example.com/test_page.html"));
++  WaitForFilterHitEvent("Eyeo.requestBlocked",
++                        GURL{"https://example.com/blocked_resource.png"});
++}
++
++IN_PROC_BROWSER_TEST_P(DevToolsEyeoHandlerBrowserTest,
++                       PageElementMatchedEventsTest) {
++  EXPECT_TRUE(NavigateToURL(shell(), GURL("about:blank")));
++  Attach();
++  SendCommandSync("Eyeo.enable");
++  RegisterHtmlContent("/test_page.html", R"(
++  <html>
++  <head>
++  <title>Test page</title>
++  </head>
++  <body>
++  <div>
++    <span class="id_to_elem_hide"></span>
++    <br/><br/>
++  </div>
++  <div>
++    <span class="id_to_elem_hide_emu">id_to_elem_hide_emu</span>
++    <br/><br/>
++  </div>
++  <div>
++    <span class="id_to_remove_by_eh"></span>
++    <br/><br/>
++  </div>
++  <div>
++    <span class="id_to_remove_by_ehe">id_to_remove_by_ehe</span>
++    <br/><br/>
++  </div>
++  <div>
++    <span class="id_to_apply_style_by_eh" style="background-color: #FF0000!important;"></span>
++    <br/><br/>
++  </div>
++  <div>
++    <span class="id_to_apply_style_by_ehe" style="background-color: #FF0000!important;">id_to_apply_style_by_ehe</span>
++    <br/><br/>
++  </div>
++  </body>
++  </html>
++  )");
++
++  auto* configuration = GetAdblockFilteringConfiguration();
++  configuration->AddCustomFilter(std::get<0>(GetParam()));
++  NavigateToPage(GURL("https://example.com/test_page.html"));
++  WaitForPageElementMatchedEvent(std::get<1>(GetParam()),
++                                 std::get<2>(GetParam()));
++}
++
++std::tuple<std::string, std::string, std::string>
++    filter_to_selector_and_action[] = {
++        {"example.com##.id_to_elem_hide", "type:span;className:id_to_elem_hide",
++         "Hide"},
++        {"example.com#?#span:-abp-contains(id_to_elem_hide_emu)",
++         ":root > BODY:nth-child(2) > DIV:nth-child(2) > SPAN:nth-child(1)",
++         "Hide"},
++        {"example.com##.id_to_remove_by_eh { remove: true; }",
++         ".id_to_remove_by_eh", "Remove"},
++        {"example.com#?#span:-abp-contains(id_to_remove_by_ehe) { remove: "
++         "true; }",
++         ":root > BODY:nth-child(2) > DIV:nth-child(4) > SPAN:nth-child(1)",
++         "Remove"},
++        {"example.com##.id_to_apply_style_by_eh { background-color: "
++         "#00FF00!important; }",
++         ".id_to_apply_style_by_eh", "InlineCss"},
++        {"example.com#?#span:-abp-contains(id_to_apply_style_by_ehe) { "
++         "background-color: #00FF00!important; }",
++         ":root > BODY:nth-child(2) > DIV:nth-child(6) > SPAN:nth-child(1)",
++         "InlineCss"}};
++
++INSTANTIATE_TEST_SUITE_P(All,
++                         DevToolsEyeoHandlerBrowserTest,
++                         testing::ValuesIn(filter_to_selector_and_action));
++
++}  // namespace content
+diff --git a/content/browser/devtools/protocol/eyeo_handler.cc b/content/browser/devtools/protocol/eyeo_handler.cc
+new file mode 100644
+index 0000000000000..f6ebbafce9ece
+--- /dev/null
++++ b/content/browser/devtools/protocol/eyeo_handler.cc
+@@ -0,0 +1,467 @@
++// This file is part of eyeo Chromium SDK,
++// Copyright (C) 2006-present eyeo GmbH
++//
++// eyeo Chromium SDK is free software: you can redistribute it and/or modify
++// it under the terms of the GNU General Public License version 3 as
++// published by the Free Software Foundation.
++//
++// eyeo Chromium SDK is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License
++// along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++
++#include "content/browser/devtools/protocol/eyeo_handler.h"
++
++#include "base/types/strong_alias.h"
++#include "components/adblock/core/adblock_telemetry_service.h"
++#include "components/adblock/core/common/adblock_constants.h"
++#include "components/adblock/core/common/adblock_content_user_data_keys.h"
++#include "components/adblock/core/common/adblock_keyed_service_ptr_holder.h"
++#include "components/adblock/core/session_stats.h"
++#include "components/adblock/core/subscription/subscription_service_impl.h"
++#include "content/browser/renderer_host/render_frame_host_impl.h"
++#include "content/public/browser/browser_context.h"
++#include "third_party/abseil-cpp/absl/types/variant.h"
++
++namespace content {
++namespace protocol {
++
++namespace {
++
++using ConfigurationError =
++    base::StrongAlias<class ConfigurationErrorTag, std::string>;
++
++adblock::SubscriptionService* GetSubscriptionService(RenderFrameHostImpl* rfh) {
++  auto* context = rfh->GetProcess()->GetBrowserContext();
++  return adblock::KeyedServicePtrHolder<adblock::SubscriptionService>::Get(
++      context, adblock::kSubscriptionServiceUserDataKey);
++}
++
++absl::variant<adblock::FilteringConfiguration*, ConfigurationError>
++MaybeGetConfiguration(RenderFrameHostImpl* rfh,
++                      const std::optional<std::string>& configuration) {
++  auto* subscription_service = GetSubscriptionService(rfh);
++  if (!subscription_service) {
++    LOG(ERROR) << "[eyeo] EyeoHandler: Missing SubscriptionService!";
++    return ConfigurationError("Missing SubscriptionService!");
++  }
++  std::string configuration_name = configuration.value_or("adblock");
++  auto* configuration_ptr =
++      subscription_service->GetFilteringConfiguration(configuration_name);
++  if (!configuration_ptr) {
++    LOG(INFO) << "[eyeo] EyeoHandler: Missing configuration "
++              << configuration_name;
++    return ConfigurationError("Missing configuration " + configuration_name);
++  }
++  return configuration_ptr;
++}
++
++std::vector<adblock::FilteringConfiguration*> GetConfigurationsInternal(
++    RenderFrameHostImpl* rfh) {
++  auto* subscription_service = GetSubscriptionService(rfh);
++  if (!subscription_service) {
++    LOG(ERROR) << "[eyeo] EyeoHandler: Missing SubscriptionService!";
++    return {};
++  }
++  return subscription_service->GetInstalledFilteringConfigurations();
++}
++
++std::string GetElementHideAction(adblock::ElementHideAction action) {
++  switch (action) {
++    case adblock::ElementHideAction::kHide:
++      return content::protocol::Eyeo::ElementHideActionEnum::Hide;
++    case adblock::ElementHideAction::kRemove:
++      return content::protocol::Eyeo::ElementHideActionEnum::Remove;
++    case adblock::ElementHideAction::kInlineCss:
++      return content::protocol::Eyeo::ElementHideActionEnum::InlineCss;
++  }
++}
++
++}  // namespace
++
++EyeoHandler::EyeoHandler()
++    : DevToolsDomainHandler(Eyeo::Metainfo::domainName) {}
++EyeoHandler::~EyeoHandler() = default;
++
++// static
++std::vector<EyeoHandler*> EyeoHandler::ForAgentHost(
++    DevToolsAgentHostImpl* host) {
++  return host->HandlersByName<EyeoHandler>(Eyeo::Metainfo::domainName);
++}
++
++void EyeoHandler::SetRenderer(int process_host_id,
++                              RenderFrameHostImpl* frame_host) {
++  rfh_ = frame_host;
++}
++
++void EyeoHandler::Wire(UberDispatcher* dispatcher) {
++#if BUILDFLAG(IS_ANDROID) || defined(EYEO_EXTEND_CHROME_DEVTOOLS_PROTOCOL)
++  frontend_ = std::make_unique<Eyeo::Frontend>(dispatcher->channel());
++  Eyeo::Dispatcher::wire(dispatcher, this);
++#endif
++}
++
++Response EyeoHandler::Enable() {
++  if (enabled_) {
++    return Response::Success();
++  }
++  enabled_ = true;
++
++  for (auto* configuration : GetConfigurationsInternal(rfh_)) {
++    configuration->AddObserver(this);
++  }
++
++  auto* classification_runner =
++      adblock::KeyedServicePtrHolder<adblock::ResourceClassificationRunner>::
++          Get(rfh_->GetProcess()->GetBrowserContext(),
++              adblock::kResourceClassificationRunnerUserDataKey);
++  if (!classification_runner) {
++    LOG(ERROR) << "[eyeo] EyeoHandler: Missing ResourceClassificationRunner!";
++    return Response::ServerError("Missing ResourceClassificationRunner!");
++  }
++  classification_runner->AddObserver(this);
++  return Response::Success();
++}
++
++Response EyeoHandler::Disable() {
++  if (!enabled_) {
++    return Response::Success();
++  }
++  enabled_ = false;
++
++  for (auto* configuration : GetConfigurationsInternal(rfh_)) {
++    configuration->RemoveObserver(this);
++  }
++
++  auto* classification_runner =
++      adblock::KeyedServicePtrHolder<adblock::ResourceClassificationRunner>::
++          Get(rfh_->GetProcess()->GetBrowserContext(),
++              adblock::kResourceClassificationRunnerUserDataKey);
++  if (!classification_runner) {
++    LOG(ERROR) << "[eyeo] EyeoHandler: Missing ResourceClassificationRunner!";
++    return Response::ServerError("Missing ResourceClassificationRunner!");
++  }
++  classification_runner->RemoveObserver(this);
++  return Response::Success();
++}
++
++Response EyeoHandler::GetConfigurations(
++    std::unique_ptr<protocol::Array<std::string>>* lists) {
++  *lists = std::make_unique<protocol::Array<std::string>>();
++  for (const auto& configuration : GetConfigurationsInternal(rfh_)) {
++    (*lists)->emplace_back(
++        configuration->GetName() +
++        (configuration->IsEnabled() ? ": enabled" : ": disabled"));
++  }
++  return Response::Success();
++}
++
++Response EyeoHandler::GetDownloadStats(
++    std::optional<std::string> configuration,
++    std::unique_ptr<protocol::Array<std::string>>* result) {
++  auto* subscription_service = GetSubscriptionService(rfh_);
++  if (!subscription_service) {
++    return Response::ServerError("Missing SubscriptionService!");
++  }
++
++  *result = std::make_unique<protocol::Array<std::string>>();
++  auto download_stats =
++      subscription_service->GetDownloadStats(configuration.value_or("adblock"));
++  if (download_stats.empty()) {
++    return Response::ServerError("Invalid configuration name: " +
++                                 configuration.value_or("adblock"));
++  }
++  for (const auto& d_s : download_stats) {
++    (*result)->emplace_back(
++        "{ url : " + d_s.first.spec() +
++        ", counters : { success : " + std::to_string(d_s.second.success_count) +
++        ", errors : " + std::to_string(d_s.second.error_count) + "} }");
++  }
++  return Response::Success();
++}
++
++Response EyeoHandler::GetSessionStats(
++    std::optional<std::string> configuration,
++    std::unique_ptr<protocol::Array<std::string>>* result) {
++  auto configuration_or_error = MaybeGetConfiguration(rfh_, configuration);
++  if (absl::holds_alternative<ConfigurationError>(configuration_or_error)) {
++    return Response::ServerError(
++        *absl::get<ConfigurationError>(std::move(configuration_or_error)));
++  }
++  auto* configuration_ptr =
++      absl::get<adblock::FilteringConfiguration*>(configuration_or_error);
++  auto filter_lists = configuration_ptr->GetFilterLists();
++
++  auto* context = rfh_->GetProcess()->GetBrowserContext();
++  auto* session_stats_service =
++      adblock::KeyedServicePtrHolder<adblock::SessionStats>::Get(
++          context, adblock::kSessionStatsServiceUserDataKey);
++  if (!session_stats_service) {
++    LOG(ERROR) << "[eyeo] EyeoHandler: Missing SessionStatsService!";
++    return Response::ServerError("Missing SessionStatsService!");
++  }
++  auto allowed_map = session_stats_service->GetSessionAllowedResourcesCount();
++  auto blocked_map = session_stats_service->GetSessionBlockedResourcesCount();
++
++  *result = std::make_unique<protocol::Array<std::string>>();
++  for (const auto& url : filter_lists) {
++    std::string url_str = url.spec();
++    std::string allowed_count =
++        allowed_map.contains(url) ? std::to_string(allowed_map[url]) : "0";
++    std::string blocked_count =
++        blocked_map.contains(url) ? std::to_string(blocked_map[url]) : "0";
++    (*result)->emplace_back("{ url : " + url_str +
++                            ", counters : { allowed : " + allowed_count +
++                            ", blocked : " + blocked_count + "} }");
++  }
++
++  return Response::Success();
++}
++
++Response EyeoHandler::GetFilterLists(
++    std::optional<std::string> configuration,
++    std::unique_ptr<protocol::Array<std::string>>* lists) {
++  auto configuration_or_error = MaybeGetConfiguration(rfh_, configuration);
++  if (absl::holds_alternative<ConfigurationError>(configuration_or_error)) {
++    return Response::ServerError(
++        *absl::get<ConfigurationError>(std::move(configuration_or_error)));
++  }
++  auto* configuration_ptr =
++      absl::get<adblock::FilteringConfiguration*>(configuration_or_error);
++  *lists = std::make_unique<protocol::Array<std::string>>();
++  auto filter_lists = configuration_ptr->GetFilterLists();
++  for (const auto& url : filter_lists) {
++    (*lists)->emplace_back(url.spec());
++  }
++  return Response::Success();
++}
++
++Response EyeoHandler::AddFilterList(std::optional<std::string> configuration,
++                                    const std::string& url) {
++  auto configuration_or_error = MaybeGetConfiguration(rfh_, configuration);
++  if (absl::holds_alternative<ConfigurationError>(configuration_or_error)) {
++    return Response::ServerError(
++        *absl::get<ConfigurationError>(std::move(configuration_or_error)));
++  }
++  auto* configuration_ptr =
++      absl::get<adblock::FilteringConfiguration*>(configuration_or_error);
++  configuration_ptr->AddFilterList(GURL{url});
++  return Response::Success();
++}
++
++Response EyeoHandler::RemoveFilterList(std::optional<std::string> configuration,
++                                       const std::string& url) {
++  auto configuration_or_error = MaybeGetConfiguration(rfh_, configuration);
++  if (absl::holds_alternative<ConfigurationError>(configuration_or_error)) {
++    return Response::ServerError(
++        *absl::get<ConfigurationError>(std::move(configuration_or_error)));
++  }
++  auto* configuration_ptr =
++      absl::get<adblock::FilteringConfiguration*>(configuration_or_error);
++  configuration_ptr->RemoveFilterList(GURL{url});
++  return Response::Success();
++}
++
++Response EyeoHandler::GetCustomFilters(
++    std::optional<std::string> configuration,
++    std::unique_ptr<protocol::Array<std::string>>* lists) {
++  auto configuration_or_error = MaybeGetConfiguration(rfh_, configuration);
++  if (absl::holds_alternative<ConfigurationError>(configuration_or_error)) {
++    return Response::ServerError(
++        *absl::get<ConfigurationError>(std::move(configuration_or_error)));
++  }
++  auto* configuration_ptr =
++      absl::get<adblock::FilteringConfiguration*>(configuration_or_error);
++  *lists = std::make_unique<protocol::Array<std::string>>();
++  auto custom_filters = configuration_ptr->GetCustomFilters();
++  for (const auto& filter : custom_filters) {
++    (*lists)->emplace_back(filter);
++  }
++  return Response::Success();
++}
++
++Response EyeoHandler::AddCustomFilter(std::optional<std::string> configuration,
++                                      const std::string& filter) {
++  auto configuration_or_error = MaybeGetConfiguration(rfh_, configuration);
++  if (absl::holds_alternative<ConfigurationError>(configuration_or_error)) {
++    return Response::ServerError(
++        *absl::get<ConfigurationError>(std::move(configuration_or_error)));
++  }
++  auto* configuration_ptr =
++      absl::get<adblock::FilteringConfiguration*>(configuration_or_error);
++  configuration_ptr->AddCustomFilter(filter);
++  return Response::Success();
++}
++
++Response EyeoHandler::RemoveCustomFilter(
++    std::optional<std::string> configuration,
++    const std::string& filter) {
++  auto configuration_or_error = MaybeGetConfiguration(rfh_, configuration);
++  if (absl::holds_alternative<ConfigurationError>(configuration_or_error)) {
++    return Response::ServerError(
++        *absl::get<ConfigurationError>(std::move(configuration_or_error)));
++  }
++  auto* configuration_ptr =
++      absl::get<adblock::FilteringConfiguration*>(configuration_or_error);
++  configuration_ptr->RemoveCustomFilter(filter);
++  return Response::Success();
++}
++
++Response EyeoHandler::GetAllowedDomains(
++    std::optional<std::string> configuration,
++    std::unique_ptr<protocol::Array<std::string>>* domains) {
++  auto configuration_or_error = MaybeGetConfiguration(rfh_, configuration);
++  if (absl::holds_alternative<ConfigurationError>(configuration_or_error)) {
++    return Response::ServerError(
++        *absl::get<ConfigurationError>(std::move(configuration_or_error)));
++  }
++  auto* configuration_ptr =
++      absl::get<adblock::FilteringConfiguration*>(configuration_or_error);
++  *domains = std::make_unique<protocol::Array<std::string>>();
++  auto allowed_domains = configuration_ptr->GetAllowedDomains();
++  for (const auto& domain : allowed_domains) {
++    (*domains)->emplace_back(domain);
++  }
++  return Response::Success();
++}
++
++Response EyeoHandler::AddAllowedDomain(std::optional<std::string> configuration,
++                                       const std::string& domain) {
++  auto configuration_or_error = MaybeGetConfiguration(rfh_, configuration);
++  if (absl::holds_alternative<ConfigurationError>(configuration_or_error)) {
++    return Response::ServerError(
++        *absl::get<ConfigurationError>(std::move(configuration_or_error)));
++  }
++  auto* configuration_ptr =
++      absl::get<adblock::FilteringConfiguration*>(configuration_or_error);
++  configuration_ptr->AddAllowedDomain(domain);
++  return Response::Success();
++}
++
++Response EyeoHandler::RemoveAllowedDomain(
++    std::optional<std::string> configuration,
++    const std::string& domain) {
++  auto configuration_or_error = MaybeGetConfiguration(rfh_, configuration);
++  if (absl::holds_alternative<ConfigurationError>(configuration_or_error)) {
++    return Response::ServerError(
++        *absl::get<ConfigurationError>(std::move(configuration_or_error)));
++  }
++  auto* configuration_ptr =
++      absl::get<adblock::FilteringConfiguration*>(configuration_or_error);
++  configuration_ptr->RemoveAllowedDomain(domain);
++  return Response::Success();
++}
++
++Response EyeoHandler::GetTelemetryDebugInfo(protocol::String* result) {
++  auto* context = rfh_->GetProcess()->GetBrowserContext();
++  auto* telemetry_service =
++      adblock::KeyedServicePtrHolder<adblock::AdblockTelemetryService>::Get(
++          context, adblock::kAdblockTelemetryServiceUserDataKey);
++  if (!telemetry_service) {
++    LOG(ERROR) << "[eyeo] EyeoHandler: Missing AdblockTelemetryService!";
++    return Response::ServerError("Missing AdblockTelemetryService!");
++  }
++
++  for (auto& topic_provider_debug_info :
++       telemetry_service->GetTopicProvidersDebugInfo()) {
++    *result += topic_provider_debug_info + ", ";
++  }
++
++  return Response::Success();
++}
++
++void EyeoHandler::OnFilterListsChanged(
++    adblock::FilteringConfiguration* config) {
++  if (!enabled_ || !frontend_) {
++    return;
++  }
++  std::unique_ptr<protocol::Array<std::string>> urls =
++      std::make_unique<protocol::Array<std::string>>();
++  for (const auto& url : config->GetFilterLists()) {
++    urls->emplace_back(url.spec());
++  }
++  frontend_->FilterListsChanged(config->GetName(), std::move(urls));
++}
++
++void EyeoHandler::OnCustomFiltersChanged(
++    adblock::FilteringConfiguration* config) {
++  if (!enabled_ || !frontend_) {
++    return;
++  }
++  std::unique_ptr<protocol::Array<std::string>> filters =
++      std::make_unique<protocol::Array<std::string>>();
++  for (const auto& filter : config->GetCustomFilters()) {
++    filters->emplace_back(filter);
++  }
++  frontend_->CustomFiltersChanged(config->GetName(), std::move(filters));
++}
++
++void EyeoHandler::OnPageAllowed(const GURL& url,
++                                content::RenderFrameHost* render_frame_host,
++                                const GURL& subscription,
++                                const std::string& configuration_name) {
++  if (!enabled_ || render_frame_host != rfh_ || render_frame_host == nullptr ||
++      !frontend_) {
++    return;
++  }
++  frontend_->PageAllowed(subscription.spec(), url.spec());
++}
++
++void EyeoHandler::OnRequestMatched(const GURL& url,
++                                   adblock::FilterMatchResult match_result,
++                                   const std::vector<GURL>& parent_frame_urls,
++                                   adblock::ContentType content_type,
++                                   content::RenderFrameHost* render_frame_host,
++                                   const GURL& subscription,
++                                   const std::string& configuration_name) {
++  OnMatchedInternal(url, match_result, content_type, render_frame_host,
++                    subscription);
++}
++
++void EyeoHandler::OnPopupMatched(const GURL& url,
++                                 adblock::FilterMatchResult match_result,
++                                 const GURL& opener_url,
++                                 content::RenderFrameHost* render_frame_host,
++                                 const GURL& subscription,
++                                 const std::string& configuration_name) {
++  OnMatchedInternal(url, match_result, adblock::ContentType::Other,
++                    render_frame_host, subscription);
++}
++
++void EyeoHandler::OnPageElementMatched(
++    const std::string& selector,
++    adblock::ElementHideAction action,
++    content::RenderFrameHost* render_frame_host) {
++  if (!enabled_ || render_frame_host != rfh_ || render_frame_host == nullptr ||
++      !frontend_) {
++    return;
++  }
++
++  frontend_->PageElementMatched(
++      selector, GetElementHideAction(action),
++      render_frame_host->GetLastCommittedURL().spec());
++}
++
++void EyeoHandler::OnMatchedInternal(const GURL& url,
++                                    adblock::FilterMatchResult match_result,
++                                    adblock::ContentType content_type,
++                                    content::RenderFrameHost* render_frame_host,
++                                    const GURL& subscription) {
++  if (!enabled_ || render_frame_host != rfh_ || render_frame_host == nullptr ||
++      !frontend_) {
++    return;
++  }
++
++  if (match_result == adblock::FilterMatchResult::kAllowRule) {
++    frontend_->RequestAllowed(subscription.spec(), url.spec());
++  } else {
++    DCHECK(match_result == adblock::FilterMatchResult::kBlockRule);
++    frontend_->RequestBlocked(subscription.spec(), url.spec());
++  }
++}
++
++}  // namespace protocol
++}  // namespace content
+diff --git a/content/browser/devtools/protocol/eyeo_handler.h b/content/browser/devtools/protocol/eyeo_handler.h
+new file mode 100644
+index 0000000000000..edf76fedd8cfe
+--- /dev/null
++++ b/content/browser/devtools/protocol/eyeo_handler.h
+@@ -0,0 +1,130 @@
++// This file is part of eyeo Chromium SDK,
++// Copyright (C) 2006-present eyeo GmbH
++//
++// eyeo Chromium SDK is free software: you can redistribute it and/or modify
++// it under the terms of the GNU General Public License version 3 as
++// published by the Free Software Foundation.
++//
++// eyeo Chromium SDK is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License
++// along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++
++#ifndef CONTENT_BROWSER_DEVTOOLS_PROTOCOL_EYEO_HANDLER_H_
++#define CONTENT_BROWSER_DEVTOOLS_PROTOCOL_EYEO_HANDLER_H_
++
++#include "base/memory/raw_ptr.h"
++#include "components/adblock/content/browser/adblock_filter_match.h"  // nogncheck
++#include "components/adblock/content/browser/resource_classification_runner.h"  // nogncheck
++#include "components/adblock/core/configuration/filtering_configuration.h"
++#include "content/browser/devtools/protocol/devtools_domain_handler.h"
++#include "content/browser/devtools/protocol/eyeo.h"
++#include "mojo/public/cpp/bindings/remote.h"
++
++namespace content {
++
++class DevToolsAgentHostImpl;
++class RenderFrameHostImpl;
++
++namespace protocol {
++
++class EyeoHandler final
++    : public DevToolsDomainHandler,
++      public Eyeo::Backend,
++      public adblock::FilteringConfiguration::Observer,
++      public adblock::ResourceClassificationRunner::Observer {
++ public:
++  EyeoHandler();
++
++  EyeoHandler(const EyeoHandler&) = delete;
++  EyeoHandler& operator=(const EyeoHandler&) = delete;
++
++  ~EyeoHandler() override;
++
++  static std::vector<EyeoHandler*> ForAgentHost(DevToolsAgentHostImpl* host);
++
++  // DevToolsDomainHandler implementation.
++  void SetRenderer(int process_host_id,
++                   RenderFrameHostImpl* frame_host) override;
++  void Wire(UberDispatcher* dispatcher) override;
++
++  // Eyeo::Backend implementation.
++  Response Disable() override;
++  Response Enable() override;
++  Response GetConfigurations(
++      std::unique_ptr<protocol::Array<std::string>>* lists) override;
++  Response GetDownloadStats(
++      std::optional<std::string> configuration,
++      std::unique_ptr<protocol::Array<std::string>>* result) override;
++  Response GetSessionStats(
++      std::optional<std::string> configuration,
++      std::unique_ptr<protocol::Array<std::string>>* result) override;
++  Response GetFilterLists(
++      std::optional<std::string> configuration,
++      std::unique_ptr<protocol::Array<std::string>>* lists) override;
++  Response AddFilterList(std::optional<std::string> configuration,
++                         const std::string& url) override;
++  Response RemoveFilterList(std::optional<std::string> configuration,
++                            const std::string& url) override;
++  Response GetCustomFilters(
++      std::optional<std::string> configuration,
++      std::unique_ptr<protocol::Array<std::string>>* filters) override;
++  Response AddCustomFilter(std::optional<std::string> configuration,
++                           const std::string& filter) override;
++  Response RemoveCustomFilter(std::optional<std::string> configuration,
++                              const std::string& filter) override;
++  Response GetAllowedDomains(
++      std::optional<std::string> configuration,
++      std::unique_ptr<protocol::Array<std::string>>* domains) override;
++  Response AddAllowedDomain(std::optional<std::string> configuration,
++                            const std::string& domain) override;
++  Response RemoveAllowedDomain(std::optional<std::string> configuration,
++                               const std::string& domain) override;
++  Response GetTelemetryDebugInfo(protocol::String* result) override;
++
++  // adblock::FilteringConfiguration::Observer implementation.
++  void OnFilterListsChanged(adblock::FilteringConfiguration* config) override;
++  void OnCustomFiltersChanged(adblock::FilteringConfiguration* config) override;
++
++  // ResourceClassificationRunner::Observer
++  void OnRequestMatched(const GURL& url,
++                        adblock::FilterMatchResult match_result,
++                        const std::vector<GURL>& parent_frame_urls,
++                        adblock::ContentType content_type,
++                        content::RenderFrameHost* render_frame_host,
++                        const GURL& subscription,
++                        const std::string& configuration_name) override;
++  void OnPageAllowed(const GURL& url,
++                     content::RenderFrameHost* render_frame_host,
++                     const GURL& subscription,
++                     const std::string& configuration_name) override;
++  void OnPopupMatched(const GURL& url,
++                      adblock::FilterMatchResult match_result,
++                      const GURL& opener_url,
++                      content::RenderFrameHost* render_frame_host,
++                      const GURL& subscription,
++                      const std::string& configuration_name) override;
++
++  void OnPageElementMatched(
++      const std::string& selector,
++      adblock::ElementHideAction action,
++      content::RenderFrameHost* render_frame_host) override;
++
++ private:
++  void OnMatchedInternal(const GURL& url,
++                         adblock::FilterMatchResult match_result,
++                         adblock::ContentType content_type,
++                         content::RenderFrameHost* render_frame_host,
++                         const GURL& subscription);
++  std::unique_ptr<Eyeo::Frontend> frontend_;
++  bool enabled_ = false;
++  raw_ptr<RenderFrameHostImpl> rfh_;
++};
++
++}  // namespace protocol
++}  // namespace content
++
++#endif  // CONTENT_BROWSER_DEVTOOLS_PROTOCOL_EYEO_HANDLER_H_
+diff --git a/content/browser/devtools/protocol_config.json b/content/browser/devtools/protocol_config.json
+index 32f9014d0ca51..f32ec9c7a18ce 100644
+--- a/content/browser/devtools/protocol_config.json
++++ b/content/browser/devtools/protocol_config.json
+@@ -71,6 +71,34 @@
+                   "setPressureDataOverride"
+                 ]
+             },
++            {
++                "domain": "Eyeo",
++                "include": [
++                  "enable",
++                  "disable",
++                  "getDownloadStats",
++                  "getConfigurations",
++                  "getSessionStats",
++                  "getFilterLists",
++                  "addFilterList",
++                  "removeFilterList",
++                  "getCustomFilters",
++                  "addCustomFilter",
++                  "removeCustomFilter",
++                  "getAllowedDomains",
++                  "addAllowedDomain",
++                  "removeAllowedDomain",
++                  "getTelemetryDebugInfo"
++                ],
++                "include_events": [
++                  "filterListsChanged",
++                  "customFiltersChanged",
++                  "pageAllowed",
++                  "pageElementMatched",
++                  "requestAllowed",
++                  "requestBlocked"
++                ]
++            },
+             {
+                 "domain": "FedCm"
+             },
+diff --git a/content/browser/devtools/render_frame_devtools_agent_host.cc b/content/browser/devtools/render_frame_devtools_agent_host.cc
+index ce011f0b1e44a..fbd14d17b3b88 100644
+--- a/content/browser/devtools/render_frame_devtools_agent_host.cc
++++ b/content/browser/devtools/render_frame_devtools_agent_host.cc
+@@ -31,6 +31,7 @@
+ #include "content/browser/devtools/protocol/device_orientation_handler.h"
+ #include "content/browser/devtools/protocol/dom_handler.h"
+ #include "content/browser/devtools/protocol/emulation_handler.h"
++#include "content/browser/devtools/protocol/eyeo_handler.h"
+ #include "content/browser/devtools/protocol/fedcm_handler.h"
+ #include "content/browser/devtools/protocol/fetch_handler.h"
+ #include "content/browser/devtools/protocol/handler_helpers.h"
+@@ -345,6 +346,7 @@ bool RenderFrameDevToolsAgentHost::AttachSession(DevToolsSession* session) {
+       session->GetClient()->MayReadLocalFiles());
+   auto* emulation_handler =
+       session->CreateAndAddHandler<protocol::EmulationHandler>();
++  session->CreateAndAddHandler<protocol::EyeoHandler>();
+   session->CreateAndAddHandler<protocol::InputHandler>(
+       session->GetClient()->MayReadLocalFiles(),
+       session->GetClient()->IsTrusted());
+diff --git a/content/browser/loader/navigation_url_loader_impl.cc b/content/browser/loader/navigation_url_loader_impl.cc
+index 287d602c11e35..0f4b9d310df6f 100644
+--- a/content/browser/loader/navigation_url_loader_impl.cc
++++ b/content/browser/loader/navigation_url_loader_impl.cc
+@@ -2,6 +2,10 @@
+ // Use of this source code is governed by a BSD-style license that can be
+ // found in the LICENSE file.
+ 
++// This source code is a part of eyeo Chromium SDK.
++// Use of this source code is governed by the GPLv3 that can be found in the
++// components/adblock/LICENSE file.
++
+ #include "content/browser/loader/navigation_url_loader_impl.h"
+ 
+ #include <map>
+@@ -1254,7 +1258,7 @@ void NavigationURLLoaderImpl::OnReceiveRedirect(
+   LogQueueTimeHistogram("Navigation.QueueTime.OnReceiveRedirect",
+                         resource_request_->is_outermost_main_frame);
+   net::Error error = net::OK;
+-  if (!bypass_redirect_checks_ &&
++  if (!bypass_redirect_checks_ && !redirect_info.bypass_redirect_checks &&
+       !IsSafeRedirectTarget(url_, redirect_info.new_url)) {
+     error = net::ERR_UNSAFE_REDIRECT;
+   } else if (--redirect_limit_ == 0) {
+diff --git a/content/browser/renderer_host/render_frame_host_impl.cc b/content/browser/renderer_host/render_frame_host_impl.cc
+index 23cd457563d7d..b8a227f674575 100644
+--- a/content/browser/renderer_host/render_frame_host_impl.cc
++++ b/content/browser/renderer_host/render_frame_host_impl.cc
+@@ -1,6 +1,10 @@
+ // Copyright 2013 The Chromium Authors
+ // Use of this source code is governed by a BSD-style license that can be
+ // found in the LICENSE file.
++//
++// This source code is a part of eyeo Chromium SDK.
++// Use of this source code is governed by the GPLv3 that can be found in the
++// components/adblock/LICENSE file.
+ 
+ #include "content/browser/renderer_host/render_frame_host_impl.h"
+ 
+@@ -3513,6 +3517,12 @@ void RenderFrameHostImpl::ExecuteJavaScriptMethod(
+       std::move(callback));
+ }
+ 
++// https://gitlab.com/eyeo/adblockplus/chromium/issues/35
++void RenderFrameHostImpl::InsertAbpElemhideStylesheet(
++    const std::string& stylesheet) {
++  GetAssociatedLocalFrame()->InsertAbpElemhideStylesheet(stylesheet);
++}
++
+ void RenderFrameHostImpl::ExecuteJavaScript(const std::u16string& javascript,
+                                             JavaScriptResultCallback callback) {
+   DCHECK_CURRENTLY_ON(BrowserThread::UI);
+diff --git a/content/browser/renderer_host/render_frame_host_impl.h b/content/browser/renderer_host/render_frame_host_impl.h
+index 9093d52a27de1..c0ca144f71936 100644
+--- a/content/browser/renderer_host/render_frame_host_impl.h
++++ b/content/browser/renderer_host/render_frame_host_impl.h
+@@ -1,6 +1,10 @@
+ // Copyright 2013 The Chromium Authors
+ // Use of this source code is governed by a BSD-style license that can be
+ // found in the LICENSE file.
++//
++// This source code is a part of eyeo Chromium SDK.
++// Use of this source code is governed by the GPLv3 that can be found in the
++// components/adblock/LICENSE file.
+ 
+ #ifndef CONTENT_BROWSER_RENDERER_HOST_RENDER_FRAME_HOST_IMPL_H_
+ #define CONTENT_BROWSER_RENDERER_HOST_RENDER_FRAME_HOST_IMPL_H_
+@@ -499,6 +503,10 @@ class CONTENT_EXPORT RenderFrameHostImpl
+                                const std::u16string& method_name,
+                                base::Value::List arguments,
+                                JavaScriptResultCallback callback) override;
++
++  // https://gitlab.com/eyeo/adblockplus/chromium/issues/35
++  void InsertAbpElemhideStylesheet(const std::string& stylesheet) override;
++
+   void ExecuteJavaScript(const std::u16string& javascript,
+                          JavaScriptResultCallback callback) override;
+   void ExecuteJavaScriptInIsolatedWorld(const std::u16string& javascript,
+diff --git a/content/public/browser/render_frame_host.h b/content/public/browser/render_frame_host.h
+index b4645c4759809..dd68a6bae5743 100644
+--- a/content/public/browser/render_frame_host.h
++++ b/content/public/browser/render_frame_host.h
+@@ -1,6 +1,10 @@
+ // Copyright 2013 The Chromium Authors
+ // Use of this source code is governed by a BSD-style license that can be
+ // found in the LICENSE file.
++//
++// This source code is a part of eyeo Chromium SDK.
++// Use of this source code is governed by the GPLv3 that can be found in the
++// components/adblock/LICENSE file.
+ 
+ #ifndef CONTENT_PUBLIC_BROWSER_RENDER_FRAME_HOST_H_
+ #define CONTENT_PUBLIC_BROWSER_RENDER_FRAME_HOST_H_
+@@ -551,6 +555,9 @@ class CONTENT_EXPORT RenderFrameHost : public IPC::Listener,
+   virtual void AddMessageToConsole(blink::mojom::ConsoleMessageLevel level,
+                                    const std::string& message) = 0;
+ 
++  // https://gitlab.com/eyeo/adblockplus/chromium/issues/35
++  virtual void InsertAbpElemhideStylesheet(const std::string& stylesheet) = 0;
++
+   // Functions to run JavaScript in this frame's context. Pass in a callback to
+   // receive a result when it is available. If there is no need to receive the
+   // result, pass in a default-constructed callback. If provided, the callback
+diff --git a/content/public/common/isolated_world_ids.h b/content/public/common/isolated_world_ids.h
+index ea7489e71df74..0148c6b330953 100644
+--- a/content/public/common/isolated_world_ids.h
++++ b/content/public/common/isolated_world_ids.h
+@@ -1,6 +1,10 @@
+ // Copyright 2015 The Chromium Authors
+ // Use of this source code is governed by a BSD-style license that can be
+ // found in the LICENSE file.
++//
++// This source code is a part of eyeo Chromium SDK.
++// Use of this source code is governed by the GPLv3 that can be found in the
++// components/adblock/LICENSE file.
+ 
+ #ifndef CONTENT_PUBLIC_COMMON_ISOLATED_WORLD_IDS_H_
+ #define CONTENT_PUBLIC_COMMON_ISOLATED_WORLD_IDS_H_
+@@ -15,6 +19,10 @@ enum IsolatedWorldIDs : int32_t {
+   // The main world. Chrome cannot use ID 0 for an isolated world because 0
+   // represents the main world.
+   ISOLATED_WORLD_ID_GLOBAL = 0,
++
++  // Isolated world for eyeo ad blocking (element hiding)
++  ISOLATED_WORLD_ID_ADBLOCK,
++
+   // Custom isolated world ids used by other embedders should start from here.
+   ISOLATED_WORLD_ID_CONTENT_END,
+   // If any embedder has more than 10 custom isolated worlds that will be run
+diff --git a/content/public/test/fake_local_frame.cc b/content/public/test/fake_local_frame.cc
+index ccce9a189d5f7..1ab5c190cac4c 100644
+--- a/content/public/test/fake_local_frame.cc
++++ b/content/public/test/fake_local_frame.cc
+@@ -1,6 +1,10 @@
+ // Copyright 2019 The Chromium Authors
+ // Use of this source code is governed by a BSD-style license that can be
+ // found in the LICENSE file.
++//
++// This source code is a part of eyeo Chromium SDK.
++// Use of this source code is governed by the GPLv3 that can be found in the
++// components/adblock/LICENSE file.
+ 
+ #include "content/public/test/fake_local_frame.h"
+ 
+@@ -99,6 +103,9 @@ void FakeLocalFrame::RequestVideoFrameAtWithBoundsHint(
+ void FakeLocalFrame::PluginActionAt(const gfx::Point& location,
+                                     blink::mojom::PluginActionType action) {}
+ 
++void FakeLocalFrame::InsertAbpElemhideStylesheet(
++    const std::string& stylesheet) {}
++
+ void FakeLocalFrame::AdvanceFocusInFrame(
+     blink::mojom::FocusType focus_type,
+     const std::optional<blink::RemoteFrameToken>& source_frame_token) {}
+diff --git a/content/public/test/fake_local_frame.h b/content/public/test/fake_local_frame.h
+index 0f1c0f91ecdda..16139da98fa5f 100644
+--- a/content/public/test/fake_local_frame.h
++++ b/content/public/test/fake_local_frame.h
+@@ -1,6 +1,10 @@
+ // Copyright 2019 The Chromium Authors
+ // Use of this source code is governed by a BSD-style license that can be
+ // found in the LICENSE file.
++//
++// This source code is a part of eyeo Chromium SDK.
++// Use of this source code is governed by the GPLv3 that can be found in the
++// components/adblock/LICENSE file.
+ 
+ #ifndef CONTENT_PUBLIC_TEST_FAKE_LOCAL_FRAME_H_
+ #define CONTENT_PUBLIC_TEST_FAKE_LOCAL_FRAME_H_
+@@ -80,6 +84,7 @@ class FakeLocalFrame : public blink::mojom::LocalFrame {
+       RequestVideoFrameAtWithBoundsHintCallback callback) override;
+   void PluginActionAt(const gfx::Point& location,
+                       blink::mojom::PluginActionType action) override;
++  void InsertAbpElemhideStylesheet(const std::string& stylesheet) override;
+   void AdvanceFocusInFrame(blink::mojom::FocusType focus_type,
+                            const std::optional<blink::RemoteFrameToken>&
+                                source_frame_token) override;
+diff --git a/content/shell/BUILD.gn b/content/shell/BUILD.gn
+index d257dbbb2e6f4..a469523413b01 100644
+--- a/content/shell/BUILD.gn
++++ b/content/shell/BUILD.gn
+@@ -1,6 +1,9 @@
+ # Copyright 2014 The Chromium Authors
+ # Use of this source code is governed by a BSD-style license that can be
+ # found in the LICENSE file.
++#
++# This source code is a part of eyeo Chromium SDK.
++# Use of this source code is governed by the GPLv3 that can be found in the components/adblock/LICENSE file.
+ 
+ import("//build/config/cast.gni")
+ import("//build/config/chromeos/ui_mode.gni")
+@@ -89,6 +92,7 @@ static_library("content_shell_app") {
+   ]
+   deps = [
+     ":content_shell_lib",
++    "//components/adblock/content/renderer",
+     "//components/crash/core/common:crash_key",
+     "//components/memory_system",
+     "//content/public/app",
+@@ -162,6 +166,10 @@ inspector_protocol_generate("protocol_sources") {
+ static_library("content_shell_lib") {
+   testonly = true
+   sources = [
++    "browser/adblock/adblock_shell_browser_context.cc",
++    "browser/adblock/adblock_shell_browser_context.h",
++    "browser/adblock/adblock_shell_content_browser_client.cc",
++    "browser/adblock/adblock_shell_content_browser_client.h",
+     "browser/protocol/browser_handler.cc",
+     "browser/protocol/browser_handler.h",
+     "browser/protocol/domain_handler.h",
+@@ -231,6 +239,14 @@ static_library("content_shell_lib") {
+       "browser/shell_platform_delegate_android.cc",
+       "browser/shell_web_contents_view_delegate_android.cc",
+     ]
++
++    ### Android Content Shell module start
++    sources += [
++      "android/adblock/shell_browser_context_android.cc",
++      "android/adblock/shell_browser_context_android.h",
++    ]
++
++    ### Android Content Shell module end
+   }
+ 
+   if (is_mac) {
+@@ -312,6 +328,8 @@ static_library("content_shell_lib") {
+     "//base",
+     "//base:base_static",
+     "//cc/base",
++    "//components/adblock/content:browser",
++    "//components/adblock/core/common",
+     "//components/cdm/renderer",
+     "//components/custom_handlers",
+     "//components/custom_handlers:test_support",
+@@ -332,6 +350,7 @@ static_library("content_shell_lib") {
+     "//components/prefs",
+     "//components/services/storage/test_api",
+     "//components/url_formatter",
++    "//components/user_prefs:user_prefs",
+     "//components/variations",
+     "//components/variations/service",
+     "//components/web_cache/renderer",
+@@ -424,6 +443,14 @@ static_library("content_shell_lib") {
+       "//mojo/public/java/system:test_support",
+       "//ui/android",
+     ]
++
++    ### Android Content Shell module start
++    deps += [
++      "//components/adblock/android:java_bindings",
++      "//components/adblock/android:jni_headers",
++    ]
++
++    ### Android Content Shell module end
+   }
+ 
+   if (shell_use_toolkit_views) {
+@@ -515,6 +542,8 @@ repack("pak") {
+ 
+   sources = [
+     "$root_gen_dir/base/tracing/protos/tracing_proto_resources.pak",
++    "$root_gen_dir/components/adblock/core/resources/adblock_resources.pak",
++    "$root_gen_dir/components/adblock_internals_resources.pak",
+     "$root_gen_dir/components/ukm_resources.pak",
+     "$root_gen_dir/content/attribution_internals_resources.pak",
+     "$root_gen_dir/content/browser/resources/media/media_internals_resources.pak",
+@@ -547,6 +576,8 @@ repack("pak") {
+   deps = [
+     ":resources",
+     "//base/tracing/protos:chrome_track_event_resources",
++    "//components/adblock/content/resources/adblock_internals:resources",
++    "//components/adblock/core/resources:adblock_resources",
+     "//components/ukm/debug:resources",
+     "//content:content_resources",
+     "//content/browser/resources:resources",
+diff --git a/content/shell/android/BUILD.gn b/content/shell/android/BUILD.gn
+index 64483c8ab5468..20d7da5a56a6f 100644
+--- a/content/shell/android/BUILD.gn
++++ b/content/shell/android/BUILD.gn
+@@ -1,6 +1,9 @@
+ # Copyright 2014 The Chromium Authors
+ # Use of this source code is governed by a BSD-style license that can be
+ # found in the LICENSE file.
++#
++# This source code is a part of eyeo Chromium SDK.
++# Use of this source code is governed by the GPLv3 that can be found in the components/adblock/LICENSE file.
+ 
+ import("//build/config/android/config.gni")
+ import("//build/config/android/rules.gni")
+@@ -16,6 +19,7 @@ generate_jni("content_shell_jni_headers") {
+   sources = [
+     "java/src/org/chromium/content_shell/Shell.java",
+     "java/src/org/chromium/content_shell/ShellManager.java",
++    "java/src/org/chromium/content_shell/adblock/ShellBrowserContext.java",
+   ]
+ }
+ 
+@@ -103,6 +107,7 @@ android_library("content_shell_java") {
+     "java/src/org/chromium/content_shell/Shell.java",
+     "java/src/org/chromium/content_shell/ShellManager.java",
+     "java/src/org/chromium/content_shell/ShellViewAndroidDelegate.java",
++    "java/src/org/chromium/content_shell/adblock/ShellBrowserContext.java",
+   ]
+ }
+ 
+@@ -246,6 +251,8 @@ android_library("content_shell_test_java") {
+     ":content_shell_java",
+     "//base:base_java",
+     "//base:base_java_test_support",
++    "//components/adblock/android:adblock_controller_java",
++    "//components/adblock/android:adblock_java_tests_base",
+     "//content/public/android:content_java",
+     "//content/public/test/android:content_java_test_support",
+     "//content/shell/android:content_shell_java",
+@@ -262,6 +269,24 @@ android_library("content_shell_test_java") {
+     "javatests/src/org/chromium/content_shell_apk/ContentShellPreconditionsTest.java",
+     "javatests/src/org/chromium/content_shell_apk/ContentShellShellManagementTest.java",
+     "javatests/src/org/chromium/content_shell_apk/ContentShellUrlTest.java",
++    "javatests/src/org/chromium/content_shell_apk/adblock/AdblockControllerTest.java",
++    "javatests/src/org/chromium/content_shell_apk/adblock/DefaultSettingsTest.java",
++    "javatests/src/org/chromium/content_shell_apk/adblock/TestPagesCircumventionTest.java",
++    "javatests/src/org/chromium/content_shell_apk/adblock/TestPagesCspTest.java",
++    "javatests/src/org/chromium/content_shell_apk/adblock/TestPagesElemhideEmuInvTest.java",
++    "javatests/src/org/chromium/content_shell_apk/adblock/TestPagesElemhideEmuTest.java",
++    "javatests/src/org/chromium/content_shell_apk/adblock/TestPagesElemhideTest.java",
++    "javatests/src/org/chromium/content_shell_apk/adblock/TestPagesExceptionTest.java",
++    "javatests/src/org/chromium/content_shell_apk/adblock/TestPagesFilterTest.java",
++    "javatests/src/org/chromium/content_shell_apk/adblock/TestPagesHeaderFilterTest.java",
++    "javatests/src/org/chromium/content_shell_apk/adblock/TestPagesHelper.java",
++    "javatests/src/org/chromium/content_shell_apk/adblock/TestPagesInlineCssTest.java",
++    "javatests/src/org/chromium/content_shell_apk/adblock/TestPagesRemoveTest.java",
++    "javatests/src/org/chromium/content_shell_apk/adblock/TestPagesRewriteTest.java",
++    "javatests/src/org/chromium/content_shell_apk/adblock/TestPagesSiteKeyTest.java",
++    "javatests/src/org/chromium/content_shell_apk/adblock/TestPagesSnippetsTest.java",
++    "javatests/src/org/chromium/content_shell_apk/adblock/TestPagesWebsocketTest.java",
++    "javatests/src/org/chromium/content_shell_apk/adblock/TestPagesWildcardDomainTest.java",
+   ]
+ }
+ 
+diff --git a/content/shell/android/adblock/shell_browser_context_android.cc b/content/shell/android/adblock/shell_browser_context_android.cc
+new file mode 100644
+index 0000000000000..cb4eb2642c71e
+--- /dev/null
++++ b/content/shell/android/adblock/shell_browser_context_android.cc
+@@ -0,0 +1,44 @@
++/*
++ * This file is part of eyeo Chromium SDK,
++ * Copyright (C) 2006-present eyeo GmbH
++ *
++ * eyeo Chromium SDK is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 3 as
++ * published by the Free Software Foundation.
++ *
++ * eyeo Chromium SDK is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#include "content/shell/android/adblock/shell_browser_context_android.h"
++
++#include "base/android/jni_android.h"
++#include "content/shell/android/content_shell_jni_headers/ShellBrowserContext_jni.h"
++#include "content/shell/browser/shell_browser_context.h"
++#include "content/shell/browser/shell_content_browser_client.h"
++
++namespace adblock {
++
++ShellBrowserContextAndroid::ShellBrowserContextAndroid(
++    JNIEnv* env,
++    const base::android::JavaParamRef<jobject>& jcontroller)
++    : java_weak_controller_(env, jcontroller) {}
++
++ShellBrowserContextAndroid::~ShellBrowserContextAndroid() = default;
++
++static base::android::ScopedJavaLocalRef<jobject>
++JNI_ShellBrowserContext_GetDefaultJava(JNIEnv* env) {
++  content::ShellBrowserContext* default_context =
++      content::ShellContentBrowserClient::Get()->browser_context();
++  CHECK(default_context);
++
++  return Java_ShellBrowserContext_create(
++      env, reinterpret_cast<intptr_t>(default_context));
++}
++
++}  // namespace adblock
+diff --git a/content/shell/android/adblock/shell_browser_context_android.h b/content/shell/android/adblock/shell_browser_context_android.h
+new file mode 100644
+index 0000000000000..8e85956dde3d7
+--- /dev/null
++++ b/content/shell/android/adblock/shell_browser_context_android.h
+@@ -0,0 +1,38 @@
++/*
++ * This file is part of eyeo Chromium SDK,
++ * Copyright (C) 2006-present eyeo GmbH
++ *
++ * eyeo Chromium SDK is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 3 as
++ * published by the Free Software Foundation.
++ *
++ * eyeo Chromium SDK is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#ifndef CONTENT_SHELL_ANDROID_ADBLOCK_SHELL_BROWSER_CONTEXT_ANDROID_H_
++#define CONTENT_SHELL_ANDROID_ADBLOCK_SHELL_BROWSER_CONTEXT_ANDROID_H_
++
++#include "base/android/jni_weak_ref.h"
++
++namespace adblock {
++
++class ShellBrowserContextAndroid {
++ public:
++  explicit ShellBrowserContextAndroid(
++      JNIEnv* env,
++      const base::android::JavaParamRef<jobject>& jcontroller);
++  ~ShellBrowserContextAndroid();
++
++ private:
++  const JavaObjectWeakGlobalRef java_weak_controller_;
++};
++
++}  // namespace adblock
++
++#endif  // CONTENT_SHELL_ANDROID_ADBLOCK_SHELL_BROWSER_CONTEXT_ANDROID_H_
+diff --git a/content/shell/android/java/src/org/chromium/content_shell/adblock/ShellBrowserContext.java b/content/shell/android/java/src/org/chromium/content_shell/adblock/ShellBrowserContext.java
+new file mode 100644
+index 0000000000000..ea8fe85778e52
+--- /dev/null
++++ b/content/shell/android/java/src/org/chromium/content_shell/adblock/ShellBrowserContext.java
+@@ -0,0 +1,58 @@
++/*
++ * This file is part of eyeo Chromium SDK,
++ * Copyright (C) 2006-present eyeo GmbH
++ *
++ * eyeo Chromium SDK is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 3 as
++ * published by the Free Software Foundation.
++ *
++ * eyeo Chromium SDK is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++package org.chromium.content_shell.adblock;
++
++import org.jni_zero.CalledByNative;
++import org.jni_zero.JNINamespace;
++import org.jni_zero.NativeMethods;
++
++import org.chromium.content_public.browser.BrowserContextHandle;
++
++@JNINamespace("adblock")
++public class ShellBrowserContext implements BrowserContextHandle {
++    /** Pointer to the Native-side ShellBrowserContext. */
++    private long mNativeShellBrowserContext;
++
++    public ShellBrowserContext(long nativeShellBrowserContext) {
++        mNativeShellBrowserContext = nativeShellBrowserContext;
++    }
++
++    private static ShellBrowserContext sInstance;
++
++    public static ShellBrowserContext getDefault() {
++        if (sInstance == null) {
++            sInstance = ShellBrowserContextJni.get().getDefaultJava();
++        }
++        return sInstance;
++    }
++
++    @Override
++    public long getNativeBrowserContextPointer() {
++        return mNativeShellBrowserContext;
++    }
++
++    @CalledByNative
++    public static ShellBrowserContext create(long nativeShellBrowserContext) {
++        return new ShellBrowserContext(nativeShellBrowserContext);
++    }
++
++    @NativeMethods
++    interface Natives {
++        ShellBrowserContext getDefaultJava();
++    }
++}
+diff --git a/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/AdblockControllerTest.java b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/AdblockControllerTest.java
+new file mode 100644
+index 0000000000000..2d226760c6902
+--- /dev/null
++++ b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/AdblockControllerTest.java
+@@ -0,0 +1,47 @@
++/*
++ * This file is part of eyeo Chromium SDK,
++ * Copyright (C) 2006-present eyeo GmbH
++ *
++ * eyeo Chromium SDK is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 3 as
++ * published by the Free Software Foundation.
++ *
++ * eyeo Chromium SDK is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++package org.chromium.content_shell_apk.adblock;
++
++import org.junit.Before;
++import org.junit.Rule;
++import org.junit.runner.RunWith;
++
++import org.chromium.base.ThreadUtils;
++import org.chromium.base.test.BaseJUnit4ClassRunner;
++import org.chromium.components.adblock.AdblockController;
++import org.chromium.components.adblock.AdblockControllerTestBase;
++import org.chromium.content_shell.adblock.ShellBrowserContext;
++import org.chromium.content_shell_apk.ContentShellActivity;
++import org.chromium.content_shell_apk.ContentShellActivityTestRule;
++
++@RunWith(BaseJUnit4ClassRunner.class)
++public class AdblockControllerTest extends AdblockControllerTestBase {
++    @Rule
++    public ContentShellActivityTestRule mActivityTestRule = new ContentShellActivityTestRule();
++
++    @Before
++    public void setUp() {
++        ContentShellActivity activity =
++                mActivityTestRule.launchContentShellWithUrlSync("about:blank");
++        ThreadUtils.runOnUiThreadBlocking(
++                () -> {
++                    mAdblockController =
++                            AdblockController.getInstance(ShellBrowserContext.getDefault());
++                });
++    }
++}
+diff --git a/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/DefaultSettingsTest.java b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/DefaultSettingsTest.java
+new file mode 100644
+index 0000000000000..fbbbd68c258cb
+--- /dev/null
++++ b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/DefaultSettingsTest.java
+@@ -0,0 +1,48 @@
++/*
++ * This file is part of eyeo Chromium SDK,
++ * Copyright (C) 2006-present eyeo GmbH
++ *
++ * eyeo Chromium SDK is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 3 as
++ * published by the Free Software Foundation.
++ *
++ * eyeo Chromium SDK is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++package org.chromium.content_shell_apk.adblock;
++
++import org.junit.Before;
++import org.junit.Rule;
++import org.junit.runner.RunWith;
++
++import org.chromium.base.ThreadUtils;
++import org.chromium.base.test.BaseJUnit4ClassRunner;
++import org.chromium.components.adblock.DefaultSettingsTestBase;
++import org.chromium.content_public.browser.BrowserContextHandle;
++import org.chromium.content_shell.adblock.ShellBrowserContext;
++import org.chromium.content_shell_apk.ContentShellActivityTestRule;
++
++@RunWith(BaseJUnit4ClassRunner.class)
++public class DefaultSettingsTest extends DefaultSettingsTestBase {
++    @Rule
++    public ContentShellActivityTestRule mActivityTestRule = new ContentShellActivityTestRule();
++
++    @Before
++    public void setUp() {
++        mActivityTestRule.launchContentShellWithUrlSync("about:blank");
++    }
++
++    @Override
++    protected BrowserContextHandle getBrowserContext() {
++        return ThreadUtils.runOnUiThreadBlocking(
++                () -> {
++                    return ShellBrowserContext.getDefault();
++                });
++    }
++}
+diff --git a/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesCircumventionTest.java b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesCircumventionTest.java
+new file mode 100644
+index 0000000000000..2f1a65eddbedf
+--- /dev/null
++++ b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesCircumventionTest.java
+@@ -0,0 +1,46 @@
++/*
++ * This file is part of eyeo Chromium SDK,
++ * Copyright (C) 2006-present eyeo GmbH
++ *
++ * eyeo Chromium SDK is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 3 as
++ * published by the Free Software Foundation.
++ *
++ * eyeo Chromium SDK is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++package org.chromium.content_shell_apk.adblock;
++
++import org.junit.After;
++import org.junit.Before;
++import org.junit.Rule;
++import org.junit.runner.RunWith;
++
++import org.chromium.base.test.BaseJUnit4ClassRunner;
++import org.chromium.components.adblock.TestPagesCircumventionTestBase;
++import org.chromium.content_shell_apk.ContentShellActivityTestRule;
++
++@RunWith(BaseJUnit4ClassRunner.class)
++public class TestPagesCircumventionTest extends TestPagesCircumventionTestBase {
++    @Rule
++    public ContentShellActivityTestRule mActivityTestRule = new ContentShellActivityTestRule();
++
++    private final TestPagesHelper mHelper = new TestPagesHelper();
++
++    @Before
++    public void setUp() {
++        mHelper.setUp(mActivityTestRule);
++        super.setUp(mHelper);
++    }
++
++    @After
++    public void tearDown() {
++        mHelper.tearDown();
++    }
++}
+diff --git a/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesCspTest.java b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesCspTest.java
+new file mode 100644
+index 0000000000000..eedb9ca3f6d96
+--- /dev/null
++++ b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesCspTest.java
+@@ -0,0 +1,46 @@
++/*
++ * This file is part of eyeo Chromium SDK,
++ * Copyright (C) 2006-present eyeo GmbH
++ *
++ * eyeo Chromium SDK is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 3 as
++ * published by the Free Software Foundation.
++ *
++ * eyeo Chromium SDK is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++package org.chromium.content_shell_apk.adblock;
++
++import org.junit.After;
++import org.junit.Before;
++import org.junit.Rule;
++import org.junit.runner.RunWith;
++
++import org.chromium.base.test.BaseJUnit4ClassRunner;
++import org.chromium.components.adblock.TestPagesCspTestBase;
++import org.chromium.content_shell_apk.ContentShellActivityTestRule;
++
++@RunWith(BaseJUnit4ClassRunner.class)
++public class TestPagesCspTest extends TestPagesCspTestBase {
++    @Rule
++    public ContentShellActivityTestRule mActivityTestRule = new ContentShellActivityTestRule();
++
++    private final TestPagesHelper mHelper = new TestPagesHelper();
++
++    @Before
++    public void setUp() {
++        mHelper.setUp(mActivityTestRule);
++        super.setUp(mHelper);
++    }
++
++    @After
++    public void tearDown() {
++        mHelper.tearDown();
++    }
++}
+diff --git a/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesElemhideEmuInvTest.java b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesElemhideEmuInvTest.java
+new file mode 100644
+index 0000000000000..45507d7b70514
+--- /dev/null
++++ b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesElemhideEmuInvTest.java
+@@ -0,0 +1,46 @@
++/*
++ * This file is part of eyeo Chromium SDK,
++ * Copyright (C) 2006-present eyeo GmbH
++ *
++ * eyeo Chromium SDK is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 3 as
++ * published by the Free Software Foundation.
++ *
++ * eyeo Chromium SDK is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++package org.chromium.content_shell_apk.adblock;
++
++import org.junit.After;
++import org.junit.Before;
++import org.junit.Rule;
++import org.junit.runner.RunWith;
++
++import org.chromium.base.test.BaseJUnit4ClassRunner;
++import org.chromium.components.adblock.TestPagesElemhideEmuInvTestBase;
++import org.chromium.content_shell_apk.ContentShellActivityTestRule;
++
++@RunWith(BaseJUnit4ClassRunner.class)
++public class TestPagesElemhideEmuInvTest extends TestPagesElemhideEmuInvTestBase {
++    @Rule
++    public ContentShellActivityTestRule mActivityTestRule = new ContentShellActivityTestRule();
++
++    private final TestPagesHelper mHelper = new TestPagesHelper();
++
++    @Before
++    public void setUp() {
++        mHelper.setUp(mActivityTestRule);
++        super.setUp(mHelper);
++    }
++
++    @After
++    public void tearDown() {
++        mHelper.tearDown();
++    }
++}
+diff --git a/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesElemhideEmuTest.java b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesElemhideEmuTest.java
+new file mode 100644
+index 0000000000000..f05294785f9af
+--- /dev/null
++++ b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesElemhideEmuTest.java
+@@ -0,0 +1,46 @@
++/*
++ * This file is part of eyeo Chromium SDK,
++ * Copyright (C) 2006-present eyeo GmbH
++ *
++ * eyeo Chromium SDK is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 3 as
++ * published by the Free Software Foundation.
++ *
++ * eyeo Chromium SDK is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++package org.chromium.content_shell_apk.adblock;
++
++import org.junit.After;
++import org.junit.Before;
++import org.junit.Rule;
++import org.junit.runner.RunWith;
++
++import org.chromium.base.test.BaseJUnit4ClassRunner;
++import org.chromium.components.adblock.TestPagesElemhideEmuTestBase;
++import org.chromium.content_shell_apk.ContentShellActivityTestRule;
++
++@RunWith(BaseJUnit4ClassRunner.class)
++public class TestPagesElemhideEmuTest extends TestPagesElemhideEmuTestBase {
++    @Rule
++    public ContentShellActivityTestRule mActivityTestRule = new ContentShellActivityTestRule();
++
++    private final TestPagesHelper mHelper = new TestPagesHelper();
++
++    @Before
++    public void setUp() {
++        mHelper.setUp(mActivityTestRule);
++        super.setUp(mHelper);
++    }
++
++    @After
++    public void tearDown() {
++        mHelper.tearDown();
++    }
++}
+diff --git a/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesElemhideTest.java b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesElemhideTest.java
+new file mode 100644
+index 0000000000000..16d4b5154369c
+--- /dev/null
++++ b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesElemhideTest.java
+@@ -0,0 +1,46 @@
++/*
++ * This file is part of eyeo Chromium SDK,
++ * Copyright (C) 2006-present eyeo GmbH
++ *
++ * eyeo Chromium SDK is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 3 as
++ * published by the Free Software Foundation.
++ *
++ * eyeo Chromium SDK is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++package org.chromium.content_shell_apk.adblock;
++
++import org.junit.After;
++import org.junit.Before;
++import org.junit.Rule;
++import org.junit.runner.RunWith;
++
++import org.chromium.base.test.BaseJUnit4ClassRunner;
++import org.chromium.components.adblock.TestPagesElemhideTestBase;
++import org.chromium.content_shell_apk.ContentShellActivityTestRule;
++
++@RunWith(BaseJUnit4ClassRunner.class)
++public class TestPagesElemhideTest extends TestPagesElemhideTestBase {
++    @Rule
++    public ContentShellActivityTestRule mActivityTestRule = new ContentShellActivityTestRule();
++
++    private final TestPagesHelper mHelper = new TestPagesHelper();
++
++    @Before
++    public void setUp() {
++        mHelper.setUp(mActivityTestRule);
++        super.setUp(mHelper);
++    }
++
++    @After
++    public void tearDown() {
++        mHelper.tearDown();
++    }
++}
+diff --git a/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesExceptionTest.java b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesExceptionTest.java
+new file mode 100644
+index 0000000000000..77431bc623871
+--- /dev/null
++++ b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesExceptionTest.java
+@@ -0,0 +1,46 @@
++/*
++ * This file is part of eyeo Chromium SDK,
++ * Copyright (C) 2006-present eyeo GmbH
++ *
++ * eyeo Chromium SDK is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 3 as
++ * published by the Free Software Foundation.
++ *
++ * eyeo Chromium SDK is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++package org.chromium.content_shell_apk.adblock;
++
++import org.junit.After;
++import org.junit.Before;
++import org.junit.Rule;
++import org.junit.runner.RunWith;
++
++import org.chromium.base.test.BaseJUnit4ClassRunner;
++import org.chromium.components.adblock.TestPagesExceptionTestBase;
++import org.chromium.content_shell_apk.ContentShellActivityTestRule;
++
++@RunWith(BaseJUnit4ClassRunner.class)
++public class TestPagesExceptionTest extends TestPagesExceptionTestBase {
++    @Rule
++    public ContentShellActivityTestRule mActivityTestRule = new ContentShellActivityTestRule();
++
++    private final TestPagesHelper mHelper = new TestPagesHelper();
++
++    @Before
++    public void setUp() {
++        mHelper.setUp(mActivityTestRule);
++        super.setUp(mHelper);
++    }
++
++    @After
++    public void tearDown() {
++        mHelper.tearDown();
++    }
++}
+diff --git a/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesFilterTest.java b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesFilterTest.java
+new file mode 100644
+index 0000000000000..f40a8b63fbd09
+--- /dev/null
++++ b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesFilterTest.java
+@@ -0,0 +1,46 @@
++/*
++ * This file is part of eyeo Chromium SDK,
++ * Copyright (C) 2006-present eyeo GmbH
++ *
++ * eyeo Chromium SDK is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 3 as
++ * published by the Free Software Foundation.
++ *
++ * eyeo Chromium SDK is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++package org.chromium.content_shell_apk.adblock;
++
++import org.junit.After;
++import org.junit.Before;
++import org.junit.Rule;
++import org.junit.runner.RunWith;
++
++import org.chromium.base.test.BaseJUnit4ClassRunner;
++import org.chromium.components.adblock.TestPagesFilterTestBase;
++import org.chromium.content_shell_apk.ContentShellActivityTestRule;
++
++@RunWith(BaseJUnit4ClassRunner.class)
++public class TestPagesFilterTest extends TestPagesFilterTestBase {
++    @Rule
++    public ContentShellActivityTestRule mActivityTestRule = new ContentShellActivityTestRule();
++
++    private final TestPagesHelper mHelper = new TestPagesHelper();
++
++    @Before
++    public void setUp() {
++        mHelper.setUp(mActivityTestRule);
++        super.setUp(mHelper);
++    }
++
++    @After
++    public void tearDown() {
++        mHelper.tearDown();
++    }
++}
+diff --git a/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesHeaderFilterTest.java b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesHeaderFilterTest.java
+new file mode 100644
+index 0000000000000..bfc02244b4c6b
+--- /dev/null
++++ b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesHeaderFilterTest.java
+@@ -0,0 +1,46 @@
++/*
++ * This file is part of eyeo Chromium SDK,
++ * Copyright (C) 2006-present eyeo GmbH
++ *
++ * eyeo Chromium SDK is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 3 as
++ * published by the Free Software Foundation.
++ *
++ * eyeo Chromium SDK is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++package org.chromium.content_shell_apk.adblock;
++
++import org.junit.After;
++import org.junit.Before;
++import org.junit.Rule;
++import org.junit.runner.RunWith;
++
++import org.chromium.base.test.BaseJUnit4ClassRunner;
++import org.chromium.components.adblock.TestPagesHeaderFilterTestBase;
++import org.chromium.content_shell_apk.ContentShellActivityTestRule;
++
++@RunWith(BaseJUnit4ClassRunner.class)
++public class TestPagesHeaderFilterTest extends TestPagesHeaderFilterTestBase {
++    @Rule
++    public ContentShellActivityTestRule mActivityTestRule = new ContentShellActivityTestRule();
++
++    private final TestPagesHelper mHelper = new TestPagesHelper();
++
++    @Before
++    public void setUp() {
++        mHelper.setUp(mActivityTestRule);
++        super.setUp(mHelper);
++    }
++
++    @After
++    public void tearDown() {
++        mHelper.tearDown();
++    }
++}
+diff --git a/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesHelper.java b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesHelper.java
+new file mode 100644
+index 0000000000000..9adc59fd1ae64
+--- /dev/null
++++ b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesHelper.java
+@@ -0,0 +1,67 @@
++/*
++ * This file is part of eyeo Chromium SDK,
++ * Copyright (C) 2006-present eyeo GmbH
++ *
++ * eyeo Chromium SDK is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 3 as
++ * published by the Free Software Foundation.
++ *
++ * eyeo Chromium SDK is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++package org.chromium.content_shell_apk.adblock;
++
++import android.annotation.SuppressLint;
++
++import org.chromium.base.ThreadUtils;
++import org.chromium.components.adblock.TestPagesHelperBase;
++import org.chromium.content_public.browser.BrowserContextHandle;
++import org.chromium.content_public.browser.LoadUrlParams;
++import org.chromium.content_public.browser.WebContents;
++import org.chromium.content_public.browser.test.util.TestCallbackHelperContainer;
++import org.chromium.content_shell.Shell;
++import org.chromium.content_shell.adblock.ShellBrowserContext;
++import org.chromium.content_shell_apk.ContentShellActivity;
++import org.chromium.content_shell_apk.ContentShellActivityTestRule;
++
++public class TestPagesHelper extends TestPagesHelperBase {
++    private ContentShellActivityTestRule mActivityTestRule;
++    private ContentShellActivity mActivity;
++
++    public void setUp(final ContentShellActivityTestRule activityRule) {
++        mActivityTestRule = activityRule;
++        mActivity = mActivityTestRule.launchContentShellWithUrlSync("about:blank");
++        super.setUp();
++    }
++
++    @SuppressLint("VisibleForTests")
++    @Override
++    public WebContents getWebContents() {
++        return mActivity.getActiveWebContents();
++    }
++
++    @Override
++    public BrowserContextHandle getBrowserContext() {
++        return ThreadUtils.runOnUiThreadBlocking(
++                () -> {
++                    return ShellBrowserContext.getDefault();
++                });
++    }
++
++    @Override
++    public void loadUrl(final String url) throws Exception {
++        try {
++            mActivityTestRule.loadUrl(
++                    getWebContents().getNavigationController(),
++                    new TestCallbackHelperContainer(getWebContents()),
++                    new LoadUrlParams(Shell.sanitizeUrl(url)));
++        } catch (Throwable t) {
++        }
++    }
++}
+diff --git a/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesInlineCssTest.java b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesInlineCssTest.java
+new file mode 100644
+index 0000000000000..0ebd05039bb1a
+--- /dev/null
++++ b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesInlineCssTest.java
+@@ -0,0 +1,46 @@
++/*
++ * This file is part of eyeo Chromium SDK,
++ * Copyright (C) 2006-present eyeo GmbH
++ *
++ * eyeo Chromium SDK is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 3 as
++ * published by the Free Software Foundation.
++ *
++ * eyeo Chromium SDK is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++package org.chromium.content_shell_apk.adblock;
++
++import org.junit.After;
++import org.junit.Before;
++import org.junit.Rule;
++import org.junit.runner.RunWith;
++
++import org.chromium.base.test.BaseJUnit4ClassRunner;
++import org.chromium.components.adblock.TestPagesInlineCssTestBase;
++import org.chromium.content_shell_apk.ContentShellActivityTestRule;
++
++@RunWith(BaseJUnit4ClassRunner.class)
++public class TestPagesInlineCssTest extends TestPagesInlineCssTestBase {
++    @Rule
++    public ContentShellActivityTestRule mActivityTestRule = new ContentShellActivityTestRule();
++
++    private final TestPagesHelper mHelper = new TestPagesHelper();
++
++    @Before
++    public void setUp() {
++        mHelper.setUp(mActivityTestRule);
++        super.setUp(mHelper);
++    }
++
++    @After
++    public void tearDown() {
++        mHelper.tearDown();
++    }
++}
+diff --git a/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesRemoveTest.java b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesRemoveTest.java
+new file mode 100644
+index 0000000000000..3ad5f8b0faf7f
+--- /dev/null
++++ b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesRemoveTest.java
+@@ -0,0 +1,46 @@
++/*
++ * This file is part of eyeo Chromium SDK,
++ * Copyright (C) 2006-present eyeo GmbH
++ *
++ * eyeo Chromium SDK is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 3 as
++ * published by the Free Software Foundation.
++ *
++ * eyeo Chromium SDK is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++package org.chromium.content_shell_apk.adblock;
++
++import org.junit.After;
++import org.junit.Before;
++import org.junit.Rule;
++import org.junit.runner.RunWith;
++
++import org.chromium.base.test.BaseJUnit4ClassRunner;
++import org.chromium.components.adblock.TestPagesRemoveTestBase;
++import org.chromium.content_shell_apk.ContentShellActivityTestRule;
++
++@RunWith(BaseJUnit4ClassRunner.class)
++public class TestPagesRemoveTest extends TestPagesRemoveTestBase {
++    @Rule
++    public ContentShellActivityTestRule mActivityTestRule = new ContentShellActivityTestRule();
++
++    private final TestPagesHelper mHelper = new TestPagesHelper();
++
++    @Before
++    public void setUp() {
++        mHelper.setUp(mActivityTestRule);
++        super.setUp(mHelper);
++    }
++
++    @After
++    public void tearDown() {
++        mHelper.tearDown();
++    }
++}
+diff --git a/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesRewriteTest.java b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesRewriteTest.java
+new file mode 100644
+index 0000000000000..d522812736b28
+--- /dev/null
++++ b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesRewriteTest.java
+@@ -0,0 +1,46 @@
++/*
++ * This file is part of eyeo Chromium SDK,
++ * Copyright (C) 2006-present eyeo GmbH
++ *
++ * eyeo Chromium SDK is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 3 as
++ * published by the Free Software Foundation.
++ *
++ * eyeo Chromium SDK is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++package org.chromium.content_shell_apk.adblock;
++
++import org.junit.After;
++import org.junit.Before;
++import org.junit.Rule;
++import org.junit.runner.RunWith;
++
++import org.chromium.base.test.BaseJUnit4ClassRunner;
++import org.chromium.components.adblock.TestPagesRewriteTestBase;
++import org.chromium.content_shell_apk.ContentShellActivityTestRule;
++
++@RunWith(BaseJUnit4ClassRunner.class)
++public class TestPagesRewriteTest extends TestPagesRewriteTestBase {
++    @Rule
++    public ContentShellActivityTestRule mActivityTestRule = new ContentShellActivityTestRule();
++
++    private final TestPagesHelper mHelper = new TestPagesHelper();
++
++    @Before
++    public void setUp() {
++        mHelper.setUp(mActivityTestRule);
++        super.setUp(mHelper);
++    }
++
++    @After
++    public void tearDown() {
++        mHelper.tearDown();
++    }
++}
+diff --git a/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesSiteKeyTest.java b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesSiteKeyTest.java
+new file mode 100644
+index 0000000000000..c7cb517c0bc3f
+--- /dev/null
++++ b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesSiteKeyTest.java
+@@ -0,0 +1,46 @@
++/*
++ * This file is part of eyeo Chromium SDK,
++ * Copyright (C) 2006-present eyeo GmbH
++ *
++ * eyeo Chromium SDK is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 3 as
++ * published by the Free Software Foundation.
++ *
++ * eyeo Chromium SDK is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++package org.chromium.content_shell_apk.adblock;
++
++import org.junit.After;
++import org.junit.Before;
++import org.junit.Rule;
++import org.junit.runner.RunWith;
++
++import org.chromium.base.test.BaseJUnit4ClassRunner;
++import org.chromium.components.adblock.TestPagesSiteKeyTestBase;
++import org.chromium.content_shell_apk.ContentShellActivityTestRule;
++
++@RunWith(BaseJUnit4ClassRunner.class)
++public class TestPagesSiteKeyTest extends TestPagesSiteKeyTestBase {
++    @Rule
++    public ContentShellActivityTestRule mActivityTestRule = new ContentShellActivityTestRule();
++
++    private final TestPagesHelper mHelper = new TestPagesHelper();
++
++    @Before
++    public void setUp() {
++        mHelper.setUp(mActivityTestRule);
++        super.setUp(mHelper);
++    }
++
++    @After
++    public void tearDown() {
++        mHelper.tearDown();
++    }
++}
+diff --git a/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesSnippetsTest.java b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesSnippetsTest.java
+new file mode 100644
+index 0000000000000..2b616d308ec2a
+--- /dev/null
++++ b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesSnippetsTest.java
+@@ -0,0 +1,46 @@
++/*
++ * This file is part of eyeo Chromium SDK,
++ * Copyright (C) 2006-present eyeo GmbH
++ *
++ * eyeo Chromium SDK is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 3 as
++ * published by the Free Software Foundation.
++ *
++ * eyeo Chromium SDK is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++package org.chromium.content_shell_apk.adblock;
++
++import org.junit.After;
++import org.junit.Before;
++import org.junit.Rule;
++import org.junit.runner.RunWith;
++
++import org.chromium.base.test.BaseJUnit4ClassRunner;
++import org.chromium.components.adblock.TestPagesSnippetsTestBase;
++import org.chromium.content_shell_apk.ContentShellActivityTestRule;
++
++@RunWith(BaseJUnit4ClassRunner.class)
++public class TestPagesSnippetsTest extends TestPagesSnippetsTestBase {
++    @Rule
++    public ContentShellActivityTestRule mActivityTestRule = new ContentShellActivityTestRule();
++
++    private final TestPagesHelper mHelper = new TestPagesHelper();
++
++    @Before
++    public void setUp() {
++        mHelper.setUp(mActivityTestRule);
++        super.setUp(mHelper);
++    }
++
++    @After
++    public void tearDown() {
++        mHelper.tearDown();
++    }
++}
+diff --git a/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesWebsocketTest.java b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesWebsocketTest.java
+new file mode 100644
+index 0000000000000..0031da5fc5653
+--- /dev/null
++++ b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesWebsocketTest.java
+@@ -0,0 +1,46 @@
++/*
++ * This file is part of eyeo Chromium SDK,
++ * Copyright (C) 2006-present eyeo GmbH
++ *
++ * eyeo Chromium SDK is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 3 as
++ * published by the Free Software Foundation.
++ *
++ * eyeo Chromium SDK is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++package org.chromium.content_shell_apk.adblock;
++
++import org.junit.After;
++import org.junit.Before;
++import org.junit.Rule;
++import org.junit.runner.RunWith;
++
++import org.chromium.base.test.BaseJUnit4ClassRunner;
++import org.chromium.components.adblock.TestPagesWebsocketTestBase;
++import org.chromium.content_shell_apk.ContentShellActivityTestRule;
++
++@RunWith(BaseJUnit4ClassRunner.class)
++public class TestPagesWebsocketTest extends TestPagesWebsocketTestBase {
++    @Rule
++    public ContentShellActivityTestRule mActivityTestRule = new ContentShellActivityTestRule();
++
++    private final TestPagesHelper mHelper = new TestPagesHelper();
++
++    @Before
++    public void setUp() {
++        mHelper.setUp(mActivityTestRule);
++        super.setUp(mHelper);
++    }
++
++    @After
++    public void tearDown() {
++        mHelper.tearDown();
++    }
++}
+diff --git a/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesWildcardDomainTest.java b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesWildcardDomainTest.java
+new file mode 100644
+index 0000000000000..7098eb18d4f1f
+--- /dev/null
++++ b/content/shell/android/javatests/src/org/chromium/content_shell_apk/adblock/TestPagesWildcardDomainTest.java
+@@ -0,0 +1,46 @@
++/*
++ * This file is part of eyeo Chromium SDK,
++ * Copyright (C) 2006-present eyeo GmbH
++ *
++ * eyeo Chromium SDK is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 3 as
++ * published by the Free Software Foundation.
++ *
++ * eyeo Chromium SDK is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++package org.chromium.content_shell_apk.adblock;
++
++import org.junit.After;
++import org.junit.Before;
++import org.junit.Rule;
++import org.junit.runner.RunWith;
++
++import org.chromium.base.test.BaseJUnit4ClassRunner;
++import org.chromium.components.adblock.TestPagesWildcardDomainTestBase;
++import org.chromium.content_shell_apk.ContentShellActivityTestRule;
++
++@RunWith(BaseJUnit4ClassRunner.class)
++public class TestPagesWildcardDomainTest extends TestPagesWildcardDomainTestBase {
++    @Rule
++    public ContentShellActivityTestRule mActivityTestRule = new ContentShellActivityTestRule();
++
++    private final TestPagesHelper mHelper = new TestPagesHelper();
++
++    @Before
++    public void setUp() {
++        mHelper.setUp(mActivityTestRule);
++        super.setUp(mHelper);
++    }
++
++    @After
++    public void tearDown() {
++        mHelper.tearDown();
++    }
++}
+diff --git a/content/shell/app/shell_main_delegate.cc b/content/shell/app/shell_main_delegate.cc
+index c214d289c01b1..2cf1f1381871f 100644
+--- a/content/shell/app/shell_main_delegate.cc
++++ b/content/shell/app/shell_main_delegate.cc
+@@ -22,6 +22,7 @@
+ #include "base/strings/string_number_conversions.h"
+ #include "base/trace_event/trace_log.h"
+ #include "build/build_config.h"
++#include "components/adblock/content/renderer/adblock_content_renderer_client.h"
+ #include "components/crash/core/common/crash_key.h"
+ #include "components/memory_system/initializer.h"
+ #include "components/memory_system/parameters.h"
+@@ -32,7 +33,7 @@
+ #include "content/public/common/main_function_params.h"
+ #include "content/public/common/url_constants.h"
+ #include "content/shell/app/shell_crash_reporter_client.h"
+-#include "content/shell/browser/shell_content_browser_client.h"
++#include "content/shell/browser/adblock/adblock_shell_content_browser_client.h"
+ #include "content/shell/common/shell_content_client.h"
+ #include "content/shell/common/shell_paths.h"
+ #include "content/shell/common/shell_switches.h"
+@@ -447,7 +448,7 @@ ContentBrowserClient* ShellMainDelegate::CreateContentBrowserClient() {
+     return browser_client_.get();
+   }
+ #endif
+-  browser_client_ = std::make_unique<ShellContentBrowserClient>();
++  browser_client_ = std::make_unique<AdblockShellContentBrowserClient>();
+   return browser_client_.get();
+ }
+ 
+@@ -463,7 +464,8 @@ ContentRendererClient* ShellMainDelegate::CreateContentRendererClient() {
+     return renderer_client_.get();
+   }
+ #endif
+-  renderer_client_ = std::make_unique<ShellContentRendererClient>();
++  renderer_client_ = std::make_unique<
++      adblock::AdblockContentRendererClient<ShellContentRendererClient>>();
+   return renderer_client_.get();
+ }
+ 
+diff --git a/content/shell/browser/adblock/adblock_shell_browser_context.cc b/content/shell/browser/adblock/adblock_shell_browser_context.cc
+new file mode 100644
+index 0000000000000..ccad4dc4c5754
+--- /dev/null
++++ b/content/shell/browser/adblock/adblock_shell_browser_context.cc
+@@ -0,0 +1,69 @@
++/*
++ * This file is part of eyeo Chromium SDK,
++ * Copyright (C) 2006-present eyeo GmbH
++ *
++ * eyeo Chromium SDK is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 3 as
++ * published by the Free Software Foundation.
++ *
++ * eyeo Chromium SDK is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#include "content/shell/browser/adblock/adblock_shell_browser_context.h"
++
++#include "components/adblock/core/common/adblock_prefs.h"
++#include "components/pref_registry/pref_registry_syncable.h"
++#include "components/prefs/in_memory_pref_store.h"
++#include "components/prefs/json_pref_store.h"
++#include "components/prefs/pref_name_set.h"
++#include "components/prefs/pref_registry_simple.h"
++#include "components/prefs/pref_service_factory.h"
++#include "components/prefs/segregated_pref_store.h"
++#include "components/user_prefs/user_prefs.h"
++
++namespace content {
++
++AdblockShellBrowserContext::AdblockShellBrowserContext()
++    : ShellBrowserContext(false) {
++  CreateUserPrefService();
++}
++
++AdblockShellBrowserContext::~AdblockShellBrowserContext() {}
++
++bool AdblockShellBrowserContext::IsOffTheRecord() {
++  // Adblock services should not be created for off-the-record contexts
++  return false;
++}
++
++void AdblockShellBrowserContext::CreateUserPrefService() {
++  auto pref_registry = base::MakeRefCounted<user_prefs::PrefRegistrySyncable>();
++
++  adblock::common::prefs::RegisterProfilePrefs(pref_registry.get());
++
++  PrefServiceFactory pref_service_factory;
++
++  PrefNameSet persistent_prefs;
++
++  // These prefs go in the JsonPrefStore, and will persist across runs.
++  for (auto& pref_name : adblock::common::prefs::GetPrefs()) {
++    persistent_prefs.insert(pref_name.data());
++  }
++
++  pref_service_factory.set_user_prefs(base::MakeRefCounted<SegregatedPrefStore>(
++      base::MakeRefCounted<InMemoryPrefStore>(),
++      base::MakeRefCounted<JsonPrefStore>(
++          GetPath().Append(FILE_PATH_LITERAL("Preferences"))),
++      std::move(persistent_prefs)));
++
++  user_pref_service_ = pref_service_factory.Create(pref_registry);
++
++  user_prefs::UserPrefs::Set(this, user_pref_service_.get());
++}
++
++}  // namespace content
+diff --git a/content/shell/browser/adblock/adblock_shell_browser_context.h b/content/shell/browser/adblock/adblock_shell_browser_context.h
+new file mode 100644
+index 0000000000000..b335c51a22aa8
+--- /dev/null
++++ b/content/shell/browser/adblock/adblock_shell_browser_context.h
+@@ -0,0 +1,38 @@
++/*
++ * This file is part of eyeo Chromium SDK,
++ * Copyright (C) 2006-present eyeo GmbH
++ *
++ * eyeo Chromium SDK is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 3 as
++ * published by the Free Software Foundation.
++ *
++ * eyeo Chromium SDK is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#ifndef CONTENT_SHELL_BROWSER_ADBLOCK_ADBLOCK_SHELL_BROWSER_CONTEXT_H_
++#define CONTENT_SHELL_BROWSER_ADBLOCK_ADBLOCK_SHELL_BROWSER_CONTEXT_H_
++
++#include "content/shell/browser/shell_browser_context.h"
++
++namespace content {
++
++class AdblockShellBrowserContext : public ShellBrowserContext {
++ public:
++  AdblockShellBrowserContext();
++  ~AdblockShellBrowserContext() override;
++
++  bool IsOffTheRecord() override;
++
++ private:
++  void CreateUserPrefService();
++};
++
++}  // namespace content
++
++#endif  // CONTENT_SHELL_BROWSER_ADBLOCK_ADBLOCK_SHELL_BROWSER_CONTEXT_H_
+diff --git a/content/shell/browser/adblock/adblock_shell_content_browser_client.cc b/content/shell/browser/adblock/adblock_shell_content_browser_client.cc
+new file mode 100644
+index 0000000000000..b86536a728acf
+--- /dev/null
++++ b/content/shell/browser/adblock/adblock_shell_content_browser_client.cc
+@@ -0,0 +1,30 @@
++/*
++ * This file is part of eyeo Chromium SDK,
++ * Copyright (C) 2006-present eyeo GmbH
++ *
++ * eyeo Chromium SDK is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 3 as
++ * published by the Free Software Foundation.
++ *
++ * eyeo Chromium SDK is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#include "content/shell/browser/adblock/adblock_shell_content_browser_client.h"
++
++#include "content/shell/browser/shell_browser_context.h"
++
++namespace content {
++
++content::BrowserContext*
++AdblockShellContentBrowserClient::GetBrowserContextForEyeoFactories(
++    content::BrowserContext* /*current_browser_context*/) {
++  return browser_context();
++}
++
++}  // namespace content
+diff --git a/content/shell/browser/adblock/adblock_shell_content_browser_client.h b/content/shell/browser/adblock/adblock_shell_content_browser_client.h
+new file mode 100644
+index 0000000000000..c7383bfcf6af9
+--- /dev/null
++++ b/content/shell/browser/adblock/adblock_shell_content_browser_client.h
+@@ -0,0 +1,35 @@
++/*
++ * This file is part of eyeo Chromium SDK,
++ * Copyright (C) 2006-present eyeo GmbH
++ *
++ * eyeo Chromium SDK is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 3 as
++ * published by the Free Software Foundation.
++ *
++ * eyeo Chromium SDK is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#ifndef CONTENT_SHELL_BROWSER_ADBLOCK_ADBLOCK_SHELL_CONTENT_BROWSER_CLIENT_H_
++#define CONTENT_SHELL_BROWSER_ADBLOCK_ADBLOCK_SHELL_CONTENT_BROWSER_CLIENT_H_
++
++#include "components/adblock/content/browser/adblock_content_browser_client.h"
++#include "content/shell/browser/shell_content_browser_client.h"
++
++namespace content {
++
++class AdblockShellContentBrowserClient
++    : public adblock::AdblockContentBrowserClient<ShellContentBrowserClient> {
++ private:
++  content::BrowserContext* GetBrowserContextForEyeoFactories(
++      content::BrowserContext* current_browser_context) override;
++};
++
++}  // namespace content
++
++#endif  // CONTENT_SHELL_BROWSER_ADBLOCK_ADBLOCK_SHELL_CONTENT_BROWSER_CLIENT_H_
+diff --git a/content/shell/browser/shell.cc b/content/shell/browser/shell.cc
+index b114fbb4bed44..d6f6b7e92970e 100644
+--- a/content/shell/browser/shell.cc
++++ b/content/shell/browser/shell.cc
+@@ -1,6 +1,10 @@
+ // Copyright 2013 The Chromium Authors
+ // Use of this source code is governed by a BSD-style license that can be
+ // found in the LICENSE file.
++//
++// This source code is a part of eyeo Chromium SDK.
++// Use of this source code is governed by the GPLv3 that can be found in the
++// components/adblock/LICENSE file.
+ 
+ #ifdef UNSAFE_BUFFERS_BUILD
+ // TODO(crbug.com/390223051): Remove C-library calls to fix the errors.
+@@ -25,6 +29,8 @@
+ #include "base/strings/string_util.h"
+ #include "base/strings/utf_string_conversions.h"
+ #include "build/build_config.h"
++#include "components/adblock/content/browser/adblock_webcontents_observer.h"
++#include "components/adblock/content/browser/factories/embedding_utils.h"
+ #include "components/custom_handlers/protocol_handler.h"
+ #include "components/custom_handlers/protocol_handler_registry.h"
+ #include "components/custom_handlers/simple_protocol_handler_registry_factory.h"
+@@ -44,6 +50,7 @@
+ #include "content/public/browser/web_contents.h"
+ #include "content/public/common/content_switches.h"
+ #include "content/shell/app/resource.h"
++#include "content/shell/browser/shell_browser_context.h"
+ #include "content/shell/browser/shell_content_browser_client.h"
+ #include "content/shell/browser/shell_devtools_frontend.h"
+ #include "content/shell/browser/shell_javascript_dialog_manager.h"
+@@ -89,6 +96,12 @@ Shell::Shell(std::unique_ptr<WebContents> web_contents,
+ 
+   windows_.push_back(this);
+ 
++  content::BrowserContext* browser_context =
++      ShellContentBrowserClient::Get()->browser_context();
++  adblock::EnsureBackgroundServicesStarted(browser_context);
++  adblock::RegisterAdblockWebContentObserver<
++      adblock::AdblockWebContentObserver>(web_contents_.get(), browser_context);
++
+   if (shell_created_callback_)
+     std::move(shell_created_callback_).Run(this);
+ }
+diff --git a/content/shell/browser/shell_browser_context.h b/content/shell/browser/shell_browser_context.h
+index 4443306678c70..3c1d8a1371a93 100644
+--- a/content/shell/browser/shell_browser_context.h
++++ b/content/shell/browser/shell_browser_context.h
+@@ -1,6 +1,10 @@
+ // Copyright 2013 The Chromium Authors
+ // Use of this source code is governed by a BSD-style license that can be
+ // found in the LICENSE file.
++//
++// This source code is a part of eyeo Chromium SDK.
++// Use of this source code is governed by the GPLv3 that can be found in the
++// components/adblock/LICENSE file.
+ 
+ #ifndef CONTENT_SHELL_BROWSER_SHELL_BROWSER_CONTEXT_H_
+ #define CONTENT_SHELL_BROWSER_SHELL_BROWSER_CONTEXT_H_
+@@ -9,6 +13,7 @@
+ 
+ #include "base/files/file_path.h"
+ #include "base/memory/raw_ptr.h"
++#include "components/prefs/pref_service.h"
+ #include "content/public/browser/browser_context.h"
+ 
+ class SimpleFactoryKey;
+@@ -76,6 +81,8 @@ class ShellBrowserContext : public BrowserContext {
+   std::unique_ptr<OriginTrialsControllerDelegate>
+       origin_trials_controller_delegate_;
+ 
++  std::unique_ptr<PrefService> user_pref_service_;
++
+  private:
+   // Performs initialization of the ShellBrowserContext while IO is still
+   // allowed on the current thread.
+diff --git a/content/shell/browser/shell_browser_main_parts.cc b/content/shell/browser/shell_browser_main_parts.cc
+index 76ba15e7f865d..60317bc1ffa09 100644
+--- a/content/shell/browser/shell_browser_main_parts.cc
++++ b/content/shell/browser/shell_browser_main_parts.cc
+@@ -1,6 +1,10 @@
+ // Copyright 2013 The Chromium Authors
+ // Use of this source code is governed by a BSD-style license that can be
+ // found in the LICENSE file.
++//
++// This source code is a part of eyeo Chromium SDK.
++// Use of this source code is governed by the GPLv3 that can be found in the
++// components/adblock/LICENSE file.
+ 
+ #include "content/shell/browser/shell_browser_main_parts.h"
+ 
+@@ -20,6 +24,7 @@
+ #include "base/threading/thread_restrictions.h"
+ #include "build/build_config.h"
+ #include "cc/base/switches.h"
++#include "components/adblock/content/browser/adblock_web_ui_controller_factory.h"
+ #include "components/performance_manager/embedder/graph_features.h"
+ #include "components/performance_manager/embedder/performance_manager_lifetime.h"
+ #include "content/public/browser/browser_thread.h"
+@@ -30,6 +35,7 @@
+ #include "content/public/common/result_codes.h"
+ #include "content/public/common/url_constants.h"
+ #include "content/shell/android/shell_descriptors.h"
++#include "content/shell/browser/adblock/adblock_shell_browser_context.h"
+ #include "content/shell/browser/shell.h"
+ #include "content/shell/browser/shell_browser_context.h"
+ #include "content/shell/browser/shell_devtools_manager_delegate.h"
+@@ -138,7 +144,7 @@ int ShellBrowserMainParts::PreEarlyInitialization() {
+ }
+ 
+ void ShellBrowserMainParts::InitializeBrowserContexts() {
+-  set_browser_context(new ShellBrowserContext(false));
++  set_browser_context(new AdblockShellBrowserContext());
+   set_off_the_record_browser_context(new ShellBrowserContext(true));
+   // Persistent Origin Trials needs to be instantiated as soon as possible
+   // during browser startup, to ensure data is available prior to the first
+@@ -186,6 +192,8 @@ int ShellBrowserMainParts::PreMainMessageLoopRun() {
+ #endif
+ 
+   InitializeBrowserContexts();
++  content::WebUIControllerFactory::RegisterFactory(
++      adblock::AdblockWebUIControllerFactory::GetInstance());
+   Shell::Initialize(CreateShellPlatformDelegate());
+   net::NetModule::SetResourceProvider(PlatformResourceProvider);
+   ShellDevToolsManagerDelegate::StartHttpHandler(browser_context_.get());
+diff --git a/content/test/BUILD.gn b/content/test/BUILD.gn
+index d7cea6b7efd84..820ecb0aa23ff 100644
+--- a/content/test/BUILD.gn
++++ b/content/test/BUILD.gn
+@@ -1,6 +1,10 @@
+ # Copyright 2014 The Chromium Authors
+ # Use of this source code is governed by a BSD-style license that can be
+ # found in the LICENSE file.
++#
++# This source code is a part of eyeo Chromium SDK.
++# Use of this source code is governed by the GPLv3 that can be found in the
++# components/adblock/LICENSE file.
+ 
+ import("//build/config/cast.gni")
+ import("//build/config/chrome_build.gni")
+@@ -9,6 +13,7 @@ import("//build/config/compiler/compiler.gni")
+ import("//build/config/features.gni")
+ import("//build/config/ui.gni")
+ import("//build/nocompile.gni")
++import("//components/adblock/features.gni")
+ import("//components/viz/common/debugger/viz_debugger.gni")
+ import("//content/common/features.gni")
+ import("//content/public/common/features.gni")
+@@ -1778,6 +1783,11 @@ test("content_browsertests") {
+     "../test/url_loader_interceptor_browsertest.cc",
+   ]
+ 
++  if (is_android || eyeo_extend_chrome_devtools_protocol) {
++    sources +=
++        [ "../browser/devtools/protocol/devtools_eyeo_handler_browsertest.cc" ]
++  }
++
+   if (is_linux) {
+     sources += [ "../browser/network/address_map_linux_browsertest.cc" ]
+   }
+@@ -1831,6 +1841,9 @@ test("content_browsertests") {
+     "//build:chromecast_buildflags",
+     "//cc/slim",
+     "//components//unexportable_keys:unexportable_keys",
++    "//components/adblock/core/common:adblock_content_keys",
++    "//components/adblock/core/configuration",
++    "//components/adblock/core/subscription",
+     "//components/attribution_reporting:mojom",
+     "//components/cbor",
+     "//components/discardable_memory/client",
+@@ -1875,6 +1888,7 @@ test("content_browsertests") {
+     "//content/services/auction_worklet/public/cpp:test_support",
+     "//content/services/auction_worklet/public/mojom:for_content_tests",
+     "//content/shell:content_browsertests_mojom",
++    "//content/shell:content_shell_app",
+     "//content/shell:content_shell_lib",
+     "//content/shell:pak",
+     "//content/test:mojo_web_test_bindings",
+-- 
+2.43.0
+

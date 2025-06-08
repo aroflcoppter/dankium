@@ -1,0 +1,628 @@
+From cc3f4b863ea04c295707ae59989f671e8218aef3 Mon Sep 17 00:00:00 2001
+From: vanilla-chromium-builder <project_26591639_bot@noreply.gitlab.com>
+Date: Thu, 22 May 2025 15:50:31 +0000
+Subject: [PATCH] adblock third_party blink
+
+---
+ .../browser_protocol-1.3.json                 | 192 ++++++++++++++++++
+ .../devtools_protocol/browser_protocol.pdl    | 125 ++++++++++++
+ .../blink/public/mojom/frame/frame.mojom      |   8 +
+ third_party/blink/public/web/web_document.h   |  12 ++
+ .../renderer/core/dom/events/event_target.cc  |   9 +-
+ .../renderer/core/exported/web_document.cc    |  60 ++++++
+ .../core/frame/local_frame_mojo_handler.cc    |  12 ++
+ .../core/frame/local_frame_mojo_handler.h     |   5 +
+ .../blink/renderer/core/html/html_element.cc  |  12 +-
+ .../url_loader/mojo_url_loader_client.cc      |   6 +-
+ 10 files changed, 438 insertions(+), 3 deletions(-)
+
+diff --git a/third_party/blink/public/devtools_protocol/browser_protocol-1.3.json b/third_party/blink/public/devtools_protocol/browser_protocol-1.3.json
+index 764c46f5b1893..1b1a1a86f84bd 100644
+--- a/third_party/blink/public/devtools_protocol/browser_protocol-1.3.json
++++ b/third_party/blink/public/devtools_protocol/browser_protocol-1.3.json
+@@ -1241,6 +1241,198 @@
+             }
+         ]
+     },
++    {
++        "domain": "Eyeo",
++        "description": "Eyeo domain for ad blocking engine commands.",
++        "experimental": true,
++        "commands": [
++            {
++              "name": "GetDownloadStats",
++              "description": "Gets the download statistics for the configuration.",
++              "parameters": [
++                {
++                  "name": "configuration",
++                  "type": "string",
++                  "optional": true,
++                  "description": "The configuration name (defaults to 'adblock')."
++                }
++              ],
++              "returns": [
++                {
++                  "name": "download_stats",
++                  "type": "array",
++                  "items": {
++                    "type": "string"
++                  },
++                  "description": "The list of json style strings: { \"url\" : <url>, \"counters\" : { \"success\" : <successes>, \"error\": <errors> } }."
++                }
++              ]
++            },
++            {
++            "name": "getConfigurations",
++            "description": "Gets list of existing configurations.",
++            "returns": [
++              {
++                "name": "configurations",
++                "type": "array",
++                "items": {
++                    "type": "string"
++                },
++                "description": "The lists of configurations names and state."
++              }
++              ]
++            },
++            {
++              "name": "GetSessionStats",
++              "description": "Gets the session statistics for the configuration.",
++              "parameters": [
++                {
++                  "name": "configuration",
++                  "type": "string",
++                  "optional": true,
++                  "description": "The configuration name (defaults to 'adblock')."
++                }
++              ],
++              "returns": [
++                {
++                  "name": "session_stats",
++                  "type": "array",
++                  "items": {
++                    "type": "string"
++                  },
++                  "description": "The list of json style strings: { \"url\" : <url>, \"counters\" : { \"allowed\" : <allowed_count>, \"blocked\": <blocked_count> } }."
++                }
++              ]
++            },
++            {
++                "name": "getFilterLists",
++                "description": "Gets the filter lists urls for the configuration.",
++                "parameters": [ { "name": "configuration", "type": "string",  "optional": true, "description": "The configuration name (defaults to 'adblock')." } ],
++                "returns": [ { "name": "lists", "type": "array", "items": { "type": "string" }, "description": "The filters lists urls." } ]
++            },
++            {
++                "name": "addFilterList",
++                "description": "Adds the filter list url to the configuration.",
++                "parameters": [
++                    { "name": "configuration", "type": "string",  "optional": true, "description": "The configuration name (defaults to 'adblock')." },
++                    { "name": "url", "type": "string",  "description": "The filter list url." }
++                ]
++            },
++            {
++                "name": "removeFilterList",
++                "description": "Removes the filter list url from the configuration.",
++                "parameters": [
++                    { "name": "configuration", "type": "string",  "optional": true, "description": "The configuration name (defaults to 'adblock')." },
++                    { "name": "url", "type": "string",  "description": "The filter list url." }
++                ]
++            },
++            {
++              "name": "getCustomFilters",
++              "description": "Gets the custom filters for the configuration.",
++              "parameters": [
++                {
++                  "name": "configuration",
++                  "type": "string",
++                  "optional": true,
++                  "description": "The configuration name (defaults to 'adblock')."
++                }
++              ],
++              "returns": [
++                {
++                  "name": "lists",
++                  "type": "array",
++                  "items": {
++                    "type": "string"
++                  },
++                  "description": "The list of custom filters."
++                }
++              ]
++            },
++            {
++              "name": "addCustomFilter",
++              "description": "Adds the custom filter to the configuration.",
++              "parameters": [
++                {
++                  "name": "configuration",
++                  "type": "string",
++                  "optional": true,
++                  "description": "The configuration name (defaults to 'adblock')."
++                },
++                {
++                  "name": "filter",
++                  "type": "string",
++                  "description": "The custom filter."
++                }
++              ]
++            },
++            {
++              "name": "removeCustomFilter",
++              "description": "Removes the custom filter from the configuration.",
++              "parameters": [
++                {
++                  "name": "configuration",
++                  "type": "string",
++                  "optional": true,
++                  "description": "The configuration name (defaults to 'adblock')."
++                },
++                {
++                  "name": "filter",
++                  "type": "string",
++                  "description": "The custom filter."
++                }
++              ]
++          },
++          {
++            "name": "getAllowedDomains",
++            "description": "Gets the allowed domains for the configuration.",
++            "parameters": [
++              {
++                "name": "configuration",
++                "type": "string",
++                "optional": true,
++                "description": "The configuration name (defaults to 'adblock')."
++              }
++            ],
++            "returns": [
++              {
++                "name": "domains",
++                "type": "array",
++                "items": {
++                  "type": "string"
++                },
++                "description": "The list of allowed domains."
++              }
++            ]
++          },
++          {
++            "name": "addAllowedDomain",
++            "description": "Adds the allowed domain to the configuration.",
++            "parameters": [
++                { "name": "configuration", "type": "string",  "optional": true, "description": "The configuration name (defaults to 'adblock')." },
++                { "name": "domain", "type": "string",  "description": "The allowed domain." }
++            ]
++          },
++          {
++            "name": "removeAllowedDomain",
++            "description": "Removes the allowed domain from the configuration.",
++            "parameters": [
++                { "name": "configuration", "type": "string",  "optional": true, "description": "The configuration name (defaults to 'adblock')." },
++                { "name": "domain", "type": "string",  "description": "The allowed domain ." }
++            ]
++          },
++          {
++            "name": "getTelemetryDebugInfo",
++            "description": "Gets the current adblock telemetry ping data to be sent next interval",
++            "returns": [
++              {
++                "name": "telemetry_ping",
++                "type": "string",
++                "description": "Telemetry ping payload."
++              }
++            ]
++          }
++        ]
++    },
+     {
+         "domain": "Audits",
+         "description": "Audits domain allows investigation of page violations and possible improvements.",
+diff --git a/third_party/blink/public/devtools_protocol/browser_protocol.pdl b/third_party/blink/public/devtools_protocol/browser_protocol.pdl
+index f5bc1b958d2e3..0d255970961a7 100644
+--- a/third_party/blink/public/devtools_protocol/browser_protocol.pdl
++++ b/third_party/blink/public/devtools_protocol/browser_protocol.pdl
+@@ -483,6 +483,131 @@ experimental domain Animation
+       # Animation that was updated.
+       Animation animation
+ 
++experimental domain Eyeo
++
++  # Disables all backend events for the domain (default).
++  command disable
++
++  # Enables all backend events for the domain.
++  command enable
++
++  # Gets the download statistics for the configuration.
++  command getDownloadStats
++    parameters
++      optional string configuration
++    returns
++      array of string download_stats
++
++  # Gets existing configurations.
++  command getConfigurations
++    returns
++      array of string configurations
++
++  command getSessionStats
++    parameters
++      optional string configuration
++    returns
++      array of string session_stats
++
++  # Gets the filter lists urls for the configuration.
++  command getFilterLists
++    parameters
++      optional string configuration
++    returns
++      array of string urls
++
++  # Adds the filter list url to the configuration.
++  command addFilterList
++    parameters
++      optional string configuration
++      string url
++
++  # Removes the filter list url from the configuration.
++  command removeFilterList
++    parameters
++      optional string configuration
++      string url
++
++  # Gets custom filters for the configuration.
++  command getCustomFilters
++    parameters
++      optional string configuration
++    returns
++      array of string filters
++
++  # Adds the custom filter to the configuration.
++  command addCustomFilter
++    parameters
++      optional string configuration
++      string filter
++
++  # Removes the custom filter from the configuration.
++  command removeCustomFilter
++    parameters
++      optional string configuration
++      string filter
++
++  # Gets allowed domains for the configuration.
++  command getAllowedDomains
++    parameters
++      optional string configuration
++    returns
++      array of string domains
++
++  # Adds the allowed domain to the configuration.
++  command addAllowedDomain
++    parameters
++      optional string configuration
++      string domain
++
++  # Removes the allowed domain from the configuration.
++  command removeAllowedDomain
++    parameters
++      optional string configuration
++      string domain
++
++  # Returns current adblock telemetry ping data to be sent next interval
++  command getTelemetryDebugInfo
++    returns
++      string telemetry_ping
++
++  type ElementHideAction extends string
++    enum
++      Hide
++      Remove
++      InlineCss
++
++  event filterListsChanged
++    parameters
++      string configuration
++      array of string urls
++
++  event customFiltersChanged
++    parameters
++      string configuration
++      array of string filters
++
++  event pageAllowed
++    parameters
++      string subscription
++      string url
++
++  event pageElementMatched
++    parameters
++      string selector
++      ElementHideAction action
++      string frame_url
++
++  event requestAllowed
++    parameters
++      string subscription
++      string url
++
++  event requestBlocked
++    parameters
++      string subscription
++      string url
++
+ # Audits domain allows investigation of page violations and possible improvements.
+ experimental domain Audits
+   depends on Network
+diff --git a/third_party/blink/public/mojom/frame/frame.mojom b/third_party/blink/public/mojom/frame/frame.mojom
+index 7902310a1eceb..f09df718329f9 100644
+--- a/third_party/blink/public/mojom/frame/frame.mojom
++++ b/third_party/blink/public/mojom/frame/frame.mojom
+@@ -1,6 +1,10 @@
+ // Copyright 2019 The Chromium Authors
+ // Use of this source code is governed by a BSD-style license that can be
+ // found in the LICENSE file.
++//
++// This source code is a part of eyeo Chromium SDK.
++// Use of this source code is governed by the GPLv3 that can be found in the components/adblock/LICENSE file.
++
+ 
+ module blink.mojom;
+ 
+@@ -979,6 +983,10 @@ interface LocalFrame {
+   // the given point in the view coordinate space.
+   PluginActionAt(gfx.mojom.Point location, blink.mojom.PluginActionType action);
+ 
++  // https://gitlab.com/eyeo/adblockplus/chromium/issues/35
++  // Request for the renderer to insert user stylesheet.
++  InsertAbpElemhideStylesheet(string stylesheet);
++
+   // Request to continue running the sequential focus navigation algorithm in
+   // this frame. |source_frame_token| identifies the frame that issued this
+   // request. This message is sent when finding the next focusable element would
+diff --git a/third_party/blink/public/web/web_document.h b/third_party/blink/public/web/web_document.h
+index 2fabec93cd4d7..a6fe259efee9d 100644
+--- a/third_party/blink/public/web/web_document.h
++++ b/third_party/blink/public/web/web_document.h
+@@ -28,6 +28,10 @@
+  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  */
+ 
++// This source code is a part of eyeo Chromium SDK.
++// Use of this source code is governed by the GPLv3 that can be found in the
++// components/adblock/LICENSE file.
++
+ #ifndef THIRD_PARTY_BLINK_PUBLIC_WEB_WEB_DOCUMENT_H_
+ #define THIRD_PARTY_BLINK_PUBLIC_WEB_WEB_DOCUMENT_H_
+ 
+@@ -151,6 +155,14 @@ class BLINK_EXPORT WebDocument : public WebNode {
+       WebCssOrigin = WebCssOrigin::kAuthor,
+       BackForwardCacheAware = BackForwardCacheAware::kAllow);
+ 
++  // Inserts the given CSS source code as a style sheet in the document and
++  // validates it have only expected rules.
++  WebStyleSheetKey InsertAbpElemhideStylesheet(
++      const WebString& source_code,
++      const WebStyleSheetKey* = nullptr,
++      WebCssOrigin = WebCssOrigin::kAuthor,
++      BackForwardCacheAware = BackForwardCacheAware::kAllow);
++
+   // Removes the CSS which was previously inserted by a call to
+   // InsertStyleSheet().
+   void RemoveInsertedStyleSheet(const WebStyleSheetKey&,
+diff --git a/third_party/blink/renderer/core/dom/events/event_target.cc b/third_party/blink/renderer/core/dom/events/event_target.cc
+index 0ed928ad6fce1..49bc7e012a0a2 100644
+--- a/third_party/blink/renderer/core/dom/events/event_target.cc
++++ b/third_party/blink/renderer/core/dom/events/event_target.cc
+@@ -29,6 +29,10 @@
+  *
+  */
+ 
++// This source code is a part of eyeo Chromium SDK.
++// Use of this source code is governed by the GPLv3 that can be found in the
++// components/adblock/LICENSE file.
++
+ #include "third_party/blink/renderer/core/dom/events/event_target.h"
+ 
+ #include <memory>
+@@ -882,7 +886,10 @@ bool EventTarget::dispatchEventForBindings(Event* event,
+   if (!GetExecutionContext())
+     return false;
+ 
+-  event->SetTrusted(false);
++  auto* world = GetExecutionContext()->GetCurrentWorld();
++  // content::IsolatedWorldIDs::ISOLATED_WORLD_ID_ADBLOCK == 1
++  bool make_trusted = world && (world->GetWorldId() == 1);
++  event->SetTrusted(make_trusted);
+ 
+   // Return whether the event was cancelled or not to JS not that it
+   // might have actually been default handled; so check only against
+diff --git a/third_party/blink/renderer/core/exported/web_document.cc b/third_party/blink/renderer/core/exported/web_document.cc
+index 1eaf02227c130..f831bc104aa3e 100644
+--- a/third_party/blink/renderer/core/exported/web_document.cc
++++ b/third_party/blink/renderer/core/exported/web_document.cc
+@@ -28,6 +28,10 @@
+  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  */
+ 
++// This source code is a part of eyeo Chromium SDK.
++// Use of this source code is governed by the GPLv3 that can be found in the
++// components/adblock/LICENSE file.
++
+ #include "third_party/blink/public/web/web_document.h"
+ 
+ #include "base/containers/to_vector.h"
+@@ -276,6 +280,62 @@ WebStyleSheetKey WebDocument::InsertStyleSheet(
+   return injection_key;
+ }
+ 
++bool IsValidAbpRule(StyleRuleBase* rule) {
++  if (!rule->IsStyleRule()) {
++    return false;
++  }
++  const auto& props = blink::To<StyleRule>(rule)->Properties();
++  if (props.PropertyCount() != 2) {
++    return false;
++  }
++  const auto& hide = props.PropertyAt(0);
++  const auto& mark = props.PropertyAt(1);
++  return hide.PropertyID() == CSSPropertyID::kDisplay && hide.IsImportant() &&
++         mark.PropertyID() == CSSPropertyID::kContent && mark.IsImportant();
++}
++
++// Should be same as WebDocument::InsertStyleSheet, excluding content
++// validation.
++WebStyleSheetKey WebDocument::InsertAbpElemhideStylesheet(
++    const WebString& source_code,
++    const WebStyleSheetKey* key,
++    WebCssOrigin origin,
++    BackForwardCacheAware back_forward_cache_aware) {
++  Document* document = Unwrap<Document>();
++  DCHECK(document);
++
++  auto* parsed_sheet = MakeGarbageCollected<StyleSheetContents>(
++      MakeGarbageCollected<CSSParserContext>(*document));
++  parsed_sheet->ParseString(source_code);
++  if (parsed_sheet->RuleCount() == 0) {
++    LOG(WARNING) << "[eyeo] Empty or invalid stylesheet";
++    return GenerateStyleSheetKey();
++  }
++  // Rule count is not validated because some selectors can be malformed for
++  // third-party lists. Checking body is valid for all the rules is enough.
++  for (unsigned n = 0; n < parsed_sheet->RuleCount();) {
++    if (IsValidAbpRule(parsed_sheet->RuleAt(n))) {
++      ++n;
++    } else {
++      parsed_sheet->StartMutation();
++      parsed_sheet->WrapperDeleteRule(n);
++      LOG(WARNING) << "[eyeo] Broken rule";
++    }
++  }
++
++  if (back_forward_cache_aware == BackForwardCacheAware::kPossiblyDisallow) {
++    document->GetFrame()->GetFrameScheduler()->RegisterStickyFeature(
++        SchedulingPolicy::Feature::kInjectedStyleSheet,
++        {SchedulingPolicy::DisableBackForwardCache()});
++  }
++
++  const WebStyleSheetKey& injection_key =
++      key && !key->IsNull() ? *key : GenerateStyleSheetKey();
++  DCHECK(!injection_key.IsEmpty());
++  document->GetStyleEngine().InjectSheet(injection_key, parsed_sheet, origin);
++  return injection_key;
++}
++
+ void WebDocument::RemoveInsertedStyleSheet(const WebStyleSheetKey& key,
+                                            WebCssOrigin origin) {
+   Unwrap<Document>()->GetStyleEngine().RemoveInjectedSheet(key, origin);
+diff --git a/third_party/blink/renderer/core/frame/local_frame_mojo_handler.cc b/third_party/blink/renderer/core/frame/local_frame_mojo_handler.cc
+index 48c2ef6fe7bb9..97743504a312b 100644
+--- a/third_party/blink/renderer/core/frame/local_frame_mojo_handler.cc
++++ b/third_party/blink/renderer/core/frame/local_frame_mojo_handler.cc
+@@ -1,6 +1,10 @@
+ // Copyright 2021 The Chromium Authors
+ // Use of this source code is governed by a BSD-style license that can be
+ // found in the LICENSE file.
++//
++// This source code is a part of eyeo Chromium SDK.
++// Use of this source code is governed by the GPLv3 that can be found in the
++// components/adblock/LICENSE file.
+ 
+ #include "third_party/blink/renderer/core/frame/local_frame_mojo_handler.h"
+ 
+@@ -350,6 +354,14 @@ LocalFrameMojoHandler::LocalFrameMojoHandler(blink::LocalFrame& frame)
+       WrapWeakPersistent(this)));
+ }
+ 
++void LocalFrameMojoHandler::InsertAbpElemhideStylesheet(
++    const WTF::String& stylesheet) {
++  WebLocalFrameImpl* web_frame = WebLocalFrameImpl::FromFrame(frame_);
++  DCHECK(web_frame);
++  web_frame->GetDocument().InsertAbpElemhideStylesheet(stylesheet, nullptr,
++                                                       WebCssOrigin::kUser);
++}
++
+ void LocalFrameMojoHandler::Trace(Visitor* visitor) const {
+   visitor->Trace(frame_);
+   visitor->Trace(back_forward_cache_controller_host_remote_);
+diff --git a/third_party/blink/renderer/core/frame/local_frame_mojo_handler.h b/third_party/blink/renderer/core/frame/local_frame_mojo_handler.h
+index 230a6a327e3cf..5ce712421355f 100644
+--- a/third_party/blink/renderer/core/frame/local_frame_mojo_handler.h
++++ b/third_party/blink/renderer/core/frame/local_frame_mojo_handler.h
+@@ -1,6 +1,10 @@
+ // Copyright 2021 The Chromium Authors
+ // Use of this source code is governed by a BSD-style license that can be
+ // found in the LICENSE file.
++//
++// This source code is a part of eyeo Chromium SDK.
++// Use of this source code is governed by the GPLv3 that can be found in the
++// components/adblock/LICENSE file.
+ 
+ #ifndef THIRD_PARTY_BLINK_RENDERER_CORE_FRAME_LOCAL_FRAME_MOJO_HANDLER_H_
+ #define THIRD_PARTY_BLINK_RENDERER_CORE_FRAME_LOCAL_FRAME_MOJO_HANDLER_H_
+@@ -114,6 +118,7 @@ class LocalFrameMojoHandler
+   void AddMessageToConsole(mojom::blink::ConsoleMessageLevel level,
+                            const WTF::String& message,
+                            bool discard_duplicates) final;
++  void InsertAbpElemhideStylesheet(const WTF::String& stylesheet) final;
+   void SwapInImmediately() final;
+   void CheckCompleted() final;
+   void StopLoading() final;
+diff --git a/third_party/blink/renderer/core/html/html_element.cc b/third_party/blink/renderer/core/html/html_element.cc
+index 5c762dc3e4340..1c117e491806d 100644
+--- a/third_party/blink/renderer/core/html/html_element.cc
++++ b/third_party/blink/renderer/core/html/html_element.cc
+@@ -23,6 +23,10 @@
+  *
+  */
+ 
++// This source code is a part of eyeo Chromium SDK.
++// Use of this source code is governed by the GPLv3 that can be found in the
++// components/adblock/LICENSE file.
++
+ #include "third_party/blink/renderer/core/html/html_element.h"
+ 
+ #include "base/containers/enum_set.h"
+@@ -2494,7 +2498,13 @@ void HTMLElement::setSpellcheck(bool enable) {
+ }
+ 
+ void HTMLElement::click() {
+-  DispatchSimulatedClick(nullptr, SimulatedClickCreationScope::kFromScript);
++  auto* world = GetExecutionContext() ? GetExecutionContext()->GetCurrentWorld()
++                                      : nullptr;
++  // content::IsolatedWorldIDs::ISOLATED_WORLD_ID_ADBLOCK == 1
++  bool make_trusted = world && (world->GetWorldId() == 1);
++  DispatchSimulatedClick(
++      nullptr, make_trusted ? SimulatedClickCreationScope::kFromUserAgent
++                            : SimulatedClickCreationScope::kFromScript);
+   if (IsA<HTMLInputElement>(this)) {
+     UseCounter::Count(GetDocument(),
+                       WebFeature::kHTMLInputElementSimulatedClick);
+diff --git a/third_party/blink/renderer/platform/loader/fetch/url_loader/mojo_url_loader_client.cc b/third_party/blink/renderer/platform/loader/fetch/url_loader/mojo_url_loader_client.cc
+index 570200e61dc90..0deb1923c389b 100644
+--- a/third_party/blink/renderer/platform/loader/fetch/url_loader/mojo_url_loader_client.cc
++++ b/third_party/blink/renderer/platform/loader/fetch/url_loader/mojo_url_loader_client.cc
+@@ -2,6 +2,10 @@
+ // Use of this source code is governed by a BSD-style license that can be
+ // found in the LICENSE file.
+ 
++// This source code is a part of eyeo Chromium SDK.
++// Use of this source code is governed by the GPLv3 that can be found in the
++// components/adblock/LICENSE file.
++
+ #include "third_party/blink/renderer/platform/loader/fetch/url_loader/mojo_url_loader_client.h"
+ 
+ #include <iterator>
+@@ -389,7 +393,7 @@ void MojoURLLoaderClient::OnReceiveRedirect(
+     OnComplete(network::URLLoaderCompletionStatus(net::ERR_ABORTED));
+     return;
+   }
+-  if (!bypass_redirect_checks_ &&
++  if (!bypass_redirect_checks_ && !redirect_info.bypass_redirect_checks &&
+       !Platform::Current()->IsRedirectSafe(GURL(last_loaded_url_),
+                                            redirect_info.new_url)) {
+     OnComplete(network::URLLoaderCompletionStatus(net::ERR_UNSAFE_REDIRECT));
+-- 
+2.43.0
+
