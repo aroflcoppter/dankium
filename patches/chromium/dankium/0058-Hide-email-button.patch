@@ -1,0 +1,25 @@
+From 7c486f461fe26e7eb6a034c3098cbbcc11ca825c Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Sun, 8 Jun 2025 17:17:12 -0230
+Subject: [PATCH] Hide email button
+
+---
+ .../chrome/browser/identity_disc/IdentityDiscController.java    | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java b/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java
+index 95d3b4f4dbf22..c1d6f5a6fc604 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/IdentityDiscController.java
+@@ -167,7 +167,7 @@ public class IdentityDiscController
+ 
+         mButtonData.setButtonSpec(
+                 buttonSpecWithDrawableAndDescription(mButtonData.getButtonSpec(), email));
+-        mButtonData.setCanShow(true);
++        mButtonData.setCanShow(!true);
+     }
+ 
+     private ButtonSpec buttonSpecWithDrawableAndDescription(
+-- 
+2.43.0
+
