@@ -1,0 +1,32 @@
+From 9b2cc81a291cbfd41d5ab720ec4752522e7a6bd2 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Sun, 8 Jun 2025 18:14:38 -0230
+Subject: [PATCH] Remove trademarked google logo
+
+---
+ .../search_engines/android/template_url_service_android.cc    | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/components/search_engines/android/template_url_service_android.cc b/components/search_engines/android/template_url_service_android.cc
+index dc1bcf09372d3..43ab7a278a8cd 100644
+--- a/components/search_engines/android/template_url_service_android.cc
++++ b/components/search_engines/android/template_url_service_android.cc
+@@ -192,13 +192,13 @@ jboolean TemplateUrlServiceAndroid::DoesDefaultSearchEngineHaveLogo(
+ 
+   // Google always has a logo.
+   if (IsDefaultSearchEngineGoogle(env, obj))
+-    return true;
++    return false;
+ 
+   // Third-party search engines can have a doodle specified via the command
+   // line, or a static logo or doodle from the TemplateURLService.
+   if (base::CommandLine::ForCurrentProcess()->HasSwitch(
+           search_provider_logos::switches::kThirdPartyDoodleURL)) {
+-    return true;
++    return false;
+   }
+   const TemplateURL* default_search_provider =
+       template_url_service_->GetDefaultSearchProvider();
+-- 
+2.43.0
+
