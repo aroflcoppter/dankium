@@ -1,7 +1,7 @@
 From a68a409507b81a2250244bc022698402a96cface Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Tue, 3 Jun 2025 02:41:25 -0230
-Subject: [PATCH 4/5] Connectivity check with Dankium and turn of Doh
+Subject: [PATCH 4/5] Connectivity check with Dankium and turn off Doh
 
 ---
  chrome/browser/net/dns_probe_runner.cc | 2 +-
@@ -30,7 +30,7 @@ index 8c741c292ff3f..218ab8327e856 100644
  
  // The hostname probed by CreateDohProbeRunner().
 -inline constexpr std::string_view kDohProbeHostname = "www.gstatic.com";
-+inline constexpr std::string_view kDohProbeHostname = "";
++inline constexpr std::string_view kDohProbeHostname = "localhost";
  
  // DnsTransaction implements a stub DNS resolver as defined in RFC 1034.
  // The DnsTransaction takes care of retransmissions, name server fallback (or
