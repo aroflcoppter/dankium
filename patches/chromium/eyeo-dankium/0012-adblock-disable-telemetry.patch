@@ -3,6 +3,8 @@ From: aroflcoppter <contact@dankium.ca>
 Date: Sun, 8 Jun 2025 23:10:21 -0230
 Subject: [PATCH] adblock disable telemetry
 
+Copyright (C) 2006-present eyeo GmbH.
+
 ---
  components/adblock/core/BUILD.gn              | 32 -------------------
  .../activeping_telemetry_topic_provider.cc    |  2 +-

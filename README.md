@@ -1,6 +1,3 @@
-# Under Targeted Attack
-Someone wants to destroy my project and sent malware to my phone that injected Dankium making it crash. The only way to fix it was a factory reset.
-
 # Dankium Browser
 Dankium is a chromium based browser focused on providing top of the line security and adblocking in addition to other features.
 Please read and agree to the [Terms of Service](https://dankium.ca/tos.html) and [Privacy Policy](https://dankium.ca/privacy.html).

@@ -10,6 +10,9 @@ This commit has three parts, utilizing seccomp-bpf to prevent:
 3. making a non-executable mapping executable
 
 It's inspired by PaX MPROTECT restrictions.
+
+Copyright 2021 qua3kr@gmail.com
+
 ---
  .../syscall_parameters_restrictions.cc        | 55 +++++++++++++++++++
  .../syscall_parameters_restrictions.h         | 18 ++++++

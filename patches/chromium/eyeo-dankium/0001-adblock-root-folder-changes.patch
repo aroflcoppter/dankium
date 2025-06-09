@@ -3,6 +3,8 @@ From: aroflcoppter <contact@dankium.ca>
 Date: Sat, 7 Jun 2025 13:27:04 -0230
 Subject: [PATCH 1/4] adblock root folder changes
 
+Copyright (C) 2006-present eyeo GmbH.
+
 ---
  .gitignore |   2 +
  .vpython   | 428 +++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -4,6 +4,9 @@ Date: Wed, 4 Jun 2025 05:54:23 -0230
 Subject: [PATCH] Forbid dynamic code generation on Linux/Android
 
 Based on https://github.com/Hexavalent-Browser/Hexavalent-Archive/blob/main/patches/linux/0002-Forbid-dynamic-code-generation-on-Linux.patch
+
+Copyright 2021 qua3kr@gmail.com
+
 ---
  sandbox/linux/seccomp-bpf-helpers/baseline_policy.cc | 6 +++---
  sandbox/policy/linux/bpf_audio_policy_linux.cc       | 3 +++

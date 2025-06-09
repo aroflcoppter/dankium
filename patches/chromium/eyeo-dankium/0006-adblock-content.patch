@@ -3,6 +3,8 @@ From: vanilla-chromium-builder <project_26591639_bot@noreply.gitlab.com>
 Date: Thu, 22 May 2025 15:50:31 +0000
 Subject: [PATCH] adblock content
 
+Copyright (C) 2006-present eyeo GmbH.
+
 ---
  content/browser/BUILD.gn                      |  18 +
  content/browser/devtools/BUILD.gn             |   2 +

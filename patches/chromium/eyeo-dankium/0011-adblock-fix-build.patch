@@ -3,6 +3,8 @@ From: aroflcoppter <contact@dankium.ca>
 Date: Sun, 8 Jun 2025 14:56:32 -0230
 Subject: [PATCH] adblock fix build
 
+Copyright (C) 2006-present eyeo GmbH.
+
 ---
  chrome/android/BUILD.gn                       |  4 ----
  .../browser/adblock/TabIdTranslator.java      |  2 +-

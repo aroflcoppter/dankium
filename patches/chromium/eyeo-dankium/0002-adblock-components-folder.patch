@@ -3,6 +3,8 @@ From: vanilla-chromium-builder <project_26591639_bot@noreply.gitlab.com>
 Date: Thu, 22 May 2025 15:50:31 +0000
 Subject: [PATCH 4/4] adblock components folder
 
+Copyright (C) 2006-present eyeo GmbH.
+
 ---
  components/BUILD.gn                           |   10 +
  components/adblock/BUILD.gn                   |   36 +

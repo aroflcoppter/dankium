@@ -3,6 +3,8 @@ From: vanilla-chromium-builder <project_26591639_bot@noreply.gitlab.com>
 Date: Thu, 22 May 2025 15:50:31 +0000
 Subject: [PATCH] adblock chrome test
 
+Copyright (C) 2006-present eyeo GmbH.
+
 ---
  chrome/test/BUILD.gn                          |  25 +
  chrome/test/base/in_process_browser_test.cc   |  24 +-
