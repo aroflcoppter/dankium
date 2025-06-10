@@ -3694,27 +3694,6 @@ zk0U>@{Db0uvVi{o$%=-6@&Jp4mhhHYo~{+5O$ZdgIR*B?vJ5$!R3PXBkQ0>lqcPjJ
 zG!=nXw2&abs#xr~fFDF!vq@X7`+qtd5cw$r{cp#9R6!ToGG#p=PkT1k)Wlt8^P%Pg
 W=g!Ha2?pSwIRxeC=1^|uclqCxqvpf_
 
-diff --git a/third_party/angle b/third_party/angle
-index d9c58a3f93292..ad07ea4b2c27b 160000
---- a/third_party/angle
-+++ b/third_party/angle
-@@ -1 +1 @@
--Subproject commit d9c58a3f93292fcd624839d6233abfb0991de334
-+Subproject commit ad07ea4b2c27bbe621a00c1816ff58a87cf73cb6
-diff --git a/third_party/libunwind/src b/third_party/libunwind/src
-index 5d3cb3f141e50..e45a90f7b9db0 160000
---- a/third_party/libunwind/src
-+++ b/third_party/libunwind/src
-@@ -1 +1 @@
--Subproject commit 5d3cb3f141e50afcf6cae07567807433af9847d0
-+Subproject commit e45a90f7b9db0a37651960b80b6c9645403a6fbb
-diff --git a/v8 b/v8
-index 2e904eb86c7ab..6830c194bc614 160000
---- a/v8
-+++ b/v8
-@@ -1 +1 @@
--Subproject commit 2e904eb86c7abcca2648eaedc2569a8874f8d0cb
-+Subproject commit 6830c194bc614b170816fddedc945a3cd69d631b
 -- 
 2.43.0
 
