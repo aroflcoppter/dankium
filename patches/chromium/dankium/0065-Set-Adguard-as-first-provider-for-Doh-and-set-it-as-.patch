@@ -1,0 +1,83 @@
+From c14a129a31fff29275699c5c6195463cd5684433 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Tue, 10 Jun 2025 19:31:28 -0230
+Subject: [PATCH] Set Adguard as first provider for Doh and set it as default
+
+---
+ .../net/default_dns_over_https_config_source.cc      |  4 ++--
+ chrome/browser/net/secure_dns_config.cc              | 11 +++++------
+ net/dns/public/doh_provider_entry.cc                 | 12 ++++++++++++
+ 3 files changed, 19 insertions(+), 8 deletions(-)
+
+diff --git a/chrome/browser/net/default_dns_over_https_config_source.cc b/chrome/browser/net/default_dns_over_https_config_source.cc
+index 258250afc9e9f..8d351de2a57bc 100644
+--- a/chrome/browser/net/default_dns_over_https_config_source.cc
++++ b/chrome/browser/net/default_dns_over_https_config_source.cc
+@@ -25,7 +25,7 @@ DefaultDnsOverHttpsConfigSource::DefaultDnsOverHttpsConfigSource(
+   if (set_up_pref_defaults) {
+     local_state->SetDefaultPrefValue(prefs::kDnsOverHttpsMode,
+                                      base::Value(SecureDnsConfig::ModeToString(
+-                                         net::SecureDnsMode::kAutomatic)));
++                                         net::SecureDnsMode::kSecure)));
+   }
+ }
+ 
+@@ -35,7 +35,7 @@ DefaultDnsOverHttpsConfigSource::~DefaultDnsOverHttpsConfigSource() = default;
+ void DefaultDnsOverHttpsConfigSource::RegisterPrefs(
+     PrefRegistrySimple* registry) {
+   registry->RegisterStringPref(prefs::kDnsOverHttpsMode, std::string());
+-  registry->RegisterStringPref(prefs::kDnsOverHttpsTemplates, std::string());
++  registry->RegisterStringPref(prefs::kDnsOverHttpsTemplates, "https://dns.adguard-dns.com/dns-query");
+ #if BUILDFLAG(IS_CHROMEOS)
+   registry->RegisterStringPref(prefs::kDnsOverHttpsEffectiveTemplatesChromeOS,
+                                std::string());
+diff --git a/chrome/browser/net/secure_dns_config.cc b/chrome/browser/net/secure_dns_config.cc
+index 0b23397a9164a..e6fa1039b56c9 100644
+--- a/chrome/browser/net/secure_dns_config.cc
++++ b/chrome/browser/net/secure_dns_config.cc
+@@ -24,14 +24,13 @@ SecureDnsConfig::~SecureDnsConfig() = default;
+ // static
+ std::optional<net::SecureDnsMode> SecureDnsConfig::ParseMode(
+     std::string_view name) {
+-  if (name == kModeSecure) {
+-    return net::SecureDnsMode::kSecure;
+-  } else if (name == kModeAutomatic) {
+-    return net::SecureDnsMode::kAutomatic;
+-  } else if (name == kModeOff) {
++  if (name == kModeOff) {
+     return net::SecureDnsMode::kOff;
+-  }
++  } else if ((name == kModeAutomatic) || (name == kModeSecure)) {
++    return net::SecureDnsMode::kSecure;
++  } else {
+   return std::nullopt;
++  }
+ }
+ 
+ // static
+diff --git a/net/dns/public/doh_provider_entry.cc b/net/dns/public/doh_provider_entry.cc
+index f79af28e8dd53..44ee93904cab6 100644
+--- a/net/dns/public/doh_provider_entry.cc
++++ b/net/dns/public/doh_provider_entry.cc
+@@ -320,6 +320,18 @@ const DohProviderEntry::List& DohProviderEntry::GetList() {
+         /*privacy_policy=*/"",
+         /*display_globally=*/false,
+         /*display_countries=*/{},
++        LoggingLevel::kNormal},
++       {"AdGuard",
++        MAKE_BASE_FEATURE_WITH_STATIC_STORAGE(DohProviderAdguard,
++                                              base::FEATURE_ENABLED_BY_DEFAULT),
++        {"94.140.14.14", "94.140.14.141", "2a10:50c0::ad1:ff",
++         "2a10:50c0::ad2:ff"},
++        /*dns_over_tls_hostnames=*/{"dns.adguard-dns.com"},
++        "https://dns.adguard-dns.com/dns-query",
++        /*ui_name=*/"Adguard",
++        /*privacy_policy=*/"https://adguard-dns.io/en/privacy.html",
++        /*display_globally=*/true,
++        /*display_countries=*/{},
+         LoggingLevel::kNormal}})));
+ 
+   static const base::NoDestructor<DohProviderEntry::List> providers(
+-- 
+2.43.0
+
