@@ -1,14 +1,14 @@
-From 09aca36ec9cefcc76346cd252005616be19c1a8a Mon Sep 17 00:00:00 2001
+From 2d453e87e59da6fca479724e07507e094b1eaeb0 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Fri, 6 Jun 2025 17:56:54 -0230
 Subject: [PATCH] Dankium rebranding script
 
 ---
- tools/grit/grit/grd_reader.py | 42 +++++++++++++++++++++++++++++++++++
- 1 file changed, 42 insertions(+)
+ tools/grit/grit/grd_reader.py | 44 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 44 insertions(+)
 
 diff --git a/tools/grit/grit/grd_reader.py b/tools/grit/grit/grd_reader.py
-index 16397abea2a82..63da74d06602a 100755
+index 16397abea2a82..939a9bf5a1b3a 100755
 --- a/tools/grit/grit/grd_reader.py
 +++ b/tools/grit/grit/grd_reader.py
 @@ -112,6 +112,7 @@ class GrdContentHandler(xml.sax.handler.ContentHandler):
@@ -19,7 +19,7 @@ index 16397abea2a82..63da74d06602a 100755
          self.stack[-1].AppendContent(content)
  
    def ignorableWhitespace(self, whitespace):
-@@ -119,6 +120,47 @@ class GrdContentHandler(xml.sax.handler.ContentHandler):
+@@ -119,6 +120,48 @@ class GrdContentHandler(xml.sax.handler.ContentHandler):
      # parser?
      pass
  
@@ -37,7 +37,8 @@ index 16397abea2a82..63da74d06602a 100755
 +        "chrome_": "zzzyyyyxxxx7",
 +        ".chromium.org": "zzzyyyyxxxx8",
 +        "chromebook": "zzzyyyyxxxx9",
-+        "chromeos": "zzzyyyyxxxxA"
++        "chromeos": "zzzyyyyxxxxA",
++        "The Chromium Authors": "zzzyyyyxxxxB"
 +    }
 +
 +    # Apply temporary placeholders to protect specific terms.
@@ -67,6 +68,11 @@ index 16397abea2a82..63da74d06602a 100755
  
  class GrdPartContentHandler(xml.sax.handler.ContentHandler):
    def __init__(self, parent):
+@@ -257,3 +300,4 @@ def Parse(filename_or_stream,
+ if __name__ == '__main__':
+   util.ChangeStdoutEncoding()
+   print(str(Parse(sys.argv[1])))
++
 -- 
 2.43.0
 

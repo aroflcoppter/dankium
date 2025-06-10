@@ -1,12 +1,12 @@
 # Dankium Browser
 Dankium is a chromium based browser focused on providing top of the line security and adblocking in addition to other features.
 Please read and agree to the [Terms of Service](https://dankium.ca/tos.html) and [Privacy Policy](https://dankium.ca/privacy.html).
-It is recommended you run Dankium on [GrapheneOS](https://grapheneos.org) for more security.
+It is recommended you run Dankium on [GrapheneOS](https://grapheneos.org) or turn on Advanced Protection for more security.
 
 ## Android
 
 ### Features
-* Memory Tagging Extension (Must be enabled on Android with advanced protection or developer options)
+* Memory Tagging Extension (Must be enabled on Android with Advanced Protection (Android 16+) or in developer options or exploit protection(GrapheneOS))
 * Shadow Stacks
 * Compiler Mitigations
 * Adblocking
@@ -80,4 +80,3 @@ You can use [API keys](https://www.chromium.org/developers/how-tos/api-keys/) fr
 * [the chromium authors](https://chromium.googlesource.com/chromium/src/+/HEAD/LICENSE)
 * [eyeo](https://github.com/aroflcoppter/dankium/blob/main/LICENSE)
 * [flawedworld](https://github.com/aroflcoppter/dankium/blob/main/patches/chromium/hexavalent/LICENCE)
-[]
