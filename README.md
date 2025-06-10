@@ -75,3 +75,9 @@ You can use [API keys](https://www.chromium.org/developers/how-tos/api-keys/) fr
 6. Build with `autoninja -C out/Default mini_installer` and your mini_installer.exe will be in out/Default.
 7. When you are updating make sure you pull both dankium and the src directories and checkout the right tag.
 
+## Credits
+* [aroflcoppter](https://github.com/aroflcoppter/dankium/blob/main/LICENSE)
+* [the chromium authors](https://chromium.googlesource.com/chromium/src/+/HEAD/LICENSE)
+* [eyeo](https://github.com/aroflcoppter/dankium/blob/main/LICENSE)
+* [flawedworld](https://github.com/aroflcoppter/dankium/blob/main/patches/chromium/hexavalent/LICENCE)
+[]

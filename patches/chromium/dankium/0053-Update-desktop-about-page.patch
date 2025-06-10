@@ -1,4 +1,4 @@
-From b2426268626db2fda3e2c935fb40fec6d2608a19 Mon Sep 17 00:00:00 2001
+From 44ff358b146ae89a9aadbec16979b386d841e78e Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Thu, 5 Jun 2025 17:05:18 -0230
 Subject: [PATCH] Update desktop about page
@@ -8,7 +8,7 @@ Subject: [PATCH] Update desktop about page
  1 file changed, 9 insertions(+), 2 deletions(-)
 
 diff --git a/chrome/browser/resources/settings/about_page/about_page.html b/chrome/browser/resources/settings/about_page/about_page.html
-index a2e3ef715fef2..35be8d8e1142f 100644
+index a2e3ef715fef2..e5008d5fdcd7a 100644
 --- a/chrome/browser/resources/settings/about_page/about_page.html
 +++ b/chrome/browser/resources/settings/about_page/about_page.html
 @@ -149,11 +149,18 @@
@@ -17,7 +17,7 @@ index a2e3ef715fef2..35be8d8e1142f 100644
            <div class="secondary">$i18n{aboutProductTitle}</div>
 -          <div class="secondary">$i18n{aboutProductCopyright}</div>
 +          <div class="secondary">Copyright 2025 aroflcoppter.</div>
-+          <div class="secondary">Copyright 2025 The Chromium Authors. All rights reserved.</div>
++          <div class="secondary">Copyright 2015 The Chromium Authors.</div>
 +          <div class="secondary">Copyright (C) 2006-present eyeo GmbH.</div>
 +          <div class="secondary">Copyright (c) 2021-2022 flawedworld. All rights reserved.</div>
          </div>
