@@ -1,14 +1,14 @@
-From 52a7b1824d118177aea600c1606d465c1a7638d3 Mon Sep 17 00:00:00 2001
+From 99d1daa486ec4babe2376e92afe6ad71323a4a53 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Tue, 3 Jun 2025 12:05:23 -0230
 Subject: [PATCH] Update privacy settings page
 
 ---
- .../java/res/xml/privacy_preferences.xml      | 32 ++++++++++++-------
- 1 file changed, 21 insertions(+), 11 deletions(-)
+ .../java/res/xml/privacy_preferences.xml      | 29 ++++++++++++-------
+ 1 file changed, 19 insertions(+), 10 deletions(-)
 
 diff --git a/chrome/android/java/res/xml/privacy_preferences.xml b/chrome/android/java/res/xml/privacy_preferences.xml
-index e2692290babdf..8f85612f2c490 100644
+index e2692290babdf..6484e5dd403c3 100644
 --- a/chrome/android/java/res/xml/privacy_preferences.xml
 +++ b/chrome/android/java/res/xml/privacy_preferences.xml
 @@ -19,11 +19,13 @@ found in the LICENSE file.
@@ -67,13 +67,7 @@ index e2692290babdf..8f85612f2c490 100644
      <!-- Old HTTPS-First Mode toggle. Hidden if HttpsFirstBalancedMode flag is enabled.
           TODO(crbug.com/349860796): Remove once new settings are fully rolled out. -->
      <org.chromium.components.browser_ui.settings.ChromeSwitchPreference
-@@ -85,17 +92,20 @@ found in the LICENSE file.
-     <org.chromium.components.browser_ui.settings.ChromeBasePreference
-         android:key="secure_dns"
-         android:title="@string/settings_secure_dns_title"
--        android:fragment="org.chromium.chrome.browser.privacy.secure_dns.SecureDnsSettings" />
-+        android:fragment="org.chromium.chrome.browser.privacy.secure_dns.SecureDnsSettings"
-+        app:isPreferenceVisible="false" />
+@@ -89,13 +96,15 @@ found in the LICENSE file.
      <org.chromium.components.browser_ui.settings.ChromeBasePreference
          android:key="javascript_optimizer"
          android:title="@string/website_settings_privacy_and_security_javascript_optimizer_row_label"

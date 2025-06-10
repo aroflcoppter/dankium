@@ -1,17 +1,17 @@
-From e1b5df754eef230dc4dd7df71adec092c0bf1c76 Mon Sep 17 00:00:00 2001
+From 904af7efa19824a81bc0e022437f9c0c8bac0bee Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
-Date: Tue, 3 Jun 2025 12:02:37 -0230
-Subject: [PATCH] Settings main page fixup
+Date: Tue, 10 Jun 2025 04:27:32 -0230
+Subject: [PATCH] Setting main page fixup
 
 ---
- .../android/java/res/xml/main_preferences.xml | 42 +++++++++++--------
- 1 file changed, 25 insertions(+), 17 deletions(-)
+ .../android/java/res/xml/main_preferences.xml | 67 +++++++++++--------
+ 1 file changed, 39 insertions(+), 28 deletions(-)
 
 diff --git a/chrome/android/java/res/xml/main_preferences.xml b/chrome/android/java/res/xml/main_preferences.xml
-index f032c32654c47..b33bc122b7cb9 100644
+index 65efe162bdc6b..03dabf3c784c9 100644
 --- a/chrome/android/java/res/xml/main_preferences.xml
 +++ b/chrome/android/java/res/xml/main_preferences.xml
-@@ -17,32 +17,33 @@ for the previous order (main_preferences_legacy). -->
+@@ -20,19 +20,22 @@ for the previous order (main_preferences_legacy). -->
      <PreferenceCategory
          android:key="account_and_google_services_section"
          android:order="1"
@@ -34,11 +34,11 @@ index f032c32654c47..b33bc122b7cb9 100644
      <org.chromium.components.browser_ui.settings.ChromeBasePreference
          android:key="google_services"
 -        android:order="4"
--        android:layout="@layout/account_management_account_row"
 +        android:order="6"
+         android:layout="@layout/account_management_account_row"
          android:title="@string/prefs_google_services"
--        android:icon="@drawable/ic_google_services_48dp_with_bg"
-         android:fragment="org.chromium.chrome.browser.sync.settings.GoogleServicesSettings"/>
+         android:icon="@drawable/ic_google_services_48dp_with_bg"
+@@ -40,12 +43,12 @@ for the previous order (main_preferences_legacy). -->
  
      <PreferenceCategory
          android:key="basics_section"
@@ -53,7 +53,7 @@ index f032c32654c47..b33bc122b7cb9 100644
          android:title="@string/search_engine_settings"/>
      <org.chromium.components.browser_ui.settings.ChromeBasePreference
          android:fragment="org.chromium.chrome.browser.toolbar.settings.AddressBarSettingsFragment"
-@@ -58,43 +59,50 @@ for the previous order (main_preferences_legacy). -->
+@@ -61,47 +64,55 @@ for the previous order (main_preferences_legacy). -->
          android:fragment="org.chromium.chrome.browser.safety_check.SafetyCheckSettingsFragment"
          android:key="safety_check"
          android:order="9"
@@ -65,9 +65,9 @@ index f032c32654c47..b33bc122b7cb9 100644
          android:key="safety_hub"
          android:order="10"
 -        android:title="@string/prefs_safety_check"/>
--
 +        android:title="@string/prefs_safety_check"
 +        app:isPreferenceVisible="false"/>
+ 
      <PreferenceCategory
          android:key="autofill_section"
          android:order="11"
@@ -110,9 +110,94 @@ index f032c32654c47..b33bc122b7cb9 100644
 -        android:title="@string/autofill_options_title" />
 +        android:title="@string/autofill_options_title"
 +        app:isPreferenceVisible="false"/>
+     <Preference
+         android:fragment="org.chromium.chrome.browser.adblock.settings.AdblockSettingsFragment"
+         android:key="adblock"
+-        android:order="17"
++        android:order="18"
+         android:title="@string/adblock_settings_title" />
  
      <PreferenceCategory
-         android:key="advanced_section"
+@@ -111,66 +122,66 @@ for the previous order (main_preferences_legacy). -->
+     <Preference
+         android:fragment="org.chromium.chrome.browser.tasks.tab_management.TabsSettings"
+         android:key="tabs"
+-        android:order="18"
++        android:order="19"
+         android:title="@string/tabs_settings_title"/>
+     <Preference
+         android:fragment="org.chromium.chrome.browser.homepage.settings.HomepageSettings"
+         android:key="homepage"
+-        android:order="19"
++        android:order="20"
+         android:title="@string/options_homepage_title"/>
+     <Preference
+         android:fragment="org.chromium.chrome.browser.magic_stack.HomeModulesConfigSettings"
+         android:key="home_modules_config"
+-        android:order="20"
++        android:order="21"
+         android:title="@string/home_modules_configuration"/>
+     <Preference
+         android:fragment="org.chromium.chrome.browser.toolbar.adaptive.settings.AdaptiveToolbarSettingsFragment"
+         android:key="toolbar_shortcut"
+-        android:order="21"
++        android:order="22"
+         android:title="@string/toolbar_shortcut"/>
+     <Preference
+         android:key="notifications"
+-        android:order="22"
++        android:order="23"
+         android:title="@string/prefs_notifications"/>
+     <Preference
+         android:fragment="org.chromium.chrome.browser.appearance.settings.AppearanceSettingsFragment"
+         android:key="appearance"
+-        android:order="23"
++        android:order="24"
+         android:title="@string/appearance_settings" />
+     <Preference
+         android:fragment="org.chromium.chrome.browser.night_mode.settings.ThemeSettingsFragment"
+         android:key="ui_theme"
+-        android:order="24"
++        android:order="25"
+         android:title="@string/theme_settings" />
+     <Preference
+         android:fragment="org.chromium.components.browser_ui.accessibility.AccessibilitySettings"
+         android:key="accessibility"
+-        android:order="25"
++        android:order="26"
+         android:title="@string/prefs_accessibility"/>
+     <Preference
+         android:fragment="org.chromium.components.browser_ui.site_settings.SiteSettings"
+         android:key="content_settings"
+-        android:order="26"
++        android:order="27"
+         android:title="@string/prefs_site_settings"/>
+     <Preference
+         android:fragment="org.chromium.chrome.browser.language.settings.LanguageSettings"
+         android:key="languages"
+-        android:order="27"
++        android:order="28"
+         android:title="@string/language_settings"/>
+     <org.chromium.components.browser_ui.settings.ChromeBasePreference
+         android:fragment="org.chromium.chrome.browser.download.settings.DownloadSettings"
+         android:key="downloads"
+-        android:order="28"
++        android:order="29"
+         android:title="@string/menu_downloads"/>
+     <Preference
+         android:fragment="org.chromium.chrome.browser.tracing.settings.DeveloperSettings"
+         android:key="developer"
+-        android:order="29"
++        android:order="30"
+         android:title="Developer options"/>
+     <Preference
+         android:fragment="org.chromium.chrome.browser.about_settings.AboutChromeSettings"
+         android:key="about_chrome"
+-        android:order="30"
++        android:order="31"
+         android:title="@string/prefs_about_chrome"/>
+ 
+ </PreferenceScreen>
 -- 
 2.43.0
 
