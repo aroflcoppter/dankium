@@ -1,42 +1,22 @@
-From 34c6c72c6465c21785d8b1d127475a12517a0297 Mon Sep 17 00:00:00 2001
+From 6492809e1ef73facd60aaa6c4aa2e4245b049d32 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
-Date: Fri, 6 Jun 2025 23:45:00 -0230
-Subject: [PATCH] Remove unneeded settings
+Date: Tue, 10 Jun 2025 04:09:01 -0230
+Subject: [PATCH] Remove unneeded desktop settings
 
 ---
- .../settings/privacy_page/security_page.html  | 24 -------------------
- .../settings/site_settings/site_details.html  | 13 ----------
- .../site_settings_page/site_settings_page.ts  |  3 ++-
- 3 files changed, 2 insertions(+), 38 deletions(-)
+ .../settings/privacy_page/security_page.html      |  5 -----
+ .../settings/site_settings/site_details.html      | 15 ---------------
+ .../site_settings_page/site_settings_page.ts      |  3 ++-
+ 3 files changed, 2 insertions(+), 21 deletions(-)
 
 diff --git a/chrome/browser/resources/settings/privacy_page/security_page.html b/chrome/browser/resources/settings/privacy_page/security_page.html
-index c804cdffe2df5..1f70b43119639 100644
+index 1f5aff963f2a4..6195b85708ea4 100644
 --- a/chrome/browser/resources/settings/privacy_page/security_page.html
 +++ b/chrome/browser/resources/settings/privacy_page/security_page.html
-@@ -248,31 +248,7 @@
-                          prefs.generated.https_first_mode_enabled.*)]]"
-           numeric-checked-value="[[httpsFirstModeSettingEnum_.ENABLED_FULL]]">
-       </settings-toggle-button>
--      <template is="dom-if" if="[[showSecureDnsSetting_]]">
--        <settings-secure-dns prefs="{{prefs}}" id="secureDnsSettingOld">
--        </settings-secure-dns>
--      </template>
+@@ -268,11 +268,6 @@
+         </cr-link-row>
      </template>
--    <template is="dom-if" if="[[enableHttpsFirstModeNewSettings_]]" restamp>
--      <template is="dom-if" if="[[showSecureDnsSetting_]]">
--        <settings-secure-dns prefs="{{prefs}}" class="hr"
--            id="secureDnsSettingNew">
--        </settings-secure-dns>
--      </template>
--    </template>
--<if expr="is_chromeos">
--    <template is="dom-if" if="[[showSecureDnsSettingLink_]]">
--        <cr-link-row id="openChromeOSSecureDnsSettings"
--            on-click="onOpenChromeOsSecureDnsSettingsClicked_"
--            label="$i18n{openChromeOSSecureDnsSettingsLabel}" external>
--        </cr-link-row>
--    </template>
--</if>
+ </if>
 -    <cr-link-row id="v8-setting-link" class="hr" on-click="onV8SettingsClick_"
 -        label="$i18n{securityV8LinkTitle}"
 -        sub-label="$i18n{securityV8LinkDescription}"
@@ -46,7 +26,7 @@ index c804cdffe2df5..1f70b43119639 100644
          <cr-link-row id="security-keys-subpage-trigger" class="hr"
              label="$i18n{securityKeysTitle}"
 diff --git a/chrome/browser/resources/settings/site_settings/site_details.html b/chrome/browser/resources/settings/site_settings/site_details.html
-index 8f49926d3fd95..b722ea214d5b7 100644
+index b7b641b1a3fb7..5e84cc84038f1 100644
 --- a/chrome/browser/resources/settings/site_settings/site_details.html
 +++ b/chrome/browser/resources/settings/site_settings/site_details.html
 @@ -170,9 +170,6 @@
@@ -59,19 +39,21 @@ index 8f49926d3fd95..b722ea214d5b7 100644
        <site-details-permission
            category="[[contentSettingsTypesEnum_.BACKGROUND_SYNC]]"
            icon="cr:sync" label="$i18n{siteSettingsBackgroundSync}">
-@@ -230,11 +227,6 @@
+@@ -229,13 +226,6 @@
+           chooser-type="[[chooserTypeEnum_.HID_DEVICES]]"
            icon="privacy:videogame-asset" label="$i18n{siteSettingsHidDevices}">
        </site-details-permission>
- <if expr="is_chromeos or is_win">
+-<if expr="is_chromeos or is_win">
 -      <site-details-permission
 -          category="[[contentSettingsTypesEnum_.PROTECTED_CONTENT]]"
 -          icon="privacy:sync-saved-locally"
 -          label="$i18n{siteSettingsProtectedContentIdentifiers}">
 -      </site-details-permission>
- </if>
+-</if>
        <site-details-permission category="[[contentSettingsTypesEnum_.CLIPBOARD]]"
            icon="privacy:content-paste" label="$i18n{siteSettingsClipboard}">
-@@ -256,11 +248,6 @@
+       </site-details-permission>
+@@ -256,11 +246,6 @@
            icon="privacy:warning"
            label="$i18n{siteSettingsInsecureContent}">
        </site-details-permission>
@@ -84,7 +66,7 @@ index 8f49926d3fd95..b722ea214d5b7 100644
            category="[[contentSettingsTypesEnum_.FEDERATED_IDENTITY_API]]"
            icon="privacy:account-circle"
 diff --git a/chrome/browser/resources/settings/site_settings_page/site_settings_page.ts b/chrome/browser/resources/settings/site_settings_page/site_settings_page.ts
-index 3fb0ca4a77c4b..6d61e23d3e8bf 100644
+index 33415d56e8108..ce85d7eb27c9b 100644
 --- a/chrome/browser/resources/settings/site_settings_page/site_settings_page.ts
 +++ b/chrome/browser/resources/settings/site_settings_page/site_settings_page.ts
 @@ -56,7 +56,7 @@ function getCategoryItemMap(): Map<ContentSettingsTypes, CategoryListItem> {

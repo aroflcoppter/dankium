@@ -1,0 +1,26 @@
+From 721f1872be6ec67c4b464528a12b527cb1d95947 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Tue, 10 Jun 2025 01:18:23 -0230
+Subject: [PATCH] Disable dump with no MTE
+
+---
+ base/allocator/partition_alloc_support.cc | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/base/allocator/partition_alloc_support.cc b/base/allocator/partition_alloc_support.cc
+index 956edf585b216..2c58bcbeec2fe 100644
+--- a/base/allocator/partition_alloc_support.cc
++++ b/base/allocator/partition_alloc_support.cc
+@@ -1121,7 +1121,9 @@ void PartitionAllocSupport::ReconfigureAfterFeatureListInit(
+         LOG(ERROR) << "PartitionAlloc: Failed to enable memory tagging due to "
+                       "MTE disabled at startup (Process: "
+                    << process_type << ")";
++        #if !BUILDFLAG(IS_ANDROID)
+         debug::DumpWithoutCrashing();
++        #endif
+         enable_memory_tagging = false;
+       }
+ 
+-- 
+2.43.0
+

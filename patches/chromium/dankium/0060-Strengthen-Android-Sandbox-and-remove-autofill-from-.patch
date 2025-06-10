@@ -1,14 +1,15 @@
-From cd6ec8805857308c7a6ddfe9b46b2020f90b7210 Mon Sep 17 00:00:00 2001
+From d424dcdd08ea1665fc0079aecb45bfcb7249005f Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Mon, 9 Jun 2025 11:37:15 -0230
-Subject: [PATCH] Strengthen Android Sandbox
+Subject: [PATCH] Strengthen Android Sandbox and remove autofill from Android
+ settings
 
 ---
- chrome/android/java/AndroidManifest.xml    | 11 -----------
- 1 file changed, 13 deletions(-)
+ chrome/android/java/AndroidManifest.xml | 23 -----------------------
+ 1 file changed, 23 deletions(-)
 
 diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/AndroidManifest.xml
-index f8815b416307b..34c8d98f4e2de 100644
+index f8815b416307b..fca5671416c28 100644
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
 @@ -39,7 +39,6 @@ by a child template that "extends" this file.
@@ -57,6 +58,25 @@ index f8815b416307b..34c8d98f4e2de 100644
      {% block extra_uses_permissions %}
      {% endblock %}
  
+@@ -450,18 +439,6 @@ by a child template that "extends" this file.
+             </intent-filter>
+         </activity>
+ 
+-        <activity android:name="org.chromium.chrome.browser.AutofillOptionsLauncher"
+-            android:theme="@style/Theme.BrowserUI.NoDisplay"
+-            android:excludeFromRecents="true"
+-            android:exported="true">
+-            <intent-filter>
+-                <action android:name="android.intent.action.APPLICATION_PREFERENCES" />
+-                <category android:name="android.intent.category.DEFAULT" />
+-                <category android:name="android.intent.category.APP_BROWSER" />
+-                <category android:name="android.intent.category.PREFERENCE" />
+-            </intent-filter>
+-        </activity>
+-
+         <activity android:name="org.chromium.chrome.browser.app.reengagement.ReengagementActivity"
+             android:theme="@style/Theme.BrowserUI.Translucent"
+             android:taskAffinity=""
 -- 
 2.43.0
 

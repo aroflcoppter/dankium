@@ -1,14 +1,14 @@
-From 7507f1bfe9be029cdb9f6d590f5507b4a72e4485 Mon Sep 17 00:00:00 2001
+From e1b5df754eef230dc4dd7df71adec092c0bf1c76 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Tue, 3 Jun 2025 12:02:37 -0230
 Subject: [PATCH] Settings main page fixup
 
 ---
- .../android/java/res/xml/main_preferences.xml | 24 ++++++++++---------
- 1 file changed, 13 insertions(+), 11 deletions(-)
+ .../android/java/res/xml/main_preferences.xml | 42 +++++++++++--------
+ 1 file changed, 25 insertions(+), 17 deletions(-)
 
 diff --git a/chrome/android/java/res/xml/main_preferences.xml b/chrome/android/java/res/xml/main_preferences.xml
-index f032c32654c47..4cf2b87eff4ca 100644
+index f032c32654c47..b33bc122b7cb9 100644
 --- a/chrome/android/java/res/xml/main_preferences.xml
 +++ b/chrome/android/java/res/xml/main_preferences.xml
 @@ -17,32 +17,33 @@ for the previous order (main_preferences_legacy). -->
@@ -53,7 +53,7 @@ index f032c32654c47..4cf2b87eff4ca 100644
          android:title="@string/search_engine_settings"/>
      <org.chromium.components.browser_ui.settings.ChromeBasePreference
          android:fragment="org.chromium.chrome.browser.toolbar.settings.AddressBarSettingsFragment"
-@@ -58,13 +59,14 @@ for the previous order (main_preferences_legacy). -->
+@@ -58,43 +59,50 @@ for the previous order (main_preferences_legacy). -->
          android:fragment="org.chromium.chrome.browser.safety_check.SafetyCheckSettingsFragment"
          android:key="safety_check"
          android:order="9"
@@ -71,6 +71,48 @@ index f032c32654c47..4cf2b87eff4ca 100644
      <PreferenceCategory
          android:key="autofill_section"
          android:order="11"
+-        android:title="@string/prefs_section_autofill"/>
++        android:title="@string/prefs_section_autofill"
++        app:isPreferenceVisible="false"/>
+     <org.chromium.chrome.browser.password_manager.settings.PasswordsPreference
+         android:fragment="org.chromium.chrome.browser.password_manager.settings.PasswordSettings"
+         android:key="passwords"
+         android:order="12"
+-        android:title="@string/password_manager_settings_title"/>
++        android:title="@string/password_manager_settings_title"
++        app:isPreferenceVisible="false"/>
+     <org.chromium.components.browser_ui.settings.ChromeBasePreference
+         android:fragment="org.chromium.chrome.browser.autofill.settings.AutofillPaymentMethodsFragment"
+         android:key="autofill_payment_methods"
+         android:order="13"
+-        android:title="@string/autofill_payment_methods"/>
++        android:title="@string/autofill_payment_methods"
++        app:isPreferenceVisible="false"/>
+     <org.chromium.components.browser_ui.settings.ChromeBasePreference
+         android:fragment="org.chromium.chrome.browser.autofill.settings.AutofillProfilesFragment"
+         android:key="autofill_addresses"
+         android:order="14"
+-        android:title="@string/autofill_addresses_settings_title"/>
++        android:title="@string/autofill_addresses_settings_title"
++        app:isPreferenceVisible="false"/>
+     <!-- TODO(crbug.com/40276862): UX design and review of the plus_addresses preference.
+     Do we want to change the order of preferences, combine this with other
+     autofill addresses, or move this preference to the Advanced section? -->
+     <org.chromium.components.browser_ui.settings.ChromeBasePreference
+         android:key="plus_addresses"
+-        android:order="15"/>
++        android:order="15"
++        app:isPreferenceVisible="false"/>
+     <org.chromium.components.browser_ui.settings.ChromeBasePreference
+         android:fragment="org.chromium.chrome.browser.autofill.options.AutofillOptionsFragment"
+         android:key="autofill_options"
+         android:order="16"
+-        android:title="@string/autofill_options_title" />
++        android:title="@string/autofill_options_title"
++        app:isPreferenceVisible="false"/>
+ 
+     <PreferenceCategory
+         android:key="advanced_section"
 -- 
 2.43.0
 
