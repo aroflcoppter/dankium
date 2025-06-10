@@ -1,15 +1,15 @@
-From 2d72c313691148c5b60301b9a5754a4dbd8ea32d Mon Sep 17 00:00:00 2001
+From 078083f68c07dffa6236f36807006e9286e01d54 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Tue, 10 Jun 2025 06:21:16 -0230
 Subject: [PATCH] Add legal information logic for android
 
 ---
- .../java/res/xml/about_chrome_preferences.xml | 14 ++++++++++++-
- .../about_settings/AboutChromeSettings.java   | 21 ++++++++++++++++---
- 2 files changed, 31 insertions(+), 4 deletions(-)
+ .../java/res/xml/about_chrome_preferences.xml  | 14 +++++++++++++-
+ .../about_settings/AboutChromeSettings.java    | 18 +++++++++++++++---
+ 2 files changed, 28 insertions(+), 4 deletions(-)
 
 diff --git a/chrome/android/java/res/xml/about_chrome_preferences.xml b/chrome/android/java/res/xml/about_chrome_preferences.xml
-index fb1dfed23052b..14e5fbb0dd7e8 100644
+index fb1dfed23052b..00f1fb4b4f895 100644
 --- a/chrome/android/java/res/xml/about_chrome_preferences.xml
 +++ b/chrome/android/java/res/xml/about_chrome_preferences.xml
 @@ -14,6 +14,18 @@ found in the LICENSE file.
@@ -29,11 +29,11 @@ index fb1dfed23052b..14e5fbb0dd7e8 100644
 +        android:title="@string/legal_information_title" />
 +	<org.chromium.chrome.browser.about_settings.LongClickCopySummaryPreference
 +        android:fragment="org.chromium.chrome.browser.about_settings.LegalInformationSettings"
-+        android:key="legal_information_qua3k"
++        android:key="legal_information_flawedworld"
          android:title="@string/legal_information_title" />
  </PreferenceScreen>
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/about_settings/AboutChromeSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/about_settings/AboutChromeSettings.java
-index 599df250a62b6..9939b82b04268 100644
+index 599df250a62b6..ac73ecfff2996 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/about_settings/AboutChromeSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/about_settings/AboutChromeSettings.java
 @@ -37,7 +37,10 @@ public class AboutChromeSettings extends PreferenceFragmentCompat
@@ -44,11 +44,11 @@ index 599df250a62b6..9939b82b04268 100644
 +    private static final String PREF_LEGAL_INFORMATION_AROFLCOPPTER = "legal_information_aroflcoppter";
 +	private static final String PREF_LEGAL_INFORMATION_GOOGLE = "legal_information_google";
 +	private static final String PREF_LEGAL_INFORMATION_EYEO = "legal_information_eyeo";
-+	private static final String PREF_LEGAL_INFORMATION_QUA3K = "legal_information_qua3k";
++	private static final String PREF_LEGAL_INFORMATION_FLAWEDWORLD = "legal_information_flawedworld";
  
      // Non-translated strings:
      @SuppressWarnings("InlineFormatString")
-@@ -68,10 +71,22 @@ public class AboutChromeSettings extends PreferenceFragmentCompat
+@@ -68,10 +71,19 @@ public class AboutChromeSettings extends PreferenceFragmentCompat
          p = findPreference(PREF_OS_VERSION);
          assumeNonNull(p);
          p.setSummary(AboutSettingsBridge.getOSVersion());
@@ -57,19 +57,16 @@ index 599df250a62b6..9939b82b04268 100644
          assumeNonNull(p);
          int currentYear = Calendar.getInstance().get(Calendar.YEAR);
 -        p.setSummary(getString(R.string.legal_information_summary, currentYear));
-+        p.setSummary(getString(R.string.legal_information_summary_aroflcoppter, currentYear
++        p.setSummary(getString(R.string.legal_information_summary_aroflcoppter, currentYear));
 +		p = findPreference(PREF_LEGAL_INFORMATION_GOOGLE);
 +        assumeNonNull(p);
-+        int currentYear = Calendar.getInstance().get(Calendar.YEAR);
 +        p.setSummary(getString(R.string.legal_information_summary_google, currentYear));
 +		p = findPreference(PREF_LEGAL_INFORMATION_EYEO);
 +        assumeNonNull(p);
-+        int currentYear = Calendar.getInstance().get(Calendar.YEAR);
 +        p.setSummary(getString(R.string.legal_information_summary_eyeo, currentYear));	
-+		p = findPreference(PREF_LEGAL_INFORMATION_QUA3K);
++		p = findPreference(PREF_LEGAL_INFORMATION_FLAWEDWORLD);
 +        assumeNonNull(p);
-+        int currentYear = Calendar.getInstance().get(Calendar.YEAR);
-+        p.setSummary(getString(R.string.legal_information_summary_qua3k, currentYear));	
++        p.setSummary(getString(R.string.legal_information_summary_flawedworld, currentYear));	
      }
  
      @Override

@@ -1,4 +1,4 @@
-From ab85388e71221e1f507a4f70c89bfb7a65d99ff8 Mon Sep 17 00:00:00 2001
+From 296d886777ab9a45eb952a8e085b4b3a4ce24d9b Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Tue, 3 Jun 2025 03:34:41 -0230
 Subject: [PATCH] Fixup settings strings for branding
@@ -8,7 +8,7 @@ Subject: [PATCH] Fixup settings strings for branding
  1 file changed, 22 insertions(+), 13 deletions(-)
 
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-index ca7b8b6a32e27..d69a610813f55 100644
+index ca7b8b6a32e27..db12bb1571bda 100644
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
 @@ -287,7 +287,7 @@ CHAR_LIMIT guidelines:
@@ -49,11 +49,11 @@ index ca7b8b6a32e27..d69a610813f55 100644
 +      <message name="IDS_LEGAL_INFORMATION_SUMMARY_GOOGLE" desc="Summary for legal information for google" meaning="Android">
          Copyright <ph name="year">%1$d<ex>2014</ex></ph> Google LLC. All rights reserved.
        </message>
-+      <message name="IDS_LEGAL_INFORMATION_SUMMARY_EYEO" desc="Summary for legal information for aroflcoppter" meaning="Android">
++      <message name="IDS_LEGAL_INFORMATION_SUMMARY_EYEO" desc="Summary for legal information for eyeo" meaning="Android">
 +        Copyright (C) 2006-present eyeo GmbH.
 +      </message>
-+      <message name="IDS_LEGAL_INFORMATION_SUMMARY_QUARK" desc="Summary for legal information for aroflcoppter" meaning="Android">
-+        Copyright 2021 qua3kr@gmail.com.
++      <message name="IDS_LEGAL_INFORMATION_SUMMARY_FLAWEDWORLD" desc="Summary for legal information for flawedworld" meaning="Android">
++        Copyright (c) 2021-2022 flawedworld. All rights reserved.
 +      </message>
        <message name="IDS_APPLICATION_VERSION_TITLE" desc="Title for application version">
 -        Application version

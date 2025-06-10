@@ -11,7 +11,8 @@ This commit has three parts, utilizing seccomp-bpf to prevent:
 
 It's inspired by PaX MPROTECT restrictions.
 
-Copyright 2021 qua3kr@gmail.com
+Copyright (c) 2021-2022 flawedworld
+All rights reserved.
 
 ---
  .../syscall_parameters_restrictions.cc        | 55 +++++++++++++++++++
