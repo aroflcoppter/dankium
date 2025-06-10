@@ -1,17 +1,17 @@
-From 904af7efa19824a81bc0e022437f9c0c8bac0bee Mon Sep 17 00:00:00 2001
+From 6cea93506348e08cbe007ddc30dffff9d0474724 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Tue, 10 Jun 2025 04:27:32 -0230
 Subject: [PATCH] Setting main page fixup
 
 ---
- .../android/java/res/xml/main_preferences.xml | 67 +++++++++++--------
- 1 file changed, 39 insertions(+), 28 deletions(-)
+ .../android/java/res/xml/main_preferences.xml | 69 +++++++++++--------
+ 1 file changed, 39 insertions(+), 30 deletions(-)
 
 diff --git a/chrome/android/java/res/xml/main_preferences.xml b/chrome/android/java/res/xml/main_preferences.xml
-index 65efe162bdc6b..03dabf3c784c9 100644
+index 65efe162bdc6b..0bd5df4ecdcd1 100644
 --- a/chrome/android/java/res/xml/main_preferences.xml
 +++ b/chrome/android/java/res/xml/main_preferences.xml
-@@ -20,19 +20,22 @@ for the previous order (main_preferences_legacy). -->
+@@ -20,32 +20,33 @@ for the previous order (main_preferences_legacy). -->
      <PreferenceCategory
          android:key="account_and_google_services_section"
          android:order="1"
@@ -34,11 +34,11 @@ index 65efe162bdc6b..03dabf3c784c9 100644
      <org.chromium.components.browser_ui.settings.ChromeBasePreference
          android:key="google_services"
 -        android:order="4"
+-        android:layout="@layout/account_management_account_row"
 +        android:order="6"
-         android:layout="@layout/account_management_account_row"
          android:title="@string/prefs_google_services"
-         android:icon="@drawable/ic_google_services_48dp_with_bg"
-@@ -40,12 +43,12 @@ for the previous order (main_preferences_legacy). -->
+-        android:icon="@drawable/ic_google_services_48dp_with_bg"
+         android:fragment="org.chromium.chrome.browser.sync.settings.GoogleServicesSettings"/>
  
      <PreferenceCategory
          android:key="basics_section"
@@ -53,7 +53,7 @@ index 65efe162bdc6b..03dabf3c784c9 100644
          android:title="@string/search_engine_settings"/>
      <org.chromium.components.browser_ui.settings.ChromeBasePreference
          android:fragment="org.chromium.chrome.browser.toolbar.settings.AddressBarSettingsFragment"
-@@ -61,47 +64,55 @@ for the previous order (main_preferences_legacy). -->
+@@ -61,47 +62,55 @@ for the previous order (main_preferences_legacy). -->
          android:fragment="org.chromium.chrome.browser.safety_check.SafetyCheckSettingsFragment"
          android:key="safety_check"
          android:order="9"
@@ -118,7 +118,7 @@ index 65efe162bdc6b..03dabf3c784c9 100644
          android:title="@string/adblock_settings_title" />
  
      <PreferenceCategory
-@@ -111,66 +122,66 @@ for the previous order (main_preferences_legacy). -->
+@@ -111,66 +120,66 @@ for the previous order (main_preferences_legacy). -->
      <Preference
          android:fragment="org.chromium.chrome.browser.tasks.tab_management.TabsSettings"
          android:key="tabs"
