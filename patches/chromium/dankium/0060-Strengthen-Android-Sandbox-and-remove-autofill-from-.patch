@@ -1,15 +1,15 @@
-From d424dcdd08ea1665fc0079aecb45bfcb7249005f Mon Sep 17 00:00:00 2001
+From c48f4f0a0ebecd4a0682db39212c3f1cf186b37d Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Mon, 9 Jun 2025 11:37:15 -0230
 Subject: [PATCH] Strengthen Android Sandbox and remove autofill from Android
  settings
 
 ---
- chrome/android/java/AndroidManifest.xml | 23 -----------------------
- 1 file changed, 23 deletions(-)
+ chrome/android/java/AndroidManifest.xml | 25 +------------------------
+ 1 file changed, 1 insertion(+), 24 deletions(-)
 
 diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/AndroidManifest.xml
-index f8815b416307b..fca5671416c28 100644
+index f8815b416307b..ad5a9e82c5652 100644
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
 @@ -39,7 +39,6 @@ by a child template that "extends" this file.
@@ -58,6 +58,15 @@ index f8815b416307b..fca5671416c28 100644
      {% block extra_uses_permissions %}
      {% endblock %}
  
+@@ -194,7 +183,7 @@ by a child template that "extends" this file.
+         android:icon="@drawable/ic_launcher"
+         android:roundIcon="@drawable/ic_launcher_round"
+         android:label="{% block application_label %}@string/app_name{% endblock %}"
+-        android:memtagMode="async"
++        android:memtagMode="sync"
+         android:largeHeap="false"
+         android:manageSpaceActivity="@string/manage_space_activity"
+         android:supportsRtl="true"
 @@ -450,18 +439,6 @@ by a child template that "extends" this file.
              </intent-filter>
          </activity>
