@@ -31,30 +31,6 @@ index 258250afc9e9f..8d351de2a57bc 100644
  #if BUILDFLAG(IS_CHROMEOS)
    registry->RegisterStringPref(prefs::kDnsOverHttpsEffectiveTemplatesChromeOS,
                                 std::string());
-diff --git a/chrome/browser/net/secure_dns_config.cc b/chrome/browser/net/secure_dns_config.cc
-index 0b23397a9164a..e6fa1039b56c9 100644
---- a/chrome/browser/net/secure_dns_config.cc
-+++ b/chrome/browser/net/secure_dns_config.cc
-@@ -24,14 +24,13 @@ SecureDnsConfig::~SecureDnsConfig() = default;
- // static
- std::optional<net::SecureDnsMode> SecureDnsConfig::ParseMode(
-     std::string_view name) {
--  if (name == kModeSecure) {
--    return net::SecureDnsMode::kSecure;
--  } else if (name == kModeAutomatic) {
--    return net::SecureDnsMode::kAutomatic;
--  } else if (name == kModeOff) {
-+  if (name == kModeOff) {
-     return net::SecureDnsMode::kOff;
--  }
-+  } else if ((name == kModeAutomatic) || (name == kModeSecure)) {
-+    return net::SecureDnsMode::kSecure;
-+  } else {
-   return std::nullopt;
-+  }
- }
- 
- // static
 diff --git a/net/dns/public/doh_provider_entry.cc b/net/dns/public/doh_provider_entry.cc
 index f79af28e8dd53..44ee93904cab6 100644
 --- a/net/dns/public/doh_provider_entry.cc
