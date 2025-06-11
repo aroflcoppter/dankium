@@ -78,5 +78,5 @@ You can use [API keys](https://www.chromium.org/developers/how-tos/api-keys/) fr
 ## Credits
 * [aroflcoppter](https://github.com/aroflcoppter/dankium/blob/main/LICENSE)
 * [the chromium authors](https://chromium.googlesource.com/chromium/src/+/HEAD/LICENSE)
-* [eyeo](https://github.com/aroflcoppter/dankium/blob/main/LICENSE)
+* [eyeo](http://github.com/aroflcoppter/dankium/blob/main/patches/chromium/eyeo-dankium/LICENSE)
 * [flawedworld](https://github.com/aroflcoppter/dankium/blob/main/patches/chromium/hexavalent/LICENCE)
