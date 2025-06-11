@@ -1,17 +1,26 @@
-From 44ff358b146ae89a9aadbec16979b386d841e78e Mon Sep 17 00:00:00 2001
+From 725fa8db19a466b674a4dc66faf9afe3f9eceef9 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Thu, 5 Jun 2025 17:05:18 -0230
 Subject: [PATCH] Update desktop about page
 
 ---
- .../resources/settings/about_page/about_page.html     | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ .../resources/settings/about_page/about_page.html    | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
 diff --git a/chrome/browser/resources/settings/about_page/about_page.html b/chrome/browser/resources/settings/about_page/about_page.html
-index a2e3ef715fef2..e5008d5fdcd7a 100644
+index a2e3ef715fef2..c9dba1d50d933 100644
 --- a/chrome/browser/resources/settings/about_page/about_page.html
 +++ b/chrome/browser/resources/settings/about_page/about_page.html
-@@ -149,11 +149,18 @@
+@@ -47,7 +47,7 @@
+     </style>
+     <settings-section page-title="$i18n{aboutPageTitle}" section="about">
+       <div class="cr-row two-line first">
+-        <img id="product-logo" on-click="onProductLogoClick_"
++        <img id="product-logo"
+             srcset="chrome://theme/current-channel-logo@1x 1x,
+                     chrome://theme/current-channel-logo@2x 2x"
+             alt="$i18n{aboutProductLogoAlt}"
+@@ -149,11 +149,17 @@
        <div class="info-sections">
          <div class="info-section">
            <div class="secondary">$i18n{aboutProductTitle}</div>
@@ -24,7 +33,6 @@ index a2e3ef715fef2..e5008d5fdcd7a 100644
  
          <div class="info-section">
 -          <div class="secondary">$i18nRaw{aboutProductLicense}</div>
-+          <div class="secondary">Dankium and the eyeo adblocking code are <a href="https://dankium.ca/license.html">GPL 3.0 or later</a>, flawedworld code is <a href="https://github.com/aroflcoppter/dankium/blob/main/patches/chromium/hexavalent/LICENCE">Clear BSD License</a>, Chromium code is <a href="https://chromium.googlesource.com/chromium/src/+/HEAD/LICENSE">3-clause BSD license</a>.</div>
 +          <div class="secondary"><a href="https://dankium.ca/tos.html" style="margin-right: 20px;">Terms of Service</a>
 +                                 <a href="https://dankium.ca/privacy.html" style="margin-right: 20px;">Privacy Policy</a>
 +                                 <a href="https://dankium.ca/license.html">License</a>
