@@ -1,0 +1,25 @@
+From e63fd84eb76c64faff6671eb8de6cb700171dd53 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Wed, 11 Jun 2025 16:22:11 -0230
+Subject: [PATCH] Subscribe to EasyPrivacy by default
+
+---
+ components/adblock/core/subscription/subscription_config.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/components/adblock/core/subscription/subscription_config.cc b/components/adblock/core/subscription/subscription_config.cc
+index 791b064a135fb..e03e8860d561f 100644
+--- a/components/adblock/core/subscription/subscription_config.cc
++++ b/components/adblock/core/subscription/subscription_config.cc
+@@ -290,7 +290,7 @@ const std::vector<KnownSubscriptionInfo>& config::GetKnownSubscriptions() {
+        "EasyPrivacy",
+        {},
+        SubscriptionUiVisibility::Visible,
+-       SubscriptionFirstRunBehavior::Ignore,
++       SubscriptionFirstRunBehavior::Subscribe,
+        SubscriptionPrivilegedFilterStatus::Forbidden},
+       {GURL(GetHost() + "fanboy-social.txt"),
+        "Fanboy's Social Blocking List",
+-- 
+2.43.0
+

@@ -76,7 +76,7 @@ index 59a081e9b7dcd..fd63aa6b7fc72 100644
  
  GURL GetUrl() {
 -  GURL url(EYEO_TELEMETRY_SERVER_URL);
-+  GURL url("localhost");
++  GURL url("https://0.0.0.0/");
    if (!g_https_port_for_testing) {
      return url;
    }
