@@ -30,25 +30,6 @@ index f8815b416307b..ad5a9e82c5652 100644
      <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
      <uses-permission android:name="android.permission.NFC"/>
      <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-@@ -96,18 +93,12 @@ by a child template that "extends" this file.
-     <uses-permission-sdk-23 android:name="android.permission.READ_MEDIA_VIDEO"/>
-     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
--    <uses-permission android:name="android.permission.USE_CREDENTIALS"/>
-     <uses-permission-sdk-23 android:name="android.permission.USE_BIOMETRIC"/>
-     <uses-permission-sdk-23 android:name="android.permission.USE_FINGERPRINT"/>
-     <uses-permission android:name="android.permission.VIBRATE"/>
-     <uses-permission android:name="android.permission.WAKE_LOCK"/>
-     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
- 
--    <!-- Permission for using Android 14's credential management framework. -->
--    <uses-permission android:name="android.permission.CREDENTIAL_MANAGER_QUERY_CANDIDATE_CREDENTIALS"/>
--    <uses-permission android:name="android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS"/>
--    <uses-permission android:name="android.permission.CREDENTIAL_MANAGER_SET_ORIGIN"/>
--
-     {% set enable_vr = enable_vr|default(0) %}
-     {% if enable_vr == "true" %}
-     <!-- Indicates use of Android's VR-mode, available only on Android N+. -->
 @@ -148,8 +139,6 @@ by a child template that "extends" this file.
      <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
      <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT"/>
