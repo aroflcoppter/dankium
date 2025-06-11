@@ -47,7 +47,7 @@ index f79af28e8dd53..44ee93904cab6 100644
 +         "2a10:50c0::ad2:ff"},
 +        /*dns_over_tls_hostnames=*/{"dns.adguard-dns.com"},
 +        "https://dns.adguard-dns.com/dns-query",
-+        /*ui_name=*/"Adguard",
++        /*ui_name=*/"AdGuard",
 +        /*privacy_policy=*/"https://adguard-dns.io/en/privacy.html",
 +        /*display_globally=*/true,
 +        /*display_countries=*/{},
