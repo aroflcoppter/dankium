@@ -88,7 +88,7 @@ index ca7b8b6a32e27..18563fdb2614c 100644
        </message>
        <message name="IDS_CHROME_ADDITIONAL_TERMS_OF_SERVICE_TITLE" desc="Title for Chrome and ChromeOS addtional terms of service">
 -        Chrome &amp; ChromeOS Additional Terms of Service
-+        Dankium Software License
++        Dankium Software Licenses
        </message>
        <message name="IDS_CHROME_ADDITIONAL_TERMS_OF_SERVICE_URL" desc="URL for Chrome and ChromeOS additional terms of service" translateable="false">
 -        https://www.google.com/chrome/terms/
