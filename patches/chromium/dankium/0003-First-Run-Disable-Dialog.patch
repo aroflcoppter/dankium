@@ -1,28 +1,29 @@
-From c28da182f3440cdd73e5d8234b47da4d97282f19 Mon Sep 17 00:00:00 2001
+From cdaa0560c4552af04ddbf610790a2fc2f3cf912e Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Sat, 7 Jun 2025 04:53:02 -0230
 Subject: [PATCH] First Run Disable Dialog
 
 ---
- .../org/chromium/chrome/browser/firstrun/FirstRunUtils.java   | 4 ----
- .../org/chromium/chrome/browser/firstrun/FirstRunStatus.java  | 4 ++--
- 2 files changed, 2 insertions(+), 6 deletions(-)
+ .../org/chromium/chrome/browser/firstrun/FirstRunUtils.java | 6 ++----
+ .../chromium/chrome/browser/firstrun/FirstRunStatus.java    | 4 ++--
+ 2 files changed, 4 insertions(+), 6 deletions(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunUtils.java b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunUtils.java
-index cec90104e8a96..8dae1cabdff56 100644
+index cec90104e8a96..2ebd6fb162300 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunUtils.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunUtils.java
-@@ -29,9 +29,7 @@ public class FirstRunUtils {
+@@ -29,8 +29,8 @@ public class FirstRunUtils {
          // Backup and restore does not restore native pref, so this needs to update it. Note that
          // these prefs are slightly different, the eula is set when the ToS is accepted (early in
          // the FRE), while the FRE flow is only complete at the end.
 -        if (FirstRunStatus.getFirstRunFlowComplete() && !isFirstRunEulaAccepted()) {
-             setEulaAccepted();
--        }
+-            setEulaAccepted();
++        if (!isFirstRunEulaAccepted()) {
++             setEulaAccepted();
+         }
      }
  
-     /**
-@@ -41,8 +39,6 @@ public class FirstRunUtils {
+@@ -41,8 +41,6 @@ public class FirstRunUtils {
       *     collect stats.
       */
      static void acceptTermsOfService(boolean allowMetricsAndCrashUploading) {

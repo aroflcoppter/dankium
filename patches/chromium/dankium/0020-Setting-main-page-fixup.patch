@@ -1,14 +1,14 @@
-From 6cea93506348e08cbe007ddc30dffff9d0474724 Mon Sep 17 00:00:00 2001
+From 476e94e4fdef56f750d3a5f1f28c6e8765015aee Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Tue, 10 Jun 2025 04:27:32 -0230
 Subject: [PATCH] Setting main page fixup
 
 ---
- .../android/java/res/xml/main_preferences.xml | 69 +++++++++++--------
- 1 file changed, 39 insertions(+), 30 deletions(-)
+ .../android/java/res/xml/main_preferences.xml | 72 +++++++++++--------
+ 1 file changed, 41 insertions(+), 31 deletions(-)
 
 diff --git a/chrome/android/java/res/xml/main_preferences.xml b/chrome/android/java/res/xml/main_preferences.xml
-index 65efe162bdc6b..0bd5df4ecdcd1 100644
+index 65efe162bdc6b..10c9276e58de7 100644
 --- a/chrome/android/java/res/xml/main_preferences.xml
 +++ b/chrome/android/java/res/xml/main_preferences.xml
 @@ -20,32 +20,33 @@ for the previous order (main_preferences_legacy). -->
@@ -118,7 +118,7 @@ index 65efe162bdc6b..0bd5df4ecdcd1 100644
          android:title="@string/adblock_settings_title" />
  
      <PreferenceCategory
-@@ -111,66 +120,66 @@ for the previous order (main_preferences_legacy). -->
+@@ -111,66 +120,67 @@ for the previous order (main_preferences_legacy). -->
      <Preference
          android:fragment="org.chromium.chrome.browser.tasks.tab_management.TabsSettings"
          android:key="tabs"
@@ -129,8 +129,10 @@ index 65efe162bdc6b..0bd5df4ecdcd1 100644
          android:fragment="org.chromium.chrome.browser.homepage.settings.HomepageSettings"
          android:key="homepage"
 -        android:order="19"
+-        android:title="@string/options_homepage_title"/>
 +        android:order="20"
-         android:title="@string/options_homepage_title"/>
++        android:title="@string/options_homepage_title"
++        app:isPreferenceVisible="false"/>
      <Preference
          android:fragment="org.chromium.chrome.browser.magic_stack.HomeModulesConfigSettings"
          android:key="home_modules_config"

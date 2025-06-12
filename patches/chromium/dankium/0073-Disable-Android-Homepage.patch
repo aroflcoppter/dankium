@@ -1,0 +1,25 @@
+From ac13e38613e63ab194e9a75a48042b46575355de Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Thu, 12 Jun 2025 18:18:32 -0230
+Subject: [PATCH] Disable Android Homepage
+
+---
+ .../org/chromium/chrome/browser/homepage/HomepageManager.java   | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/homepage/HomepageManager.java b/chrome/android/java/src/org/chromium/chrome/browser/homepage/HomepageManager.java
+index d29e8efb6d084..29e7e6a23daf6 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/homepage/HomepageManager.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/homepage/HomepageManager.java
+@@ -226,7 +226,7 @@ public class HomepageManager
+      * @see #isHomepageEnabled
+      */
+     private boolean getPrefHomepageEnabled() {
+-        return mSharedPreferencesManager.readBoolean(ChromePreferenceKeys.HOMEPAGE_ENABLED, true);
++        return mSharedPreferencesManager.readBoolean(ChromePreferenceKeys.HOMEPAGE_ENABLED, false);
+     }
+ 
+     /** Sets the user preference for whether the homepage is enabled. */
+-- 
+2.43.0
+
