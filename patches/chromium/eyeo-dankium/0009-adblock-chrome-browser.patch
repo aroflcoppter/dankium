@@ -1,31 +1,30 @@
-From 2a1bbacbfea3f0d6684a1a56a3616b4e703309df Mon Sep 17 00:00:00 2001
+From f473d3b4019a3a2017f3fd5066ee8972747917b5 Mon Sep 17 00:00:00 2001
 From: vanilla-chromium-builder <project_26591639_bot@noreply.gitlab.com>
 Date: Thu, 22 May 2025 15:50:31 +0000
 Subject: [PATCH] adblock chrome browser
 
 Copyright (C) 2006-present eyeo GmbH.
-
 ---
- chrome/browser/BUILD.gn                       |  15 +
- .../android/adblock/tab_id_translator_jni.cc  |  41 +
+ chrome/browser/BUILD.gn                       |  13 +
+ .../android/adblock/tab_id_translator_jni.cc  |  19 +
  chrome/browser/chrome_browser_main.cc         |   7 +
  .../client_hints/client_hints_browsertest.cc  |  11 +-
  .../browser/devtools/devtools_browsertest.cc  |   3 +-
  chrome/browser/extensions/BUILD.gn            |  18 +
  chrome/browser/extensions/api/BUILD.gn        |   4 +
- .../adblock_private/adblock_private_api.cc    | 693 ++++++++++++++
+ .../adblock_private/adblock_private_api.cc    | 693 +++++++++++++++
  .../api/adblock_private/adblock_private_api.h | 360 ++++++++
  .../adblock_private_apitest.cc                | 174 ++++
- .../adblock_private_apitest_backgroundpage.cc | 398 ++++++++
+ .../adblock_private_apitest_backgroundpage.cc | 398 +++++++++
  .../adblock_private_apitest_base.cc           | 103 +++
  .../adblock_private_apitest_base.h            |  62 ++
  ...e_filter_lists_with_http_server_apitest.cc | 188 ++++
  ...browser_context_keyed_service_factories.cc |   6 +
- .../eyeo_dev_tools_private_api.cc             | 447 +++++++++
+ .../eyeo_dev_tools_private_api.cc             | 447 ++++++++++
  .../eyeo_dev_tools_private_api.h              | 173 ++++
  .../eyeo_dev_tools_private_apitest.cc         | 256 ++++++
- .../eyeo_filtering_private_api.cc             | 855 ++++++++++++++++++
- .../eyeo_filtering_private_api.h              | 392 ++++++++
+ .../eyeo_filtering_private_api.cc             | 808 ++++++++++++++++++
+ .../eyeo_filtering_private_api.h              | 392 +++++++++
  .../eyeo_filtering_private_apitest.cc         | 172 ++++
  .../extension_function_registration_test.cc   |  11 +
  chrome/browser/net/errorpage_browsertest.cc   |   8 +
@@ -42,7 +41,7 @@ Copyright (C) 2006-present eyeo GmbH.
  chrome/browser/ui/BUILD.gn                    |  12 +
  chrome/browser/ui/prefs/pref_watcher.cc       |  13 +
  chrome/browser/ui/tab_helpers.cc              |  13 +
- 36 files changed, 4533 insertions(+), 7 deletions(-)
+ 36 files changed, 4462 insertions(+), 7 deletions(-)
  create mode 100644 chrome/browser/android/adblock/tab_id_translator_jni.cc
  create mode 100644 chrome/browser/extensions/api/adblock_private/adblock_private_api.cc
  create mode 100644 chrome/browser/extensions/api/adblock_private/adblock_private_api.h
@@ -59,7 +58,7 @@ Copyright (C) 2006-present eyeo GmbH.
  create mode 100644 chrome/browser/extensions/api/eyeo_filtering_private/eyeo_filtering_private_apitest.cc
 
 diff --git a/chrome/browser/BUILD.gn b/chrome/browser/BUILD.gn
-index efb9b948aca15..0a2ee7cbcd360 100644
+index 36fe07a692e9b..6833c4e7aad7b 100644
 --- a/chrome/browser/BUILD.gn
 +++ b/chrome/browser/BUILD.gn
 @@ -1,6 +1,9 @@
@@ -72,18 +71,16 @@ index efb9b948aca15..0a2ee7cbcd360 100644
  
  import("//base/allocator/allocator.gni")
  import("//build/buildflag_header.gni")
-@@ -174,6 +177,10 @@ static_library("browser") {
+@@ -174,6 +177,8 @@ static_library("browser") {
      "accessibility/page_colors_factory.h",
      "accessibility/prefers_default_scrollbar_styles_prefs.cc",
      "accessibility/prefers_default_scrollbar_styles_prefs.h",
 +    "adblock/adblock_chrome_content_browser_client.cc",
 +    "adblock/adblock_chrome_content_browser_client.h",
-+    "affiliations/affiliation_service_factory.cc",
-+    "affiliations/affiliation_service_factory.h",
      "after_startup_task_utils.cc",
      "after_startup_task_utils.h",
      "app_mode/app_mode_utils.cc",
-@@ -2082,6 +2089,7 @@ static_library("browser") {
+@@ -2082,6 +2087,7 @@ static_library("browser") {
      "//chrome/installer/util:with_no_strings",
      "//chrome/services/speech/buildflags",
      "//components/application_locale_storage",
@@ -91,7 +88,7 @@ index efb9b948aca15..0a2ee7cbcd360 100644
      "//components/assist_ranker",
      "//components/autofill/content/browser",
      "//components/autofill/core/browser",
-@@ -3321,6 +3329,11 @@ static_library("browser") {
+@@ -3320,6 +3326,11 @@ static_library("browser") {
        "touch_to_fill/password_manager/touch_to_fill_controller_webauthn_delegate.h",
      ]
  
@@ -103,7 +100,7 @@ index efb9b948aca15..0a2ee7cbcd360 100644
      deps += [
        ":delta_file_proto",
        ":profile_token",
-@@ -8476,6 +8489,8 @@ static_library("browser_public_dependencies") {
+@@ -8481,6 +8492,8 @@ static_library("browser_public_dependencies") {
      "//chrome/common/compose:mojo_bindings",
      "//chrome/services/file_util/public/mojom",
      "//components/account_id",
@@ -114,10 +111,10 @@ index efb9b948aca15..0a2ee7cbcd360 100644
      "//components/commerce/core/product_specifications:product_specifications",
 diff --git a/chrome/browser/android/adblock/tab_id_translator_jni.cc b/chrome/browser/android/adblock/tab_id_translator_jni.cc
 new file mode 100644
-index 0000000000000..731aa7bd3acde
+index 0000000000000..bb2d6bf4c3df1
 --- /dev/null
 +++ b/chrome/browser/android/adblock/tab_id_translator_jni.cc
-@@ -0,0 +1,41 @@
+@@ -0,0 +1,19 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -135,30 +132,8 @@ index 0000000000000..731aa7bd3acde
 + * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
 + */
 +
-+#include "chrome/android/chrome_jni_headers/TabIdTranslator_jni.h"
 +#include "chrome/browser/android/tab_android.h"
 +#include "content/public/browser/web_contents.h"
-+
-+namespace {
-+constexpr int kNoTabId = -1;
-+}
-+
-+static jint JNI_TabIdTranslator_FromRenderFrameHostId(JNIEnv* env,
-+                                                      jint render_process_id,
-+                                                      jint render_frame_id) {
-+  auto* web_contents = content::WebContents::FromRenderFrameHost(
-+      content::RenderFrameHost::FromID(render_process_id, render_frame_id));
-+  if (!web_contents) {
-+    return kNoTabId;
-+  }
-+
-+  auto* tab = TabAndroid::FromWebContents(web_contents);
-+  if (!tab) {
-+    return kNoTabId;
-+  }
-+
-+  return tab->GetAndroidId();
-+}
 diff --git a/chrome/browser/chrome_browser_main.cc b/chrome/browser/chrome_browser_main.cc
 index ee9e6e9208043..a4b3e66aa2921 100644
 --- a/chrome/browser/chrome_browser_main.cc
@@ -3251,10 +3226,10 @@ index 0000000000000..dc96a5f834ffd
 +}  // namespace extensions
 diff --git a/chrome/browser/extensions/api/eyeo_filtering_private/eyeo_filtering_private_api.cc b/chrome/browser/extensions/api/eyeo_filtering_private/eyeo_filtering_private_api.cc
 new file mode 100644
-index 0000000000000..533456160beec
+index 0000000000000..8c53430020ecb
 --- /dev/null
 +++ b/chrome/browser/extensions/api/eyeo_filtering_private/eyeo_filtering_private_api.cc
-@@ -0,0 +1,855 @@
+@@ -0,0 +1,808 @@
 +// This file is part of eyeo Chromium SDK,
 +// Copyright (C) 2006-present eyeo GmbH
 +//
@@ -3298,9 +3273,6 @@ index 0000000000000..533456160beec
 +namespace extensions {
 +
 +namespace {
-+
-+constexpr char kConfigurationMissing[] =
-+    "Configuration with name '%s' does not exist!";
 +
 +adblock::FilteringConfiguration* FindFilteringConfiguration(
 +    content::BrowserContext* context,
@@ -3825,10 +3797,6 @@ index 0000000000000..533456160beec
 +  EXTENSION_FUNCTION_VALIDATE(params);
 +  auto* configuration = FindFilteringConfiguration(
 +      GetOriginalBrowserContext(browser_context()), params->configuration);
-+  if (!configuration) {
-+    return RespondNow(Error(base::StringPrintf(kConfigurationMissing,
-+                                               params->configuration.c_str())));
-+  }
 +  configuration->SetEnabled(params->enabled);
 +  return RespondNow(NoArguments());
 +}
@@ -3845,10 +3813,6 @@ index 0000000000000..533456160beec
 +  EXTENSION_FUNCTION_VALIDATE(params);
 +  auto* configuration = FindFilteringConfiguration(
 +      GetOriginalBrowserContext(browser_context()), params->configuration);
-+  if (!configuration) {
-+    return RespondNow(Error(base::StringPrintf(kConfigurationMissing,
-+                                               params->configuration.c_str())));
-+  }
 +  return RespondNow(
 +      ArgumentList(api::eyeo_filtering_private::IsEnabled::Results::Create(
 +          configuration->IsEnabled())));
@@ -3880,10 +3844,6 @@ index 0000000000000..533456160beec
 +  EXTENSION_FUNCTION_VALIDATE(params);
 +  auto* configuration = FindFilteringConfiguration(
 +      GetOriginalBrowserContext(browser_context()), params->configuration);
-+  if (!configuration) {
-+    return RespondNow(Error(base::StringPrintf(kConfigurationMissing,
-+                                               params->configuration.c_str())));
-+  }
 +  auto url = GURL{params->url};
 +  auto status =
 +      RunSubscriptionAction(configuration, SubscriptionAction::kInstall, url);
@@ -3907,10 +3867,6 @@ index 0000000000000..533456160beec
 +  EXTENSION_FUNCTION_VALIDATE(params);
 +  auto* configuration = FindFilteringConfiguration(
 +      GetOriginalBrowserContext(browser_context()), params->configuration);
-+  if (!configuration) {
-+    return RespondNow(Error(base::StringPrintf(kConfigurationMissing,
-+                                               params->configuration.c_str())));
-+  }
 +  auto url = GURL{params->url};
 +  auto status =
 +      RunSubscriptionAction(configuration, SubscriptionAction::kUninstall, url);
@@ -3934,10 +3890,6 @@ index 0000000000000..533456160beec
 +  EXTENSION_FUNCTION_VALIDATE(params);
 +  auto* configuration = FindFilteringConfiguration(
 +      GetOriginalBrowserContext(browser_context()), params->configuration);
-+  if (!configuration) {
-+    return RespondNow(Error(base::StringPrintf(kConfigurationMissing,
-+                                               params->configuration.c_str())));
-+  }
 +  auto* subscription_service =
 +      adblock::SubscriptionServiceFactory::GetForBrowserContext(
 +          GetOriginalBrowserContext(browser_context()));
@@ -3960,10 +3912,6 @@ index 0000000000000..533456160beec
 +  EXTENSION_FUNCTION_VALIDATE(params);
 +  auto* configuration = FindFilteringConfiguration(
 +      GetOriginalBrowserContext(browser_context()), params->configuration);
-+  if (!configuration) {
-+    return RespondNow(Error(base::StringPrintf(kConfigurationMissing,
-+                                               params->configuration.c_str())));
-+  }
 +  configuration->AddAllowedDomain(params->domain);
 +  return RespondNow(NoArguments());
 +}
@@ -3982,10 +3930,6 @@ index 0000000000000..533456160beec
 +  EXTENSION_FUNCTION_VALIDATE(params);
 +  auto* configuration = FindFilteringConfiguration(
 +      GetOriginalBrowserContext(browser_context()), params->configuration);
-+  if (!configuration) {
-+    return RespondNow(Error(base::StringPrintf(kConfigurationMissing,
-+                                               params->configuration.c_str())));
-+  }
 +  configuration->RemoveAllowedDomain(params->domain);
 +  return RespondNow(NoArguments());
 +}
@@ -4003,10 +3947,6 @@ index 0000000000000..533456160beec
 +  EXTENSION_FUNCTION_VALIDATE(params);
 +  auto* configuration = FindFilteringConfiguration(
 +      GetOriginalBrowserContext(browser_context()), params->configuration);
-+  if (!configuration) {
-+    return RespondNow(Error(base::StringPrintf(kConfigurationMissing,
-+                                               params->configuration.c_str())));
-+  }
 +  return RespondNow(ArgumentList(
 +      api::eyeo_filtering_private::GetCustomFilters::Results::Create(
 +          configuration->GetAllowedDomains())));
@@ -4025,10 +3965,6 @@ index 0000000000000..533456160beec
 +  EXTENSION_FUNCTION_VALIDATE(params);
 +  auto* configuration = FindFilteringConfiguration(
 +      GetOriginalBrowserContext(browser_context()), params->configuration);
-+  if (!configuration) {
-+    return RespondNow(Error(base::StringPrintf(kConfigurationMissing,
-+                                               params->configuration.c_str())));
-+  }
 +  configuration->AddCustomFilter(params->filter);
 +  return RespondNow(NoArguments());
 +}
@@ -4047,10 +3983,6 @@ index 0000000000000..533456160beec
 +  EXTENSION_FUNCTION_VALIDATE(params);
 +  auto* configuration = FindFilteringConfiguration(
 +      GetOriginalBrowserContext(browser_context()), params->configuration);
-+  if (!configuration) {
-+    return RespondNow(Error(base::StringPrintf(kConfigurationMissing,
-+                                               params->configuration.c_str())));
-+  }
 +  configuration->RemoveCustomFilter(params->filter);
 +  return RespondNow(NoArguments());
 +}
@@ -4062,10 +3994,6 @@ index 0000000000000..533456160beec
 +  EXTENSION_FUNCTION_VALIDATE(params);
 +  auto* configuration = FindFilteringConfiguration(
 +      GetOriginalBrowserContext(browser_context()), params->configuration);
-+  if (!configuration) {
-+    return RespondNow(Error(base::StringPrintf(kConfigurationMissing,
-+                                               params->configuration.c_str())));
-+  }
 +  return RespondNow(ArgumentList(
 +      api::eyeo_filtering_private::GetCustomFilters::Results::Create(
 +          configuration->GetCustomFilters())));

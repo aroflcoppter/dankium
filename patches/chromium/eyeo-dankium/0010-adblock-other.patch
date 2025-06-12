@@ -1,15 +1,14 @@
-From 145edede7c8ee40209acd708e9bc65e4924116d9 Mon Sep 17 00:00:00 2001
+From a51a31477cfb60c49679f4ef7a4c6676b4eae537 Mon Sep 17 00:00:00 2001
 From: vanilla-chromium-builder <project_26591639_bot@noreply.gitlab.com>
 Date: Thu, 22 May 2025 15:50:31 +0000
 Subject: [PATCH] adblock other
 
 Copyright (C) 2006-present eyeo GmbH.
-
 ---
  base/threading/thread_restrictions.h          |  9 +++++
  base/trace_event/builtin_categories.h         |  5 +++
  build/install-build-deps.py                   | 10 +++++-
- chrome/android/BUILD.gn                       | 16 +++++++++
+ chrome/android/BUILD.gn                       | 12 +++++++
  chrome/android/chrome_java_sources.gni        |  4 +++
  .../android/java/res/xml/main_preferences.xml |  8 +++++
  .../java/res/xml/main_preferences_legacy.xml  |  8 +++++
@@ -21,7 +20,7 @@ Copyright (C) 2006-present eyeo GmbH.
  .../common/mojom/api_permission_id.mojom      |  7 ++++
  net/url_request/redirect_info.h               |  8 +++++
  .../network/public/cpp/net_ipc_param_traits.h |  5 +++
- 15 files changed, 140 insertions(+), 4 deletions(-)
+ 15 files changed, 136 insertions(+), 4 deletions(-)
  create mode 100644 chrome/android/java/src/org/chromium/chrome/browser/adblock/TabIdTranslator.java
 
 diff --git a/base/threading/thread_restrictions.h b/base/threading/thread_restrictions.h
@@ -110,7 +109,7 @@ index f699b9b876e58..fa6a3e3d7e98d 100755
        "ttf-indic-fonts",
        "ttf-kochi-gothic",
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
-index 53e1d8a325bd9..1bac7c349042c 100644
+index 53e1d8a325bd9..c6460acade86c 100644
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
 @@ -1,6 +1,9 @@
@@ -123,18 +122,7 @@ index 53e1d8a325bd9..1bac7c349042c 100644
  
  import("//build/config/android/config.gni")
  import("//build/config/cronet/config.gni")
-@@ -293,6 +296,10 @@ if (_is_default_toolchain) {
-     }
-   }
- 
-+    ### Android UI module start
-+    deps += [ "//chrome/browser/adblock/android:java_ui_resources" ]
-+
-+    ### Android UI module end
-   android_resources("java_overlay_resources") {
-     # Target for overrides of //ui/android:ui_java_resources
-     resource_overlay = true
-@@ -554,6 +561,7 @@ if (_is_default_toolchain) {
+@@ -554,6 +557,7 @@ if (_is_default_toolchain) {
        "//chrome/browser/xsurface:java",
        "//chrome/browser/xsurface_provider:dependency_provider_impl_java",
        "//chrome/browser/xsurface_provider:java",
@@ -142,7 +130,7 @@ index 53e1d8a325bd9..1bac7c349042c 100644
        "//components/android_autofill/browser:java",
        "//components/autofill/android:autofill_features_java",
        "//components/autofill/android:autofill_java",
-@@ -786,6 +794,11 @@ if (_is_default_toolchain) {
+@@ -786,6 +790,11 @@ if (_is_default_toolchain) {
        "//url/mojom:url_mojom_origin_java",
      ]
  
@@ -154,7 +142,7 @@ index 53e1d8a325bd9..1bac7c349042c 100644
      deps += feed_deps
  
      srcjar_deps = [
-@@ -1356,6 +1369,7 @@ if (_is_default_toolchain) {
+@@ -1356,6 +1365,7 @@ if (_is_default_toolchain) {
        "javatests:chrome_test_java_org.chromium.chrome.browser.toolbar",
        "javatests:chrome_test_java_org.chromium.chrome.browser.webapps",
        "javatests:chrome_test_java_various",
@@ -162,7 +150,7 @@ index 53e1d8a325bd9..1bac7c349042c 100644
        "//chrome/browser/android/browserservices/verification:javatests",
        "//chrome/browser/android/httpclient:javatests",
        "//chrome/browser/android/metrics:ukm_javatests",
-@@ -1427,6 +1441,7 @@ if (_is_default_toolchain) {
+@@ -1427,6 +1437,7 @@ if (_is_default_toolchain) {
        "//chrome/test/data/translate/",
        "//chrome/test/data/webauthn/",
        "//chrome/test/media_router/resources/",
@@ -170,7 +158,7 @@ index 53e1d8a325bd9..1bac7c349042c 100644
        "//components/test/data/autofill/",
        "//components/test/data/payments/",
        "//content/test/data/browsing_data/",
-@@ -3334,6 +3349,7 @@ if (_is_default_toolchain) {
+@@ -3334,6 +3345,7 @@ if (_is_default_toolchain) {
        "//chrome/browser/ui/plus_addresses/android:jni_headers",
        "//chrome/browser/util:jni_headers",
        "//chrome/browser/webauthn/android:jni_headers",
@@ -254,7 +242,7 @@ index a048f0ad3f7b6..d6d3aa5af3a19 100644
          android:key="advanced_section"
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/adblock/TabIdTranslator.java b/chrome/android/java/src/org/chromium/chrome/browser/adblock/TabIdTranslator.java
 new file mode 100644
-index 0000000000000..163fdf2a7d623
+index 0000000000000..33af9b5b83fa0
 --- /dev/null
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/adblock/TabIdTranslator.java
 @@ -0,0 +1,36 @@
@@ -286,7 +274,7 @@ index 0000000000000..163fdf2a7d623
 + */
 +public final class TabIdTranslator {
 +    public static int fromRenderFrameHostId(GlobalRenderFrameHostId id) {
-+        return TabIdTranslatorJni.get().fromRenderFrameHostId(id.childId(), id.frameRoutingId());
++        return 1;
 +    }
 +
 +    @NativeMethods
@@ -345,7 +333,7 @@ index e65fddc7cc743..fafc0000d6a29 100644
    // Android does this in `ChromeMainDelegateAndroid::PreSandboxStartup`.
    CHECK(sampling_profiler_);
 diff --git a/chrome/chrome_paks.gni b/chrome/chrome_paks.gni
-index 388b83742657c..92e2ce51f7ff7 100644
+index eddc45b06456c..5c21df9cdd9e7 100644
 --- a/chrome/chrome_paks.gni
 +++ b/chrome/chrome_paks.gni
 @@ -1,6 +1,9 @@

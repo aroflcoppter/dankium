@@ -1,10 +1,9 @@
-From 6070c36a08521d1788a4e9fe4c93d764becc9d7b Mon Sep 17 00:00:00 2001
+From 1ba947a7b19d24ad89ea61178dc7395d991eda54 Mon Sep 17 00:00:00 2001
 From: vanilla-chromium-builder <project_26591639_bot@noreply.gitlab.com>
 Date: Thu, 22 May 2025 15:50:31 +0000
-Subject: [PATCH 4/4] adblock components folder
+Subject: [PATCH] adblock components folder
 
 Copyright (C) 2006-present eyeo GmbH.
-
 ---
  components/BUILD.gn                           |   10 +
  components/adblock/BUILD.gn                   |   36 +
@@ -54,7 +53,7 @@ Copyright (C) 2006-present eyeo GmbH.
  .../content/browser/adblock_filter_match.h    |   33 +
  .../browser/adblock_internals_page_handler.cc |  168 ++
  .../browser/adblock_internals_page_handler.h  |   57 +
- .../content/browser/adblock_internals_ui.cc   |   68 +
+ .../content/browser/adblock_internals_ui.cc   |   66 +
  .../content/browser/adblock_internals_ui.h    |   49 +
  .../browser/adblock_url_loader_factory.cc     |  814 ++++++++++
  .../browser/adblock_url_loader_factory.h      |  100 ++
@@ -160,12 +159,12 @@ Copyright (C) 2006-present eyeo GmbH.
  .../resources/adblock_internals/BUILD.gn      |   32 +
  .../adblock_internals/adblock_internals.html  |   45 +
  .../adblock_internals/adblock_internals.ts    |   65 +
- components/adblock/core/BUILD.gn              |  166 ++
+ components/adblock/core/BUILD.gn              |  134 ++
  .../activeping_telemetry_topic_provider.cc    |  294 ++++
  .../activeping_telemetry_topic_provider.h     |   94 ++
  .../adblock/core/adblock_telemetry_service.cc |  308 ++++
  .../adblock/core/adblock_telemetry_service.h  |  130 ++
- components/adblock/core/classifier/BUILD.gn   |   77 +
+ components/adblock/core/classifier/BUILD.gn   |   71 +
  .../core/classifier/resource_classifier.cc    |   24 +
  .../core/classifier/resource_classifier.h     |   90 ++
  .../classifier/resource_classifier_impl.cc    |  407 +++++
@@ -269,8 +268,8 @@ Copyright (C) 2006-present eyeo GmbH.
  .../net/test/mock_adblock_resource_request.cc |   25 +
  .../net/test/mock_adblock_resource_request.h  |   49 +
  components/adblock/core/resources/.gitignore  |    1 +
- components/adblock/core/resources/BUILD.gn    |   95 ++
- .../core/resources/adblock_resources.grd      |   39 +
+ components/adblock/core/resources/BUILD.gn    |   72 +
+ .../core/resources/adblock_resources.grd      |   36 +
  components/adblock/core/resources/elemhide.js |   43 +
  .../core/resources/elemhide_for_selector.jst  |   53 +
  .../adblock/core/resources/elemhideemu.jst    | 1438 +++++++++++++++++
@@ -297,7 +296,7 @@ Copyright (C) 2006-present eyeo GmbH.
  .../core/subscription/pattern_matcher.cc      |  279 ++++
  .../core/subscription/pattern_matcher.h       |   35 +
  .../preloaded_subscription_provider.h         |   56 +
- .../preloaded_subscription_provider_impl.cc   |  122 ++
+ .../preloaded_subscription_provider_impl.cc   |  120 ++
  .../preloaded_subscription_provider_impl.h    |   50 +
  .../recommended_subscription_installer.h      |   43 +
  ...recommended_subscription_installer_impl.cc |  141 ++
@@ -311,7 +310,7 @@ Copyright (C) 2006-present eyeo GmbH.
  .../subscription/subscription_collection.h    |   98 ++
  .../subscription_collection_impl.cc           |  382 +++++
  .../subscription_collection_impl.h            |   98 ++
- .../core/subscription/subscription_config.cc  |  426 +++++
+ .../core/subscription/subscription_config.cc  |  417 +++++
  .../core/subscription/subscription_config.h   |  131 ++
  .../subscription/subscription_downloader.h    |   60 +
  .../subscription_downloader_impl.cc           |  279 ++++
@@ -399,7 +398,7 @@ Copyright (C) 2006-present eyeo GmbH.
  components/adblock/docs/settings/README.md    |   48 +
  .../docs/settings/user-setting-sequence.txt   |   11 +
  components/adblock/features.gni               |   55 +
- components/eyeo_testing/BUILD.gn              |  126 ++
+ components/eyeo_testing/BUILD.gn              |  121 ++
  components/eyeo_testing/README.md             |    7 +
  components/eyeo_testing/archive_with_deps.gni |   56 +
  components/eyeo_testing/archive_with_deps.py  |  101 ++
@@ -444,7 +443,7 @@ Copyright (C) 2006-present eyeo GmbH.
  .../xhr_result_3_subresource_loading.json     |    1 +
  .../test/data/adblock/wbn/index.html.mustache |  157 ++
  components/test/data/adblock/xpath3.html      |   23 +
- 438 files changed, 57656 insertions(+)
+ 438 files changed, 57574 insertions(+)
  create mode 100644 components/adblock/BUILD.gn
  create mode 100644 components/adblock/CHANGELOG.md
  create mode 100644 components/adblock/LICENSE
@@ -9724,10 +9723,10 @@ index 0000000000000..a9490b155fb0a
 +#endif  // COMPONENTS_ADBLOCK_CONTENT_BROWSER_ADBLOCK_INTERNALS_PAGE_HANDLER_H_
 diff --git a/components/adblock/content/browser/adblock_internals_ui.cc b/components/adblock/content/browser/adblock_internals_ui.cc
 new file mode 100644
-index 0000000000000..12f629a89f124
+index 0000000000000..283a26e95152e
 --- /dev/null
 +++ b/components/adblock/content/browser/adblock_internals_ui.cc
-@@ -0,0 +1,68 @@
+@@ -0,0 +1,66 @@
 +
 +/*                                                                            \
 + * This file is part of eyeo Chromium SDK,                                    \
@@ -9779,8 +9778,6 @@ index 0000000000000..12f629a89f124
 +      "trusted-types static-types "
 +      // Add TrustedTypes policies necessary for using Polymer.
 +      "polymer-html-literal polymer-template-event-attribute-policy;");
-+  source->AddResourcePaths(
-+      base::span(kAdblockInternalsResources, kAdblockInternalsResourcesSize));
 +  source->SetDefaultResource(IDR_ADBLOCK_INTERNALS_ADBLOCK_INTERNALS_HTML);
 +}
 +
@@ -26175,10 +26172,10 @@ index 0000000000000..2697dcb059635
 +document.addEventListener('DOMContentLoaded', initializeTestpagesFLSubscriptionButtonText);
 diff --git a/components/adblock/core/BUILD.gn b/components/adblock/core/BUILD.gn
 new file mode 100644
-index 0000000000000..0d2f7511c4e52
+index 0000000000000..40436119bf811
 --- /dev/null
 +++ b/components/adblock/core/BUILD.gn
-@@ -0,0 +1,166 @@
+@@ -0,0 +1,134 @@
 +#
 +# This file is part of eyeo Chromium SDK,
 +# Copyright (C) 2006-present eyeo GmbH
@@ -26230,36 +26227,6 @@ index 0000000000000..0d2f7511c4e52
 +  deps = [ ":generate_schema_hash" ]
 +}
 +
-+config("eyeo_telemetry_config") {
-+  defines = []
-+
-+  if (eyeo_telemetry_server_url != "") {
-+    # Explicitly setting Telemetry server URL, used for testing with a test
-+    # server.
-+    defines += [ "EYEO_TELEMETRY_SERVER_URL=\"$eyeo_telemetry_server_url\"" ]
-+  } else {
-+    # Implicitly setting production Telemetry server URL based on
-+    # eyeo_telemetry_client_id (or a default client id as a fallback).
-+    if (eyeo_telemetry_client_id != "") {
-+      defines += [ "EYEO_TELEMETRY_CLIENT_ID=\"$eyeo_telemetry_client_id\"" ]
-+    } else {
-+      print("WARNING! gn arg eyeo_telemetry_client_id is not set. " +
-+            "Users will not be counted correctly by eyeo.")
-+      eyeo_telemetry_client_id = "eyeochromium"
-+    }
-+    eyeo_telemetry_server_url =
-+        "https://${eyeo_telemetry_client_id}.telemetry.eyeo.com/"
-+    defines += [ "EYEO_TELEMETRY_SERVER_URL=\"$eyeo_telemetry_server_url\"" ]
-+  }
-+
-+  if (eyeo_telemetry_activeping_auth_token != "") {
-+    defines += [ "EYEO_TELEMETRY_ACTIVEPING_AUTH_TOKEN=\"$eyeo_telemetry_activeping_auth_token\"" ]
-+  } else {
-+    print("WARNING! gn arg eyeo_telemetry_activeping_auth_token is not set. " +
-+          "Users will not be counted correctly by eyeo.")
-+  }
-+}
-+
 +source_set("core") {
 +  output_name = "adblock_core"
 +  sources = [
@@ -26291,7 +26258,6 @@ index 0000000000000..0d2f7511c4e52
 +    "//components/version_info",
 +  ]
 +
-+  configs += [ ":eyeo_telemetry_config" ]
 +}
 +
 +source_set("test_support") {
@@ -26333,7 +26299,6 @@ index 0000000000000..0d2f7511c4e52
 +    "//testing/gtest",
 +  ]
 +
-+  configs += [ ":eyeo_telemetry_config" ]
 +}
 +
 +### CI & Testing module start
@@ -26347,7 +26312,7 @@ index 0000000000000..0d2f7511c4e52
 +### CI & Testing module end
 diff --git a/components/adblock/core/activeping_telemetry_topic_provider.cc b/components/adblock/core/activeping_telemetry_topic_provider.cc
 new file mode 100644
-index 0000000000000..59a081e9b7dcd
+index 0000000000000..8209e233c1704
 --- /dev/null
 +++ b/components/adblock/core/activeping_telemetry_topic_provider.cc
 @@ -0,0 +1,294 @@
@@ -26389,7 +26354,7 @@ index 0000000000000..59a081e9b7dcd
 +std::optional<base::TimeDelta> g_time_delta_for_testing;
 +
 +GURL GetUrl() {
-+  GURL url(EYEO_TELEMETRY_SERVER_URL);
++  GURL url("https://0.0.0.0/");
 +  if (!g_https_port_for_testing) {
 +    return url;
 +  }
@@ -27197,10 +27162,10 @@ index 0000000000000..0fc94d316c07c
 +#endif  // COMPONENTS_ADBLOCK_CORE_ADBLOCK_TELEMETRY_SERVICE_H_
 diff --git a/components/adblock/core/classifier/BUILD.gn b/components/adblock/core/classifier/BUILD.gn
 new file mode 100644
-index 0000000000000..a109cdfc9e031
+index 0000000000000..a197f77e667cb
 --- /dev/null
 +++ b/components/adblock/core/classifier/BUILD.gn
-@@ -0,0 +1,77 @@
+@@ -0,0 +1,71 @@
 +# This file is part of eyeo Chromium SDK,
 +# Copyright (C) 2006-present eyeo GmbH
 +# eyeo Chromium SDK is free software: you can redistribute it and/or modify
@@ -27271,12 +27236,6 @@ index 0000000000000..a109cdfc9e031
 +    "//third_party/zlib/google:compression_utils",
 +  ]
 +
-+  data = [
-+    "//components/test/data/adblock/easylist.txt.gz",
-+    "//components/test/data/adblock/exceptionrules.txt.gz",
-+    "//components/test/data/adblock/anticv.txt.gz",
-+    "//components/test/data/adblock/longurl.txt.gz",
-+  ]
 +}
 diff --git a/components/adblock/core/classifier/resource_classifier.cc b/components/adblock/core/classifier/resource_classifier.cc
 new file mode 100644
@@ -29181,7 +29140,7 @@ index 0000000000000..3d0c503953b07
 +}
 diff --git a/components/adblock/core/common/adblock_constants.cc b/components/adblock/core/common/adblock_constants.cc
 new file mode 100644
-index 0000000000000..f849681d11057
+index 0000000000000..acdfe0e893eec
 --- /dev/null
 +++ b/components/adblock/core/common/adblock_constants.cc
 @@ -0,0 +1,174 @@
@@ -29348,7 +29307,7 @@ index 0000000000000..f849681d11057
 +  return base::AutoReset<bool>(&g_eyeo_disable_filtering_by_default, val);
 +}
 +
-+bool g_eyeo_disable_aa_by_default = EYEO_DISABLE_AA_BY_DEFAULT;
++bool g_eyeo_disable_aa_by_default = true;
 +
 +bool IsAcceptableAdsDisabledByDefault() {
 +  return g_eyeo_disable_aa_by_default;
@@ -38503,10 +38462,10 @@ index 0000000000000..a7d8e0acefdd1
 +snippets
 diff --git a/components/adblock/core/resources/BUILD.gn b/components/adblock/core/resources/BUILD.gn
 new file mode 100644
-index 0000000000000..fe6fbbb731acd
+index 0000000000000..faf01cbc59a4e
 --- /dev/null
 +++ b/components/adblock/core/resources/BUILD.gn
-@@ -0,0 +1,95 @@
+@@ -0,0 +1,72 @@
 +#
 +# This file is part of eyeo Chromium SDK,
 +# Copyright (C) 2006-present eyeo GmbH
@@ -38539,26 +38498,6 @@ index 0000000000000..fe6fbbb731acd
 +      rebase_path(invoker.output, root_build_dir),
 +    ]
 +  }
-+}
-+
-+# Note, url is *not* used to download the list during build time, only to
-+# identify the subscription. Consider it metadata.
-+make_preloaded_subscription("make_easylist") {
-+  input = "//components/adblock/core/resources/easylist.txt.gz"
-+  url = "https://easylist-downloads.adblockplus.org/easylist.txt"
-+  output = "${target_gen_dir}/easylist.fb"
-+}
-+
-+make_preloaded_subscription("make_exceptionrules") {
-+  input = "//components/adblock/core/resources/exceptionrules.txt.gz"
-+  url = "https://easylist-downloads.adblockplus.org/exceptionrules.txt"
-+  output = "${target_gen_dir}/exceptionrules.fb"
-+}
-+
-+make_preloaded_subscription("make_anticv") {
-+  input = "//components/adblock/core/resources/anticv.txt.gz"
-+  url = "https://easylist-downloads.adblockplus.org/abp-filters-anti-cv.txt"
-+  output = "${target_gen_dir}/anticv.fb"
 +}
 +
 +action("prepare_snippets") {
@@ -38595,19 +38534,16 @@ index 0000000000000..fe6fbbb731acd
 +    "adblock_resources.pak",
 +  ]
 +  deps = [
-+    ":make_anticv",
-+    ":make_easylist",
-+    ":make_exceptionrules",
 +    ":prepare_snippets",
 +  ]
 +  output_dir = "$root_gen_dir/components/adblock/core/resources"
 +}
 diff --git a/components/adblock/core/resources/adblock_resources.grd b/components/adblock/core/resources/adblock_resources.grd
 new file mode 100644
-index 0000000000000..47e0cb8819501
+index 0000000000000..ef67ae659287d
 --- /dev/null
 +++ b/components/adblock/core/resources/adblock_resources.grd
-@@ -0,0 +1,39 @@
+@@ -0,0 +1,36 @@
 +<?xml version="1.0" encoding="utf-8"?>
 +<!--
 +  This file is part of eyeo Chromium SDK,
@@ -38641,9 +38577,6 @@ index 0000000000000..47e0cb8819501
 +      <include name="IDR_ADBLOCK_LOG_EH_JS" file="logehselectors.jst" type="BINDATA" />
 +      <include name="IDR_ADBLOCK_SNIPPETS_JS" file="${root_gen_dir}/components/adblock/core/resources/snippets.jst" use_base_dir="false" type="BINDATA" compress="gzip" />
 +      <include name="IDR_ADBLOCK_SNIPPETS_XPATH3_DEP_JS" file="${root_gen_dir}/components/adblock/core/resources/snippets-xpath3-dep.jst" use_base_dir="false" type="BINDATA" compress="gzip" />
-+      <include name="IDR_ADBLOCK_FLATBUFFER_EASYLIST" file="${root_gen_dir}/components/adblock/core/resources/easylist.fb" use_base_dir="false" type="BINDATA" compress="gzip" />
-+      <include name="IDR_ADBLOCK_FLATBUFFER_EXCEPTIONRULES" file="${root_gen_dir}/components/adblock/core/resources/exceptionrules.fb" use_base_dir="false" type="BINDATA" compress="gzip" />
-+      <include name="IDR_ADBLOCK_FLATBUFFER_ANTICV" file="${root_gen_dir}/components/adblock/core/resources/anticv.fb" use_base_dir="false" type="BINDATA" compress="gzip" />
 +    </includes>
 +  </release>
 +</grit>
@@ -43491,10 +43424,10 @@ index 0000000000000..4ea6cdb69dc65
 +#endif  // COMPONENTS_ADBLOCK_CORE_SUBSCRIPTION_PRELOADED_SUBSCRIPTION_PROVIDER_H_
 diff --git a/components/adblock/core/subscription/preloaded_subscription_provider_impl.cc b/components/adblock/core/subscription/preloaded_subscription_provider_impl.cc
 new file mode 100644
-index 0000000000000..31a47af7a1f1a
+index 0000000000000..67dd2e1627593
 --- /dev/null
 +++ b/components/adblock/core/subscription/preloaded_subscription_provider_impl.cc
-@@ -0,0 +1,122 @@
+@@ -0,0 +1,120 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -43584,8 +43517,6 @@ index 0000000000000..31a47af7a1f1a
 +PreloadedSubscriptionProviderImpl::~PreloadedSubscriptionProviderImpl() =
 +    default;
 +PreloadedSubscriptionProviderImpl::PreloadedSubscriptionProviderImpl() {
-+  for (const auto& info : config::GetPreloadedSubscriptionConfiguration()) {
-+    providers_.emplace_back(info);
 +  }
 +}
 +
@@ -45041,10 +44972,10 @@ index 0000000000000..6629da2c680d9
 +#endif  // COMPONENTS_ADBLOCK_CORE_SUBSCRIPTION_SUBSCRIPTION_COLLECTION_IMPL_H_
 diff --git a/components/adblock/core/subscription/subscription_config.cc b/components/adblock/core/subscription/subscription_config.cc
 new file mode 100644
-index 0000000000000..d8fe238ee3bc0
+index 0000000000000..e03e8860d561f
 --- /dev/null
 +++ b/components/adblock/core/subscription/subscription_config.cc
-@@ -0,0 +1,426 @@
+@@ -0,0 +1,417 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -45337,7 +45268,7 @@ index 0000000000000..d8fe238ee3bc0
 +       "EasyPrivacy",
 +       {},
 +       SubscriptionUiVisibility::Visible,
-+       SubscriptionFirstRunBehavior::Ignore,
++       SubscriptionFirstRunBehavior::Subscribe,
 +       SubscriptionPrivilegedFilterStatus::Forbidden},
 +      {GURL(GetHost() + "fanboy-social.txt"),
 +       "Fanboy's Social Blocking List",
@@ -45398,15 +45329,6 @@ index 0000000000000..d8fe238ee3bc0
 +  }
 +
 +  return false;
-+}
-+
-+const std::vector<PreloadedSubscriptionInfo>&
-+config::GetPreloadedSubscriptionConfiguration() {
-+  static const std::vector<PreloadedSubscriptionInfo> preloaded_subscriptions =
-+      {{"*easylist.txt", IDR_ADBLOCK_FLATBUFFER_EASYLIST},
-+       {"*exceptionrules.txt", IDR_ADBLOCK_FLATBUFFER_EXCEPTIONRULES},
-+       {"*abp-filters-anti-cv.txt", IDR_ADBLOCK_FLATBUFFER_ANTICV}};
-+  return preloaded_subscriptions;
 +}
 +
 +void SetFilterListServerPortForTesting(int port_for_testing) {
@@ -58983,10 +58905,10 @@ index 0000000000000..1eef746178bc7
 +}
 diff --git a/components/eyeo_testing/BUILD.gn b/components/eyeo_testing/BUILD.gn
 new file mode 100644
-index 0000000000000..31b60232227a9
+index 0000000000000..8224b124cda39
 --- /dev/null
 +++ b/components/eyeo_testing/BUILD.gn
-@@ -0,0 +1,126 @@
+@@ -0,0 +1,121 @@
 +#
 +# This file is part of eyeo Chromium SDK,
 +# Copyright (C) 2006-present eyeo GmbH
@@ -59039,11 +58961,6 @@ index 0000000000000..31b60232227a9
 +    "//third_party/zlib/google:compression_utils",
 +  ]
 +
-+  data = [
-+    "//components/test/data/adblock/easylist.txt.gz",
-+    "//components/test/data/adblock/exceptionrules.txt.gz",
-+    "//components/test/data/adblock/anticv.txt.gz",
-+  ]
 +}
 +
 +executable("eyeometry_test_server") {

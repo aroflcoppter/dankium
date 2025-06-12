@@ -1,10 +1,9 @@
-From 7ef24edd43c4cfe410ce0f7013913e412a489ebd Mon Sep 17 00:00:00 2001
+From 65bfd36313a024cdaadfe513fafb92d9fe188ad4 Mon Sep 17 00:00:00 2001
 From: vanilla-chromium-builder <project_26591639_bot@noreply.gitlab.com>
 Date: Thu, 22 May 2025 15:50:31 +0000
 Subject: [PATCH] adblock chrome brower adblock folder
 
 Copyright (C) 2006-present eyeo GmbH.
-
 ---
  chrome/browser/adblock/README.md              |   3 +
  .../adblock_chrome_content_browser_client.cc  |  27 +
@@ -13,11 +12,27 @@ Copyright (C) 2006-present eyeo GmbH.
  chrome/browser/adblock/android/BUILD.gn       | 164 ++++++
  chrome/browser/adblock/android/README.md      |  13 +
  .../adblock/android/adblock_strings.grd       | 244 +++++++++
+ .../fragment_adblock_custom_item_add.png      | Bin 0 -> 490 bytes
+ .../fragment_adblock_custom_item_remove.png   | Bin 0 -> 296 bytes
+ .../fragment_adblock_custom_item_add.png      | Bin 0 -> 321 bytes
+ .../fragment_adblock_custom_item_remove.png   | Bin 0 -> 169 bytes
+ .../fragment_adblock_custom_item_add.png      | Bin 0 -> 1522 bytes
+ .../fragment_adblock_custom_item_remove.png   | Bin 0 -> 696 bytes
+ .../fragment_adblock_custom_item_add.png      | Bin 0 -> 747 bytes
+ .../fragment_adblock_custom_item_remove.png   | Bin 0 -> 194 bytes
+ .../fragment_adblock_custom_item_add.png      | Bin 0 -> 1485 bytes
+ .../fragment_adblock_custom_item_remove.png   | Bin 0 -> 284 bytes
+ .../fragment_adblock_custom_item_add.png      | Bin 0 -> 3393 bytes
+ .../fragment_adblock_custom_item_remove.png   | Bin 0 -> 600 bytes
+ .../fragment_adblock_custom_item_add.png      | Bin 0 -> 638 bytes
+ .../fragment_adblock_custom_item_remove.png   | Bin 0 -> 240 bytes
+ .../fragment_adblock_custom_item_add.png      | Bin 0 -> 933 bytes
+ .../fragment_adblock_custom_item_remove.png   | Bin 0 -> 456 bytes
  .../java/res/layout/adblock_custom_item.xml   |  50 ++
  .../layout/adblock_custom_item_settings.xml   |  65 +++
  .../layout/adblock_filter_lists_list_item.xml |  36 ++
  .../java/res/xml/adblock_more_options.xml     |  34 ++
- .../java/res/xml/adblock_preferences.xml      |  63 +++
+ .../java/res/xml/adblock_preferences.xml      |  67 +++
  .../AdblockAllowedDomainsFragment.java        |  79 +++
  .../AdblockCustomFilterListsFragment.java     | 125 +++++
  .../AdblockCustomFiltersFragment.java         |  80 +++
@@ -133,7 +148,7 @@ Copyright (C) 2006-present eyeo GmbH.
  ...ock_frame_hierarchy_builder_browsertest.cc | 474 ++++++++++++++++++
  .../test/adblock_multiple_tabs_browsertest.cc | 168 +++++++
  .../adblock/test/adblock_popup_browsertest.cc | 462 +++++++++++++++++
- 127 files changed, 5437 insertions(+)
+ 143 files changed, 5441 insertions(+)
  create mode 100644 chrome/browser/adblock/README.md
  create mode 100644 chrome/browser/adblock/adblock_chrome_content_browser_client.cc
  create mode 100644 chrome/browser/adblock/adblock_chrome_content_browser_client.h
@@ -141,6 +156,22 @@ Copyright (C) 2006-present eyeo GmbH.
  create mode 100644 chrome/browser/adblock/android/BUILD.gn
  create mode 100644 chrome/browser/adblock/android/README.md
  create mode 100644 chrome/browser/adblock/android/adblock_strings.grd
+ create mode 100644 chrome/browser/adblock/android/java/res/drawable-hdpi/fragment_adblock_custom_item_add.png
+ create mode 100644 chrome/browser/adblock/android/java/res/drawable-hdpi/fragment_adblock_custom_item_remove.png
+ create mode 100644 chrome/browser/adblock/android/java/res/drawable-mdpi/fragment_adblock_custom_item_add.png
+ create mode 100644 chrome/browser/adblock/android/java/res/drawable-mdpi/fragment_adblock_custom_item_remove.png
+ create mode 100644 chrome/browser/adblock/android/java/res/drawable-night-hdpi/fragment_adblock_custom_item_add.png
+ create mode 100644 chrome/browser/adblock/android/java/res/drawable-night-hdpi/fragment_adblock_custom_item_remove.png
+ create mode 100644 chrome/browser/adblock/android/java/res/drawable-night-mdpi/fragment_adblock_custom_item_add.png
+ create mode 100644 chrome/browser/adblock/android/java/res/drawable-night-mdpi/fragment_adblock_custom_item_remove.png
+ create mode 100644 chrome/browser/adblock/android/java/res/drawable-night-xhdpi/fragment_adblock_custom_item_add.png
+ create mode 100644 chrome/browser/adblock/android/java/res/drawable-night-xhdpi/fragment_adblock_custom_item_remove.png
+ create mode 100644 chrome/browser/adblock/android/java/res/drawable-night-xxhdpi/fragment_adblock_custom_item_add.png
+ create mode 100644 chrome/browser/adblock/android/java/res/drawable-night-xxhdpi/fragment_adblock_custom_item_remove.png
+ create mode 100644 chrome/browser/adblock/android/java/res/drawable-xhdpi/fragment_adblock_custom_item_add.png
+ create mode 100644 chrome/browser/adblock/android/java/res/drawable-xhdpi/fragment_adblock_custom_item_remove.png
+ create mode 100644 chrome/browser/adblock/android/java/res/drawable-xxhdpi/fragment_adblock_custom_item_add.png
+ create mode 100644 chrome/browser/adblock/android/java/res/drawable-xxhdpi/fragment_adblock_custom_item_remove.png
  create mode 100644 chrome/browser/adblock/android/java/res/layout/adblock_custom_item.xml
  create mode 100644 chrome/browser/adblock/android/java/res/layout/adblock_custom_item_settings.xml
  create mode 100644 chrome/browser/adblock/android/java/res/layout/adblock_filter_lists_list_item.xml
@@ -742,7 +773,7 @@ index 0000000000000..faaa3ec773e49
 +in [xtb files](translations) (`translation id` value).
 diff --git a/chrome/browser/adblock/android/adblock_strings.grd b/chrome/browser/adblock/android/adblock_strings.grd
 new file mode 100644
-index 0000000000000..38fe51d5be6d9
+index 0000000000000..686fc0e80f2f0
 --- /dev/null
 +++ b/chrome/browser/adblock/android/adblock_strings.grd
 @@ -0,0 +1,244 @@
@@ -943,7 +974,7 @@ index 0000000000000..38fe51d5be6d9
 +        Filter lists
 +      </message>
 +      <message name="IDS_FRAGMENT_ADBLOCK_SETTINGS_FILTER_LISTS_SUMMARY" desc="Summary of MultiSelectListPreference to choose filter lists">
-+        Add the languages in which you regularly browse websites in
++        Add and remove content filter lists
 +      </message>
 +      <message name="IDS_FRAGMENT_ADBLOCK_SETTINGS_AA_ENABLED_TITLE" desc="Title of SwitchPreference to enable/disable Acceptable Ads">
 +        Acceptable Ads
@@ -961,7 +992,7 @@ index 0000000000000..38fe51d5be6d9
 +        Allowlist
 +      </message>
 +      <message name="IDS_FRAGMENT_ADBLOCK_SETTINGS_ALLOWED_DOMAINS_SUMMARY" desc="Summary of Preference to configure allowed domains">
-+        Support your favorite websites by adding them to this list. You might see ads on them.
++        Disable blocking for certian sites. WARNING: Less private.
 +      </message>
 +      <message name="IDS_FRAGMENT_ADBLOCK_SETTINGS_ADD_DOMAIN" desc="Hint of EditText for typing domain in allowed domains fragment">
 +        Enter URL
@@ -990,6 +1021,396 @@ index 0000000000000..38fe51d5be6d9
 +    </messages>
 +  </release>
 +</grit>
+diff --git a/chrome/browser/adblock/android/java/res/drawable-hdpi/fragment_adblock_custom_item_add.png b/chrome/browser/adblock/android/java/res/drawable-hdpi/fragment_adblock_custom_item_add.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..0b8634e72bb0fb6325642aeb6221fd7eb18d0c07
+GIT binary patch
+literal 490
+zcmV<G0Tup<P)<h;3K|Lk000e1NJLTq001Na001Ni1ONa4O9@aD00058Nkl<Zcmd^<
+z!Aj#$6o$VhHZHU+vn_oXH-)0;!bPNrZz57$DCmF&E6fWFj>^1)o6^Ua8bxe6FQA)D
+zIGoL4Zqgg*&hKC4KfgcMdoJZG60ygaDH)%IGN#<HOOslB<CMST4lNkb!IL2wd4=AI
+zSxU$ca@8Ns=+h-C)TPfkGjzt7u)5~A24@@)V1a-ksU{w(s`NDcWP>s`xzp4wB@8w2
+zon>5UGInn&)6-bC7!}$wUW0qRcE<)!^=>w>jKm*dY4IZd30NY1HwWNV1c&;rni%$U
+z;emHi$g@m#FpR}K1MecZkV%4JDrUb{(Lg2>44If+vndfzGI>J2%m#ZhnPd1AGcu=e
+z$eeCnzCKo4wEBN-WtV*;=6S86OPO3_*cEeD>p`Y6*~SpD5PRrdbR>Spn)?q@Hoc14
+zyo!I!e{^`4(Vf@N$fIQ6XyG6x7hTbyiUx@$_bFklfqPn%(dJQ838jQQXy}DQLdX1w
+zS55pPfU2rna@8{z4Ct|5sK<ayQglW_z*1tp_A<S(k0%{YSU5{Ej%iVgCOafdnDbF+
+g&V*~WS>x;R50!~d6Wj0ry#N3J07*qoM6N<$f-V%=4*&oF
+
+literal 0
+HcmV?d00001
+
+diff --git a/chrome/browser/adblock/android/java/res/drawable-hdpi/fragment_adblock_custom_item_remove.png b/chrome/browser/adblock/android/java/res/drawable-hdpi/fragment_adblock_custom_item_remove.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..a079dac12cb0d0a0b7857383436d51689fbc17a1
+GIT binary patch
+literal 296
+zcmeAS@N?(olHy`uVBq!ia0vp^Dj>|k1|%Oc%$NbBSc;uILpXq-h9ji|$iMID;usRq
+z`gXb@*C7KDhxuzoL_R9SITw5uxVLEW?BfN+MW5C5;+$lzEcFO(*RnAA=_%#-(Edm8
+zr_b@H^q({@`jRX#)0{Evz?DsP?As2Qe)^-}c7QLV<p%TPD@VN-yyAGQn4+^YJN)26
+zg(=LgXM8hmFVr?KS52LGbYI(*E0TwLl?)tmqrdz;?RBXmH_j=nrd8`v^~=dj6+6uS
+z#PF}2(8A@p0*N?spUadpE7WdwO{<@+%RQOGJxiS<8N{DNo)Jq=co(dZGG!j4_bo%K
+i7U=?ov*BSP6V*$->@7EW{i_FhmBG{1&t;ucLK6Tz9d&g8
+
+literal 0
+HcmV?d00001
+
+diff --git a/chrome/browser/adblock/android/java/res/drawable-mdpi/fragment_adblock_custom_item_add.png b/chrome/browser/adblock/android/java/res/drawable-mdpi/fragment_adblock_custom_item_add.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..894f030436137ed7aae902e849852b787da3b451
+GIT binary patch
+literal 321
+zcmV-H0lxl;P)<h;3K|Lk000e1NJLTq000;O000;W1ONa4N`Cco00039Nkl<Zcmci8
+zL2BDj7)9Yv8b~Wih!;^zw_vcTvGF7WnIwy8A<#V}BugnG3$PJ(w@}xf{Dn7pAY@Gn
+zId60?|AEW%>C`sfbuKPCZ`NufeDhoM-qFG!rJq9hrE#NDxwX}%?pdi%I{)JyWD1Q_
+zQu<@k`4>Y>lQJh$r|tJLA!N3~L6wV5+U}}QXoXcS-i2mF;6ZrJu@i1ag*#!N<3*@I
+z3_PfX^M44Pa639_BJ6T}6Skwmlkk$`T4)s`-})geb5T1A%~j!1=u|Qm!pYPSU;Pzk
+zdORnkQOHnuOy@uJQ6?p{9^9$bCZ5vv@Lg$;xr6Av&ddmvl~;RbXFD&JDxb_h>a~=2
+T?wMC100000NkvXXu0mjfEbohj
+
+literal 0
+HcmV?d00001
+
+diff --git a/chrome/browser/adblock/android/java/res/drawable-mdpi/fragment_adblock_custom_item_remove.png b/chrome/browser/adblock/android/java/res/drawable-mdpi/fragment_adblock_custom_item_remove.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..fc43e14039f48b058f68b1f1f854f8016f0197ac
+GIT binary patch
+literal 169
+zcmeAS@N?(olHy`uVBq!ia0vp^5+KaM1|%Pp+x`GjEX7WqAsj$Z!;#Vf<R^H#IEHw1
+zzMX2#bwELY_4u8`+L2FxO%t1R=b*{TKaJi@ihCM!!zwoKaTDNw(8w_*>(O7cqrBga
+zR`^WbF4?^A@Cv1f^($w8t#TFeP&jy>^|_PZrW5547W~b4b<$x22MdF^Pq&CqutJR+
+P&@Ki~S3j3^P6<r_chfxL
+
+literal 0
+HcmV?d00001
+
+diff --git a/chrome/browser/adblock/android/java/res/drawable-night-hdpi/fragment_adblock_custom_item_add.png b/chrome/browser/adblock/android/java/res/drawable-night-hdpi/fragment_adblock_custom_item_add.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..46933a909a1f5567bab5d2b8a21febf0e2fb99dd
+GIT binary patch
+literal 1522
+zcmV<O1r7R%P)<h;3K|Lk000e1NJLTq001Na001Ni1^@s6;Q*MJ00004b3#c}2nYxW
+zd<bNS000H4Nkl<ZScUDEe@qi+7{{Nx>y@@wC`{P2Xf&FcnP8x-CNphPHdt9t_+!g9
+z-9)m4m^hg+(;#47FqWWm;EzPd@UIaRaetV&*g<B<AZaX-Ut(LSbc2;`$mSo4lW^DT
+z-Mc^JU9Qzq3f&(|{QmXcz0dR9=Xsuc?|l#8h5lzE5_O;`O0{Xzrrg59!gmY?!|PdD
+zS^9PB)~!Map<pmL{ouiasiC2vf$r|^F2CP@M-)ZwzW@idTAj9I$BxS3;bH&m>@1Js
+z=*g2O+|baFfBW|BpQ==<w4}nAOr}z|+wF-5@jQv5DBZky^Ul_-TiIoUP!y%yy?ggz
+zp63Pm1AIQ;#HmxKzO`DdAL#XZgGQrS#W0LMJ3BkyYPEiN`t<2mpU?NJ9E{^Qp`xOq
+znxZIr$uK8QoVXAQg~Ax*-o1Ojm6et4V;JV8c>WB-tSB!p-yaABeiubiLI@$A=Y@ub
+zhHsVxwP(+sBNzrDgxcELuBWG`uS_&fMn;Cdy}kVh948bCg)1s5Y7z=!u~^=fx5?pf
+zG%FMeRiZFhG)=1;8X7L(N^u+~n9b(WMLBCUn)Lqu{!!ef*4EbV7lJXFOeXuhEEbC;
+zmYqVOP+huo$%&!dZnsCRR_o#dm6w-)jw^Hb?%kkHr+Z}~d%N9kmsQfSkZndrhTiY@
+zPvT^E?%cUA+J=;0&@`<*bm-7$005FCp<~C69iN$*`7>@7i`2u152qXs$4LMHk|c?m
+znwtG2Nk&vZ0w^aZ$FO0;hBW{HUa$9;YuBz_P8JN-)vH%8dOV&90D$%D*RR>Ud2@bD
+zAgk57O{G%N002&>vwLoCZYJ44b8~Z#Iy*bN0RS`_jk2hyDB^<|0hF7YYs6!x(|JAF
+zFj!q(T~1LHB>(`U(P#wOo~n==u3o)58;?gvM+5RXlgVT%C@3h14lciEHk-|MyWJjb
+z<8rxNy}iA?_}c6B{w#{3L{Su(nVG34Ns^Q#NqmNUdV2a1UNI>tDG?i@d^IJi=+#Hl
+zbSB4fA%qYb8yowJqNslh6VWn~B<05u^bB#5gb<Pl;_0I(ii%)}Xjvc-n9j<|N&^7U
+zXf!K%p8p%qxm+$+eSLj>ba1oTY{qSKxm>QEo}Qj)o9KJ<TMz*N5DW&V5kk*T{>qgr
+zKjAWO*|McLey)jq7-dOp3x~rZLI`zqbo>aimpY<cUaxluk6D&o{`n<_ii?X`V!mf1
+zBO}8gdp#n6y1KfYJkN&#07^<q-c~A=+GN9|q@<*>EL%j9B*Af<aO1{}PWgNU(8$Qh
+zz~toQeE@*`{QTE!Hrsp22C~^~@8{*^y$S#j3<mGtzJ0qtCQv98dfe31)B^By#nsi-
+z9noks8Oef4O-;=_di3aFyqX&u8@~>R!?SUnJRZ+D-jUCqJ$sQP$(ScRi^XDb%&V}l
+zurQV#Ns@~5=g(ip$B*IR;W4dNyJAt9uq?X^uL6V+I(YD413?gq_@1$0s;a6^Vi-{r
+zrQ+h^j}i(}U0wZ^AP6E3aOTXJHilsmZl6}GU2*Q*xpoXA2!eRvz=7kC=szJ%)9RL%
+zmha?Hw{G1UWm)!PrBcbn^H(aBOi4*e*}%YnUk=mU+}uIa^wN&QG)=2(Yipb2?Gr^&
+za=YE0+S=O2yu7?O8HQO)5JU<=5GsaY)*1|kx9oO%Q(s@77lUBGs;a6lmkfhN5Cl<L
+zTKb94=bMP$GzCErd7c+Ij^jCw<9VJJ1VIqxAP6Dk^?JuymfZzQ_;rsdolf_1Wo2dE
+z#KgoD&-3AExM=Y_A08hc|6}joy<eoIrDZL;0EvPrl}eq_XnezFvz6rJ<m6{(XX`g^
+z+_+MbBoqh)rl+Q+?t46*!OqUk>w|-XeW6h3aU$`TRYHOwNP-{;e1wp-N?K0b7g|XF
+Y0A+ga)=C5v>i_@%07*qoM6N<$f{a(?RsaA1
+
+literal 0
+HcmV?d00001
+
+diff --git a/chrome/browser/adblock/android/java/res/drawable-night-hdpi/fragment_adblock_custom_item_remove.png b/chrome/browser/adblock/android/java/res/drawable-night-hdpi/fragment_adblock_custom_item_remove.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..a5151c8bfedc208a8a6eb3cf0e78ec02663f1e59
+GIT binary patch
+literal 696
+zcmeAS@N?(olHy`uVBq!ia0vp^Dj>|k1|%Oc%$UKzz^IZL5>XQ2>tmIipR1RclAn~S
+zSCLx)lxJYDv9BmdOwLX%QAkQn&&;z`dcS+Wl0s&Rtx~wDuYqrYb81GWM^#a3aFt(3
+za#eP+Wr~u$9hXgo70`g()RIJnirk#MVyg;UC9t_xKsHENUr7P1q$Jx`$+aRiw;)qN
+zTOq<XK*2e`C{@8!&rHui$&O3GrYI%ND#*nRY6_5NtCUevQedU8UtV6WS8lAAUzDzI
+zXlZGwZ(yWvWTXpJp<7&;SCUwvn^&w1G6G_TOKNd)QD#9&W`3Rm$jro~{L&IzB_(~3
+zCHhcXfbQ0ZI~>S?dp$J|=-(os$7(_@KLG{`OR<w@2nP_<aHMnq!_VH+#W5tJ_3d=S
+ztX2mBhrhcwP5R)ubS=9_ZnCV0_y>+>V$ruM8MUQ%hiJCkar|v!+0dbIP-)o>*Ydhm
+z4nI!bkNwInbmRItp3iABla6oVY0G_cO~kTqbN}NX_e$@sp8x2u!5(qfK!aoVw!O?u
+zxc$v_S}H#~YvnxqTia?YuRWU*bgDn0r%;h)MN5mo0SRlp=bn>PE;Xh)_86+QOfWsH
+z&{Ed-xMuZHiR8??v(ol=maG(X@-V#!ObIOlNmDPVPYJ5x+i2n&%)k)YH%;LAob`8?
+zt`~4RVd6Vk=lS`!69j`2TS6ohMcq7FVa)%*91MKX(!GyQlz!UM@@iMz&1K1vp`o_t
+zKi7QH-`ioplfQeNbjbD_nm`BgHa&1#KK+~K+u#36MO@40J%2l$=koWz5!0RqUpAQ?
+de>362L*~@(U)TR{tzZNtI8RqUmvv4FO#sl$3|0UD
+
+literal 0
+HcmV?d00001
+
+diff --git a/chrome/browser/adblock/android/java/res/drawable-night-mdpi/fragment_adblock_custom_item_add.png b/chrome/browser/adblock/android/java/res/drawable-night-mdpi/fragment_adblock_custom_item_add.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..e0093e19a3462e8c77222c9ed7910da1ce7fcba0
+GIT binary patch
+literal 747
+zcmV<H0u=p;P)<h;3K|Lk000e1NJLTq000;O000;W1^@s6;CDUv00004b3#c}2nYxW
+zd<bNS0007_Nkl<ZNQu={Jxe1|6us|FW?j3r5gB5kVX=xrnpCUBm{A6@nYe|rMKHn|
+zL~J%}lXR)X$~w#bhNMYpClW|BOa|S>6@#GZ(g>3!;+wOL<BF3Hvz@1UynDFk+<V`<
+zM6VsJZ;&ycrfDDJ@whQNI~(%*{R#lw+}t#4wOX}MC=?G44oU#-hgMcqHD;RTIR@bP
+z`1t3-!h$|bZl1|xc7+fQ08}cK)6LDzuTxV~L0OjH$+A2a2n6P~wzj_2YPDYgAcSzz
+z>2z*TM~H|ho6YV4fNk5IWHPzK7?XN&8DqXwDwS@x+jju)AkrI}rmYAe9NV@#;c!@e
+zY02~R^Lo48z7s+?J=?`Oe`8tJ1pp)xiS2G2x9{CzsZ=WM&V(`M^AMuZ=qdn|%jG%|
+z@nHoRV?K8#i;Ih~N8|3nFbso;D4)-NCnBe7nSB7@KA+G3AR>y#<A#S&tyX^nfTAcf
+zeUkL7fQTp%2+RS%(b19R3AS1-8vr=xqt6o#g3Fg>c?<xquC7|{-D8UwW9}R7>F@=>
+zvt0iKE-x>eL`37`<C9NCpJLFx-|wF!BD%i5Zh8bP%Q_(<T3%k({?~pa5{VEI)$8>W
+zPtY)o&j4_EcvzzzUw*(dl`56WDF7@jEv<M6k|d3sot-rRU~O&f%di5;WO4@pOw&B?
+z`q7ApbX{KsfZN;KKcP_QLswE4gu`Lgw(X7(!ckQ<)|Z^i<@Q~Xhf4ZwNS;U}wr$()
+z06->_*&XPHF($bp?o8I#*S9AoCf;+--*V1J6-AlZ*x1-9m&<i`U1zh|J?gPyx<c3W
+zRd*)+U|H6MrfJ@xx`z9SNRl)XjYdDkVlg8a42GtsrxgHbG#X9QG^@p8u~;gV3XbF4
+dz1aDy!(XZq=1F^0L=pf1002ovPDHLkV1h+yT0H;&
+
+literal 0
+HcmV?d00001
+
+diff --git a/chrome/browser/adblock/android/java/res/drawable-night-mdpi/fragment_adblock_custom_item_remove.png b/chrome/browser/adblock/android/java/res/drawable-night-mdpi/fragment_adblock_custom_item_remove.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..9dcdd6c67040a18770a709aed17ea90a11f839e2
+GIT binary patch
+literal 194
+zcmeAS@N?(olHy`uVBq!ia0vp^5+KaM1|%Pp+x`GjEX7WqAsj$Z!;#Vf<X3vSIEHw1
+zzMX2w)nLHmD*S%J#^o=s96h->U8_W6ZSxD+M^A#dZ*eJ2GH3e~|HGSM%5s5;iO&>R
+z&&YI~h<TfwtD$tMm`7>er?z<u`~%l=EZDm&%9cStWC@e#iU-%5=6o(QKT>UPK6`F)
+quvez8ysu|Z;l^uyXPKTRuyZf)Ke07?`zxR$7(8A5T-G@yGywpUdPiIU
+
+literal 0
+HcmV?d00001
+
+diff --git a/chrome/browser/adblock/android/java/res/drawable-night-xhdpi/fragment_adblock_custom_item_add.png b/chrome/browser/adblock/android/java/res/drawable-night-xhdpi/fragment_adblock_custom_item_add.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..19cb495c8205b58fead7819dcbe99befa7177e49
+GIT binary patch
+literal 1485
+zcmV;;1v2`HP)<h;3K|Lk000e1NJLTq001xm001xu1^@s6R|5Hm00004b3#c}2nYxW
+zd<bNS000GqNkl<ZXo2lnPfQb87@wIwhPJ8Q(#ATJAkh$L55!`O+sLtoT{UUdMC39o
+z#O;BEVA5>k!5R`T9^4)X2M(K<cu^x{6T9J{SvMq28eJ_tP)ljuB7y$h+CqveMQ6GP
+z19^Qj$V@x*BEQ==`M%%x``YilH{Tl!JHP?HZQxQ7DV54ryWMW@>gwv&YPE)zmKH;M
+zdppIlZ29fmx2a?@nabz$iMhGC*E2IS-p$R;lvKH^21$~-k&%&GUavP$76FD~*y-u%
+z7Y>Kx1^_@)ci{v<D2IlIZmzDbu89%Ohj=`m>+kP(;yB(|7x5O0#TE*M6156P5eNj9
+z%x3f1{nU=rH0@>>hUF7bDwRIpzkmO)fq{YRMx*fujYiW20MIuyG#t@twI@s_(~sA#
+zUHj$1g9pA(pFT0Waa_7|>AK{~34&01Jf4SqNn^2Cwy&>m6adg9l#e9I!!%91R#sLD
+ze4JxrW53}zPD-U8A0Hooj3y}-i>2Y=;oCBq>`=AD0052C>AYJil|J(oA&L6I!ND<<
+zd~tCxZ8RFsNRj}<Ftgcwc6oU@kLIbloqBqDE~7o~^ZDl0YV}cxwC_N#*LS>n^(uz0
+ziK-X2OeQ-NjYcytVI&essnzOMiM8)Quh(~=|3n}VSgLA^9UdOO4HK=euWxpCc3OnS
+zqwOFx&TKZHMb|`sf4@_dc!feiWipu}OfobybW;pRwFO`phB=+iyKrng9?yw7v0X0L
+z9he{-4krnMP}Zve0DuPFVjT|04Z#Gnv$GL6*k-di#0aRh01U%0nx<WF{Pgtn3qgSz
+zjm8KE77B%r1VO0kT>wdvhv5^OVHj2}mp7w+1p460l`D4Ge)Q<kpDfF6h!s#PwzjtZ
+zotm2RZ`%Yx;1@1ju%UjO0!${;DcFAc^y!oRk+?UWKYw14`{c=!r%)eG0Te~G!1l|R
+zFGJEx69&KEUy)m@)wZBM0DW-m*s+Q}D-;U6latuK-pe1yan5v@$z&>W8w>`{8sK1k
+zeSH&Ne7l{3=pwBZd^s8#8jip|Z{EB~qduG#A_xNgB}DHaQlVTfv#<>S;Oa#mEG#Tk
+zR7sNL5$UA~gG!~MU^^O(a@v_wKs+8#!gf<rlYx&M-vhP!V;F`}6jhNskw_#_A5H=3
+zbh^T+ySv-SM_vz{K7G0(cRruryMSmk8ieih=g-?wpL)S+wN~VwpPvuz=DP!(PS*vm
+z{9G>g0mpHL*yKWXnXdr=(1gBLE0s!NvxwjC{|652?d=_?cL9BUeWP%^*Xs=k4tBfU
+z9yoYzZtk7fsi>9$WHQ;ISS*%><3~nDZV4t(sZ_1+-@pG4CJ;Ln)lvXD4X&=Pu8}0E
+z6T`uoin7`4Mq69kiTy6XXf&QF7K<e~R_rv0Vc3_c2pzD4!QeZ&T&@>QCJ<`1`sm`~
+zVj9jF3WXA4r@<XqtyUWSC7(Te_V<1ip;oI~eLmkjoQq)?)?%@6W&lwb9Uc7@Eg~2U
+zz7x|<d!e(l(-Mh9QfMBUrrlET%kJH~H-nOAv)PSWuf?~o>Crdfa=Bdgcsvg=sXo8}
+z0KVfZqFny6#rF304v0DI2!c@AY&J(Y98U6aj*pK&uDb8P0vTUBZ6lY<eVCY-`2F0u
+zb3aiO^?hSwV=Ip1B#z^aa=E;%xw+YL@#4jwCnqQWC=?1G`8XJcVFw2X$1n*$eQ{v5
+zT4}zE*jf>dMl(G<J(u@QIE?LUarCgO2ANEzSnD-?)ljKat!}s5gT6Zn!R+j8#N~3`
+zQ79DD-kElXWWA=->AJ37y=w31=;)>>%5ePnaf8WZqF9zKhr{92($Z2YolYkf78YJl
+nO-(&nTU(1rmHPk(_?GcMY)SM2zXw?800000NkvXXu0mjfRfWEU
+
+literal 0
+HcmV?d00001
+
+diff --git a/chrome/browser/adblock/android/java/res/drawable-night-xhdpi/fragment_adblock_custom_item_remove.png b/chrome/browser/adblock/android/java/res/drawable-night-xhdpi/fragment_adblock_custom_item_remove.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..b7839e73435139dd8fce57b8c5066587920091d8
+GIT binary patch
+literal 284
+zcmeAS@N?(olHy`uVBq!ia0vp^1|ZDA1|-9oezpTCmSQK*5Dp-y;YjHK@-KV3IEG|2
+zzP)M7cSu3vSm6h*mfo`#RdRioHkUkL>f!61d~b2KyQf5#;jRZQos;!9{&1_UE4H8a
+zKVTXcBf|&bHCtoVHeD;bQ$7DmPrQ{=kp3CV=c;iYs!LUJqqoXkl45#rf1>}wMPD;r
+zY-_vL|7R08z{_|CJF(VEVQERWp$muNu|k`x_kv{~?6tpk&)Jmc@WQK`<$DZo3mn?{
+zt^JtxWfRw>S9Vo8bQYX@`@C}BK5Ls}6)%6+E#G>tCdG!~z@m2>y2L-%*O&?cy~p6`
+L>gTe~DWM4fCeL&C
+
+literal 0
+HcmV?d00001
+
+diff --git a/chrome/browser/adblock/android/java/res/drawable-night-xxhdpi/fragment_adblock_custom_item_add.png b/chrome/browser/adblock/android/java/res/drawable-night-xxhdpi/fragment_adblock_custom_item_add.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..0dd360b2e319aeacaf79cded607aeaef135babb9
+GIT binary patch
+literal 3393
+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
+XU+F<76e(lM00000NkvXXu0mjfwLypY
+
+literal 0
+HcmV?d00001
+
+diff --git a/chrome/browser/adblock/android/java/res/drawable-night-xxhdpi/fragment_adblock_custom_item_remove.png b/chrome/browser/adblock/android/java/res/drawable-night-xxhdpi/fragment_adblock_custom_item_remove.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..9d3e90d692fe1d5a47f5eb873527396ffef5cc85
+GIT binary patch
+literal 600
+zcmeAS@N?(olHy`uVBq!ia0vp^9w5xY1|&n@ZgvM!EX7WqAsj$Z!;#X#z`(@s>Eakt
+zG3V`V`_;DsWR86lRu0OZ_JjR#NapKSr&hkD-tpZ(f^LN?^6@zxuyD&*x+UV}g9~e$
+zoqu!fskYRxRQH@7x1;sa^Luj^H-4&l_QU$5c~YNqi-HmmXhpBTUM<)5aQS>z*T643
+z@4w$K<YbW=-(9-zeSB-;j+4A=!&a|%6xgHjyK2p++W%QbGmk{QzG4zE@A=Q9jW<kY
+zpG}``QNDQntA_;^74x3oeR#oZZ(RL@U3o`S_DW~YN<04eqe{z(cSSV<ER9ow#3ENm
+zJ#jYQbKfUT<RMVa=RNJyBTk=^{X5@K;D7@IGozdTMz_TmH<T(p5Bb9BmU8Y^{jBO7
+zDg8q!#TBzJx_#WX$*lMJvE>qAwLB~a5KWXY8n!wtzwCK?R%+J%`|;_K({9g5)xA)*
+z`)^|Qw3T=BzQ<<Iy#*2}+S!wP)@b3@b7r&8TCd%z^*iR@g}m+Zzz|dQ6v}<Pbf?lJ
+zm5Y~OeyLr3wJN5pe}7@y;fJq(*8B_9OnrLx(C=Ai)8yHj51!uS{HOc!+p_sRZi~0S
+z{#vEK)aRV6tJlmUg@1Bw<o3TTvGQLVKjCeo6URe~zUb9gv#w@+Rl3cwG-TD3pvrmC
+hKNHnJF{W6@n0jKu$E#1ic>|LQgQu&X%Q~loCIDa_3)=ty
+
+literal 0
+HcmV?d00001
+
+diff --git a/chrome/browser/adblock/android/java/res/drawable-xhdpi/fragment_adblock_custom_item_add.png b/chrome/browser/adblock/android/java/res/drawable-xhdpi/fragment_adblock_custom_item_add.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..eae58064da9ce199afa7dc1a3695aec4cb7845f0
+GIT binary patch
+literal 638
+zcmV-^0)hRBP)<h;3K|Lk000e1NJLTq001xm001xu1ONa4{R=S+0006-Nkl<ZcmeH|
+z!AcuZ6ox<JBx3AF5+>BvzClrhNPG~XS-6peyg*B09za{S775sH6&r9<guX>FxT@Ns
+z*o`qQRH=!Zsf)t_nYql&9a0ed&d&4C`R|<E-{C><NQwoT>~Tns+q>#<$Q~<{NRgNq
+ztn(AkQ0Kg58f#p(xWx;p0WI=au*5ICh}EM^EYf_uH{cK3R49@oLxwy>s_bxePt(F7
+zB3ZuRX?<gvaf7bH5vpXLY_!wsc>eMlCq!N62DQK;ln*LD;w4d-;RIb2AuOr%D=twf
+zaG=k<0y8eZ_4F=rDCk>UlEcWB?ml=qo>UOC^rgFLOs&T14a7EphDPrhfvoGrbgT^0
+z97}(V08;utXBn&vpep?{M)0wqsU5dAnBZCz^Y~~=Ya6T$U{@3keC$c9lE|PYiZ(tD
+zrBzI1P!dH4A3bU1K=C3LiYtHV;zKe(CXvCIX5qgZ=!){gS<&!+WWA=<VO`S|Y3(F3
+z_#}$D`Q@(2S{pp!+Pvr#=bB|p16|N5BLwhHzh-GGgACuLze*s}nuWTRK~uVYrZCVF
+z$qh5H4d(Qdxq*?q#_faxad^rPdGdlu%uv=-9#DuezN61A5<*L*C(IIsIX%6{dqQ#8
+zSNRPM(wKn^P5P?;%qS7aq84}@Q)R*stD0O)8P7Noadc6VZg#0r!e#8PTuRhvYieaV
+zj1r47mv|BDf<-LIvB@BGc%Ka>vF15zoEe9ovdR>RNik1@HXXVQ7|^9dn>s~CcmO=|
+Y5BeWc8kq*G&j0`b07*qoM6N<$g8C96kN^Mx
+
+literal 0
+HcmV?d00001
+
+diff --git a/chrome/browser/adblock/android/java/res/drawable-xhdpi/fragment_adblock_custom_item_remove.png b/chrome/browser/adblock/android/java/res/drawable-xhdpi/fragment_adblock_custom_item_remove.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..adf9549d41c6b88f43e3064320e0b56b39b1cbc5
+GIT binary patch
+literal 240
+zcmeAS@N?(olHy`uVBq!ia0vp^1|ZDA1|-9oezpTCmSQK*5Dp-y;YjHK@|SzMIEG|2
+zzP)M7*AyV)^6=nV39swN_pMoz;wTn&ETLI6O7MQ|&i>A-eJy?SEm=)G7(QsTc@{r3
+zoME=EtH;0h1=I6$lKeaxx3*>PU1ZAi;k{D)Lf6;p12ZmP-_OjlL-2uHgEV6v8Y9~G
+zfO758+p1NLz6T--eODGAuHG-Ba#!U4!jCU^c-_hu+~6`t#h3H&`$>J1eyu&m>@ZLL
+Yl!d#zrh&s}ppzLqUHx3vIVCg!03UH%RsaA1
+
+literal 0
+HcmV?d00001
+
+diff --git a/chrome/browser/adblock/android/java/res/drawable-xxhdpi/fragment_adblock_custom_item_add.png b/chrome/browser/adblock/android/java/res/drawable-xxhdpi/fragment_adblock_custom_item_add.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..f75ae29328533b3747859b3c8d0e8b4e2026b865
+GIT binary patch
+literal 933
+zcmV;W16urvP)<h;3K|Lk000e1NJLTq002k;002k`1ONa4|Kxkj000AQNkl<ZcmeI$
+zUuzR-6vy#zs3xnEX{96^@wW5@i2qPa6?Zkz8)19ltI!ffTKW<Mx6l?W$kv8kv8y*q
+zWDyjqmMvwGeFIBtue2J{;GIc|XKxQPJJb2|Jl$O6^ShjL=#S1!=b`lU^mHwUGSgI9
+zXNv}H+BDc=ohs8@;V}EC#7$OdBOz(=mI~iv-9?_Wi$qL^8lzZqi9eA9S>*!89piT-
+zMILe#gRb!fNtq_&7?EQk;74rphzZIJF-VpygA7q-f@MAhY|N1*rG8crUmDDDiZG{{
+zX9w}+C3#XP@;Bni2P!y3;c$zOzWsL;NvPjfr_CK4;>dHCj<1qS0y*E!`iJ8rae@s5
+zomXUu?H+>8GhC7y;5mZMEHPa}(78_^X&hh?LFXr8IK~%G9Roa-nv{ra*>kh{Frkkc
+zqVg*dUGhB2F5yHa+<@ot9wid}32k#6j1_{D=(EBbBDjdC+ySG7U<OecVNd!6{eWY<
+zkjpmu`P@SZ{VT12@j`GLeS|9#>L&UV>R2h1M}Ky25NZ{DSinXh&sX3zAsqD4{gkyr
+zXVu164iTt~K7L`XP=>nNxlEvGHTKA2A$Y8IrU+D3V-r>jRn*P{0<EjDveiOkYG;i=
+zTWV|wFG&%vVRdbjKn*oEXthv5U8@sFzw}wFg>vdztLqAN-7V|7hq~)t`)>QgxESrz
+zv23-_6SXr*pet(Z)4qLNe<aXh^oxJ`|37}fTQxdwt<ZwnSc(3y?N~a(x-`|sbwZWs
+zsNq{y3Qel{HU;)jQ{x}W8!yz)XEpznJ&htNca0aCMO4la!Kzy5aKdPzGweotptTE#
+z$_4|*3LW9Sn*GLkB6^6Z)ab*61N?!gED_mJnuy9Tq?cg{QE5;lhH=DGDeb@Xs)!C(
+ziD@3up~e779r4^OVTRbUyhL=^;3P?$;XR_m3l5Ti%R5Ae4l}sK(a$Wqhz@_@kWkTA
+zN!aE#d7^Nc;xpo_Qy>MGSBNh=+~X`6f@C<y0!_r17dWJpWe)kz)Ok#WF@`CSBS(Q@
+z#;EXwdceld9K?umnn=ntxQam~eoIm28%q>1Zj?8P>Z~w=H6uKu6S+#8r<}*SA~$$V
+zE40d2R=7@qeRPP+O!0s<HmTF1MV(F7SY(nP_>L~s)6?@WgoZc?2zi9|00000NkvXX
+Hu0mjf8@;m}
+
+literal 0
+HcmV?d00001
+
+diff --git a/chrome/browser/adblock/android/java/res/drawable-xxhdpi/fragment_adblock_custom_item_remove.png b/chrome/browser/adblock/android/java/res/drawable-xxhdpi/fragment_adblock_custom_item_remove.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..b3c47feadce9cb6829b6956c86399128fdaa992b
+GIT binary patch
+literal 456
+zcmeAS@N?(olHy`uVBq!ia0vp^9w5xY1|&n@ZgvM!EX7WqAsj$Z!;#X#z`$7V>Eakt
+zG3V`VTQ6ou2KSHRqJn1`->`@}ZrC6o&A;4zQ-FZ$!As{3Ir%Tx%OPan?JKDB=lI;4
+zy+?l^+~B)uX06KZ$w>~AR6KvNmo;!d*!gq^)3-*)`@-)JixqIzi1tY*Y=6G9JdfLg
+z%}#^=i>q+e?*7i{b)oW&4@K6`W}bHJxRhPv^^b*8s}Fe3=8wwwyo}R%8F$ESnGJWY
+zv%eH)<KhvK(9o#uS{pLc^?Q`<!6ike|1bOO&UoYf`sl+Yms%e!iPV*{ej2P}5RkCo
+zfJ0*=6EiDB6IlWQ#uuuO7Ei5ObW=2BP1=I?uIE~%{+qw9ia6_VT=abCBVh~1dug^4
+z=U;2co;5$J*S9$Lm~{cyn(~^pYk3-&AIzz;=KgPWu3_&w{VhirZZPyUSSPrA4|F@A
+zTfmW1R_GWzgI(-pzT`*8;`1wulBcP73e_+#FJ5kYt1w9s7&Q!@u6{1-oD!M<nscwX
+
+literal 0
+HcmV?d00001
+
 diff --git a/chrome/browser/adblock/android/java/res/layout/adblock_custom_item.xml b/chrome/browser/adblock/android/java/res/layout/adblock_custom_item.xml
 new file mode 100644
 index 0000000000000..da2732f3be1a6
@@ -1201,10 +1622,10 @@ index 0000000000000..314b3bce617c8
 +</androidx.preference.PreferenceScreen>
 diff --git a/chrome/browser/adblock/android/java/res/xml/adblock_preferences.xml b/chrome/browser/adblock/android/java/res/xml/adblock_preferences.xml
 new file mode 100644
-index 0000000000000..dd31643077c1f
+index 0000000000000..d4f477a75843e
 --- /dev/null
 +++ b/chrome/browser/adblock/android/java/res/xml/adblock_preferences.xml
-@@ -0,0 +1,63 @@
+@@ -0,0 +1,67 @@
 +<?xml version="1.0" encoding="utf-8"?>
 +<!--
 +  This file is part of eyeo Chromium SDK,
@@ -1229,7 +1650,9 @@ index 0000000000000..dd31643077c1f
 +        android:key="fragment_adblock_settings_enabled_key"
 +        android:title="@string/adblock_settings_title"
 +        app:iconSpaceReserved="false"
-+        android:summary="@string/fragment_adblock_settings_enabled_summary" />
++        android:summary="@string/fragment_adblock_settings_enabled_summary"
++        app:isPreferenceVisible="false"  />
++
 +
 +    <!-- Filter lists -->
 +    <androidx.preference.Preference
@@ -1244,14 +1667,16 @@ index 0000000000000..dd31643077c1f
 +        android:key="fragment_adblock_settings_aa_enabled_key"
 +        android:title="@string/fragment_adblock_settings_aa_enabled_title"
 +        app:iconSpaceReserved="false"
-+        android:summary="@string/fragment_adblock_settings_aa_enabled_summary" />
++        android:summary="@string/fragment_adblock_settings_aa_enabled_summary"
++        app:isPreferenceVisible="false"  />
 +
 +    <!-- AutoInstall: enabled/disabled -->
 +    <org.chromium.components.browser_ui.settings.ChromeSwitchPreference
 +        android:key="fragment_adblock_settings_auto_install_enabled_key"
 +        android:title="@string/fragment_adblock_settings_auto_install_enabled_title"
 +        app:iconSpaceReserved="false"
-+        android:summary="@string/fragment_adblock_settings_auto_install_enabled_summary" />
++        android:summary="@string/fragment_adblock_settings_auto_install_enabled_summary"
++        app:isPreferenceVisible="false"  />
 +
 +    <!-- Allowed domains -->
 +    <androidx.preference.Preference
@@ -4303,7 +4728,7 @@ index 0000000000000..a021bc0a318f5
 +</translationbundle>
 diff --git a/chrome/browser/adblock/android/translations/adblock_strings_en-GB.xtb b/chrome/browser/adblock/android/translations/adblock_strings_en-GB.xtb
 new file mode 100644
-index 0000000000000..a34364dbb1e70
+index 0000000000000..da2b098846039
 --- /dev/null
 +++ b/chrome/browser/adblock/android/translations/adblock_strings_en-GB.xtb
 @@ -0,0 +1,13 @@
@@ -4313,11 +4738,11 @@ index 0000000000000..a34364dbb1e70
 +<translation id="8714145577049629910">Ad blocking</translation>
 +<translation id="3493556515901914593">Allow ad blocking on websites in this app</translation>
 +<translation id="4516904298421534459">Filter lists</translation>
-+<translation id="4713094065435138404">Add the languages in which you regularly browse websites in</translation>
++<translation id="4713094065435138404">Add and remove content filter lists</translation>
 +<translation id="1575042640644572091">Acceptable Ads</translation>
 +<translation id="2763228171090923752">Acceptable ads are non-annoying ads that comply with a strict ad standard. They help generate revenue for content creators and do not interfere with the content you are viewing. This feature is turned on by default, but you can turn it off at any time.</translation>
 +<translation id="7857292107035345544">Allowlist</translation>
-+<translation id="3575711988891311088">Support your favorite websites by adding them to this list. You might see ads on them.</translation>
++<translation id="3575711988891311088">Disable blocking for certian sites. WARNING: Less private.</translation>
 +<translation id="7059127752542505809">Enter URL</translation>
 +</translationbundle>
 diff --git a/chrome/browser/adblock/android/translations/adblock_strings_es-419.xtb b/chrome/browser/adblock/android/translations/adblock_strings_es-419.xtb
