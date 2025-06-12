@@ -1,8 +1,8 @@
 target_os = "android"
 target_cpu = "arm64"
 android_channel = "stable"
-android_default_version_name = "138.0.7204.15"
-android_default_version_code = "720401500"
+android_default_version_name = "138.0.7204.25"
+android_default_version_code = "720402500"
 is_component_build = false
 is_debug = false
 is_official_build = true
@@ -28,4 +28,3 @@ system_webview_package_name = "app.dankium.webview"
 trichrome_library_package = "app.dankium.trichromelibrary"
 enable_android_secondary_abi = target_cpu == "arm64"
 android_static_analysis = "off"
-eyeo_disable_aa_by_default = true
