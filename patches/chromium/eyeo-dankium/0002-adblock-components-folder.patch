@@ -1,4 +1,4 @@
-From e34a3969489db45481ef85474549ad921673f94e Mon Sep 17 00:00:00 2001
+From 961ae9573469328e9633abf92580d28a3f60cf14 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Thu, 22 May 2025 15:50:31 +0000
 Subject: [PATCH] adblock components folder
@@ -160,7 +160,7 @@ Copyright (C) 2006-present eyeo GmbH.
  .../adblock_internals/adblock_internals.html  |   45 +
  .../adblock_internals/adblock_internals.ts    |   65 +
  components/adblock/core/BUILD.gn              |  134 ++
- .../activeping_telemetry_topic_provider.cc    |  271 ++++
+ .../activeping_telemetry_topic_provider.cc    |  270 ++++
  .../activeping_telemetry_topic_provider.h     |   93 ++
  .../adblock/core/adblock_telemetry_service.cc |  308 ++++
  .../adblock/core/adblock_telemetry_service.h  |  130 ++
@@ -443,7 +443,7 @@ Copyright (C) 2006-present eyeo GmbH.
  .../xhr_result_3_subresource_loading.json     |    1 +
  .../test/data/adblock/wbn/index.html.mustache |  157 ++
  components/test/data/adblock/xpath3.html      |   23 +
- 438 files changed, 57432 insertions(+)
+ 438 files changed, 57431 insertions(+)
  create mode 100644 components/adblock/BUILD.gn
  create mode 100644 components/adblock/CHANGELOG.md
  create mode 100644 components/adblock/LICENSE
@@ -26310,10 +26310,10 @@ index 0000000000000..40436119bf811
 +### CI & Testing module end
 diff --git a/components/adblock/core/activeping_telemetry_topic_provider.cc b/components/adblock/core/activeping_telemetry_topic_provider.cc
 new file mode 100644
-index 0000000000000..8894f1bbe14eb
+index 0000000000000..81e30210df833
 --- /dev/null
 +++ b/components/adblock/core/activeping_telemetry_topic_provider.cc
-@@ -0,0 +1,271 @@
+@@ -0,0 +1,270 @@
 +/* This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
 + *
@@ -26386,7 +26386,6 @@ index 0000000000000..8894f1bbe14eb
 +ActivepingTelemetryTopicProvider::ActivepingTelemetryTopicProvider(
 +    PrefService* pref_service,
 +    SubscriptionService* subscription_service,
-+    const GURL& base_url,
 +    const std::string& auth_token,
 +    std::unique_ptr<StatsPayloadProvider> stats_payload_provider)
 +    : pref_service_(pref_service),
