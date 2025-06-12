@@ -1,11 +1,10 @@
-From ee95c238b10f476f113b3a148f8342f964396c91 Mon Sep 17 00:00:00 2001
+From e34a3969489db45481ef85474549ad921673f94e Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Thu, 22 May 2025 15:50:31 +0000
 Subject: [PATCH] adblock components folder
 
 Copyright (C) 2006-present eyeo GmbH.
 ---
- 0001-fix-adblock.patch                        |  329 ----
  components/BUILD.gn                           |   10 +
  components/adblock/BUILD.gn                   |   36 +
  components/adblock/CHANGELOG.md               |  766 +++++++++
@@ -80,7 +79,7 @@ Copyright (C) 2006-present eyeo GmbH.
  .../adblock/content/browser/eyeo_page_info.h  |   53 +
  .../adblock_request_throttle_factory.cc       |   72 +
  .../adblock_request_throttle_factory.h        |   51 +
- .../adblock_telemetry_service_factory.cc      |  127 ++
+ .../adblock_telemetry_service_factory.cc      |  126 ++
  .../adblock_telemetry_service_factory.h       |   55 +
  ...ontent_security_policy_injector_factory.cc |   71 +
  ...content_security_policy_injector_factory.h |   49 +
@@ -161,8 +160,8 @@ Copyright (C) 2006-present eyeo GmbH.
  .../adblock_internals/adblock_internals.html  |   45 +
  .../adblock_internals/adblock_internals.ts    |   65 +
  components/adblock/core/BUILD.gn              |  134 ++
- .../activeping_telemetry_topic_provider.cc    |  294 ++++
- .../activeping_telemetry_topic_provider.h     |   94 ++
+ .../activeping_telemetry_topic_provider.cc    |  271 ++++
+ .../activeping_telemetry_topic_provider.h     |   93 ++
  .../adblock/core/adblock_telemetry_service.cc |  308 ++++
  .../adblock/core/adblock_telemetry_service.h  |  130 ++
  components/adblock/core/classifier/BUILD.gn   |   71 +
@@ -288,7 +287,7 @@ Copyright (C) 2006-present eyeo GmbH.
  .../core/subscription/domain_splitter.cc      |   74 +
  .../core/subscription/domain_splitter.h       |   56 +
  .../filtering_configuration_maintainer.h      |   59 +
- ...filtering_configuration_maintainer_impl.cc |  510 ++++++
+ ...filtering_configuration_maintainer_impl.cc |  506 ++++++
  .../filtering_configuration_maintainer_impl.h |  122 ++
  .../subscription/installed_subscription.cc    |   46 +
  .../subscription/installed_subscription.h     |  147 ++
@@ -444,7 +443,7 @@ Copyright (C) 2006-present eyeo GmbH.
  .../xhr_result_3_subresource_loading.json     |    1 +
  .../test/data/adblock/wbn/index.html.mustache |  157 ++
  components/test/data/adblock/xpath3.html      |   23 +
- 439 files changed, 57461 insertions(+), 329 deletions(-)
+ 438 files changed, 57432 insertions(+)
  create mode 100644 components/adblock/BUILD.gn
  create mode 100644 components/adblock/CHANGELOG.md
  create mode 100644 components/adblock/LICENSE
@@ -13155,10 +13154,10 @@ index 0000000000000..012097e49ca2d
 +#endif  // COMPONENTS_ADBLOCK_CONTENT_BROWSER_FACTORIES_ADBLOCK_REQUEST_THROTTLE_FACTORY_H_
 diff --git a/components/adblock/content/browser/factories/adblock_telemetry_service_factory.cc b/components/adblock/content/browser/factories/adblock_telemetry_service_factory.cc
 new file mode 100644
-index 0000000000000..6310fa447d2cc
+index 0000000000000..bdff5622b626c
 --- /dev/null
 +++ b/components/adblock/content/browser/factories/adblock_telemetry_service_factory.cc
-@@ -0,0 +1,127 @@
+@@ -0,0 +1,126 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -13260,7 +13259,6 @@ index 0000000000000..6310fa447d2cc
 +  telemetry_service->AddTopicProvider(
 +      std::make_unique<ActivepingTelemetryTopicProvider>(
 +          pref_service, subscription_service,
-+          ActivepingTelemetryTopicProvider::DefaultBaseUrl(),
 +          ActivepingTelemetryTopicProvider::DefaultAuthToken(),
 +          std::make_unique<PageViewStats>(
 +              ResourceClassificationRunnerFactory::GetForBrowserContext(
@@ -26312,10 +26310,10 @@ index 0000000000000..40436119bf811
 +### CI & Testing module end
 diff --git a/components/adblock/core/activeping_telemetry_topic_provider.cc b/components/adblock/core/activeping_telemetry_topic_provider.cc
 new file mode 100644
-index 0000000000000..8209e233c1704
+index 0000000000000..8894f1bbe14eb
 --- /dev/null
 +++ b/components/adblock/core/activeping_telemetry_topic_provider.cc
-@@ -0,0 +1,294 @@
+@@ -0,0 +1,271 @@
 +/* This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
 + *
@@ -26352,17 +26350,6 @@ index 0000000000000..8209e233c1704
 +namespace {
 +int g_https_port_for_testing = 0;
 +std::optional<base::TimeDelta> g_time_delta_for_testing;
-+
-+GURL GetUrl() {
-+  GURL url("https://0.0.0.0/");
-+  if (!g_https_port_for_testing) {
-+    return url;
-+  }
-+  GURL::Replacements replacements;
-+  const std::string port_str = base::NumberToString(g_https_port_for_testing);
-+  replacements.SetPortStr(port_str);
-+  return url.ReplaceComponents(replacements);
-+}
 +
 +base::TimeDelta GetNormalPingInterval() {
 +  static base::TimeDelta kNormalPingInterval =
@@ -26409,18 +26396,6 @@ index 0000000000000..8209e233c1704
 +      stats_payload_provider_(std::move(stats_payload_provider)) {}
 +
 +ActivepingTelemetryTopicProvider::~ActivepingTelemetryTopicProvider() = default;
-+
-+// static
-+GURL ActivepingTelemetryTopicProvider::DefaultBaseUrl() {
-+#if !defined(EYEO_TELEMETRY_CLIENT_ID)
-+  LOG(WARNING)
-+      << "[eyeo] Using default Telemetry server since a Telemetry client ID "
-+         "was "
-+         "not provided. Users will not be counted correctly by eyeo. Please "
-+         "set an ID via \"eyeo_telemetry_client_id\" gn argument.";
-+#endif
-+  return GetUrl();
-+}
 +
 +// static
 +std::string ActivepingTelemetryTopicProvider::DefaultAuthToken() {
@@ -26612,10 +26587,10 @@ index 0000000000000..8209e233c1704
 +}  // namespace adblock
 diff --git a/components/adblock/core/activeping_telemetry_topic_provider.h b/components/adblock/core/activeping_telemetry_topic_provider.h
 new file mode 100644
-index 0000000000000..ceb6333515b86
+index 0000000000000..9f2e626cfadf8
 --- /dev/null
 +++ b/components/adblock/core/activeping_telemetry_topic_provider.h
-@@ -0,0 +1,94 @@
+@@ -0,0 +1,93 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -26666,7 +26641,6 @@ index 0000000000000..ceb6333515b86
 +  ActivepingTelemetryTopicProvider(
 +      PrefService* pref_service,
 +      SubscriptionService* subscription_service,
-+      const GURL& base_url,
 +      const std::string& auth_token,
 +      std::unique_ptr<StatsPayloadProvider> stats_payload_provider);
 +  ~ActivepingTelemetryTopicProvider() final;
@@ -41366,10 +41340,10 @@ index 0000000000000..8bd8379ee2216
 +#endif  // COMPONENTS_ADBLOCK_CORE_SUBSCRIPTION_FILTERING_CONFIGURATION_MAINTAINER_H_
 diff --git a/components/adblock/core/subscription/filtering_configuration_maintainer_impl.cc b/components/adblock/core/subscription/filtering_configuration_maintainer_impl.cc
 new file mode 100644
-index 0000000000000..47fe71fdc2920
+index 0000000000000..78283dc057708
 --- /dev/null
 +++ b/components/adblock/core/subscription/filtering_configuration_maintainer_impl.cc
-@@ -0,0 +1,510 @@
+@@ -0,0 +1,506 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -41475,10 +41449,6 @@ index 0000000000000..47fe71fdc2920
 +  // Result will contain the currently installed subscriptions:
 +  std::vector<scoped_refptr<Subscription>> result;
 +  std::ranges::copy(current_state_, std::back_inserter(result));
-+  // And all preloaded subscriptions:
-+  auto preloaded_subscriptions =
-+      preloaded_subscription_provider_->GetCurrentPreloadedSubscriptions();
-+  std::ranges::move(preloaded_subscriptions, std::back_inserter(result));
 +  // Also, dummy subscriptions that represent ongoing installations (unless
 +  // already present, in which case they'd represent updates).
 +  std::ranges::copy_if(
