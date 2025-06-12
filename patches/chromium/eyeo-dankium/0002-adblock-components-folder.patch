@@ -1,10 +1,11 @@
-From 1ba947a7b19d24ad89ea61178dc7395d991eda54 Mon Sep 17 00:00:00 2001
+From ee95c238b10f476f113b3a148f8342f964396c91 Mon Sep 17 00:00:00 2001
 From: vanilla-chromium-builder <project_26591639_bot@noreply.gitlab.com>
 Date: Thu, 22 May 2025 15:50:31 +0000
 Subject: [PATCH] adblock components folder
 
 Copyright (C) 2006-present eyeo GmbH.
 ---
+ 0001-fix-adblock.patch                        |  329 ----
  components/BUILD.gn                           |   10 +
  components/adblock/BUILD.gn                   |   36 +
  components/adblock/CHANGELOG.md               |  766 +++++++++
@@ -95,7 +96,7 @@ Copyright (C) 2006-present eyeo GmbH.
  .../factories/sitekey_storage_factory.h       |   47 +
  ...ubscription_persistent_metadata_factory.cc |   66 +
  ...subscription_persistent_metadata_factory.h |   49 +
- .../factories/subscription_service_factory.cc |  504 ++++++
+ .../factories/subscription_service_factory.cc |  503 ++++++
  .../factories/subscription_service_factory.h  |   76 +
  .../browser/frame_hierarchy_builder.cc        |  137 ++
  .../content/browser/frame_hierarchy_builder.h |   66 +
@@ -287,8 +288,8 @@ Copyright (C) 2006-present eyeo GmbH.
  .../core/subscription/domain_splitter.cc      |   74 +
  .../core/subscription/domain_splitter.h       |   56 +
  .../filtering_configuration_maintainer.h      |   59 +
- ...filtering_configuration_maintainer_impl.cc |  530 ++++++
- .../filtering_configuration_maintainer_impl.h |  126 ++
+ ...filtering_configuration_maintainer_impl.cc |  510 ++++++
+ .../filtering_configuration_maintainer_impl.h |  122 ++
  .../subscription/installed_subscription.cc    |   46 +
  .../subscription/installed_subscription.h     |  147 ++
  .../installed_subscription_impl.cc            |  638 ++++++++
@@ -296,7 +297,7 @@ Copyright (C) 2006-present eyeo GmbH.
  .../core/subscription/pattern_matcher.cc      |  279 ++++
  .../core/subscription/pattern_matcher.h       |   35 +
  .../preloaded_subscription_provider.h         |   56 +
- .../preloaded_subscription_provider_impl.cc   |  120 ++
+ .../preloaded_subscription_provider_impl.cc   |   32 +
  .../preloaded_subscription_provider_impl.h    |   50 +
  .../recommended_subscription_installer.h      |   43 +
  ...recommended_subscription_installer_impl.cc |  141 ++
@@ -443,7 +444,7 @@ Copyright (C) 2006-present eyeo GmbH.
  .../xhr_result_3_subresource_loading.json     |    1 +
  .../test/data/adblock/wbn/index.html.mustache |  157 ++
  components/test/data/adblock/xpath3.html      |   23 +
- 438 files changed, 57574 insertions(+)
+ 439 files changed, 57461 insertions(+), 329 deletions(-)
  create mode 100644 components/adblock/BUILD.gn
  create mode 100644 components/adblock/CHANGELOG.md
  create mode 100644 components/adblock/LICENSE
@@ -14226,10 +14227,10 @@ index 0000000000000..874d7fd7fc26f
 +#endif  // COMPONENTS_ADBLOCK_CONTENT_BROWSER_FACTORIES_SUBSCRIPTION_PERSISTENT_METADATA_FACTORY_H_
 diff --git a/components/adblock/content/browser/factories/subscription_service_factory.cc b/components/adblock/content/browser/factories/subscription_service_factory.cc
 new file mode 100644
-index 0000000000000..332710da44d07
+index 0000000000000..518977a1d74e4
 --- /dev/null
 +++ b/components/adblock/content/browser/factories/subscription_service_factory.cc
-@@ -0,0 +1,504 @@
+@@ -0,0 +1,503 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -14385,7 +14386,6 @@ index 0000000000000..332710da44d07
 +  auto maintainer = std::make_unique<FilteringConfigurationMaintainerImpl>(
 +      configuration, std::move(storage), std::move(downloader),
 +      std::move(recommended_installer),
-+      std::make_unique<PreloadedSubscriptionProviderImpl>(),
 +      MakeTaskScheduler(),
 +      const_cast<ConversionExecutors*>(conversion_executors),
 +      persistent_metadata, observer);
@@ -41366,10 +41366,10 @@ index 0000000000000..8bd8379ee2216
 +#endif  // COMPONENTS_ADBLOCK_CORE_SUBSCRIPTION_FILTERING_CONFIGURATION_MAINTAINER_H_
 diff --git a/components/adblock/core/subscription/filtering_configuration_maintainer_impl.cc b/components/adblock/core/subscription/filtering_configuration_maintainer_impl.cc
 new file mode 100644
-index 0000000000000..497aad42436d3
+index 0000000000000..47fe71fdc2920
 --- /dev/null
 +++ b/components/adblock/core/subscription/filtering_configuration_maintainer_impl.cc
-@@ -0,0 +1,530 @@
+@@ -0,0 +1,510 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -41435,8 +41435,6 @@ index 0000000000000..497aad42436d3
 +    std::unique_ptr<SubscriptionPersistentStorage> storage,
 +    std::unique_ptr<SubscriptionDownloader> downloader,
 +    std::unique_ptr<RecommendedSubscriptionInstaller> recommended_installer,
-+    std::unique_ptr<PreloadedSubscriptionProvider>
-+        preloaded_subscription_provider,
 +    std::unique_ptr<TaskScheduler> subscription_updater,
 +    ConversionExecutors* conversion_executor,
 +    SubscriptionPersistentMetadata* persistent_metadata,
@@ -41445,8 +41443,6 @@ index 0000000000000..497aad42436d3
 +      storage_(std::move(storage)),
 +      downloader_(std::move(downloader)),
 +      recommended_installer_(std::move(recommended_installer)),
-+      preloaded_subscription_provider_(
-+          std::move(preloaded_subscription_provider)),
 +      subscription_updater_(std::move(subscription_updater)),
 +      conversion_executor_(conversion_executor),
 +      persistent_metadata_(persistent_metadata),
@@ -41467,9 +41463,6 @@ index 0000000000000..497aad42436d3
 +  if (custom_filters_) {
 +    state.push_back(custom_filters_);
 +  }
-+  std::ranges::move(
-+      preloaded_subscription_provider_->GetCurrentPreloadedSubscriptions(),
-+      std::back_inserter(state));
 +  VLOG(2) << "[eyeo] FilteringConfiguration " << configuration_->GetName()
 +          << " produces " << state.size() << " subscriptions for Snapshot";
 +  return std::make_unique<SubscriptionCollectionImpl>(
@@ -41721,7 +41714,6 @@ index 0000000000000..497aad42436d3
 +  auto ongoing_installation =
 +      base::MakeRefCounted<OngoingInstallation>(subscription_url);
 +  ongoing_installations_.insert(ongoing_installation);
-+  UpdatePreloadedSubscriptionProvider();
 +
 +  downloader_->StartDownload(
 +      subscription_url, retry_policy,
@@ -41736,13 +41728,11 @@ index 0000000000000..497aad42436d3
 +  if (ongoing_installations_.find(ongoing_installation) ==
 +      ongoing_installations_.end()) {
 +    // Installation was canceled.
-+    UpdatePreloadedSubscriptionProvider();
 +    return;
 +  }
 +  if (!raw_data) {
 +    // Download failed.
 +    ongoing_installations_.erase(ongoing_installation);
-+    UpdatePreloadedSubscriptionProvider();
 +    return;
 +  }
 +
@@ -41762,7 +41752,6 @@ index 0000000000000..497aad42436d3
 +    // Installation was canceled. We must now remove the subscription from
 +    // storage. Do not add it to |current_state|.
 +    storage_->RemoveSubscription(subscription);
-+    UpdatePreloadedSubscriptionProvider();
 +    return;
 +  }
 +  ongoing_installations_.erase(ongoing_installation);
@@ -41771,7 +41760,6 @@ index 0000000000000..497aad42436d3
 +    // There was an error adding subscription to storage.
 +    LOG(WARNING) << "[eyeo] Failed to add subscription, current number "
 +                 << "of subscriptions: " << current_state_.size();
-+    UpdatePreloadedSubscriptionProvider();
 +    return;
 +  }
 +  // Remove any subscription that already exists with the same URL
@@ -41786,7 +41774,6 @@ index 0000000000000..497aad42436d3
 +    VLOG(1) << "[eyeo] Added subscription " << subscription->GetSourceUrl()
 +            << ", current number of subscriptions: " << current_state_.size();
 +  }
-+  UpdatePreloadedSubscriptionProvider();
 +  // Notify "observer"
 +  subscription_updated_callback_.Run(subscription->GetSourceUrl());
 +}
@@ -41824,7 +41811,6 @@ index 0000000000000..497aad42436d3
 +    // installed, to allow continued HEAD-only pings for user counting purposes.
 +    persistent_metadata_->RemoveMetadata(subscription_url);
 +  }
-+  UpdatePreloadedSubscriptionProvider();
 +  VLOG(1) << "[eyeo] Removed subscription " << subscription_url;
 +}
 +
@@ -41873,12 +41859,6 @@ index 0000000000000..497aad42436d3
 +  custom_filters_ = conversion_executor_->ConvertCustomFilters(filters);
 +}
 +
-+void FilteringConfigurationMaintainerImpl::
-+    UpdatePreloadedSubscriptionProvider() {
-+  preloaded_subscription_provider_->UpdateSubscriptions(
-+      GetReadySubscriptions(), GetPendingSubscriptions());
-+}
-+
 +std::vector<GURL> FilteringConfigurationMaintainerImpl::GetReadySubscriptions()
 +    const {
 +  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
@@ -41902,10 +41882,10 @@ index 0000000000000..497aad42436d3
 +}  // namespace adblock
 diff --git a/components/adblock/core/subscription/filtering_configuration_maintainer_impl.h b/components/adblock/core/subscription/filtering_configuration_maintainer_impl.h
 new file mode 100644
-index 0000000000000..ba3e9eee8d8d8
+index 0000000000000..9a33889cb55a1
 --- /dev/null
 +++ b/components/adblock/core/subscription/filtering_configuration_maintainer_impl.h
-@@ -0,0 +1,126 @@
+@@ -0,0 +1,122 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -41953,8 +41933,6 @@ index 0000000000000..ba3e9eee8d8d8
 +      std::unique_ptr<SubscriptionPersistentStorage> storage,
 +      std::unique_ptr<SubscriptionDownloader> downloader,
 +      std::unique_ptr<RecommendedSubscriptionInstaller> recommended_installer,
-+      std::unique_ptr<PreloadedSubscriptionProvider>
-+          preloaded_subscription_provider,
 +      std::unique_ptr<TaskScheduler> subscription_updater,
 +      ConversionExecutors* conversion_executor,
 +      SubscriptionPersistentMetadata* persistent_metadata,
@@ -42013,8 +41991,6 @@ index 0000000000000..ba3e9eee8d8d8
 +  std::unique_ptr<SubscriptionPersistentStorage> storage_;
 +  std::unique_ptr<SubscriptionDownloader> downloader_;
 +  std::unique_ptr<RecommendedSubscriptionInstaller> recommended_installer_;
-+  std::unique_ptr<PreloadedSubscriptionProvider>
-+      preloaded_subscription_provider_;
 +  std::unique_ptr<TaskScheduler> subscription_updater_;
 +  raw_ptr<ConversionExecutors> conversion_executor_;
 +  // TODO(mpawlowski): Should not need to update metadata after DPD-1154, when
@@ -43424,10 +43400,10 @@ index 0000000000000..4ea6cdb69dc65
 +#endif  // COMPONENTS_ADBLOCK_CORE_SUBSCRIPTION_PRELOADED_SUBSCRIPTION_PROVIDER_H_
 diff --git a/components/adblock/core/subscription/preloaded_subscription_provider_impl.cc b/components/adblock/core/subscription/preloaded_subscription_provider_impl.cc
 new file mode 100644
-index 0000000000000..67dd2e1627593
+index 0000000000000..27e6856567561
 --- /dev/null
 +++ b/components/adblock/core/subscription/preloaded_subscription_provider_impl.cc
-@@ -0,0 +1,120 @@
+@@ -0,0 +1,32 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -43460,94 +43436,6 @@ index 0000000000000..67dd2e1627593
 +#include "components/adblock/core/subscription/installed_subscription_impl.h"
 +#include "components/adblock/core/subscription/subscription.h"
 +#include "components/adblock/core/subscription/subscription_config.h"
-+
-+namespace adblock {
-+namespace {
-+
-+bool HasSubscriptionWithMatchingUrl(const std::vector<GURL>& collection,
-+                                    std::string_view pattern) {
-+  return std::find_if(collection.begin(), collection.end(),
-+                      [pattern](const GURL& url) {
-+                        return base::MatchPattern(url.spec(), pattern);
-+                      }) != collection.end();
-+}
-+
-+}  // namespace
-+
-+class PreloadedSubscriptionProviderImpl::SingleSubscriptionProvider {
-+ public:
-+  explicit SingleSubscriptionProvider(PreloadedSubscriptionInfo info)
-+      : info_(info) {}
-+
-+  void UpdatePreloadedSubscription(
-+      const std::vector<GURL>& installed_subscriptions,
-+      const std::vector<GURL>& pending_subscriptions) {
-+    const bool needs_subscription =
-+        HasSubscriptionWithMatchingUrl(pending_subscriptions,
-+                                       info_.url_pattern) &&
-+        !HasSubscriptionWithMatchingUrl(installed_subscriptions,
-+                                        info_.url_pattern);
-+    if (needs_subscription && !subscription_) {
-+      TRACE_EVENT1("eyeo", "Creating preloaded subscription", "url_pattern",
-+                   info_.url_pattern);
-+      subscription_ = base::MakeRefCounted<InstalledSubscriptionImpl>(
-+          utils::MakeFlatbufferDataFromResourceBundle(
-+              info_.flatbuffer_resource_id),
-+          Subscription::InstallationState::Preloaded, base::Time());
-+      VLOG(1) << "[eyeo] Preloaded subscription now in use: "
-+              << subscription_->GetSourceUrl();
-+    } else if (!needs_subscription && subscription_) {
-+      VLOG(1) << "[eyeo] Preloaded subscription no longer in use: "
-+              << subscription_->GetSourceUrl();
-+      subscription_.reset();
-+    }
-+  }
-+
-+  scoped_refptr<InstalledSubscription> subscription() const {
-+    return subscription_;
-+  }
-+
-+  void Reset() { subscription_.reset(); }
-+
-+ private:
-+  PreloadedSubscriptionInfo info_;
-+  scoped_refptr<InstalledSubscription> subscription_;
-+};
-+
-+PreloadedSubscriptionProviderImpl::~PreloadedSubscriptionProviderImpl() =
-+    default;
-+PreloadedSubscriptionProviderImpl::PreloadedSubscriptionProviderImpl() {
-+  }
-+}
-+
-+void PreloadedSubscriptionProviderImpl::UpdateSubscriptions(
-+    std::vector<GURL> installed_subscriptions,
-+    std::vector<GURL> pending_subscriptions) {
-+  installed_subscriptions_ = std::move(installed_subscriptions);
-+  pending_subscriptions_ = std::move(pending_subscriptions);
-+  UpdateSubscriptionsInternal();
-+}
-+
-+std::vector<scoped_refptr<InstalledSubscription>>
-+PreloadedSubscriptionProviderImpl::GetCurrentPreloadedSubscriptions() const {
-+  std::vector<scoped_refptr<InstalledSubscription>> result;
-+  for (const auto& provider : providers_) {
-+    auto sub = provider.subscription();
-+    if (sub) {
-+      result.push_back(sub);
-+    }
-+  }
-+  return result;
-+}
-+
-+void PreloadedSubscriptionProviderImpl::UpdateSubscriptionsInternal() {
-+  for (auto& provider : providers_) {
-+    provider.UpdatePreloadedSubscription(installed_subscriptions_,
-+                                         pending_subscriptions_);
-+  }
-+}
-+
-+}  // namespace adblock
 diff --git a/components/adblock/core/subscription/preloaded_subscription_provider_impl.h b/components/adblock/core/subscription/preloaded_subscription_provider_impl.h
 new file mode 100644
 index 0000000000000..e341cc44259cd

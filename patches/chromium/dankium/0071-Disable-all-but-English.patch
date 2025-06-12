@@ -1,11 +1,12 @@
-From 2738a8e5224ef4f9cc2aacd92fa6f97e2636cece Mon Sep 17 00:00:00 2001
+From 88908607c30605860d2d7049f8a6fb133b344733 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Thu, 12 Jun 2025 09:38:03 -0230
 Subject: [PATCH] Disable all but English
 
 ---
  base/win/embedded_i18n/create_string_rc.py    |  29 +-
- build/config/locales.gni                      | 155 -----------
+ .../embedded_i18n/generate_embedded_i18n.gni  |   4 -
+ build/config/locales.gni                      | 157 -----------
  chrome/app/chromium_strings.grd               | 248 -----------------
  chrome/app/generated_resources.grd            | 248 -----------------
  chrome/app/resources/locale_settings.grd      | 139 ----------
@@ -34,7 +35,7 @@ Subject: [PATCH] Disable all but English
  ui/strings/auto_image_annotation_strings.grd  | 180 +-----------
  ui/strings/ax_strings.grd                     | 178 ------------
  ui/strings/ui_strings.grd                     | 178 ------------
- 30 files changed, 17 insertions(+), 5110 deletions(-)
+ 31 files changed, 17 insertions(+), 5116 deletions(-)
  mode change 100755 => 100644 base/win/embedded_i18n/create_string_rc.py
 
 diff --git a/base/win/embedded_i18n/create_string_rc.py b/base/win/embedded_i18n/create_string_rc.py
@@ -93,8 +94,25 @@ index bccce42ac9d7e..9bcc06048f2d6
      return translated_strings
  
    def __WriteRCFile(self, translated_strings):
+diff --git a/base/win/embedded_i18n/generate_embedded_i18n.gni b/base/win/embedded_i18n/generate_embedded_i18n.gni
+index 4f4205e56a74d..ca05a2d35b84b 100644
+--- a/base/win/embedded_i18n/generate_embedded_i18n.gni
++++ b/base/win/embedded_i18n/generate_embedded_i18n.gni
+@@ -53,12 +53,8 @@ import("//build/config/locales.gni")
+ # to the xtb version.
+ default_embedded_i18_locales = all_chrome_locales - [
+                                  "en-US",
+-                                 "he",
+-                                 "nb",
+                                ] +
+                                [
+-                                 "iw",
+-                                 "no",
+                                ] - pseudolocales
+ 
+ template("generate_embedded_i18n") {
 diff --git a/build/config/locales.gni b/build/config/locales.gni
-index 428136f8fcbda..23f2010f3a6df 100644
+index 428136f8fcbda..7454595a1ecb5 100644
 --- a/build/config/locales.gni
 +++ b/build/config/locales.gni
 @@ -25,95 +25,13 @@ declare_args() {
@@ -206,7 +224,7 @@ index 428136f8fcbda..23f2010f3a6df 100644
    ]
  }
  
-@@ -146,44 +60,8 @@ if (is_ios) {
+@@ -146,49 +60,11 @@ if (is_ios) {
  # modified to exclude locales that are not used on Android, so
  # `platform_pak_locales - extended_locales` works as expected.
  extended_locales = [
@@ -251,7 +269,12 @@ index 428136f8fcbda..23f2010f3a6df 100644
  # Setup |platform_pak_locales| for each platform.
  platform_pak_locales = all_chrome_locales
  if (is_android) {
-@@ -197,31 +75,9 @@ if (is_android) {
+-  platform_pak_locales -= _non_android_locales
+-  extended_locales -= _non_android_locales
+ } else {
+   platform_pak_locales -= extended_locales
+ }
+@@ -197,31 +73,9 @@ if (is_android) {
  # Add or subtract platform specific locales below.
  if (is_chromeos) {
    platform_pak_locales += [
@@ -283,7 +306,7 @@ index 428136f8fcbda..23f2010f3a6df 100644
    ]
  }
  
-@@ -239,19 +95,8 @@ if (is_android) {
+@@ -239,19 +93,8 @@ if (is_android) {
    #  - swap: (he, id, en-419, fil) -> (iw, in, es-rUS, tl)
    #  - sr-rLatn -> -b+sr+Latn
    android_bundle_locales_as_resources -= [
@@ -1539,7 +1562,7 @@ index 0f592827b7e94..733b217833aa5 100644
    <release seq="1" allow_pseudo="false">
      <messages fallback_to_english="true">
 diff --git a/chrome/browser/adblock/android/adblock_strings.grd b/chrome/browser/adblock/android/adblock_strings.grd
-index 38fe51d5be6d9..d311dd4c5048d 100644
+index 686fc0e80f2f0..98e9c03d3fe6d 100644
 --- a/chrome/browser/adblock/android/adblock_strings.grd
 +++ b/chrome/browser/adblock/android/adblock_strings.grd
 @@ -17,171 +17,11 @@
