@@ -1,8 +1,8 @@
 target_os = "android"
 target_cpu = "x64"
 android_channel = "stable"
-android_default_version_name = "138.0.7204.15"
-android_default_version_code = "720401500"
+android_default_version_name = "138.0.7204.25"
+android_default_version_code = "720402500"
 is_component_build = false
 is_debug = false
 is_official_build = true
@@ -10,7 +10,6 @@ symbol_level = 0
 disable_fieldtrial_testing_config = true
 use_login_database_as_backend = true
 use_full_mte = true
-enable_cet_shadow_stack = true
 v8_jitless = true
 v8_enable_webassembly = false
 v8_enable_sparkplug = false
@@ -28,4 +27,3 @@ system_webview_package_name = "app.dankium.webview"
 trichrome_library_package = "app.dankium.trichromelibrary"
 enable_android_secondary_abi = target_cpu == "x64"
 android_static_analysis = "off"
-eyeo_disable_aa_by_default = true
