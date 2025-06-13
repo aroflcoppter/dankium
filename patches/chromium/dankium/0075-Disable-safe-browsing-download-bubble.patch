@@ -178,20 +178,6 @@ index 42706748b2d50..8c19801a365af 100644
    model_->SetOpenWhenComplete(true);
  }
  
-diff --git a/third_party/angle b/third_party/angle
-index d1fb74c940fef..23790f24506fe 160000
---- a/third_party/angle
-+++ b/third_party/angle
-@@ -1 +1 @@
--Subproject commit d1fb74c940fef262809f4a513039b70e94c91440
-+Subproject commit 23790f24506fe76481ef81c98c67e8ecdee74e74
-diff --git a/third_party/libunwind/src b/third_party/libunwind/src
-index 8575f4ae4fcf8..4c6edb2651e2d 160000
---- a/third_party/libunwind/src
-+++ b/third_party/libunwind/src
-@@ -1 +1 @@
--Subproject commit 8575f4ae4fcf8892938bd9766cf1a5c90a0ed04e
-+Subproject commit 4c6edb2651e2db1b0f2f6070cdc7dfc86893ec32
 -- 
 2.43.0
 
