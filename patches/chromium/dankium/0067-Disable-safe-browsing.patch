@@ -1,12 +1,56 @@
-From 7747f680a40d963b73ea2bb0fc6174b7d58349f0 Mon Sep 17 00:00:00 2001
+From 7db47a3405594500dc50cad45263cec4b929d7b4 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Thu, 5 Jun 2025 04:18:25 -0230
-Subject: [PATCH 1/4] Disable safe browsing
+Subject: [PATCH] Disable safe browsing
 
 ---
- components/safe_browsing/core/common/safe_browsing_prefs.cc | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ .../download_ui_safe_browsing_util.cc         | 21 +------------------
+ .../core/common/safe_browsing_prefs.cc        |  4 ++--
+ 2 files changed, 3 insertions(+), 22 deletions(-)
 
+diff --git a/chrome/browser/download/download_ui_safe_browsing_util.cc b/chrome/browser/download/download_ui_safe_browsing_util.cc
+index 04266cbf80aa5..355336692ec34 100644
+--- a/chrome/browser/download/download_ui_safe_browsing_util.cc
++++ b/chrome/browser/download/download_ui_safe_browsing_util.cc
+@@ -13,16 +13,6 @@
+ #include "components/safe_browsing/core/common/features.h"
+ #include "components/safe_browsing/core/common/safe_browsing_prefs.h"
+ 
+-#if BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION)
+-#include "chrome/browser/browser_process.h"
+-#include "chrome/browser/safe_browsing/download_protection/download_protection_service.h"
+-#include "chrome/browser/safe_browsing/safe_browsing_service.h"
+-#endif
+-
+-#if BUILDFLAG(SAFE_BROWSING_AVAILABLE)
+-#include "components/safe_browsing/content/common/file_type_policies.h"
+-#endif
+-
+ namespace {
+ 
+ #if BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION)
+@@ -53,20 +43,11 @@ bool WasSafeBrowsingVerdictObtained(const download::DownloadItem* item) {
+ }
+ 
+ bool ShouldShowWarningForNoSafeBrowsing(Profile* profile) {
+-#if BUILDFLAG(SAFE_BROWSING_AVAILABLE)
+-  return safe_browsing::GetSafeBrowsingState(*profile->GetPrefs()) ==
+-         safe_browsing::SafeBrowsingState::NO_SAFE_BROWSING;
+-#else
+-  return true;
+-#endif
++  return false;
+ }
+ 
+ bool CanUserTurnOnSafeBrowsing(Profile* profile) {
+-#if BUILDFLAG(SAFE_BROWSING_AVAILABLE)
+-  return !safe_browsing::IsSafeBrowsingPolicyManaged(*profile->GetPrefs());
+-#else
+   return false;
+-#endif
+ }
+ 
+ void RecordDownloadDangerPromptHistogram(
 diff --git a/components/safe_browsing/core/common/safe_browsing_prefs.cc b/components/safe_browsing/core/common/safe_browsing_prefs.cc
 index 90ec1b9162127..e444aabdfc370 100644
 --- a/components/safe_browsing/core/common/safe_browsing_prefs.cc
