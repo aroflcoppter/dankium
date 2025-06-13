@@ -1338,42 +1338,6 @@ index 4e79876ab6845..7839006a8ed13 100644
  }
  
  declare global {
-diff --git a/chrome/browser/ui/views/download/download_danger_prompt_views.cc b/chrome/browser/ui/views/download/download_danger_prompt_views.cc
-index c222109c93fef..1131a3b361c3e 100644
---- a/chrome/browser/ui/views/download/download_danger_prompt_views.cc
-+++ b/chrome/browser/ui/views/download/download_danger_prompt_views.cc
-@@ -222,14 +222,6 @@ void DownloadDangerPromptViews::RunDone(Action action) {
-         RecordDownloadDangerPromptHistogram("Proceed", *download_);
-       }
-       RecordDownloadWarningEvent(action, download_);
--#if BUILDFLAG(SAFE_BROWSING_AVAILABLE)
--      // Do not send cancel report since it's not a terminal action.
--      if (accept) {
--        SendSafeBrowsingDownloadReport(
--            ClientSafeBrowsingReportRequest::DANGEROUS_DOWNLOAD_BY_API, accept,
--            download_);
--      }
--#endif
-     }
-     download_->RemoveObserver(this);
-     download_ = nullptr;
-diff --git a/chrome/browser/ui/webui/downloads/downloads_dom_handler.cc b/chrome/browser/ui/webui/downloads/downloads_dom_handler.cc
-index a7cbec4927cfe..8384c56e89380 100644
---- a/chrome/browser/ui/webui/downloads/downloads_dom_handler.cc
-+++ b/chrome/browser/ui/webui/downloads/downloads_dom_handler.cc
-@@ -158,12 +158,6 @@ void MaybeReportBypassAction(download::DownloadItem* file,
-   if (action != WarningAction::PROCEED && action != WarningAction::DISCARD) {
-     return;
-   }
--#if BUILDFLAG(SAFE_BROWSING_AVAILABLE)
--  SendSafeBrowsingDownloadReport(
--      safe_browsing::ClientSafeBrowsingReportRequest::
--          DANGEROUS_DOWNLOAD_RECOVERY,
--      /*did_proceed=*/action == WarningAction::PROCEED, file);
--#endif
- }
- 
- // Triggers a Trust and Safety sentiment survey (if enabled). Should be called
 -- 
 2.49.0.windows.1
 
