@@ -1,7 +1,7 @@
 From 8e4f631a422823c662717d2dc6cf282951f39af5 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Fri, 13 Jun 2025 16:36:08 -0230
-Subject: [PATCH] Update newtab icon for desktop
+Subject: [PATCH] Update newtab icon for android
 
 ---
  .../java/res/drawable-hdpi/chromelogo16.png    | Bin 425 -> 1389 bytes
