@@ -1,0 +1,105 @@
+From 223b0c6ce267c8d0d7e738d31c065b24c5ea86d4 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Fri, 13 Jun 2025 11:18:36 -0230
+Subject: [PATCH] Disable safe browsing warnings
+
+---
+ .../download_ui_safe_browsing_util.cc         | 57 +------------------
+ 1 file changed, 2 insertions(+), 55 deletions(-)
+
+diff --git a/chrome/browser/download/download_ui_safe_browsing_util.cc b/chrome/browser/download/download_ui_safe_browsing_util.cc
+index 04266cbf80aa5..64f3676911f25 100644
+--- a/chrome/browser/download/download_ui_safe_browsing_util.cc
++++ b/chrome/browser/download/download_ui_safe_browsing_util.cc
+@@ -13,23 +13,8 @@
+ #include "components/safe_browsing/core/common/features.h"
+ #include "components/safe_browsing/core/common/safe_browsing_prefs.h"
+ 
+-#if BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION)
+-#include "chrome/browser/browser_process.h"
+-#include "chrome/browser/safe_browsing/download_protection/download_protection_service.h"
+-#include "chrome/browser/safe_browsing/safe_browsing_service.h"
+-#endif
+-
+-#if BUILDFLAG(SAFE_BROWSING_AVAILABLE)
+-#include "components/safe_browsing/content/common/file_type_policies.h"
+-#endif
+-
+ namespace {
+ 
+-#if BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION)
+-using safe_browsing::ClientDownloadResponse;
+-using safe_browsing::ClientSafeBrowsingReportRequest;
+-#endif
+-
+ std::string GetDangerPromptHistogramName(const std::string& suffix,
+                                          const download::DownloadItem& item) {
+   const char kPrefix[] = "Download.DownloadDangerPrompt";
+@@ -43,62 +28,24 @@ std::string GetDangerPromptHistogramName(const std::string& suffix,
+ }  // namespace
+ 
+ bool WasSafeBrowsingVerdictObtained(const download::DownloadItem* item) {
+-#if BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION)
+-  return item &&
+-         safe_browsing::DownloadProtectionService::HasDownloadProtectionVerdict(
+-             item);
+-#else
+   return false;
+-#endif
+ }
+ 
+ bool ShouldShowWarningForNoSafeBrowsing(Profile* profile) {
+-#if BUILDFLAG(SAFE_BROWSING_AVAILABLE)
+-  return safe_browsing::GetSafeBrowsingState(*profile->GetPrefs()) ==
+-         safe_browsing::SafeBrowsingState::NO_SAFE_BROWSING;
+-#else
+-  return true;
+-#endif
++  return false;
+ }
+ 
+ bool CanUserTurnOnSafeBrowsing(Profile* profile) {
+-#if BUILDFLAG(SAFE_BROWSING_AVAILABLE)
+-  return !safe_browsing::IsSafeBrowsingPolicyManaged(*profile->GetPrefs());
+-#else
+   return false;
+-#endif
+ }
+ 
+ void RecordDownloadDangerPromptHistogram(
+     const std::string& proceed_or_shown_suffix,
+     const download::DownloadItem& item) {
+-#if BUILDFLAG(SAFE_BROWSING_AVAILABLE)
+-  int64_t file_type_uma_value =
+-      safe_browsing::FileTypePolicies::GetInstance()->UmaValueForFile(
+-          item.GetTargetFilePath());
+-  base::UmaHistogramSparse(
+-      GetDangerPromptHistogramName(proceed_or_shown_suffix, item),
+-      file_type_uma_value);
+-#endif
+ }
+ 
+-#if BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION)
+-void SendSafeBrowsingDownloadReport(
+-    ClientSafeBrowsingReportRequest::ReportType report_type,
+-    bool did_proceed,
+-    download::DownloadItem* item) {
+-  if (safe_browsing::SafeBrowsingService* sb_service =
+-          g_browser_process->safe_browsing_service()) {
+-    sb_service->SendDownloadReport(item, report_type, did_proceed,
+-                                   /*show_download_in_folder=*/std::nullopt);
+-  }
+-}
+-#endif  // BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION)
+-
+ #if BUILDFLAG(IS_ANDROID)
+ bool ShouldShowSafeBrowsingAndroidDownloadWarnings() {
+-  return base::FeatureList::IsEnabled(
+-             safe_browsing::kMaliciousApkDownloadCheck) &&
+-         !safe_browsing::kMaliciousApkDownloadCheckTelemetryOnly.Get();
++  return false;
+ }
+ #endif
+-- 
+2.43.0
+
