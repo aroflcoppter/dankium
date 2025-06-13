@@ -1,0 +1,112 @@
+From 3852bfbb1d170abd5d807a892a283a6d8b8b36dd Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Thu, 12 Jun 2025 22:38:56 -0230
+Subject: [PATCH] Dankium Server for component updates
+
+---
+ .../chrome/browser/omaha/RequestGenerator.java |  2 +-
+ .../component_updater_url_constants.cc         |  6 ++++--
+ .../update_client/url_fetcher_downloader.cc    |  6 ++++++
+ url/gurl.cc                                    | 18 ++++++++++++++++++
+ url/gurl.h                                     |  1 +
+ 5 files changed, 30 insertions(+), 3 deletions(-)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/omaha/RequestGenerator.java b/chrome/android/java/src/org/chromium/chrome/browser/omaha/RequestGenerator.java
+index 5e33e8f66a795..5fe996637e890 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/omaha/RequestGenerator.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/omaha/RequestGenerator.java
+@@ -27,7 +27,7 @@ public abstract class RequestGenerator {
+     public static final int INSTALL_AGE_IMMEDIATELY_AFTER_INSTALLING = -1;
+ 
+     private static final String SALT = "omahaSalt";
+-    private static final String URL_OMAHA_SERVER = "https://update.googleapis.com/service/update2";
++    private static final String URL_OMAHA_SERVER = "https://components.dankium.ca/service/update2";
+ 
+     protected RequestGenerator() {
+         UniqueIdentificationGeneratorFactory.registerGenerator(
+diff --git a/components/component_updater/component_updater_url_constants.cc b/components/component_updater/component_updater_url_constants.cc
+index 95c0d48942654..587a35803ff2a 100644
+--- a/components/component_updater/component_updater_url_constants.cc
++++ b/components/component_updater/component_updater_url_constants.cc
+@@ -15,9 +15,11 @@ namespace component_updater {
+ // The value of |kDefaultUrlSource| can be overridden with
+ // --component-updater=url-source=someurl.
+ const char kUpdaterJSONDefaultUrl[] =
+-    "https://update.googleapis.com/service/update2/json";
++    "https://components.dankium.ca/service/update2/json";
+ 
+ const char kUpdaterJSONFallbackUrl[] =
+-    "http://update.googleapis.com/service/update2/json";
++    "http://components.dankium.ca/service/update2/json";
++
++
+ 
+ }  // namespace component_updater
+diff --git a/components/update_client/url_fetcher_downloader.cc b/components/update_client/url_fetcher_downloader.cc
+index 2f1af7302282a..a4babe2c5a263 100644
+--- a/components/update_client/url_fetcher_downloader.cc
++++ b/components/update_client/url_fetcher_downloader.cc
+@@ -7,6 +7,8 @@
+ #include <stdint.h>
+ 
+ #include <utility>
++#include <iostream>
++#include <string>
+ 
+ #include "base/files/file_util.h"
+ #include "base/functional/bind.h"
+@@ -33,6 +35,10 @@ UrlFetcherDownloader::UrlFetcherDownloader(
+ UrlFetcherDownloader::~UrlFetcherDownloader() = default;
+ 
+ base::OnceClosure UrlFetcherDownloader::DoStartDownload(const GURL& url) {
++  url::StringViewReplacements<char> dank_replacements;
++  dank_replacements.SetHostStr("components.dankium.ca");
++  GURL new_url = url.DankReplaceComponents(dank_replacements);
++
+   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+   base::ThreadPool::PostTaskAndReply(
+       FROM_HERE, kTaskTraits,
+diff --git a/url/gurl.cc b/url/gurl.cc
+index 69a19b504e1b3..b02e2409e574b 100644
+--- a/url/gurl.cc
++++ b/url/gurl.cc
+@@ -222,6 +222,24 @@ GURL GURL::Resolve(std::u16string_view relative) const {
+   return result;
+ }
+ 
++GURL GURL::DankReplaceComponents(const url::StringViewReplacements<char>& replacements) const {
++  GURL result;
++
++  // Not allowed for invalid URLs.
++  if (!is_valid_)
++    return GURL();
++
++  url::StdStringCanonOutput output(&result.spec_);
++  result.is_valid_ = url::ReplaceComponents(
++      spec_.data(), static_cast<int>(spec_.length()), parsed_, replacements,
++      NULL, &output, &result.parsed_);
++
++  output.Complete();
++
++  result.ProcessFileSystemURLAfterReplaceComponents();
++  return result;
++}
++
+ // Note: code duplicated below (it's inconvenient to use a template here).
+ GURL GURL::ReplaceComponents(const Replacements& replacements) const {
+   GURL result;
+diff --git a/url/gurl.h b/url/gurl.h
+index 938ad1deee3a3..eaf7c708a0960 100644
+--- a/url/gurl.h
++++ b/url/gurl.h
+@@ -173,6 +173,7 @@ class COMPONENT_EXPORT(URL) GURL {
+   //
+   // Note that this intentionally disallows direct use of url::Replacements,
+   // which is harder to use correctly.
++  [[nodiscard]] GURL DankReplaceComponents(const url::StringViewReplacements<char>& replacements) const;
+   [[nodiscard]] GURL ReplaceComponents(const Replacements& replacements) const;
+   [[nodiscard]] GURL ReplaceComponents(const ReplacementsW& replacements) const;
+ 
+-- 
+2.43.0
+

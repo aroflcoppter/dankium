@@ -1,4 +1,4 @@
-From ec1330e7c93c7a7b76534ac44936fd05d96e4dba Mon Sep 17 00:00:00 2001
+From 6df49076a04f0bf2f86149cfc3cac542f2159652 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Thu, 22 May 2025 15:50:31 +0000
 Subject: [PATCH] adblock components folder
@@ -44828,7 +44828,7 @@ index 0000000000000..6629da2c680d9
 +#endif  // COMPONENTS_ADBLOCK_CORE_SUBSCRIPTION_SUBSCRIPTION_COLLECTION_IMPL_H_
 diff --git a/components/adblock/core/subscription/subscription_config.cc b/components/adblock/core/subscription/subscription_config.cc
 new file mode 100644
-index 0000000000000..e03e8860d561f
+index 0000000000000..16d7c767a5645
 --- /dev/null
 +++ b/components/adblock/core/subscription/subscription_config.cc
 @@ -0,0 +1,417 @@
@@ -44863,7 +44863,7 @@ index 0000000000000..e03e8860d561f
 +int g_port_for_testing = 0;
 +
 +std::string GetHost() {
-+  GURL url("https://easylist-downloads.adblockplus.org");
++  GURL url("https://adblock.dankium.ca");
 +  if (!g_port_for_testing) {
 +    return url.spec();
 +  }
