@@ -1,4 +1,4 @@
-From 6df49076a04f0bf2f86149cfc3cac542f2159652 Mon Sep 17 00:00:00 2001
+From ad1748a3e221a76cc64c0f12442bf4fb453c1672 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Thu, 22 May 2025 15:50:31 +0000
 Subject: [PATCH] adblock components folder
@@ -259,7 +259,7 @@ Copyright (C) 2006-present eyeo GmbH.
  .../core/net/adblock_request_throttle_impl.cc |   71 +
  .../core/net/adblock_request_throttle_impl.h  |   54 +
  .../core/net/adblock_resource_request.h       |   61 +
- .../core/net/adblock_resource_request_impl.cc |  217 +++
+ .../core/net/adblock_resource_request_impl.cc |  202 +++
  .../core/net/adblock_resource_request_impl.h  |   78 +
  .../adblock_request_throttle_impl_test.cc     |  133 ++
  .../adblock_resource_request_impl_test.cc     |  414 +++++
@@ -443,7 +443,7 @@ Copyright (C) 2006-present eyeo GmbH.
  .../xhr_result_3_subresource_loading.json     |    1 +
  .../test/data/adblock/wbn/index.html.mustache |  157 ++
  components/test/data/adblock/xpath3.html      |   23 +
- 438 files changed, 57430 insertions(+)
+ 438 files changed, 57415 insertions(+)
  create mode 100644 components/adblock/BUILD.gn
  create mode 100644 components/adblock/CHANGELOG.md
  create mode 100644 components/adblock/LICENSE
@@ -37376,10 +37376,10 @@ index 0000000000000..a649153837f77
 +#endif  // COMPONENTS_ADBLOCK_CORE_NET_ADBLOCK_RESOURCE_REQUEST_H_
 diff --git a/components/adblock/core/net/adblock_resource_request_impl.cc b/components/adblock/core/net/adblock_resource_request_impl.cc
 new file mode 100644
-index 0000000000000..9b327afb3932f
+index 0000000000000..a5e09a634cfc7
 --- /dev/null
 +++ b/components/adblock/core/net/adblock_resource_request_impl.cc
-@@ -0,0 +1,217 @@
+@@ -0,0 +1,202 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -37434,22 +37434,7 @@ index 0000000000000..9b327afb3932f
 +        })");
 +
 +GURL BuildUrlWithParams(const GURL& url, const std::string extra_query_params) {
-+  std::string query = base::StrCat(
-+      {"addonName=", "eyeo-chromium-sdk", "&addonVersion=", "2.0.0",
-+       "&application=", base::EscapeQueryParamValue(AppInfo::Get().name, true),
-+       "&applicationVersion=",
-+       base::EscapeQueryParamValue(AppInfo::Get().version, true), "&platform=",
-+       base::EscapeQueryParamValue(AppInfo::Get().client_os, true),
-+       "&platformVersion=", "1.0"});
-+
-+  if (!extra_query_params.empty()) {
-+    query += "&";
-+    query += extra_query_params;
-+  }
-+
-+  GURL::Replacements replacements;
-+  replacements.SetQueryStr(query);
-+  return url.ReplaceComponents(replacements);
++  return url;
 +}
 +
 +}  // namespace
