@@ -1,0 +1,80 @@
+From bb068b574aaf78252c37f8d640b921b97336017b Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Sat, 14 Jun 2025 02:03:38 -0230
+Subject: [PATCH] adblock remove default list logic
+
+---
+ .../factories/subscription_service_factory.cc | 24 ++-----------------
+ .../core/subscription/subscription_config.cc  |  7 +-----
+ 2 files changed, 3 insertions(+), 28 deletions(-)
+
+diff --git a/components/adblock/content/browser/factories/subscription_service_factory.cc b/components/adblock/content/browser/factories/subscription_service_factory.cc
+index 8c2981b7bee7e..68782c2c5811a 100644
+--- a/components/adblock/content/browser/factories/subscription_service_factory.cc
++++ b/components/adblock/content/browser/factories/subscription_service_factory.cc
+@@ -154,23 +154,6 @@ void CleanupPersistedConfiguration(PrefService* prefs,
+       prefs, configuration->GetName());
+ }
+ 
+-void InstallFirstRunDefaultAdblockSubscription(
+-    std::unique_ptr<FilteringConfiguration>& adblock_filtering_configuration) {
+-  if (std::ranges::any_of(config::GetKnownSubscriptions(),
+-                          [&](const KnownSubscriptionInfo& subscription) {
+-                            return subscription.url ==
+-                                       DefaultSubscriptionUrl() &&
+-                                   subscription.first_run !=
+-                                       SubscriptionFirstRunBehavior::Ignore;
+-                          })) {
+-    VLOG(1) << "[eyeo] Using the default subscription";
+-    adblock_filtering_configuration->AddFilterList(DefaultSubscriptionUrl());
+-  } else {
+-    VLOG(1) << "[eyeo] No default subscription found, neither "
+-               "language-specific, nor generic.";
+-  }
+-}
+-
+ bool InstallFirstRunAdblockSubscriptionsCheckingLocale(
+     std::string_view language,
+     std::unique_ptr<FilteringConfiguration>& adblock_filtering_configuration) {
+@@ -207,11 +190,8 @@ void CheckAndRunFirstRunLogic(
+     if (language.size() != 2u) {
+       language = "en";
+     }
+-    if (!InstallFirstRunAdblockSubscriptionsCheckingLocale(
+-            language, adblock_filtering_configuration)) {
+-      InstallFirstRunDefaultAdblockSubscription(
+-          adblock_filtering_configuration);
+-    }
++    InstallFirstRunAdblockSubscriptionsCheckingLocale(
++            language, adblock_filtering_configuration);
+     if (IsEyeoFilteringDisabledByDefault()) {
+       adblock_filtering_configuration->SetEnabled(false);
+     }
+diff --git a/components/adblock/core/subscription/subscription_config.cc b/components/adblock/core/subscription/subscription_config.cc
+index 0026ec65fabb6..f41e19fe22942 100644
+--- a/components/adblock/core/subscription/subscription_config.cc
++++ b/components/adblock/core/subscription/subscription_config.cc
+@@ -57,11 +57,6 @@ const GURL& AntiCVUrl() {
+   return kAntiCV;
+ }
+ 
+-const GURL& DefaultSubscriptionUrl() {
+-  static GURL kEasylistUrl(GetHost() + "easylist.txt");
+-  return kEasylistUrl;
+-}
+-
+ KnownSubscriptionInfo::KnownSubscriptionInfo() = default;
+ KnownSubscriptionInfo::~KnownSubscriptionInfo() = default;
+ KnownSubscriptionInfo::KnownSubscriptionInfo(const KnownSubscriptionInfo&) =
+@@ -98,7 +93,7 @@ const std::vector<KnownSubscriptionInfo>& config::GetKnownSubscriptions() {
+   // align the C++ representation, better to update it manually because it also
+   // contains visibility and first run behavior options.
+   static std::vector<KnownSubscriptionInfo> recommendations = {
+-      {DefaultSubscriptionUrl(),
++      {GURL(GetHost() + "easylist.txt"),
+        "EasyList",
+        {"en"},
+        SubscriptionUiVisibility::Visible,
+-- 
+2.43.0
+
