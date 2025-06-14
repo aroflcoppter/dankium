@@ -1,0 +1,29 @@
+From f6e3f38032da2b4a02b20a7992e9dc08802a8352 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Sat, 14 Jun 2025 11:51:51 -0230
+Subject: [PATCH] Change default profile name on desktop
+
+---
+ chrome/app/profiles_strings.grdp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/chrome/app/profiles_strings.grdp b/chrome/app/profiles_strings.grdp
+index f9776dace4b9f..8ddca642ff5a8 100644
+--- a/chrome/app/profiles_strings.grdp
++++ b/chrome/app/profiles_strings.grdp
+@@ -45,10 +45,10 @@
+     Verify it's you
+   </message>
+   <message name="IDS_AVATAR_BUTTON_WORK" desc="Short label for the avatar button when the profile is a managed profile in an enterprise environment, such as a business, government organization, or other workplace." meaning="Using a managed profile, as for a workplace">
+-    Work
++    Dankium
+   </message>
+   <message name="IDS_AVATAR_BUTTON_SCHOOL" desc="Short label for the avatar button when the profile is a school profile." meaning="Using a school profile">
+-    School
++    Dankium
+   </message>
+   <message name="IDS_AVATAR_BUTTON_GREETING" desc="Greeting that appears at the top of Chrome after the user signs in. It becomes part of the entrypoint for the Chrome Profile Menu. The greeting is casual and friendly, and it invokes the user's name.">
+     Hi, <ph name="PROFILE_NAME">$1<ex>User</ex></ph>
+-- 
+2.43.0
+
