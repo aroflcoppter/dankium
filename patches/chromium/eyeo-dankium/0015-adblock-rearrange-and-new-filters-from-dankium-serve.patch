@@ -1,17 +1,34 @@
-From ac9ba03c7a8f8068d7b3bbea7be82433c680b549 Mon Sep 17 00:00:00 2001
+From 2d4d14022da523110f5171fff7705cfcbf6ec63e Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Sat, 14 Jun 2025 10:22:43 -0230
 Subject: [PATCH] adblock rearrange and new filters from dankium server
 
 ---
- .../core/subscription/subscription_config.cc  | 79 +++++++++++--------
- 1 file changed, 48 insertions(+), 31 deletions(-)
+ .../core/subscription/subscription_config.cc  | 89 ++++++++++---------
+ 1 file changed, 48 insertions(+), 41 deletions(-)
 
 diff --git a/components/adblock/core/subscription/subscription_config.cc b/components/adblock/core/subscription/subscription_config.cc
-index ecd347781186c..24c5b09e484cf 100644
+index ecd347781186c..0be62092be67d 100644
 --- a/components/adblock/core/subscription/subscription_config.cc
 +++ b/components/adblock/core/subscription/subscription_config.cc
-@@ -89,6 +89,54 @@ const std::vector<KnownSubscriptionInfo>& config::GetKnownSubscriptions() {
+@@ -72,16 +72,6 @@ KnownSubscriptionInfo::KnownSubscriptionInfo(
+       privileged_status(privileged_status_param) {}
+ 
+ const std::vector<KnownSubscriptionInfo>& config::GetKnownSubscriptions() {
+-  // The current list of subscriptions can be downloaded from:
+-  // https://gitlab.com/eyeo/filterlists/subscriptionlist/-/archive/master/subscriptionlist-master.tar.gz
+-  // The archive contains files with subscription definitions. The ones we're
+-  // interested in are ones that declare a [recommendation] keyword in either
+-  // the "list" or "variant" key.
+-  // Here's a script that parses the archive into a subscriptions.json:
+-  // https://gitlab.com/eyeo/adblockplus/abc/adblockpluscore/-/blob/next/build/updateSubscriptions.js
+-  // The list isn't updated very often. If it starts to become a burden to
+-  // align the C++ representation, better to update it manually because it also
+-  // contains visibility and first run behavior options.
+   static std::vector<KnownSubscriptionInfo> recommendations = {
+       {GURL(GetHost() + "easylist.txt"),
+        "EasyList",
+@@ -89,6 +79,54 @@ const std::vector<KnownSubscriptionInfo>& config::GetKnownSubscriptions() {
         SubscriptionUiVisibility::Visible,
         SubscriptionFirstRunBehavior::Subscribe,
         SubscriptionPrivilegedFilterStatus::Forbidden},
@@ -55,18 +72,18 @@ index ecd347781186c..24c5b09e484cf 100644
 +       "Anti-Malware",
 +       {},
 +       SubscriptionUiVisibility::Visible,
-+       SubscriptionFirstRunBehavior::Ignore,
++       SubscriptionFirstRunBehavior::Subscribe,
 +       SubscriptionPrivilegedFilterStatus::Forbidden},
 +      {GURL(GetHost() + "yoyolist.txt"),
 +       "Peter Lowe",
 +       {},
 +       SubscriptionUiVisibility::Visible,
-+       SubscriptionFirstRunBehavior::Ignore,
++       SubscriptionFirstRunBehavior::Subscribe,
 +       SubscriptionPrivilegedFilterStatus::Forbidden},
        {GURL(GetHost() + "abpindo.txt"),
         "ABPindo",
         {"id", "ms"},
-@@ -240,37 +288,6 @@ const std::vector<KnownSubscriptionInfo>& config::GetKnownSubscriptions() {
+@@ -240,37 +278,6 @@ const std::vector<KnownSubscriptionInfo>& config::GetKnownSubscriptions() {
         SubscriptionUiVisibility::Visible,
         SubscriptionFirstRunBehavior::SubscribeIfLocaleMatch,
         SubscriptionPrivilegedFilterStatus::Forbidden},
