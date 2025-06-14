@@ -1,0 +1,954 @@
+From 14763a4f51167e7ada9c27e44a03c5ce55b9f6a0 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Sat, 14 Jun 2025 01:26:43 -0230
+Subject: [PATCH] adblock remove list recommender
+
+---
+ .../settings/AdblockSettingsFragment.java     |  13 --
+ .../filtering_configuration_android.cc        |  19 ---
+ .../components/adblock/AdblockController.java |  10 --
+ .../adblock/FilteringConfiguration.java       |  15 --
+ .../factories/subscription_service_factory.cc |  12 --
+ components/adblock/core/subscription/BUILD.gn |   8 -
+ .../filtering_configuration_maintainer.h      |   3 -
+ ...filtering_configuration_maintainer_impl.cc |  11 --
+ .../filtering_configuration_maintainer_impl.h |   6 -
+ .../preloaded_subscription_provider.h         |  56 -------
+ .../preloaded_subscription_provider_impl.cc   |  32 ----
+ .../preloaded_subscription_provider_impl.h    |  50 -------
+ .../recommended_subscription_installer.h      |  43 ------
+ ...recommended_subscription_installer_impl.cc | 141 ------------------
+ .../recommended_subscription_installer_impl.h |  73 ---------
+ .../recommended_subscription_parser.cc        |  82 ----------
+ .../recommended_subscription_parser.h         |  35 -----
+ .../core/subscription/subscription_config.cc  |   6 -
+ .../core/subscription/subscription_config.h   |   1 -
+ .../core/subscription/subscription_service.h  |   2 -
+ .../subscription/subscription_service_impl.cc |  19 ---
+ .../subscription/subscription_service_impl.h  |   3 -
+ third_party/angle                             |   2 +-
+ third_party/libunwind/src                     |   2 +-
+ 24 files changed, 2 insertions(+), 642 deletions(-)
+ delete mode 100644 components/adblock/core/subscription/preloaded_subscription_provider.h
+ delete mode 100644 components/adblock/core/subscription/preloaded_subscription_provider_impl.cc
+ delete mode 100644 components/adblock/core/subscription/preloaded_subscription_provider_impl.h
+ delete mode 100644 components/adblock/core/subscription/recommended_subscription_installer.h
+ delete mode 100644 components/adblock/core/subscription/recommended_subscription_installer_impl.cc
+ delete mode 100644 components/adblock/core/subscription/recommended_subscription_installer_impl.h
+ delete mode 100644 components/adblock/core/subscription/recommended_subscription_parser.cc
+ delete mode 100644 components/adblock/core/subscription/recommended_subscription_parser.h
+
+diff --git a/chrome/browser/adblock/android/java/src/org/chromium/chrome/browser/adblock/settings/AdblockSettingsFragment.java b/chrome/browser/adblock/android/java/src/org/chromium/chrome/browser/adblock/settings/AdblockSettingsFragment.java
+index 3f85bfb5171fa..70470a18805fc 100644
+--- a/chrome/browser/adblock/android/java/src/org/chromium/chrome/browser/adblock/settings/AdblockSettingsFragment.java
++++ b/chrome/browser/adblock/android/java/src/org/chromium/chrome/browser/adblock/settings/AdblockSettingsFragment.java
+@@ -82,16 +82,6 @@ public class AdblockSettingsFragment extends PreferenceFragmentCompat
+         mAdblockEnabled.setChecked(enabled);
+         mAdblockEnabled.setOnPreferenceChangeListener(this);
+         applyAdblockEnabled(enabled);
+-
+-        mAcceptableAdsEnabled.setChecked(
+-                AdblockController.getInstance(ProfileManager.getLastUsedRegularProfile())
+-                        .isAcceptableAdsEnabled());
+-        mAcceptableAdsEnabled.setOnPreferenceChangeListener(this);
+-
+-        mAutoInstalledEnabled.setChecked(
+-                AdblockController.getInstance(ProfileManager.getLastUsedRegularProfile())
+-                        .isAutoInstallEnabled());
+-        mAutoInstalledEnabled.setOnPreferenceChangeListener(this);
+     }
+ 
+     private void maybeEnableMoreOptions() {
+@@ -147,9 +137,6 @@ public class AdblockSettingsFragment extends PreferenceFragmentCompat
+                     .setAcceptableAdsEnabled((Boolean) newValue);
+         } else {
+             assert preference.getKey().equals(SETTINGS_AUTO_INSTALL_ENABLED_KEY);
+-
+-            AdblockController.getInstance(ProfileManager.getLastUsedRegularProfile())
+-                    .setAutoInstallEnabled((Boolean) newValue);
+         }
+         return true;
+     }
+diff --git a/components/adblock/android/filtering_configuration_android.cc b/components/adblock/android/filtering_configuration_android.cc
+index 45841be13fd16..380289da8f01c 100644
+--- a/components/adblock/android/filtering_configuration_android.cc
++++ b/components/adblock/android/filtering_configuration_android.cc
+@@ -224,22 +224,3 @@ JNI_FilteringConfiguration_GetConfigurations(
+       [](adblock::FilteringConfiguration* fc) { return fc->GetName(); });
+   return ToJavaArrayOfStrings(env, configurations);
+ }
+-
+-static jboolean JNI_FilteringConfiguration_IsAutoInstallEnabled(
+-    JNIEnv* env,
+-    const JavaParamRef<jobject>& jbrowser_context_handle) {
+-  return adblock::SubscriptionServiceFactory::GetForBrowserContext(
+-             content::BrowserContextFromJavaHandle(jbrowser_context_handle))
+-                 ->IsAutoInstallEnabled()
+-             ? JNI_TRUE
+-             : JNI_FALSE;
+-}
+-
+-static void JNI_FilteringConfiguration_SetAutoInstallEnabled(
+-    JNIEnv* env,
+-    jboolean j_enabled,
+-    const JavaParamRef<jobject>& jbrowser_context_handle) {
+-  adblock::SubscriptionServiceFactory::GetForBrowserContext(
+-      content::BrowserContextFromJavaHandle(jbrowser_context_handle))
+-      ->SetAutoInstallEnabled(j_enabled == JNI_TRUE);
+-}
+diff --git a/components/adblock/android/java/src/org/chromium/components/adblock/AdblockController.java b/components/adblock/android/java/src/org/chromium/components/adblock/AdblockController.java
+index 80d72fa47ba28..06fd0797f1aa9 100644
+--- a/components/adblock/android/java/src/org/chromium/components/adblock/AdblockController.java
++++ b/components/adblock/android/java/src/org/chromium/components/adblock/AdblockController.java
+@@ -152,16 +152,6 @@ public class AdblockController {
+                 (List<?>) Arrays.asList(AdblockControllerJni.get().getRecommendedSubscriptions());
+     }
+ 
+-    @UiThread
+-    public void setAutoInstallEnabled(boolean enable) {
+-        FilteringConfiguration.setAutoInstallEnabled(enable, mBrowserContextHandle);
+-    }
+-
+-    @UiThread
+-    public boolean isAutoInstallEnabled() {
+-        return FilteringConfiguration.isAutoInstallEnabled(mBrowserContextHandle);
+-    }
+-
+     @UiThread
+     public void installSubscription(final URL url) {
+         mFilteringConfiguration.addFilterList(url);
+diff --git a/components/adblock/android/java/src/org/chromium/components/adblock/FilteringConfiguration.java b/components/adblock/android/java/src/org/chromium/components/adblock/FilteringConfiguration.java
+index 26897aae23e72..4174d3c626ae2 100644
+--- a/components/adblock/android/java/src/org/chromium/components/adblock/FilteringConfiguration.java
++++ b/components/adblock/android/java/src/org/chromium/components/adblock/FilteringConfiguration.java
+@@ -315,17 +315,6 @@ public final class FilteringConfiguration {
+         return null;
+     }
+ 
+-    @UiThread
+-    public static void setAutoInstallEnabled(
+-            boolean enable, BrowserContextHandle browserContextHandle) {
+-        FilteringConfigurationJni.get().setAutoInstallEnabled(enable, browserContextHandle);
+-    }
+-
+-    @UiThread
+-    public static boolean isAutoInstallEnabled(BrowserContextHandle browserContextHandle) {
+-        return FilteringConfigurationJni.get().isAutoInstallEnabled(browserContextHandle);
+-    }
+-
+     private String sanitizeSite(String site) {
+         // |site| is raw user input. We expect it to be either a domain or a URL.
+         try {
+@@ -413,10 +402,6 @@ public final class FilteringConfiguration {
+                 final String configuration_name,
+                 BrowserContextHandle contextHandle);
+ 
+-        void setAutoInstallEnabled(boolean enable, BrowserContextHandle contextHandle);
+-
+-        boolean isAutoInstallEnabled(BrowserContextHandle contextHandle);
+-
+         String[] getConfigurations(BrowserContextHandle contextHandle);
+ 
+         String getAcceptableAdsUrl();
+diff --git a/components/adblock/content/browser/factories/subscription_service_factory.cc b/components/adblock/content/browser/factories/subscription_service_factory.cc
+index 518977a1d74e4..8c2981b7bee7e 100644
+--- a/components/adblock/content/browser/factories/subscription_service_factory.cc
++++ b/components/adblock/content/browser/factories/subscription_service_factory.cc
+@@ -42,8 +42,6 @@
+ #include "components/adblock/core/net/adblock_resource_request_impl.h"
+ #include "components/adblock/core/subscription/filtering_configuration_maintainer_impl.h"
+ #include "components/adblock/core/subscription/installed_subscription_impl.h"
+-#include "components/adblock/core/subscription/preloaded_subscription_provider_impl.h"
+-#include "components/adblock/core/subscription/recommended_subscription_installer_impl.h"
+ #include "components/adblock/core/subscription/subscription_config.h"
+ #include "components/adblock/core/subscription/subscription_downloader_impl.h"
+ #include "components/adblock/core/subscription/subscription_persistent_storage_impl.h"
+@@ -141,18 +139,8 @@ MakeFilterConfigurationMaintainer(
+       const_cast<ConversionExecutors*>(conversion_executors),
+       persistent_metadata);
+ 
+-  std::unique_ptr<RecommendedSubscriptionInstallerImpl> recommended_installer =
+-      nullptr;
+-  if (configuration->GetName() == kAdblockFilteringConfigurationName) {
+-    recommended_installer =
+-        std::make_unique<RecommendedSubscriptionInstallerImpl>(
+-            prefs, configuration, persistent_metadata,
+-            base::BindRepeating(&MakeSubscriptionRequest, context));
+-  }
+-
+   auto maintainer = std::make_unique<FilteringConfigurationMaintainerImpl>(
+       configuration, std::move(storage), std::move(downloader),
+-      std::move(recommended_installer),
+       MakeTaskScheduler(),
+       const_cast<ConversionExecutors*>(conversion_executors),
+       persistent_metadata, observer);
+diff --git a/components/adblock/core/subscription/BUILD.gn b/components/adblock/core/subscription/BUILD.gn
+index c88a274cd795f..c56fa5793ae73 100644
+--- a/components/adblock/core/subscription/BUILD.gn
++++ b/components/adblock/core/subscription/BUILD.gn
+@@ -28,14 +28,6 @@ source_set("subscription") {
+     "installed_subscription_impl.h",
+     "pattern_matcher.cc",
+     "pattern_matcher.h",
+-    "preloaded_subscription_provider.h",
+-    "preloaded_subscription_provider_impl.cc",
+-    "preloaded_subscription_provider_impl.h",
+-    "recommended_subscription_installer.h",
+-    "recommended_subscription_installer_impl.cc",
+-    "recommended_subscription_installer_impl.h",
+-    "recommended_subscription_parser.cc",
+-    "recommended_subscription_parser.h",
+     "regex_matcher.cc",
+     "regex_matcher.h",
+     "subscription.cc",
+diff --git a/components/adblock/core/subscription/filtering_configuration_maintainer.h b/components/adblock/core/subscription/filtering_configuration_maintainer.h
+index 8bd8379ee2216..66937850793b9 100644
+--- a/components/adblock/core/subscription/filtering_configuration_maintainer.h
++++ b/components/adblock/core/subscription/filtering_configuration_maintainer.h
+@@ -47,9 +47,6 @@ class FilteringConfigurationMaintainer {
+   virtual std::vector<scoped_refptr<Subscription>> GetCurrentSubscriptions()
+       const = 0;
+ 
+-  // Removes all subscriptions with InstalationState::AutoInstalled
+-  virtual void RemoveAutoInstalledSubscriptions() = 0;
+-
+   // Returns download statistics for all subscriptions
+   virtual std::map<GURL, utils::DownloadStats> GetDownloadStats() const = 0;
+ };
+diff --git a/components/adblock/core/subscription/filtering_configuration_maintainer_impl.cc b/components/adblock/core/subscription/filtering_configuration_maintainer_impl.cc
+index 78283dc057708..6de12631b648c 100644
+--- a/components/adblock/core/subscription/filtering_configuration_maintainer_impl.cc
++++ b/components/adblock/core/subscription/filtering_configuration_maintainer_impl.cc
+@@ -62,7 +62,6 @@ FilteringConfigurationMaintainerImpl::FilteringConfigurationMaintainerImpl(
+     FilteringConfiguration* configuration,
+     std::unique_ptr<SubscriptionPersistentStorage> storage,
+     std::unique_ptr<SubscriptionDownloader> downloader,
+-    std::unique_ptr<RecommendedSubscriptionInstaller> recommended_installer,
+     std::unique_ptr<TaskScheduler> subscription_updater,
+     ConversionExecutors* conversion_executor,
+     SubscriptionPersistentMetadata* persistent_metadata,
+@@ -70,7 +69,6 @@ FilteringConfigurationMaintainerImpl::FilteringConfigurationMaintainerImpl(
+     : configuration_(std::move(configuration)),
+       storage_(std::move(storage)),
+       downloader_(std::move(downloader)),
+-      recommended_installer_(std::move(recommended_installer)),
+       subscription_updater_(std::move(subscription_updater)),
+       conversion_executor_(conversion_executor),
+       persistent_metadata_(persistent_metadata),
+@@ -127,10 +125,6 @@ FilteringConfigurationMaintainerImpl::GetDownloadStats() const {
+   return result;
+ }
+ 
+-void FilteringConfigurationMaintainerImpl::RemoveAutoInstalledSubscriptions() {
+-  recommended_installer_->RemoveAutoInstalledSubscriptions();
+-}
+-
+ void FilteringConfigurationMaintainerImpl::OnFilterListsChanged(
+     FilteringConfiguration* config) {
+   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+@@ -280,11 +274,6 @@ void FilteringConfigurationMaintainerImpl::RunUpdateCheck() {
+   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+   VLOG(1) << "[eyeo] Running update check";
+ 
+-  // Run recommended subscription update check first so
+-  // we don't update lists that would get removed.
+-  if (recommended_installer_) {
+-    recommended_installer_->RunUpdateCheck();
+-  }
+ 
+   for (auto& subscription : current_state_) {
+     // Update subscriptions that are expired and aren't already in the process
+diff --git a/components/adblock/core/subscription/filtering_configuration_maintainer_impl.h b/components/adblock/core/subscription/filtering_configuration_maintainer_impl.h
+index 9a33889cb55a1..9a65eb2424d2a 100644
+--- a/components/adblock/core/subscription/filtering_configuration_maintainer_impl.h
++++ b/components/adblock/core/subscription/filtering_configuration_maintainer_impl.h
+@@ -26,8 +26,6 @@
+ #include "components/adblock/core/configuration/filtering_configuration.h"
+ #include "components/adblock/core/subscription/conversion_executors.h"
+ #include "components/adblock/core/subscription/filtering_configuration_maintainer.h"
+-#include "components/adblock/core/subscription/preloaded_subscription_provider.h"
+-#include "components/adblock/core/subscription/recommended_subscription_installer.h"
+ #include "components/adblock/core/subscription/subscription_downloader.h"
+ #include "components/adblock/core/subscription/subscription_persistent_metadata.h"
+ #include "components/adblock/core/subscription/subscription_persistent_storage.h"
+@@ -44,7 +42,6 @@ class FilteringConfigurationMaintainerImpl
+       FilteringConfiguration* configuration,
+       std::unique_ptr<SubscriptionPersistentStorage> storage,
+       std::unique_ptr<SubscriptionDownloader> downloader,
+-      std::unique_ptr<RecommendedSubscriptionInstaller> recommended_installer,
+       std::unique_ptr<TaskScheduler> subscription_updater,
+       ConversionExecutors* conversion_executor,
+       SubscriptionPersistentMetadata* persistent_metadata,
+@@ -59,8 +56,6 @@ class FilteringConfigurationMaintainerImpl
+ 
+   std::map<GURL, utils::DownloadStats> GetDownloadStats() const final;
+ 
+-  void RemoveAutoInstalledSubscriptions() final;
+-
+   // FilteringConfiguration::Observer:
+   void OnFilterListsChanged(FilteringConfiguration* config) final;
+   void OnAllowedDomainsChanged(FilteringConfiguration* config) final;
+@@ -102,7 +97,6 @@ class FilteringConfigurationMaintainerImpl
+   raw_ptr<FilteringConfiguration> configuration_;
+   std::unique_ptr<SubscriptionPersistentStorage> storage_;
+   std::unique_ptr<SubscriptionDownloader> downloader_;
+-  std::unique_ptr<RecommendedSubscriptionInstaller> recommended_installer_;
+   std::unique_ptr<TaskScheduler> subscription_updater_;
+   raw_ptr<ConversionExecutors> conversion_executor_;
+   // TODO(mpawlowski): Should not need to update metadata after DPD-1154, when
+diff --git a/components/adblock/core/subscription/preloaded_subscription_provider.h b/components/adblock/core/subscription/preloaded_subscription_provider.h
+deleted file mode 100644
+index 4ea6cdb69dc65..0000000000000
+--- a/components/adblock/core/subscription/preloaded_subscription_provider.h
++++ /dev/null
+@@ -1,56 +0,0 @@
+-/*
+- * This file is part of eyeo Chromium SDK,
+- * Copyright (C) 2006-present eyeo GmbH
+- *
+- * eyeo Chromium SDK is free software: you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License version 3 as
+- * published by the Free Software Foundation.
+- *
+- * eyeo Chromium SDK is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
+- */
+-
+-#ifndef COMPONENTS_ADBLOCK_CORE_SUBSCRIPTION_PRELOADED_SUBSCRIPTION_PROVIDER_H_
+-#define COMPONENTS_ADBLOCK_CORE_SUBSCRIPTION_PRELOADED_SUBSCRIPTION_PROVIDER_H_
+-
+-#include <vector>
+-
+-#include "base/memory/scoped_refptr.h"
+-#include "components/adblock/core/subscription/installed_subscription.h"
+-#include "components/keyed_service/core/keyed_service.h"
+-#include "url/gurl.h"
+-
+-namespace adblock {
+-
+-// Provides temporary preloaded subscriptions when needed.
+-// Preloaded subscriptions are filter lists bundled with the browser. They can
+-// be used to provide some level of ad-filtering while waiting for the download
+-// of up-to-date filter lists from the Internet.
+-class PreloadedSubscriptionProvider {
+- public:
+-  virtual ~PreloadedSubscriptionProvider() = default;
+-
+-  // The collection of preloaded subscriptions returned by
+-  // |GetCurrentPreloadedSubscriptions()| is built by comparing the list of
+-  // installed (ie. available) subscriptions with the list of pending (ie.
+-  // desired) subscriptions.
+-  virtual void UpdateSubscriptions(std::vector<GURL> installed_subscriptions,
+-                                   std::vector<GURL> pending_subscriptions) = 0;
+-
+-  // Returns preloaded subscriptions that were deemed necessary, based on the
+-  // difference between pending and installed subscriptions, to provide relevant
+-  // temporary ad-filtering. This may include easylist.txt and
+-  // exceptionrules.txt. The subscriptions are kept in memory and released when
+-  // no longer needed.
+-  virtual std::vector<scoped_refptr<InstalledSubscription>>
+-  GetCurrentPreloadedSubscriptions() const = 0;
+-};
+-
+-}  // namespace adblock
+-
+-#endif  // COMPONENTS_ADBLOCK_CORE_SUBSCRIPTION_PRELOADED_SUBSCRIPTION_PROVIDER_H_
+diff --git a/components/adblock/core/subscription/preloaded_subscription_provider_impl.cc b/components/adblock/core/subscription/preloaded_subscription_provider_impl.cc
+deleted file mode 100644
+index 27e6856567561..0000000000000
+--- a/components/adblock/core/subscription/preloaded_subscription_provider_impl.cc
++++ /dev/null
+@@ -1,32 +0,0 @@
+-/*
+- * This file is part of eyeo Chromium SDK,
+- * Copyright (C) 2006-present eyeo GmbH
+- *
+- * eyeo Chromium SDK is free software: you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License version 3 as
+- * published by the Free Software Foundation.
+- *
+- * eyeo Chromium SDK is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
+- */
+-
+-#include "components/adblock/core/subscription/preloaded_subscription_provider_impl.h"
+-
+-#include <algorithm>
+-#include <string_view>
+-
+-#include "base/functional/bind.h"
+-#include "base/logging.h"
+-#include "base/memory/scoped_refptr.h"
+-#include "base/strings/pattern.h"
+-#include "base/trace_event/trace_event.h"
+-#include "components/adblock/core/common/adblock_utils.h"
+-#include "components/adblock/core/common/flatbuffer_data.h"
+-#include "components/adblock/core/subscription/installed_subscription_impl.h"
+-#include "components/adblock/core/subscription/subscription.h"
+-#include "components/adblock/core/subscription/subscription_config.h"
+diff --git a/components/adblock/core/subscription/preloaded_subscription_provider_impl.h b/components/adblock/core/subscription/preloaded_subscription_provider_impl.h
+deleted file mode 100644
+index e341cc44259cd..0000000000000
+--- a/components/adblock/core/subscription/preloaded_subscription_provider_impl.h
++++ /dev/null
+@@ -1,50 +0,0 @@
+-/*
+- * This file is part of eyeo Chromium SDK,
+- * Copyright (C) 2006-present eyeo GmbH
+- *
+- * eyeo Chromium SDK is free software: you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License version 3 as
+- * published by the Free Software Foundation.
+- *
+- * eyeo Chromium SDK is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
+- */
+-
+-#ifndef COMPONENTS_ADBLOCK_CORE_SUBSCRIPTION_PRELOADED_SUBSCRIPTION_PROVIDER_IMPL_H_
+-#define COMPONENTS_ADBLOCK_CORE_SUBSCRIPTION_PRELOADED_SUBSCRIPTION_PROVIDER_IMPL_H_
+-
+-#include <vector>
+-
+-#include "components/adblock/core/subscription/preloaded_subscription_provider.h"
+-
+-namespace adblock {
+-
+-class PreloadedSubscriptionProviderImpl final
+-    : public PreloadedSubscriptionProvider {
+- public:
+-  ~PreloadedSubscriptionProviderImpl() final;
+-  PreloadedSubscriptionProviderImpl();
+-
+-  void UpdateSubscriptions(std::vector<GURL> installed_subscriptions,
+-                           std::vector<GURL> pending_subscriptions) final;
+-
+-  std::vector<scoped_refptr<InstalledSubscription>>
+-  GetCurrentPreloadedSubscriptions() const final;
+-
+- private:
+-  void UpdateSubscriptionsInternal();
+-
+-  class SingleSubscriptionProvider;
+-  std::vector<GURL> installed_subscriptions_;
+-  std::vector<GURL> pending_subscriptions_;
+-  std::vector<SingleSubscriptionProvider> providers_;
+-};
+-
+-}  // namespace adblock
+-
+-#endif  // COMPONENTS_ADBLOCK_CORE_SUBSCRIPTION_PRELOADED_SUBSCRIPTION_PROVIDER_IMPL_H_
+diff --git a/components/adblock/core/subscription/recommended_subscription_installer.h b/components/adblock/core/subscription/recommended_subscription_installer.h
+deleted file mode 100644
+index e200035a72f49..0000000000000
+--- a/components/adblock/core/subscription/recommended_subscription_installer.h
++++ /dev/null
+@@ -1,43 +0,0 @@
+-/*
+- * This file is part of eyeo Chromium SDK,
+- * Copyright (C) 2006-present eyeo GmbH
+- *
+- * eyeo Chromium SDK is free software: you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License version 3 as
+- * published by the Free Software Foundation.
+- *
+- * eyeo Chromium SDK is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
+- */
+-
+-#ifndef COMPONENTS_ADBLOCK_CORE_SUBSCRIPTION_RECOMMENDED_SUBSCRIPTION_INSTALLER_H_
+-#define COMPONENTS_ADBLOCK_CORE_SUBSCRIPTION_RECOMMENDED_SUBSCRIPTION_INSTALLER_H_
+-
+-#include <vector>
+-
+-#include "base/functional/callback_forward.h"
+-#include "url/gurl.h"
+-
+-namespace adblock {
+-
+-// Downloads, parses and installs recommended subscriptions based on
+-// geolocation.
+-class RecommendedSubscriptionInstaller {
+- public:
+-  using RecommendedSubscriptionsParsedCallback =
+-      base::OnceCallback<void(const std::vector<GURL>&)>;
+-
+-  virtual ~RecommendedSubscriptionInstaller() {}
+-
+-  virtual void RunUpdateCheck() = 0;
+-  virtual void RemoveAutoInstalledSubscriptions() = 0;
+-};
+-
+-}  // namespace adblock
+-
+-#endif  // COMPONENTS_ADBLOCK_CORE_SUBSCRIPTION_RECOMMENDED_SUBSCRIPTION_INSTALLER_H_
+diff --git a/components/adblock/core/subscription/recommended_subscription_installer_impl.cc b/components/adblock/core/subscription/recommended_subscription_installer_impl.cc
+deleted file mode 100644
+index 3a00e543f3317..0000000000000
+--- a/components/adblock/core/subscription/recommended_subscription_installer_impl.cc
++++ /dev/null
+@@ -1,141 +0,0 @@
+-/*
+- * This file is part of eyeo Chromium SDK,
+- * Copyright (C) 2006-present eyeo GmbH
+- *
+- * eyeo Chromium SDK is free software: you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License version 3 as
+- * published by the Free Software Foundation.
+- *
+- * eyeo Chromium SDK is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
+- */
+-
+-#include "components/adblock/core/subscription/recommended_subscription_installer_impl.h"
+-
+-#include "base/functional/callback.h"
+-#include "base/task/task_traits.h"
+-#include "base/task/thread_pool.h"
+-#include "components/adblock/core/common/adblock_constants.h"
+-#include "components/adblock/core/common/adblock_prefs.h"
+-#include "components/adblock/core/subscription/recommended_subscription_parser.h"
+-#include "components/adblock/core/subscription/subscription_config.h"
+-#include "components/prefs/pref_service.h"
+-#include "net/http/http_response_headers.h"
+-
+-namespace adblock {
+-namespace {
+-// Subscriptions that are not recommended for 14 days are removed
+-constexpr base::TimeDelta kAutoInstalledSubscriptionExpirationInterval =
+-    base::Days(14);
+-// Auto installed subscriptions are updated every day
+-constexpr base::TimeDelta kAutoInstalledSubscriptionUpdateInterval =
+-    base::Days(1);
+-}  // namespace
+-
+-RecommendedSubscriptionInstallerImpl::RecommendedSubscriptionInstallerImpl(
+-    PrefService* pref_service,
+-    FilteringConfiguration* configuration,
+-    SubscriptionPersistentMetadata* persistent_metadata,
+-    ResourceRequestMaker request_maker)
+-    : pref_service_(pref_service),
+-      configuration_(configuration),
+-      persistent_metadata_(persistent_metadata),
+-      request_maker_(std::move(request_maker)) {
+-  DCHECK(configuration_->GetName() == kAdblockFilteringConfigurationName)
+-      << "Recommended subscriptions should only be installed for adblock "
+-         "configuration";
+-}
+-
+-RecommendedSubscriptionInstallerImpl::~RecommendedSubscriptionInstallerImpl() {}
+-
+-void RecommendedSubscriptionInstallerImpl::RunUpdateCheck() {
+-  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+-
+-  if (IsUpdateDue()) {
+-    VLOG(1) << "[eyeo] Running recommended subscription update";
+-    resource_request_ = request_maker_.Run();
+-    resource_request_->Start(
+-        RecommendedSubscriptionListUrl(), AdblockResourceRequest::Method::GET,
+-        base::BindRepeating(&RecommendedSubscriptionInstallerImpl::
+-                                OnRecommendationListDownloaded,
+-                            weak_ptr_factory_.GetWeakPtr()),
+-        AdblockResourceRequest::RetryPolicy::RetryUntilSucceeded, "");
+-  }
+-}
+-
+-bool RecommendedSubscriptionInstallerImpl::IsUpdateDue() const {
+-  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+-  return pref_service_->GetBoolean(
+-             common::prefs::kEnableAutoInstalledSubscriptions) &&
+-         pref_service_->GetTime(
+-             common::prefs::kAutoInstalledSubscriptionsNextUpdateTime) <=
+-             base::Time::Now();
+-}
+-
+-void RecommendedSubscriptionInstallerImpl::OnRecommendationListDownloaded(
+-    const GURL& url,
+-    base::FilePath downloaded_file,
+-    scoped_refptr<net::HttpResponseHeaders> headers) {
+-  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+-  VLOG(1) << "[eyeo] Finished downloading recommended subscription list";
+-
+-  resource_request_.reset();
+-
+-  base::ThreadPool::PostTaskAndReplyWithResult(
+-      FROM_HERE, {base::MayBlock()},
+-      base::BindOnce(&RecommendedSubscriptionParser::FromFile, downloaded_file),
+-      base::BindOnce(&RecommendedSubscriptionInstallerImpl::
+-                         OnRecommendedSubscriptionsParsed,
+-                     weak_ptr_factory_.GetWeakPtr()));
+-}
+-
+-void RecommendedSubscriptionInstallerImpl::OnRecommendedSubscriptionsParsed(
+-    const std::vector<GURL>& recommended_subscriptions) {
+-  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+-  for (const auto& subscription : recommended_subscriptions) {
+-    VLOG(1) << "[eyeo] Adding auto installed subscription: " << subscription;
+-
+-    if (configuration_->IsFilterListPresent(subscription) &&
+-        !persistent_metadata_->IsAutoInstalled(subscription)) {
+-      VLOG(1) << "[eyeo] Skipping recommended subscription since it's already "
+-                 "added as not auto installed";
+-      continue;
+-    }
+-
+-    // If the list is not present already, subscribe to it.
+-    // Adding existing list is NOP so there is no need to check.
+-    configuration_->AddFilterList(subscription);
+-
+-    persistent_metadata_->SetAutoInstalledExpirationInterval(
+-        subscription, kAutoInstalledSubscriptionExpirationInterval);
+-  }
+-
+-  for (const auto& filter_list : configuration_->GetFilterLists()) {
+-    // Remove auto installed subscription if it's not recommended for a while
+-    if (persistent_metadata_->IsAutoInstalledExpired(filter_list)) {
+-      VLOG(1) << "[eyeo] Removing auto installed subscription: " << filter_list;
+-      configuration_->RemoveFilterList(filter_list);
+-    }
+-  }
+-
+-  pref_service_->SetTime(
+-      common::prefs::kAutoInstalledSubscriptionsNextUpdateTime,
+-      base::Time::Now() + kAutoInstalledSubscriptionUpdateInterval);
+-}
+-
+-void RecommendedSubscriptionInstallerImpl::RemoveAutoInstalledSubscriptions() {
+-  for (const auto& filter_list : configuration_->GetFilterLists()) {
+-    // Remove auto installed subscription if it's not recommended for a while
+-    if (persistent_metadata_->IsAutoInstalled(filter_list)) {
+-      VLOG(1) << "[eyeo] Removing auto installed subscription: " << filter_list;
+-      configuration_->RemoveFilterList(filter_list);
+-    }
+-  }
+-}
+-
+-}  // namespace adblock
+diff --git a/components/adblock/core/subscription/recommended_subscription_installer_impl.h b/components/adblock/core/subscription/recommended_subscription_installer_impl.h
+deleted file mode 100644
+index a8b640d83de16..0000000000000
+--- a/components/adblock/core/subscription/recommended_subscription_installer_impl.h
++++ /dev/null
+@@ -1,73 +0,0 @@
+-/*
+- * This file is part of eyeo Chromium SDK,
+- * Copyright (C) 2006-present eyeo GmbH
+- *
+- * eyeo Chromium SDK is free software: you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License version 3 as
+- * published by the Free Software Foundation.
+- *
+- * eyeo Chromium SDK is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
+- */
+-
+-#ifndef COMPONENTS_ADBLOCK_CORE_SUBSCRIPTION_RECOMMENDED_SUBSCRIPTION_INSTALLER_IMPL_H_
+-#define COMPONENTS_ADBLOCK_CORE_SUBSCRIPTION_RECOMMENDED_SUBSCRIPTION_INSTALLER_IMPL_H_
+-
+-#include <memory>
+-
+-#include "base/memory/weak_ptr.h"
+-#include "base/sequence_checker.h"
+-#include "components/adblock/core/configuration/filtering_configuration.h"
+-#include "components/adblock/core/net/adblock_resource_request.h"
+-#include "components/adblock/core/subscription/recommended_subscription_installer.h"
+-#include "components/adblock/core/subscription/subscription_persistent_metadata.h"
+-
+-class PrefService;
+-
+-namespace adblock {
+-
+-class RecommendedSubscriptionInstallerImpl final
+-    : public RecommendedSubscriptionInstaller {
+- public:
+-  using ResourceRequestMaker =
+-      base::RepeatingCallback<std::unique_ptr<AdblockResourceRequest>()>;
+-
+-  RecommendedSubscriptionInstallerImpl(
+-      PrefService* pref_service,
+-      FilteringConfiguration* configuration,
+-      SubscriptionPersistentMetadata* persistent_metadata,
+-      ResourceRequestMaker request_maker);
+-  ~RecommendedSubscriptionInstallerImpl() final;
+-
+-  void RunUpdateCheck() final;
+-  void RemoveAutoInstalledSubscriptions() final;
+-
+- private:
+-  bool IsUpdateDue() const;
+-  void OnRecommendationListDownloaded(
+-      const GURL& url,
+-      base::FilePath downloaded_file,
+-      scoped_refptr<net::HttpResponseHeaders> headers);
+-  void OnRecommendedSubscriptionsParsed(
+-      const std::vector<GURL>& recommended_subscriptions);
+-
+-  SEQUENCE_CHECKER(sequence_checker_);
+-  raw_ptr<PrefService> pref_service_;
+-  raw_ptr<FilteringConfiguration> configuration_;
+-  raw_ptr<SubscriptionPersistentMetadata> persistent_metadata_;
+-  ResourceRequestMaker request_maker_;
+-  RecommendedSubscriptionsParsedCallback
+-      on_recommended_subscriptions_available_;
+-  std::unique_ptr<AdblockResourceRequest> resource_request_;
+-  base::WeakPtrFactory<RecommendedSubscriptionInstallerImpl> weak_ptr_factory_{
+-      this};
+-};
+-
+-}  // namespace adblock
+-
+-#endif  // COMPONENTS_ADBLOCK_CORE_SUBSCRIPTION_RECOMMENDED_SUBSCRIPTION_INSTALLER_IMPL_H_
+diff --git a/components/adblock/core/subscription/recommended_subscription_parser.cc b/components/adblock/core/subscription/recommended_subscription_parser.cc
+deleted file mode 100644
+index 401913e15451e..0000000000000
+--- a/components/adblock/core/subscription/recommended_subscription_parser.cc
++++ /dev/null
+@@ -1,82 +0,0 @@
+-/*
+- * This file is part of eyeo Chromium SDK,
+- * Copyright (C) 2006-present eyeo GmbH
+- *
+- * eyeo Chromium SDK is free software: you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License version 3 as
+- * published by the Free Software Foundation.
+- *
+- * eyeo Chromium SDK is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
+- */
+-
+-#include "components/adblock/core/subscription/recommended_subscription_parser.h"
+-
+-#include <string>
+-
+-#include "base/files/file_util.h"
+-#include "base/json/json_reader.h"
+-#include "base/logging.h"
+-#include "base/task/thread_pool.h"
+-#include "base/values.h"
+-
+-namespace adblock {
+-
+-// static
+-std::vector<GURL> RecommendedSubscriptionParser::FromFile(
+-    base::FilePath downloaded_file) {
+-  std::string recommendation_json_string;
+-  auto read_result =
+-      base::ReadFileToString(downloaded_file, &recommendation_json_string);
+-  base::DeleteFile(downloaded_file);
+-  if (!read_result) {
+-    LOG(ERROR) << "[eyeo] Could not read recommended subscription list";
+-    return {};
+-  }
+-
+-  VLOG(1) << "[eyeo] Raw subscription recommendations: "
+-          << recommendation_json_string;
+-
+-  auto recommendation_json = base::JSONReader::ReadAndReturnValueWithError(
+-      recommendation_json_string, base::JSON_PARSE_RFC);
+-
+-  if (!recommendation_json.has_value()) {
+-    LOG(ERROR) << "[eyeo] Could not parse recommended subscription list: "
+-               << recommendation_json.error().ToString();
+-    return {};
+-  }
+-
+-  if (!recommendation_json->is_list()) {
+-    LOG(ERROR) << "[eyeo] Invalid recommended subscription data";
+-    return {};
+-  }
+-
+-  std::vector<GURL> recommended_subscription_urls;
+-  auto& recommended_subscriptions = recommendation_json->GetList();
+-  for (auto& recommended_subscription : recommended_subscriptions) {
+-    if (!recommended_subscription.is_dict()) {
+-      LOG(ERROR) << "[eyeo] Invalid recommended subscription data";
+-      continue;
+-    }
+-
+-    std::string* recommended_subscription_url =
+-        recommended_subscription.GetDict().FindString("url");
+-    if (!recommended_subscription_url) {
+-      LOG(ERROR) << "[eyeo] Invalid recommended subscription data";
+-      continue;
+-    }
+-
+-    VLOG(1) << "[eyeo] Recommended subscription url: "
+-            << *recommended_subscription_url;
+-    recommended_subscription_urls.emplace_back(*recommended_subscription_url);
+-  }
+-
+-  return recommended_subscription_urls;
+-}
+-
+-}  // namespace adblock
+diff --git a/components/adblock/core/subscription/recommended_subscription_parser.h b/components/adblock/core/subscription/recommended_subscription_parser.h
+deleted file mode 100644
+index 717ca20a1a622..0000000000000
+--- a/components/adblock/core/subscription/recommended_subscription_parser.h
++++ /dev/null
+@@ -1,35 +0,0 @@
+-/*
+- * This file is part of eyeo Chromium SDK,
+- * Copyright (C) 2006-present eyeo GmbH
+- *
+- * eyeo Chromium SDK is free software: you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License version 3 as
+- * published by the Free Software Foundation.
+- *
+- * eyeo Chromium SDK is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with eyeo Chromium SDK.  If not, see <http://www.gnu.org/licenses/>.
+- */
+-
+-#ifndef COMPONENTS_ADBLOCK_CORE_SUBSCRIPTION_RECOMMENDED_SUBSCRIPTION_PARSER_H_
+-#define COMPONENTS_ADBLOCK_CORE_SUBSCRIPTION_RECOMMENDED_SUBSCRIPTION_PARSER_H_
+-
+-#include <vector>
+-
+-#include "base/files/file_path.h"
+-#include "url/gurl.h"
+-
+-namespace adblock {
+-
+-class RecommendedSubscriptionParser {
+- public:
+-  static std::vector<GURL> FromFile(base::FilePath file_path);
+-};
+-
+-}  // namespace adblock
+-
+-#endif  // COMPONENTS_ADBLOCK_CORE_SUBSCRIPTION_RECOMMENDED_SUBSCRIPTION_PARSER_H_
+diff --git a/components/adblock/core/subscription/subscription_config.cc b/components/adblock/core/subscription/subscription_config.cc
+index 16d7c767a5645..0026ec65fabb6 100644
+--- a/components/adblock/core/subscription/subscription_config.cc
++++ b/components/adblock/core/subscription/subscription_config.cc
+@@ -62,12 +62,6 @@ const GURL& DefaultSubscriptionUrl() {
+   return kEasylistUrl;
+ }
+ 
+-const GURL& RecommendedSubscriptionListUrl() {
+-  static GURL kRecommendedSubscriptionListUrl(GetHost() +
+-                                              "recommendations.json");
+-  return kRecommendedSubscriptionListUrl;
+-}
+-
+ KnownSubscriptionInfo::KnownSubscriptionInfo() = default;
+ KnownSubscriptionInfo::~KnownSubscriptionInfo() = default;
+ KnownSubscriptionInfo::KnownSubscriptionInfo(const KnownSubscriptionInfo&) =
+diff --git a/components/adblock/core/subscription/subscription_config.h b/components/adblock/core/subscription/subscription_config.h
+index 6ef77a4c08304..96cf0aa5081ef 100644
+--- a/components/adblock/core/subscription/subscription_config.h
++++ b/components/adblock/core/subscription/subscription_config.h
+@@ -29,7 +29,6 @@ const GURL& AdblockBaseFilterListUrl();
+ const GURL& AcceptableAdsUrl();
+ const GURL& AntiCVUrl();
+ const GURL& DefaultSubscriptionUrl();
+-const GURL& RecommendedSubscriptionListUrl();
+ 
+ // Sets the port used by the embedded http server required for browser tests.
+ // Must be called before the first call to GetKnownSubscriptions().
+diff --git a/components/adblock/core/subscription/subscription_service.h b/components/adblock/core/subscription/subscription_service.h
+index ddeafc71bf2f4..8bdd640cff0a8 100644
+--- a/components/adblock/core/subscription/subscription_service.h
++++ b/components/adblock/core/subscription/subscription_service.h
+@@ -85,8 +85,6 @@ class SubscriptionService : public KeyedService {
+   // configuration.
+   virtual std::map<GURL, utils::DownloadStats> GetDownloadStats(
+       std::string_view configuration_name) const = 0;
+-  virtual void SetAutoInstallEnabled(bool enabled) = 0;
+-  virtual bool IsAutoInstallEnabled() const = 0;
+ 
+   virtual void AddObserver(SubscriptionObserver*) = 0;
+   virtual void RemoveObserver(SubscriptionObserver*) = 0;
+diff --git a/components/adblock/core/subscription/subscription_service_impl.cc b/components/adblock/core/subscription/subscription_service_impl.cc
+index 3b3626756edff..8aaa7362de039 100644
+--- a/components/adblock/core/subscription/subscription_service_impl.cc
++++ b/components/adblock/core/subscription/subscription_service_impl.cc
+@@ -212,25 +212,6 @@ std::map<GURL, utils::DownloadStats> SubscriptionServiceImpl::GetDownloadStats(
+   return it->second->GetDownloadStats();
+ }
+ 
+-void SubscriptionServiceImpl::SetAutoInstallEnabled(bool enabled) {
+-  if (!pref_service_) {
+-    return;
+-  }
+-  pref_service_->SetBoolean(common::prefs::kEnableAutoInstalledSubscriptions,
+-                            enabled);
+-  if (!enabled) {
+-    for (auto& entry : maintainers_) {
+-      entry.second->RemoveAutoInstalledSubscriptions();
+-    }
+-  }
+-}
+-
+-bool SubscriptionServiceImpl::IsAutoInstallEnabled() const {
+-  return pref_service_ != nullptr &&
+-         pref_service_->GetBoolean(
+-             common::prefs::kEnableAutoInstalledSubscriptions);
+-}
+-
+ void SubscriptionServiceImpl::AddObserver(SubscriptionObserver* o) {
+   observers_.AddObserver(o);
+ }
+diff --git a/components/adblock/core/subscription/subscription_service_impl.h b/components/adblock/core/subscription/subscription_service_impl.h
+index 9c28d02193955..868231df20465 100644
+--- a/components/adblock/core/subscription/subscription_service_impl.h
++++ b/components/adblock/core/subscription/subscription_service_impl.h
+@@ -31,7 +31,6 @@
+ #include "components/adblock/core/configuration/filtering_configuration.h"
+ #include "components/adblock/core/subscription/filtering_configuration_maintainer.h"
+ #include "components/adblock/core/subscription/installed_subscription.h"
+-#include "components/adblock/core/subscription/preloaded_subscription_provider.h"
+ #include "components/adblock/core/subscription/subscription_downloader.h"
+ #include "components/adblock/core/subscription/subscription_persistent_metadata.h"
+ #include "components/adblock/core/subscription/subscription_persistent_storage.h"
+@@ -74,8 +73,6 @@ class SubscriptionServiceImpl final : public SubscriptionService,
+   Snapshot GetCurrentSnapshot() const final;
+   std::map<GURL, utils::DownloadStats> GetDownloadStats(
+       std::string_view configuration_name) const final;
+-  void SetAutoInstallEnabled(bool enabled) final;
+-  bool IsAutoInstallEnabled() const final;
+   void AddObserver(SubscriptionObserver*) final;
+   void RemoveObserver(SubscriptionObserver*) final;
+ 
+-- 
+2.43.0
+
