@@ -1,0 +1,266 @@
+From 2e94eab0e72cf257b7d9cd1ff367786304f8c875 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Sat, 14 Jun 2025 02:46:14 -0230
+Subject: [PATCH] adblock remove acceptable ads url
+
+---
+ .../filtering_configuration_android.cc        |  5 ---
+ .../adblock/FilteringConfiguration.java       |  7 ----
+ .../factories/subscription_service_factory.cc | 22 ------------
+ .../content/browser/page_view_stats.cc        |  3 --
+ .../activeping_telemetry_topic_provider.cc    |  8 -----
+ ...filtering_configuration_maintainer_impl.cc | 36 -------------------
+ .../filtering_configuration_maintainer_impl.h |  2 --
+ .../core/subscription/subscription_config.cc  | 11 ------
+ .../core/subscription/subscription_config.h   |  1 -
+ 9 files changed, 95 deletions(-)
+
+diff --git a/components/adblock/android/filtering_configuration_android.cc b/components/adblock/android/filtering_configuration_android.cc
+index 380289da8f01c..cdbc76ed3e9b6 100644
+--- a/components/adblock/android/filtering_configuration_android.cc
++++ b/components/adblock/android/filtering_configuration_android.cc
+@@ -191,11 +191,6 @@ ScopedJavaLocalRef<jobjectArray> FilteringConfigurationAndroid::GetFilterLists(
+   return ToJavaArrayOfStrings(env, urls);
+ }
+ 
+-static ScopedJavaLocalRef<jstring>
+-JNI_FilteringConfiguration_GetAcceptableAdsUrl(JNIEnv* env) {
+-  return ConvertUTF8ToJavaString(env, adblock::AcceptableAdsUrl().spec());
+-}
+-
+ static jlong JNI_FilteringConfiguration_Create(
+     JNIEnv* env,
+     const JavaParamRef<jobject>& jcontroller,
+diff --git a/components/adblock/android/java/src/org/chromium/components/adblock/FilteringConfiguration.java b/components/adblock/android/java/src/org/chromium/components/adblock/FilteringConfiguration.java
+index 4174d3c626ae2..a79ff5d23585a 100644
+--- a/components/adblock/android/java/src/org/chromium/components/adblock/FilteringConfiguration.java
++++ b/components/adblock/android/java/src/org/chromium/components/adblock/FilteringConfiguration.java
+@@ -176,12 +176,6 @@ public final class FilteringConfiguration {
+         return filterLists;
+     }
+ 
+-    @UiThread
+-    public String getAcceptableAdsUrl() {
+-        ValidateConfiguration();
+-        return FilteringConfigurationJni.get().getAcceptableAdsUrl();
+-    }
+-
+     /**
+      * @throws IllegalStateException when called on removed FilteringConfiguration.
+      */
+@@ -404,6 +398,5 @@ public final class FilteringConfiguration {
+ 
+         String[] getConfigurations(BrowserContextHandle contextHandle);
+ 
+-        String getAcceptableAdsUrl();
+     }
+ }
+diff --git a/components/adblock/content/browser/factories/subscription_service_factory.cc b/components/adblock/content/browser/factories/subscription_service_factory.cc
+index 68782c2c5811a..26f4243cfab76 100644
+--- a/components/adblock/content/browser/factories/subscription_service_factory.cc
++++ b/components/adblock/content/browser/factories/subscription_service_factory.cc
+@@ -195,9 +195,6 @@ void CheckAndRunFirstRunLogic(
+     if (IsEyeoFilteringDisabledByDefault()) {
+       adblock_filtering_configuration->SetEnabled(false);
+     }
+-    if (IsAcceptableAdsDisabledByDefault()) {
+-      adblock_filtering_configuration->RemoveFilterList(AcceptableAdsUrl());
+-    }
+     prefs->SetBoolean(common::prefs::kInstallFirstStartSubscriptions, false);
+   }
+ }
+@@ -260,21 +257,6 @@ void CheckAndMigrateSettings(
+     VLOG(1) << "[eyeo] Migrated kEnableAdblockLegacy pref";
+   }
+ 
+-  if (aa_value) {
+-    if (*aa_value) {
+-      adblock_filtering_configuration->AddFilterList(AcceptableAdsUrl());
+-    } else {
+-      adblock_filtering_configuration->RemoveFilterList(AcceptableAdsUrl());
+-    }
+-    VLOG(1) << "[eyeo] Migrated kEnableAcceptableAdsLegacy pref";
+-  } else if (!subscriptions.empty()) {
+-    // In old version AA setting could never be touched but AA was in use.
+-    // So if we see no value for AA but kAdblockSubscriptionsLegacy pref was
+-    // touched (kAdblockSubscriptionsLegacy is touched during 1st run scenario)
+-    // we need to assume AA was enabled. See DPD-2219.
+-    adblock_filtering_configuration->AddFilterList(AcceptableAdsUrl());
+-  }
+-
+   for (const auto& url : subscriptions) {
+     adblock_filtering_configuration->AddFilterList(url);
+     VLOG(1) << "[eyeo] Migrated " << url
+@@ -322,10 +304,6 @@ void TranslateCombinedFilterListsToStandalone(
+ 
+ void CheckAdblockCliSwitches(
+     FilteringConfiguration* adblock_filtering_configuration) {
+-  if (base::CommandLine::ForCurrentProcess()->HasSwitch(
+-          adblock::switches::kDisableAcceptableAds)) {
+-    adblock_filtering_configuration->RemoveFilterList(AcceptableAdsUrl());
+-  }
+   if (base::CommandLine::ForCurrentProcess()->HasSwitch(
+           switches::kDisableAdblock)) {
+     adblock_filtering_configuration->SetEnabled(false);
+diff --git a/components/adblock/content/browser/page_view_stats.cc b/components/adblock/content/browser/page_view_stats.cc
+index 7ff7b9589ad54..5c8f1bdd49029 100644
+--- a/components/adblock/content/browser/page_view_stats.cc
++++ b/components/adblock/content/browser/page_view_stats.cc
+@@ -147,9 +147,6 @@ void PageViewStats::OnMatchedInternal(
+   }
+ 
+   if (match_result == FilterMatchResult::kAllowRule) {
+-    if (subscription == AcceptableAdsUrl()) {
+-      RecordPageView(render_frame_host->GetPage(), Metric::AcceptableAds);
+-    }
+     // We increment general (any) allowlisting metric despite incrementing
+     // specific, AA related metrics.
+     RecordPageView(render_frame_host->GetPage(), Metric::Allowing);
+diff --git a/components/adblock/core/activeping_telemetry_topic_provider.cc b/components/adblock/core/activeping_telemetry_topic_provider.cc
+index 84a07e53316d8..4885be1b2ab76 100644
+--- a/components/adblock/core/activeping_telemetry_topic_provider.cc
++++ b/components/adblock/core/activeping_telemetry_topic_provider.cc
+@@ -219,14 +219,6 @@ void ActivepingTelemetryTopicProvider::UpdatePrefs(
+ base::Value ActivepingTelemetryTopicProvider::GetPayloadInternal() const {
+   base::Value::Dict payload;
+   bool aa_enabled = false;
+-  auto* adblock_configuration =
+-      subscription_service_->GetFilteringConfiguration(
+-          kAdblockFilteringConfigurationName);
+-  if (adblock_configuration) {
+-    aa_enabled = std::ranges::any_of(
+-        adblock_configuration->GetFilterLists(),
+-        [&](const auto& url) { return url == AcceptableAdsUrl(); });
+-  }
+   payload.Set("addon_name", "eyeo-chromium-sdk");
+   payload.Set("addon_version", "2.0.0");
+   payload.Set("application", AppInfo::Get().name);
+diff --git a/components/adblock/core/subscription/filtering_configuration_maintainer_impl.cc b/components/adblock/core/subscription/filtering_configuration_maintainer_impl.cc
+index 6de12631b648c..1b5e42dc69805 100644
+--- a/components/adblock/core/subscription/filtering_configuration_maintainer_impl.cc
++++ b/components/adblock/core/subscription/filtering_configuration_maintainer_impl.cc
+@@ -30,7 +30,6 @@
+ 
+ namespace adblock {
+ namespace {
+-constexpr base::TimeDelta kDefaultHeadRequestExpirationInterval = base::Days(1);
+ 
+ std::string CreateDomainAllowlistingFilter(const std::string& domain) {
+   return "@@||" + base::ToLowerASCII(domain) +
+@@ -293,20 +292,6 @@ void FilteringConfigurationMaintainerImpl::RunUpdateCheck() {
+     }
+   }
+ 
+-  // TODO(mpawlowski): remove after DPD-1154. If Acceptable Ads is not
+-  // installed, but it would have been expired, send HEAD request for Acceptable
+-  // Ads filter list just to count the user, without the intention of
+-  // downloading it.
+-  // This is to support legacy behavior.
+-  if (configuration_->GetName() == "adblock" &&
+-      std::ranges::none_of(GetCurrentSubscriptions(),
+-                           [](const auto& subscription) {
+-                             return subscription->GetSourceUrl() ==
+-                                    AcceptableAdsUrl();
+-                           }) &&
+-      persistent_metadata_->IsExpired(AcceptableAdsUrl())) {
+-    PingAcceptableAds();
+-  }
+ }
+ 
+ void FilteringConfigurationMaintainerImpl::DownloadAndInstallSubscription(
+@@ -391,25 +376,6 @@ void FilteringConfigurationMaintainerImpl::SubscriptionAddedToStorage(
+   subscription_updated_callback_.Run(subscription->GetSourceUrl());
+ }
+ 
+-void FilteringConfigurationMaintainerImpl::PingAcceptableAds() {
+-  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+-  DCHECK(IsInitialized());
+-  downloader_->DoHeadRequest(
+-      AcceptableAdsUrl(),
+-      base::BindOnce(&FilteringConfigurationMaintainerImpl::OnHeadRequestDone,
+-                     weak_ptr_factory_.GetWeakPtr()));
+-}
+-
+-void FilteringConfigurationMaintainerImpl::OnHeadRequestDone(
+-    const std::string version) {
+-  if (version.empty()) {
+-    return;
+-  }
+-  persistent_metadata_->SetVersion(AcceptableAdsUrl(), version);
+-  persistent_metadata_->SetExpirationInterval(
+-      AcceptableAdsUrl(), kDefaultHeadRequestExpirationInterval);
+-}
+-
+ void FilteringConfigurationMaintainerImpl::UninstallSubscription(
+     const GURL& subscription_url) {
+   DVLOG(1) << "[eyeo] Removing subscription " << subscription_url;
+@@ -418,12 +384,10 @@ void FilteringConfigurationMaintainerImpl::UninstallSubscription(
+             << subscription_url;
+     return;
+   }
+-  if (subscription_url != AcceptableAdsUrl()) {
+     // Remove metadata associated with the subscription. Retain (forever)
+     // metadata of the Acceptable Ads subscription even when it's no longer
+     // installed, to allow continued HEAD-only pings for user counting purposes.
+     persistent_metadata_->RemoveMetadata(subscription_url);
+-  }
+   VLOG(1) << "[eyeo] Removed subscription " << subscription_url;
+ }
+ 
+diff --git a/components/adblock/core/subscription/filtering_configuration_maintainer_impl.h b/components/adblock/core/subscription/filtering_configuration_maintainer_impl.h
+index 9a65eb2424d2a..dbd54020a238a 100644
+--- a/components/adblock/core/subscription/filtering_configuration_maintainer_impl.h
++++ b/components/adblock/core/subscription/filtering_configuration_maintainer_impl.h
+@@ -83,8 +83,6 @@ class FilteringConfigurationMaintainerImpl
+   void SubscriptionAddedToStorage(
+       scoped_refptr<OngoingInstallation> ongoing_installation,
+       scoped_refptr<InstalledSubscription> subscription);
+-  void PingAcceptableAds();
+-  void OnHeadRequestDone(const std::string version);
+   void UninstallSubscription(const GURL& subscription_url);
+   bool UninstallSubscriptionInternal(const GURL& subscription_url);
+   void SetCustomFilters();
+diff --git a/components/adblock/core/subscription/subscription_config.cc b/components/adblock/core/subscription/subscription_config.cc
+index 6a6a0486a7493..ecd347781186c 100644
+--- a/components/adblock/core/subscription/subscription_config.cc
++++ b/components/adblock/core/subscription/subscription_config.cc
+@@ -47,11 +47,6 @@ const GURL& AdblockBaseFilterListUrl() {
+   return kAdblockBaseFilterListUrl;
+ }
+ 
+-const GURL& AcceptableAdsUrl() {
+-  static GURL kAcceptableAds(GetHost() + "exceptionrules.txt");
+-  return kAcceptableAds;
+-}
+-
+ KnownSubscriptionInfo::KnownSubscriptionInfo() = default;
+ KnownSubscriptionInfo::~KnownSubscriptionInfo() = default;
+ KnownSubscriptionInfo::KnownSubscriptionInfo(const KnownSubscriptionInfo&) =
+@@ -245,12 +240,6 @@ const std::vector<KnownSubscriptionInfo>& config::GetKnownSubscriptions() {
+        SubscriptionUiVisibility::Visible,
+        SubscriptionFirstRunBehavior::SubscribeIfLocaleMatch,
+        SubscriptionPrivilegedFilterStatus::Forbidden},
+-      {AcceptableAdsUrl(),
+-       "Acceptable Ads",
+-       {},
+-       SubscriptionUiVisibility::Invisible,
+-       SubscriptionFirstRunBehavior::Subscribe,
+-       SubscriptionPrivilegedFilterStatus::Forbidden},
+       {GURL(GetHost() + "abp-filters-anti-cv.txt"),
+        "ABP filters",
+        {},
+diff --git a/components/adblock/core/subscription/subscription_config.h b/components/adblock/core/subscription/subscription_config.h
+index 3f623debd3471..f3a8a47f3d2d6 100644
+--- a/components/adblock/core/subscription/subscription_config.h
++++ b/components/adblock/core/subscription/subscription_config.h
+@@ -26,7 +26,6 @@
+ namespace adblock {
+ 
+ const GURL& AdblockBaseFilterListUrl();
+-const GURL& AcceptableAdsUrl();
+ const GURL& DefaultSubscriptionUrl();
+ 
+ // Sets the port used by the embedded http server required for browser tests.
+-- 
+2.43.0
+
