@@ -1,14 +1,14 @@
-From 99d1daa486ec4babe2376e92afe6ad71323a4a53 Mon Sep 17 00:00:00 2001
+From 9031ee7a0e5e9d777b1da35d6c3f37bec143867f Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Tue, 3 Jun 2025 12:05:23 -0230
 Subject: [PATCH] Update privacy settings page
 
 ---
- .../java/res/xml/privacy_preferences.xml      | 29 ++++++++++++-------
- 1 file changed, 19 insertions(+), 10 deletions(-)
+ .../java/res/xml/privacy_preferences.xml      | 30 ++++++++++++-------
+ 1 file changed, 20 insertions(+), 10 deletions(-)
 
 diff --git a/chrome/android/java/res/xml/privacy_preferences.xml b/chrome/android/java/res/xml/privacy_preferences.xml
-index e2692290babdf..6484e5dd403c3 100644
+index e2692290babdf..de830f3751358 100644
 --- a/chrome/android/java/res/xml/privacy_preferences.xml
 +++ b/chrome/android/java/res/xml/privacy_preferences.xml
 @@ -19,11 +19,13 @@ found in the LICENSE file.
@@ -67,7 +67,7 @@ index e2692290babdf..6484e5dd403c3 100644
      <!-- Old HTTPS-First Mode toggle. Hidden if HttpsFirstBalancedMode flag is enabled.
           TODO(crbug.com/349860796): Remove once new settings are fully rolled out. -->
      <org.chromium.components.browser_ui.settings.ChromeSwitchPreference
-@@ -89,13 +96,15 @@ found in the LICENSE file.
+@@ -89,13 +96,16 @@ found in the LICENSE file.
      <org.chromium.components.browser_ui.settings.ChromeBasePreference
          android:key="javascript_optimizer"
          android:title="@string/website_settings_privacy_and_security_javascript_optimizer_row_label"
@@ -78,7 +78,8 @@ index e2692290babdf..6484e5dd403c3 100644
          android:key="can_make_payment"
          android:title="@string/can_make_payment_title"
 -        android:summary="@string/settings_can_make_payment_toggle_label" />
-+        android:summary="@string/settings_can_make_payment_toggle_label"/>
++        android:summary="@string/settings_can_make_payment_toggle_label"
++        app:isPreferenceVisible="false" />
      <org.chromium.components.browser_ui.settings.TextMessagePreference
          android:key="sync_and_services_link"
          android:summary="@string/privacy_sync_and_services_link_legacy"
