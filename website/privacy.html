@@ -104,7 +104,7 @@
     <p>Dankium includes its own integrated content filtering mechanism designed to block unwanted ads, trackers, and malicious content directly within the browser. For these filters to remain effective, they periodically check for updates to their filtering rules (filter lists).</p>
     <ul>
         <li><strong>Filter List Updates:</strong> To ensure the integrated content filters are up-to-date, they periodically connect to `dankium.ca` servers to download the latest filter lists. During these updates, our servers receive non-personal technical information such as the Dankium Browser version and your operating system. Your browser's IP address will also be visible to our servers during this connection. **Crucially, no personal Browse data or your IP address is sent to `dankium.ca` for linking or identification purposes during this process.**</li>
-        <li>**No Personal Data Transmission:** The integrated content filters operate on your device. **No personal data, Browse history, or information about the websites you visit is transmitted to `dankium.ca` or any third party to enable these filters.** They rely solely on the downloaded static filter lists.</li>
+        <li><strong>No Personal Data Transmission:</strong> The integrated content filters operate on your device. **No personal data, Browse history, or information about the websites you visit is transmitted to `dankium.ca` or any third party to enable these filters.** They rely solely on the downloaded static filter lists.</li>
     </ul>
 
     <h3>2.3. AdGuard DNS Data</h3>
@@ -119,7 +119,7 @@
     <h3>2.4. Google Services and Data (due to Chromium base)</h3>
     <p>As Dankium is built on the Chromium open-source project, it inherits certain functionalities and default behaviors from Chromium. This means that:</p>
     <ul>
-        <li><strong>Direct Interaction with Google Services:</strong> When you use Dankium to visit Google-owned websites (e.g., Google Search, YouTube, Gmail), or websites that embed Google services (e.g., Google Analytics, Google Fonts, YouTube videos), your interactions with those services are governed by Google's own terms of service and privacy policies, just as they would be with any web browser. You can find Google's general terms here: <a href="https://policies.google.com/terms" target="_blank">https://policies.google.com/terms</a> and their Privacy Policy here: <a href="https://policies.google.com/privacy" target="_blank">https://policies.google.com/privacy</a>.</li>
+        <li><strong>Direct Interaction with Google Services:</strong> When you use Dankium to visit Google-owned websites (e.g., Google Search, YouTube, Gmail), or websites that embed Google services (e.g., Google Analytics, Google Fonts, YouTube videos), your interactions with those services are governed by Google's own terms of service and privacy policies, just as they would be with any web browser. **This includes, for instance, that search terms typed into the address bar or search bar may be sent to Google by default as you type for search suggestions or immediate search results.** You can find Google's general terms here: <a href="https://policies.google.com/terms" target="_blank">https://policies.google.com/terms</a> and their Privacy Policy here: <a href="https://policies.google.com/privacy" target="_blank">https://policies.google.com/privacy</a>.</li>
         <li><strong>Chromium Default Connections (e.g., Component Updates):</strong> Certain core Chromium components may, by default, make connections to Google servers. These include:
             <ul>
                 <li><strong>Component Updates:</strong> Chromium components (which are not Google Chrome features, but core browser parts) may check with Google servers for updates to ensure stability and security. This may involve sending basic browser information (like version and operating system) and your IP address.</li>
@@ -152,7 +152,7 @@
     <ul>
         <li><strong>Dankium Servers:</strong> Your browser connects directly to Dankium servers for displaying content from `dankium.ca` (e.g., homepage, license, terms of service, privacy policy), for connectivity checks, and for updating Dankium's integrated content filters. Your IP address is visible during these direct connections but is not logged or stored by us.</li>
         <li><strong>AdGuard DNS:</strong> When resolving website addresses or downloading content filters, your browser directly sends DNS queries to AdGuard DNS servers. Your IP address is visible to AdGuard during this direct connection. As stated in AdGuard's Privacy Policy, AdGuard does not have the ability to match queries with an IP address.</li>
-        <li><strong>Google Services (via Chromium):</strong> The underlying Chromium base may facilitate direct connections from your browser to Google servers for essential functionalities like component updates (sending basic browser info). Your IP address is visible to Google during these direct connections.</li>
+        <li><strong>Google Services (via Chromium):</strong> The underlying Chromium base may facilitate direct connections from your browser to Google servers for essential functionalities like component updates, and for search suggestions or immediate search results if you type into the address bar or search bar. Your IP address is visible to Google during these direct connections.</li>
         <li><strong>Legal Requirements:</strong> In rare cases, if legally compelled, we (the project developer) may be required to disclose information that you have voluntarily provided to us through direct communication (such as correspondence from email queries). This does not apply to your local Browse data, which we do not access or store.</li>
         <li><strong>Business Transfers:</strong> In the unlikely event of a sale or transfer of Dankium or its assets, any limited information we directly possess (e.g., email support correspondence) might be transferred as part of that transaction, but only if the new owner agrees to follow this Privacy Policy.</li>
     </ul>
@@ -169,6 +169,7 @@
                 <li>Controlling third-party cookies.</li>
                 <li>Managing saved passwords.</li>
                 <li>Configuring various privacy and security settings.</li>
+                <li>**Changing your default search engine or disabling search suggestions if you wish to limit data sent to Google from your address bar.**</li>
             </ul>
         </li>
         <li><strong>Content Filter Settings:</strong> You can manage settings related to Dankium's integrated content filters directly within the browser.</li>
@@ -201,5 +202,6 @@
     <h2>10. Contact Us</h2>
     <p>If you have any questions or concerns about this Privacy Policy or our data practices, please reach out to us at:</p>
     <p><strong><a href="mailto:contact@dankium.ca">contact@dankium.ca</a></strong></p>
+
 </body>
 </html>
