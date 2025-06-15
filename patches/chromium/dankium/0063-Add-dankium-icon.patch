@@ -1,9 +1,10 @@
-From bc6bc58ed8a5a05c039643b6bf19b8770a2f59f4 Mon Sep 17 00:00:00 2001
+From 468487ad99bfdc664eb65138da2d2b7565cb3e27 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Tue, 10 Jun 2025 14:59:08 -0230
 Subject: [PATCH] Add dankium icon
 
 ---
+ .../drawable/themed_app_icon.xml              |  25 +++---------------
  .../mipmap-hdpi/app_icon.png                  | Bin 2435 -> 5816 bytes
  .../mipmap-hdpi/layered_app_icon.png          | Bin 1836 -> 8255 bytes
  .../layered_app_icon_background.png           | Bin 1487 -> 14703 bytes
@@ -13,11 +14,48 @@ Subject: [PATCH] Add dankium icon
  .../mipmap-xxhdpi/app_icon.png                | Bin 6138 -> 17014 bytes
  .../mipmap-xxhdpi/layered_app_icon.png        | Bin 2920 -> 23814 bytes
  .../layered_app_icon_background.png           | Bin 2824 -> 52400 bytes
- third_party/angle                             |   2 +-
- third_party/libunwind/src                     |   2 +-
- v8                                            |   2 +-
- 12 files changed, 3 insertions(+), 3 deletions(-)
+ .../mipmap-xxxhdpi/app_icon.png               | Bin 9667 -> 27401 bytes
+ .../mipmap-xxxhdpi/layered_app_icon.png       | Bin 3652 -> 38159 bytes
+ .../layered_app_icon_background.png           | Bin 3519 -> 91297 bytes
+ 13 files changed, 3 insertions(+), 22 deletions(-)
 
+diff --git a/chrome/android/java/res_chromium_base/drawable/themed_app_icon.xml b/chrome/android/java/res_chromium_base/drawable/themed_app_icon.xml
+index 32a95bc6ee4d5..baf9c20302cf7 100644
+--- a/chrome/android/java/res_chromium_base/drawable/themed_app_icon.xml
++++ b/chrome/android/java/res_chromium_base/drawable/themed_app_icon.xml
+@@ -1,29 +1,10 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--
+-Copyright 2022 The Chromium Authors
+-Use of this source code is governed by a BSD-style license that can be
+-found in the LICENSE file.
+--->
+-
+ <vector xmlns:android="http://schemas.android.com/apk/res/android"
+     android:width="90dp"
+     android:height="90dp"
+     android:viewportWidth="90"
+     android:viewportHeight="90">
+-    <group>
+-        <clip-path
+-            android:pathData="M27,27h36v36h-36z"/>
+-        <path
+-            android:pathData="M35.7727,42.5589C36.3164,40.5268 37.5153,38.7308 39.1836,37.4494C40.8519,36.168 42.8963,35.4727 44.9999,35.4714H60.2305C58.6975,33.0202 56.5955,30.9753 54.1031,29.5104C51.6106,28.0454 48.8014,27.2038 45.9141,27.0569C43.0267,26.91 40.1466,27.4623 37.5184,28.6667C34.8901,29.8711 32.5914,31.6922 30.8176,33.9752L35.7727,42.5589Z"
+-            android:fillColor="#000000"/>
+-        <path
+-            android:pathData="M47.4717,54.2625C45.4406,54.816 43.2832,54.6793 41.3381,53.8738C39.3931,53.0684 37.7706,51.6398 36.7254,49.8125L36.7163,49.8176L29.0945,36.6162C27.7398,39.171 27.0215,42.0149 27.0005,44.9065C26.9795,47.7982 27.6564,50.6522 28.9739,53.2264C30.2913,55.8006 32.2104,58.0189 34.5682,59.6931C36.926,61.3673 39.6529,62.448 42.5175,62.8433L47.4717,54.2625Z"
+-            android:fillColor="#000000"/>
+-        <path
+-            android:pathData="M51.7725,38.2837C53.2584,39.7712 54.2112,41.7079 54.4828,43.7928C54.7544,45.8777 54.3296,47.9939 53.2744,49.8125L53.2849,49.8185L45.675,62.9999C48.5631,62.8968 51.3837,62.0985 53.8975,60.6728C56.4112,59.2471 58.5439,57.236 60.1147,54.8102C61.6854,52.3844 62.6478,49.6155 62.9202,46.7385C63.1926,43.8614 62.7669,40.9611 61.6793,38.2837H51.7725Z"
+-            android:fillColor="#000000"/>
+-        <path
+-            android:pathData="M45,51.7842C48.7279,51.7842 51.75,48.7621 51.75,45.0342C51.75,41.3063 48.7279,38.2842 45,38.2842C41.2721,38.2842 38.25,41.3063 38.25,45.0342C38.25,48.7621 41.2721,51.7842 45,51.7842Z"
+-            android:fillColor="#000000"/>
+-    </group>
++	<path
++    android:pathData="M12,2C6.477,2 2,6.477 2,12s4.477,10 10,10 10,-4.477 10,-10S17.523,2 12,2zM10,17H8V7h2c2.76,0 5,2.24 5,5s-2.24,5 -5,5z"
++    android:fillColor="@android:color/white"/>
+ </vector>
 diff --git a/chrome/android/java/res_chromium_base/mipmap-hdpi/app_icon.png b/chrome/android/java/res_chromium_base/mipmap-hdpi/app_icon.png
 index 29078f04171497c630e17e1a075e2eed46ddad1a..b3e146c9df127b07c9a28a619019ebf21ecf4949 100644
 GIT binary patch
@@ -3820,321 +3858,6 @@ z=pf1=0w77!nB^k;H4z^0Ku$q`bFWFFTTTekd}$#DP|H(p*lxl6$2G8mpA<>7-54^_
 zE&`Yu@BmN%GwSHSDnLJ74~k6vEE^ZaKi9Eav<VW#$;SY{?bYfMW_**E#OJS%@z%DF
 XNN<&~X-^jZ;euQo-BHi%&)oPoXMlsV
 
-diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
-index c6460acade86c..d25c45fadc20f 100644
---- a/chrome/android/BUILD.gn
-+++ b/chrome/android/BUILD.gn
-@@ -167,8 +167,8 @@ if (_is_default_toolchain) {
-   android_resources("chrome_base_module_resources") {
-     sources = [
-       "java/res_base/anim/no_anim.xml",
--      "java/res_base/drawable-v26/ic_launcher.xml",
--      "java/res_base/drawable-v26/ic_launcher_round.xml",
-+      "java/res_base/drawable-v26/ic_launcher_background.xml",
-+      "java/res_base/drawable-v26/ic_launcher_foreground.xml",
-       "java/res_base/font/chrome_google_sans.xml",
-       "java/res_base/font/chrome_google_sans_bold.xml",
-       "java/res_base/font/chrome_google_sans_medium.xml",
-@@ -178,7 +178,6 @@ if (_is_default_toolchain) {
-       "java/res_base/values/ic_launcher_round_alias.xml",
-       "java/res_base/values/values.xml",
-       "java/res_base/xml/network_security_config.xml",
--      "java/res_chromium_base/drawable/themed_app_icon.xml",
-       "java/res_chromium_base/mipmap-hdpi/app_icon.png",
-       "java/res_chromium_base/mipmap-hdpi/layered_app_icon.png",
-       "java/res_chromium_base/mipmap-hdpi/layered_app_icon_background.png",
-@@ -1626,7 +1625,6 @@ if (_is_default_toolchain) {
-   android_resources("chrome_public_apk_base_module_resources") {
-     resource_overlay = true
-     sources = [
--      "java/res_chromium_base/drawable/themed_app_icon.xml",
-       "java/res_chromium_base/mipmap-hdpi/app_icon.png",
-       "java/res_chromium_base/mipmap-hdpi/layered_app_icon.png",
-       "java/res_chromium_base/mipmap-hdpi/layered_app_icon_background.png",
-diff --git a/chrome/android/java/res_base/drawable-v26/ic_launcher.xml b/chrome/android/java/res_base/drawable-v26/ic_launcher.xml
-deleted file mode 100644
-index e5a868e458b5e..0000000000000
---- a/chrome/android/java/res_base/drawable-v26/ic_launcher.xml
-+++ /dev/null
-@@ -1,12 +0,0 @@
--<?xml version="1.0" encoding="utf-8"?>
--<!--
--Copyright 2022 The Chromium Authors
--Use of this source code is governed by a BSD-style license that can be
--found in the LICENSE file.
---->
--
--<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android" >
--    <background android:drawable="@android:color/white"/>
--    <foreground android:drawable="@mipmap/layered_app_icon"/>
--    <monochrome android:drawable="@drawable/themed_app_icon"/>
--</adaptive-icon>
-diff --git a/chrome/android/java/res_base/drawable-v26/ic_launcher_background.xml b/chrome/android/java/res_base/drawable-v26/ic_launcher_background.xml
-new file mode 100644
-index 0000000000000..07d5da9cbf141
---- /dev/null
-+++ b/chrome/android/java/res_base/drawable-v26/ic_launcher_background.xml
-@@ -0,0 +1,170 @@
-+<?xml version="1.0" encoding="utf-8"?>
-+<vector xmlns:android="http://schemas.android.com/apk/res/android"
-+    android:width="108dp"
-+    android:height="108dp"
-+    android:viewportWidth="108"
-+    android:viewportHeight="108">
-+    <path
-+        android:fillColor="#3DDC84"
-+        android:pathData="M0,0h108v108h-108z" />
-+    <path
-+        android:fillColor="#00000000"
-+        android:pathData="M9,0L9,108"
-+        android:strokeWidth="0.8"
-+        android:strokeColor="#33FFFFFF" />
-+    <path
-+        android:fillColor="#00000000"
-+        android:pathData="M19,0L19,108"
-+        android:strokeWidth="0.8"
-+        android:strokeColor="#33FFFFFF" />
-+    <path
-+        android:fillColor="#00000000"
-+        android:pathData="M29,0L29,108"
-+        android:strokeWidth="0.8"
-+        android:strokeColor="#33FFFFFF" />
-+    <path
-+        android:fillColor="#00000000"
-+        android:pathData="M39,0L39,108"
-+        android:strokeWidth="0.8"
-+        android:strokeColor="#33FFFFFF" />
-+    <path
-+        android:fillColor="#00000000"
-+        android:pathData="M49,0L49,108"
-+        android:strokeWidth="0.8"
-+        android:strokeColor="#33FFFFFF" />
-+    <path
-+        android:fillColor="#00000000"
-+        android:pathData="M59,0L59,108"
-+        android:strokeWidth="0.8"
-+        android:strokeColor="#33FFFFFF" />
-+    <path
-+        android:fillColor="#00000000"
-+        android:pathData="M69,0L69,108"
-+        android:strokeWidth="0.8"
-+        android:strokeColor="#33FFFFFF" />
-+    <path
-+        android:fillColor="#00000000"
-+        android:pathData="M79,0L79,108"
-+        android:strokeWidth="0.8"
-+        android:strokeColor="#33FFFFFF" />
-+    <path
-+        android:fillColor="#00000000"
-+        android:pathData="M89,0L89,108"
-+        android:strokeWidth="0.8"
-+        android:strokeColor="#33FFFFFF" />
-+    <path
-+        android:fillColor="#00000000"
-+        android:pathData="M99,0L99,108"
-+        android:strokeWidth="0.8"
-+        android:strokeColor="#33FFFFFF" />
-+    <path
-+        android:fillColor="#00000000"
-+        android:pathData="M0,9L108,9"
-+        android:strokeWidth="0.8"
-+        android:strokeColor="#33FFFFFF" />
-+    <path
-+        android:fillColor="#00000000"
-+        android:pathData="M0,19L108,19"
-+        android:strokeWidth="0.8"
-+        android:strokeColor="#33FFFFFF" />
-+    <path
-+        android:fillColor="#00000000"
-+        android:pathData="M0,29L108,29"
-+        android:strokeWidth="0.8"
-+        android:strokeColor="#33FFFFFF" />
-+    <path
-+        android:fillColor="#00000000"
-+        android:pathData="M0,39L108,39"
-+        android:strokeWidth="0.8"
-+        android:strokeColor="#33FFFFFF" />
-+    <path
-+        android:fillColor="#00000000"
-+        android:pathData="M0,49L108,49"
-+        android:strokeWidth="0.8"
-+        android:strokeColor="#33FFFFFF" />
-+    <path
-+        android:fillColor="#00000000"
-+        android:pathData="M0,59L108,59"
-+        android:strokeWidth="0.8"
-+        android:strokeColor="#33FFFFFF" />
-+    <path
-+        android:fillColor="#00000000"
-+        android:pathData="M0,69L108,69"
-+        android:strokeWidth="0.8"
-+        android:strokeColor="#33FFFFFF" />
-+    <path
-+        android:fillColor="#00000000"
-+        android:pathData="M0,79L108,79"
-+        android:strokeWidth="0.8"
-+        android:strokeColor="#33FFFFFF" />
-+    <path
-+        android:fillColor="#00000000"
-+        android:pathData="M0,89L108,89"
-+        android:strokeWidth="0.8"
-+        android:strokeColor="#33FFFFFF" />
-+    <path
-+        android:fillColor="#00000000"
-+        android:pathData="M0,99L108,99"
-+        android:strokeWidth="0.8"
-+        android:strokeColor="#33FFFFFF" />
-+    <path
-+        android:fillColor="#00000000"
-+        android:pathData="M19,29L89,29"
-+        android:strokeWidth="0.8"
-+        android:strokeColor="#33FFFFFF" />
-+    <path
-+        android:fillColor="#00000000"
-+        android:pathData="M19,39L89,39"
-+        android:strokeWidth="0.8"
-+        android:strokeColor="#33FFFFFF" />
-+    <path
-+        android:fillColor="#00000000"
-+        android:pathData="M19,49L89,49"
-+        android:strokeWidth="0.8"
-+        android:strokeColor="#33FFFFFF" />
-+    <path
-+        android:fillColor="#00000000"
-+        android:pathData="M19,59L89,59"
-+        android:strokeWidth="0.8"
-+        android:strokeColor="#33FFFFFF" />
-+    <path
-+        android:fillColor="#00000000"
-+        android:pathData="M19,69L89,69"
-+        android:strokeWidth="0.8"
-+        android:strokeColor="#33FFFFFF" />
-+    <path
-+        android:fillColor="#00000000"
-+        android:pathData="M19,79L89,79"
-+        android:strokeWidth="0.8"
-+        android:strokeColor="#33FFFFFF" />
-+    <path
-+        android:fillColor="#00000000"
-+        android:pathData="M29,19L29,89"
-+        android:strokeWidth="0.8"
-+        android:strokeColor="#33FFFFFF" />
-+    <path
-+        android:fillColor="#00000000"
-+        android:pathData="M39,19L39,89"
-+        android:strokeWidth="0.8"
-+        android:strokeColor="#33FFFFFF" />
-+    <path
-+        android:fillColor="#00000000"
-+        android:pathData="M49,19L49,89"
-+        android:strokeWidth="0.8"
-+        android:strokeColor="#33FFFFFF" />
-+    <path
-+        android:fillColor="#00000000"
-+        android:pathData="M59,19L59,89"
-+        android:strokeWidth="0.8"
-+        android:strokeColor="#33FFFFFF" />
-+    <path
-+        android:fillColor="#00000000"
-+        android:pathData="M69,19L69,89"
-+        android:strokeWidth="0.8"
-+        android:strokeColor="#33FFFFFF" />
-+    <path
-+        android:fillColor="#00000000"
-+        android:pathData="M79,19L79,89"
-+        android:strokeWidth="0.8"
-+        android:strokeColor="#33FFFFFF" />
-+</vector>
-diff --git a/chrome/android/java/res_base/drawable-v26/ic_launcher_foreground.xml b/chrome/android/java/res_base/drawable-v26/ic_launcher_foreground.xml
-new file mode 100644
-index 0000000000000..2b068d11462a4
---- /dev/null
-+++ b/chrome/android/java/res_base/drawable-v26/ic_launcher_foreground.xml
-@@ -0,0 +1,30 @@
-+<vector xmlns:android="http://schemas.android.com/apk/res/android"
-+    xmlns:aapt="http://schemas.android.com/aapt"
-+    android:width="108dp"
-+    android:height="108dp"
-+    android:viewportWidth="108"
-+    android:viewportHeight="108">
-+    <path android:pathData="M31,63.928c0,0 6.4,-11 12.1,-13.1c7.2,-2.6 26,-1.4 26,-1.4l38.1,38.1L107,108.928l-32,-1L31,63.928z">
-+        <aapt:attr name="android:fillColor">
-+            <gradient
-+                android:endX="85.84757"
-+                android:endY="92.4963"
-+                android:startX="42.9492"
-+                android:startY="49.59793"
-+                android:type="linear">
-+                <item
-+                    android:color="#44000000"
-+                    android:offset="0.0" />
-+                <item
-+                    android:color="#00000000"
-+                    android:offset="1.0" />
-+            </gradient>
-+        </aapt:attr>
-+    </path>
-+    <path
-+        android:fillColor="#FFFFFF"
-+        android:fillType="nonZero"
-+        android:pathData="M65.3,45.828l3.8,-6.6c0.2,-0.4 0.1,-0.9 -0.3,-1.1c-0.4,-0.2 -0.9,-0.1 -1.1,0.3l-3.9,6.7c-6.3,-2.8 -13.4,-2.8 -19.7,0l-3.9,-6.7c-0.2,-0.4 -0.7,-0.5 -1.1,-0.3C38.8,38.328 38.7,38.828 38.9,39.228l3.8,6.6C36.2,49.428 31.7,56.028 31,63.928h46C76.3,56.028 71.8,49.428 65.3,45.828zM43.4,57.328c-0.8,0 -1.5,-0.5 -1.8,-1.2c-0.3,-0.7 -0.1,-1.5 0.4,-2.1c0.5,-0.5 1.4,-0.7 2.1,-0.4c0.7,0.3 1.2,1 1.2,1.8C45.3,56.528 44.5,57.328 43.4,57.328L43.4,57.328zM64.6,57.328c-0.8,0 -1.5,-0.5 -1.8,-1.2s-0.1,-1.5 0.4,-2.1c0.5,-0.5 1.4,-0.7 2.1,-0.4c0.7,0.3 1.2,1 1.2,1.8C66.5,56.528 65.6,57.328 64.6,57.328L64.6,57.328z"
-+        android:strokeWidth="1"
-+        android:strokeColor="#00000000" />
-+</vector>
-\ No newline at end of file
-diff --git a/chrome/android/java/res_base/drawable-v26/ic_launcher_round.xml b/chrome/android/java/res_base/drawable-v26/ic_launcher_round.xml
-deleted file mode 100644
-index 2159da0bd9866..0000000000000
---- a/chrome/android/java/res_base/drawable-v26/ic_launcher_round.xml
-+++ /dev/null
-@@ -1,12 +0,0 @@
--<?xml version="1.0" encoding="utf-8"?>
--<!--
--Copyright 2022 The Chromium Authors
--Use of this source code is governed by a BSD-style license that can be
--found in the LICENSE file.
---->
--
--<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android" >
--    <background android:drawable="@mipmap/layered_app_icon_background"/>
--    <foreground android:drawable="@mipmap/layered_app_icon_foreground"/>
--    <monochrome android:drawable="@drawable/themed_app_icon"/>
--</adaptive-icon>
-diff --git a/chrome/android/java/res_chromium_base/drawable/themed_app_icon.xml b/chrome/android/java/res_chromium_base/drawable/themed_app_icon.xml
-deleted file mode 100644
-index 32a95bc6ee4d5..0000000000000
---- a/chrome/android/java/res_chromium_base/drawable/themed_app_icon.xml
-+++ /dev/null
-@@ -1,29 +0,0 @@
--<?xml version="1.0" encoding="utf-8"?>
--<!--
--Copyright 2022 The Chromium Authors
--Use of this source code is governed by a BSD-style license that can be
--found in the LICENSE file.
---->
--
--<vector xmlns:android="http://schemas.android.com/apk/res/android"
--    android:width="90dp"
--    android:height="90dp"
--    android:viewportWidth="90"
--    android:viewportHeight="90">
--    <group>
--        <clip-path
--            android:pathData="M27,27h36v36h-36z"/>
--        <path
--            android:pathData="M35.7727,42.5589C36.3164,40.5268 37.5153,38.7308 39.1836,37.4494C40.8519,36.168 42.8963,35.4727 44.9999,35.4714H60.2305C58.6975,33.0202 56.5955,30.9753 54.1031,29.5104C51.6106,28.0454 48.8014,27.2038 45.9141,27.0569C43.0267,26.91 40.1466,27.4623 37.5184,28.6667C34.8901,29.8711 32.5914,31.6922 30.8176,33.9752L35.7727,42.5589Z"
--            android:fillColor="#000000"/>
--        <path
--            android:pathData="M47.4717,54.2625C45.4406,54.816 43.2832,54.6793 41.3381,53.8738C39.3931,53.0684 37.7706,51.6398 36.7254,49.8125L36.7163,49.8176L29.0945,36.6162C27.7398,39.171 27.0215,42.0149 27.0005,44.9065C26.9795,47.7982 27.6564,50.6522 28.9739,53.2264C30.2913,55.8006 32.2104,58.0189 34.5682,59.6931C36.926,61.3673 39.6529,62.448 42.5175,62.8433L47.4717,54.2625Z"
--            android:fillColor="#000000"/>
--        <path
--            android:pathData="M51.7725,38.2837C53.2584,39.7712 54.2112,41.7079 54.4828,43.7928C54.7544,45.8777 54.3296,47.9939 53.2744,49.8125L53.2849,49.8185L45.675,62.9999C48.5631,62.8968 51.3837,62.0985 53.8975,60.6728C56.4112,59.2471 58.5439,57.236 60.1147,54.8102C61.6854,52.3844 62.6478,49.6155 62.9202,46.7385C63.1926,43.8614 62.7669,40.9611 61.6793,38.2837H51.7725Z"
--            android:fillColor="#000000"/>
--        <path
--            android:pathData="M45,51.7842C48.7279,51.7842 51.75,48.7621 51.75,45.0342C51.75,41.3063 48.7279,38.2842 45,38.2842C41.2721,38.2842 38.25,41.3063 38.25,45.0342C38.25,48.7621 41.2721,51.7842 45,51.7842Z"
--            android:fillColor="#000000"/>
--    </group>
--</vector>
 diff --git a/chrome/android/java/res_chromium_base/mipmap-xxxhdpi/app_icon.png b/chrome/android/java/res_chromium_base/mipmap-xxxhdpi/app_icon.png
 index 8139c0e139b35ed2408864819a201a281a8ca100..09f95b5359be1ec44bc5d2959d14d7f1fbe46696 100644
 GIT binary patch
