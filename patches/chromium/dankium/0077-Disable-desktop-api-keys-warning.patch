@@ -1,0 +1,28 @@
+From b3501dace3d66dde3449ca94f376a55e7a2442c2 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Sun, 15 Jun 2025 01:10:20 -0230
+Subject: [PATCH] Disable desktop api keys warning
+
+---
+ chrome/browser/ui/startup/infobar_utils.cc | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/chrome/browser/ui/startup/infobar_utils.cc b/chrome/browser/ui/startup/infobar_utils.cc
+index d52ef581acd75..10c71e1ad169f 100644
+--- a/chrome/browser/ui/startup/infobar_utils.cc
++++ b/chrome/browser/ui/startup/infobar_utils.cc
+@@ -171,9 +171,11 @@ void AddInfoBarsIfNecessary(Browser* browser,
+   infobars::ContentInfoBarManager* infobar_manager =
+       infobars::ContentInfoBarManager::FromWebContents(web_contents);
+ 
++#if BUILDFLAG(IS_ANDROID)
+   if (!google_apis::HasAPIKeyConfigured()) {
+     GoogleApiKeysInfoBarDelegate::Create(infobar_manager);
+   }
++#endif
+ 
+   if (ObsoleteSystem::IsObsoleteNowOrSoon()) {
+     PrefService* local_state = g_browser_process->local_state();
+-- 
+2.43.0
+
