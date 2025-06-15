@@ -1,0 +1,39 @@
+From b5593ba77e920d164ed49adb250f565505e91906 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Sun, 15 Jun 2025 03:16:37 -0230
+Subject: [PATCH] Change chrome logo to info icon
+
+---
+ .../browser/resources/settings/settings_menu/settings_menu.html | 2 +-
+ .../certificate_manager/certificate_manager_v2.html             | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/chrome/browser/resources/settings/settings_menu/settings_menu.html b/chrome/browser/resources/settings/settings_menu/settings_menu.html
+index 80c5ee1b69093..0b64767a92312 100644
+--- a/chrome/browser/resources/settings/settings_menu/settings_menu.html
++++ b/chrome/browser/resources/settings/settings_menu/settings_menu.html
+@@ -164,7 +164,7 @@
+         </a>
+         <a role="menuitem" id="about-menu" href="/help"
+             class="cr-nav-menu-item">
+-          <cr-icon icon="cr:chrome-product"></cr-icon>
++          <cr-icon icon="cr:info"></cr-icon>
+           $i18n{aboutPageTitle}
+           <cr-ripple></cr-ripple>
+         </a>
+diff --git a/ui/webui/resources/cr_components/certificate_manager/certificate_manager_v2.html b/ui/webui/resources/cr_components/certificate_manager/certificate_manager_v2.html
+index 57742447e60b1..fb66f6b93e81b 100644
+--- a/ui/webui/resources/cr_components/certificate_manager/certificate_manager_v2.html
++++ b/ui/webui/resources/cr_components/certificate_manager/certificate_manager_v2.html
+@@ -86,7 +86,7 @@
+       <a id="crsMenuItem" role="menuitem" class="cr-nav-menu-item"
+           href$="[[generateHrefForPage_(pageEnum_.CRS_CERTS)]]"
+           on-click="onMenuItemClick_">
+-        <cr-icon icon="cr:chrome-product" class="menu-icon"></cr-icon>
++        <cr-icon icon="cr:info" class="menu-icon"></cr-icon>
+         [[i18n('certificateManagerV2CRSCerts')]]
+       </a>
+     </cr-menu-selector>
+-- 
+2.49.0.windows.1
+
