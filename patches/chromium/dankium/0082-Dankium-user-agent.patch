@@ -1,0 +1,66 @@
+From 3191b87ca4eb754208d082e9c9e472f18c30e4cd Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Sun, 15 Jun 2025 14:29:26 -0230
+Subject: [PATCH] Dankium user agent
+
+---
+ components/embedder_support/user_agent_utils.cc         | 5 +++--
+ components/version_info/version_info_with_user_agent.cc | 6 ++++++
+ components/version_info/version_info_with_user_agent.h  | 3 +++
+ 3 files changed, 12 insertions(+), 2 deletions(-)
+
+diff --git a/components/embedder_support/user_agent_utils.cc b/components/embedder_support/user_agent_utils.cc
+index 11d381d6f428d..c108a08982f9c 100644
+--- a/components/embedder_support/user_agent_utils.cc
++++ b/components/embedder_support/user_agent_utils.cc
+@@ -25,6 +25,7 @@
+ #include "base/strings/stringprintf.h"
+ #include "base/system/sys_info.h"
+ #include "base/version.h"
++#include "base/version_info/version_info_values.h"
+ #include "build/branding_buildflags.h"
+ #include "build/build_config.h"
+ #include "build/util/chromium_git_revision.h"
+@@ -921,8 +922,8 @@ std::string BuildUserAgentFromOSAndProduct(const std::string& os_info,
+   std::string user_agent;
+   base::StringAppendF(&user_agent,
+                       "Mozilla/5.0 (%s) AppleWebKit/537.36 (KHTML, like Gecko) "
+-                      "%s Safari/537.36",
+-                      os_info.c_str(), product.c_str());
++                      "%s Safari/537.36 %s",
++                      os_info.c_str(), product.c_str(), version_info::GetDankiumProductNameAndVersionForReducedUserAgent(blink::features::kUserAgentFrozenBuildVersion.Get()));
+   return user_agent;
+ }
+ 
+diff --git a/components/version_info/version_info_with_user_agent.cc b/components/version_info/version_info_with_user_agent.cc
+index 2c40d3b61a9fc..9a73f6c6f0d08 100644
+--- a/components/version_info/version_info_with_user_agent.cc
++++ b/components/version_info/version_info_with_user_agent.cc
+@@ -15,4 +15,10 @@ std::string GetProductNameAndVersionForReducedUserAgent(
+       {"Chrome/", GetMajorVersionNumber(), ".0.", build_version, ".0"});
+ }
+ 
++std::string GetDankiumProductNameAndVersionForReducedUserAgent(
++    const std::string& build_version) {
++  return base::StrCat(
++      {"Dankium/", GetMajorVersionNumber(), ".0.", build_version, ".0"});
++}
++
+ }  // namespace version_info
+diff --git a/components/version_info/version_info_with_user_agent.h b/components/version_info/version_info_with_user_agent.h
+index 299be5fc3e517..c1f1c0ba1d1e5 100644
+--- a/components/version_info/version_info_with_user_agent.h
++++ b/components/version_info/version_info_with_user_agent.h
+@@ -18,6 +18,9 @@ namespace version_info {
+ std::string GetProductNameAndVersionForReducedUserAgent(
+     const std::string& build_version);
+ 
++std::string GetDankiumProductNameAndVersionForReducedUserAgent(
++    const std::string& build_version);
++
+ // Returns the product name and version information for the User-Agent header,
+ // in the format: Chrome/<major_version>.<minor_version>.<build>.<patch>.
+ constexpr std::string_view GetProductNameAndVersionForUserAgent() {
+-- 
+2.43.0
+
