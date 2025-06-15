@@ -1,0 +1,38 @@
+From e8bb3308879de10a3f824041ce965d24c4fb3b79 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Sun, 15 Jun 2025 03:01:53 -0230
+Subject: [PATCH] Local new tab page for desktop
+
+---
+ chrome/browser/search/search.cc | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
+
+diff --git a/chrome/browser/search/search.cc b/chrome/browser/search/search.cc
+index cb37fdb16846e..9d82580ae22d7 100644
+--- a/chrome/browser/search/search.cc
++++ b/chrome/browser/search/search.cc
+@@ -176,11 +176,8 @@ struct NewTabURLDetails {
+ #else
+     const bool default_is_google = DefaultSearchProviderIsGoogle(profile);
+     const GURL local_url(default_is_google
+-                             ? chrome::kChromeUINewTabPageURL
++                             ? chrome::kChromeUINewTabPageThirdPartyURL
+                              : chrome::kChromeUINewTabPageThirdPartyURL);
+-    if (default_is_google) {
+-      return NewTabURLDetails(local_url, NEW_TAB_URL_VALID);
+-    }
+ #endif
+ 
+     const TemplateURL* template_url =
+@@ -204,7 +201,7 @@ struct NewTabURLDetails {
+       return NewTabURLDetails(local_url, NEW_TAB_URL_BLOCKED);
+     }
+ 
+-    return NewTabURLDetails(search_provider_url, NEW_TAB_URL_VALID);
++    return NewTabURLDetails(local_url, NEW_TAB_URL_VALID);
+   }
+ 
+   const GURL url;
+-- 
+2.49.0.windows.1
+
