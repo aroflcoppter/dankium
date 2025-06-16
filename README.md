@@ -13,7 +13,7 @@ Please read and agree to the [Terms of Service](https://dankium.ca/tos.html) and
 * AdGuard encrypted DNS for extra privacy and security
 * Strong Android 13 Sandbox with minsdk bump
 * External password manager first
-* AGPL 3.0 license to protect your rights
+* AGPL 3.0 license to protect your rights (You must be given the source if someone even streams dankium to you from the cloud so it's better than GPL)
 * No p2p webRTC to protect IP
 * Disabled background sync to reduce attack surface
 * much more
@@ -55,7 +55,7 @@ There is a third method where you can use [obtanium](https://github.com/ImranR98
 * Content filtering of ads, malware, phisihing, and trackers
 * Just-in-time compiled JavaScript and Web Assembly disabled to reduce attack surface
 * AdGuard encrypted DNS for extra privacy and security
-* AGPL 3.0 license to protect your rights
+* AGPL 3.0 license to protect your rights (You must be given the source if someone even streams dankium to you from the cloud so it's better than GPL)
 * No p2p webRTC to protect IP
 * Disabled background sync to reduce attack surface
 * much more
