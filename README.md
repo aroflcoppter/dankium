@@ -5,8 +5,8 @@ Please read and agree to the [Terms of Service](https://dankium.ca/tos.html) and
 ## Android
 
 ### Features
-* Memory Tagging Extension (SYNC mode for highest protection against memory errors)
-* Shadow Stacks
+* Memory Tagging Extension (SYNC mode for highest protection against memory errors on modren arm64)
+* Shadow Stacks (On arm64)
 * Compiler Mitigations
 * Adblocking
 * Just-in-time compiled JavaScript and Web Assembly disabled to reduce attack surface
@@ -49,7 +49,8 @@ There is a third method where you can use [obtanium](https://github.com/ImranR98
 ## Windows
 
 ### Features
-* CET (Must have Windows 11 with compatible hardware)
+* CET (Must have Windows 11 with compatible x86_64 hardware)
+* Shadow stacks (Must have Windows 11 with compatible arm64 hardware)
 * Compiler mitigations
 * Adblocking
 * Just-in-time compiled JavaScript and Web Assembly disabled to reduce attack surface
