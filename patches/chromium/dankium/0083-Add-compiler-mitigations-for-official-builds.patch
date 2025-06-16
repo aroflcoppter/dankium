@@ -1,0 +1,30 @@
+From 1036d7cb96e7f0838e4c9e3c3d6def82bb61dedc Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Sun, 15 Jun 2025 21:57:17 -0230
+Subject: [PATCH] Add compiler mitigations for official builds
+
+---
+ build/config/compiler/BUILD.gn | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
+index 236fce7b38808..4cff397bde27c 100644
+--- a/build/config/compiler/BUILD.gn
++++ b/build/config/compiler/BUILD.gn
+@@ -734,7 +734,12 @@ config("compiler") {
+     ]
+ 
+     if (is_official_build) {
+-      cflags += [ "-flto=full" ]
++      cflags += [ "-flto=full",
++         "-fstack-protector-all",
++         "-fstack-clash-protection",
++         "-ftrivial-auto-var-init=zero",
++         "-Wno-unused-command-line-argument",
++         "-fwrapv" ]
+       ldflags += [ "-flto=full" ]
+     }
+   }
+-- 
+2.43.0
+
