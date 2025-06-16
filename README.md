@@ -8,12 +8,12 @@ Please read and agree to the [Terms of Service](https://dankium.ca/tos.html) and
 * Memory Tagging Extension (SYNC mode for highest protection against memory errors on modren arm64)
 * Shadow Stacks (On arm64)
 * Compiler Mitigations
-* Adblocking
+* Content filtering of ads, malware, phisihing, and trackers
 * Just-in-time compiled JavaScript and Web Assembly disabled to reduce attack surface
 * AdGuard encrypted DNS for extra privacy and security
 * Strong Android 13 Sandbox with minsdk bump
 * External password manager first
-* GPL 3.0 license to protect your rights
+* AGPL 3.0 license to protect your rights
 * No p2p webRTC to protect IP
 * Disabled background sync to reduce attack surface
 * much more
@@ -52,10 +52,10 @@ There is a third method where you can use [obtanium](https://github.com/ImranR98
 * CET (Must have Windows 11 with compatible x86_64 hardware)
 * Shadow stacks (Must have Windows 11 with compatible arm64 hardware)
 * Compiler mitigations
-* Adblocking
+* Content filtering of ads, malware, phisihing, and trackers
 * Just-in-time compiled JavaScript and Web Assembly disabled to reduce attack surface
 * AdGuard encrypted DNS for extra privacy and security
-* GPL 3.0 license to protect your rights
+* AGPL 3.0 license to protect your rights
 * No p2p webRTC to protect IP
 * Disabled background sync to reduce attack surface
 * much more
