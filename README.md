@@ -1,3 +1,6 @@
+# Server Status
+The server is under targeted attack I had to reinstall it because I could not access it at all without booting into another operating system. I believe they are exploiting a flaw in nginx mainline.
+
 # Dankium Browser
 Dankium is a chromium based browser focused on providing top of the line security and adblocking in addition to other features.
 Please read and agree to the [Terms of Service](https://dankium.ca/tos.html) and [Privacy Policy](https://dankium.ca/privacy.html).

@@ -1,0 +1,26 @@
+From 50dab95be42bb1617a5f79f88e69e1ca1ff3c7b2 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Sun, 15 Jun 2025 12:20:55 -0230
+Subject: [PATCH] Disable broken image search
+
+---
+ components/renderer_context_menu/context_menu_content_type.cc | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/components/renderer_context_menu/context_menu_content_type.cc b/components/renderer_context_menu/context_menu_content_type.cc
+index c694dd4608305..defc3cf0f0447 100644
+--- a/components/renderer_context_menu/context_menu_content_type.cc
++++ b/components/renderer_context_menu/context_menu_content_type.cc
+@@ -97,8 +97,7 @@ bool ContextMenuContentType::SupportsGroupInternal(int group) {
+       return params_.media_type == ContextMenuDataMediaType::kImage;
+ 
+     case ITEM_GROUP_SEARCHWEBFORIMAGE:
+-      // Image menu items imply search web for image item.
+-      return SupportsGroupInternal(ITEM_GROUP_MEDIA_IMAGE);
++      return !true;
+ 
+     case ITEM_GROUP_MEDIA_VIDEO:
+       return params_.media_type == ContextMenuDataMediaType::kVideo;
+-- 
+2.49.0.windows.1
+

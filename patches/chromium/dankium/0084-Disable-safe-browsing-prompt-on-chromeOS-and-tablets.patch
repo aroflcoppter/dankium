@@ -1,0 +1,25 @@
+From 1c17c3909fda645b11f71aacd0c692be84bb13f3 Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Mon, 16 Jun 2025 11:08:29 -0230
+Subject: [PATCH] Disable safe browsing prompt on chromeOS and tablets
+
+---
+ chrome/browser/ui/safety_hub/safe_browsing_result.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/chrome/browser/ui/safety_hub/safe_browsing_result.cc b/chrome/browser/ui/safety_hub/safe_browsing_result.cc
+index 113e26259def8..d704b51df30dc 100644
+--- a/chrome/browser/ui/safety_hub/safe_browsing_result.cc
++++ b/chrome/browser/ui/safety_hub/safe_browsing_result.cc
+@@ -47,7 +47,7 @@ SafeBrowsingState SafetyHubSafeBrowsingResult::GetState(
+   if (safe_browsing::IsSafeBrowsingExtensionControlled(*pref_service)) {
+     return SafeBrowsingState::kDisabledByExtension;
+   }
+-  return SafeBrowsingState::kDisabledByUser;
++  return SafeBrowsingState::kDisabledByAdmin;
+ }
+ 
+ std::unique_ptr<SafetyHubService::Result> SafetyHubSafeBrowsingResult::Clone()
+-- 
+2.43.0
+
