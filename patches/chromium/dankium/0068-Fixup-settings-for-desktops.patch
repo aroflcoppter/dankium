@@ -1,73 +1,20 @@
-From 5d7f291e5c310e29c6ed6d0f1327b2ebb55d3ece Mon Sep 17 00:00:00 2001
+From 74d038e8d4a0fb48badba35b2474663b539342d8 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Wed, 11 Jun 2025 17:45:41 -0230
 Subject: [PATCH] Fixup settings for desktops
 
 ---
- .../resources/generated_resources_en-GB.xtb   |   6 +-
- chrome/app/settings_strings.grdp              |   4 +-
+ chrome/app/settings_strings.grdp              |   2 +-
  chrome/app/shared_settings_strings.grdp       |   4 +-
- chrome/browser/resources/settings/BUILD.gn    |   1 -
- .../settings/basic_page/basic_page.html       |  17 --
- .../settings/basic_page/basic_page.ts         |  48 +---
- .../browser/resources/settings/lazy_load.ts   |   3 +-
- .../settings/performance_page/speed_page.html |  92 -------
- .../settings/performance_page/speed_page.ts   |  61 -----
- .../privacy_page/personalization_options.html | 231 +++++++-----------
- .../privacy_page/personalization_options.ts   |  29 ---
- .../privacy_guide/privacy_guide_page.ts       |  41 +---
- .../privacy_guide_safe_browsing_fragment.html | 101 --------
- .../privacy_guide_safe_browsing_fragment.ts   | 148 -----------
- .../settings/privacy_page/privacy_page.html   | 217 ----------------
- .../settings/privacy_page/privacy_page.ts     |   5 +-
+ .../privacy_page/personalization_options.html |  25 --
+ .../settings/privacy_page/privacy_page.html   | 217 ------------------
  .../settings/privacy_page/security_page.html  | 126 ----------
- .../settings/privacy_page/security_page.ts    | 216 +---------------
- 18 files changed, 113 insertions(+), 1237 deletions(-)
- delete mode 100644 chrome/browser/resources/settings/privacy_page/privacy_guide/privacy_guide_safe_browsing_fragment.html
- delete mode 100644 chrome/browser/resources/settings/privacy_page/privacy_guide/privacy_guide_safe_browsing_fragment.ts
+ 5 files changed, 3 insertions(+), 371 deletions(-)
 
-diff --git a/chrome/app/resources/generated_resources_en-GB.xtb b/chrome/app/resources/generated_resources_en-GB.xtb
-index cd13e06fb3bc2..f83827335071f 100644
---- a/chrome/app/resources/generated_resources_en-GB.xtb
-+++ b/chrome/app/resources/generated_resources_en-GB.xtb
-@@ -3156,7 +3156,7 @@ You can manage this account’s settings by installing the Family Link app on yo
- <translation id="3179982752812949580">Text font</translation>
- <translation id="3180990259147710757">Shift jaw left</translation>
- <translation id="3181825792072797598">Turn on Sync</translation>
--<translation id="3181954750937456830">Safe Browsing (protects you and your device from dangerous sites)</translation>
-+<translation id="3181954750937456830"></translation>
- <translation id="3182749001423093222">Spell check</translation>
- <translation id="3183139917765991655">Profile Importer</translation>
- <translation id="3183143381919926261">Mobile data networks</translation>
-@@ -3348,7 +3348,7 @@ You can manage this account’s settings by installing the Family Link app on yo
- <translation id="3317678681329786349">Camera and microphone blocked</translation>
- <translation id="3319863571062685443">Your address is saved</translation>
- <translation id="3320271870899888245">Can't connect to OneDrive. Try again.</translation>
--<translation id="3320630259304269485">Safe Browsing (protection from dangerous sites) and other security settings</translation>
-+<translation id="3320630259304269485">Security settings</translation>
- <translation id="3320909810101200102">To choose an ID, scan the QR code</translation>
- <translation id="3320957378743864387">Not allowed to offer writing help</translation>
- <translation id="3321460131042519426">Enable word wrap</translation>
-@@ -11783,4 +11783,4 @@ This can include information about installed software, files, your browser, the
- <translation id="99731366405731005">Turn on <ph name="LINK1_BEGIN" />Chrome Sync<ph name="LINK1_END" /> to use Wi-Fi Sync. <ph name="LINK2_BEGIN" />Learn more<ph name="LINK2_END" /></translation>
- <translation id="998347228911661591">Sync your tab groups</translation>
- <translation id="998747458861718449">I&amp;nspect</translation>
--</translationbundle>
-\ No newline at end of file
-+</translationbundle>
 diff --git a/chrome/app/settings_strings.grdp b/chrome/app/settings_strings.grdp
-index 6dfe27d52661f..44bfcc6a5d3c1 100644
+index 6dfe27d52661f..c388385ee4122 100644
 --- a/chrome/app/settings_strings.grdp
 +++ b/chrome/app/settings_strings.grdp
-@@ -1838,7 +1838,7 @@
-     Security
-   </message>
-   <message name="IDS_SETTINGS_SECURITY_DESCRIPTION" desc="Description of the controls available on the security settings page">
--    Safe Browsing (protection from dangerous sites) and other security settings
-+    Security settings
-   </message>
-   <message name="IDS_SETTINGS_ADVANCED_PROTECTION_PROGRAM" desc="Name of the link which takes users
-     to the Google Advanced Protection Program external webpage">
 @@ -3521,7 +3521,7 @@
  
    <!-- Sync / People Page -->
@@ -99,6 +46,498 @@ index a57cd0df4dcc2..111d25de5cabc 100644
    </message>
    <message name="IDS_SETTINGS_PASSPHRASE_CONFIRMATION_PLACEHOLDER" desc="Placeholder for the confirm-passphrase field.">
      Confirm passphrase
+diff --git a/chrome/browser/resources/settings/privacy_page/personalization_options.html b/chrome/browser/resources/settings/privacy_page/personalization_options.html
+index acaea4ea835b0..8418cc0f5d55d 100644
+--- a/chrome/browser/resources/settings/privacy_page/personalization_options.html
++++ b/chrome/browser/resources/settings/privacy_page/personalization_options.html
+@@ -54,16 +54,6 @@
+           </option>
+       </select>
+     </div>
+-    <settings-toggle-button id="signinAllowedToggle"
+-        class="hr"
+-        hidden="[[!signinAvailable_]]"
+-        disabled="[[syncFirstSetupInProgress_]]"
+-        pref="{{prefs.signin.allowed_on_next_startup}}"
+-        label="$i18n{signinAllowedTitle}"
+-        sub-label="$i18n{signinAllowedDescription}"
+-        on-settings-boolean-control-change="onSigninAllowedChange_"
+-        no-set-pref>
+-    </settings-toggle-button>
+ </if><!-- not chromeos -->
+ <if expr="_google_chrome">
+ <if expr="chromeos_ash">
+@@ -74,21 +64,6 @@
+         on-click="onMetricsReportingLinkClick_" external>
+     </cr-link-row>
+ </if><!-- chromeos -->
+-<if expr="not chromeos_ash">
+-    <settings-toggle-button id="metricsReportingControl"
+-        class="hr"
+-        pref="[[metricsReportingPref_]]"
+-        label="$i18n{enablePersonalizationLogging}"
+-        sub-label="$i18n{enablePersonalizationLoggingDesc}" no-set-pref
+-        on-settings-boolean-control-change="onMetricsReportingChange_">
+-      <template is="dom-if" if="[[showRestart_]]" restamp>
+-        <cr-button on-click="onRestartClick_" id="restart"
+-            slot="more-actions">
+-          $i18n{restart}
+-        </cr-button>
+-      </template>
+-    </settings-toggle-button>
+-</if><!-- not chromeos -->
+ </if><!-- _google_chrome -->
+     <settings-toggle-button id="urlCollectionToggle"
+         class="hr"
+diff --git a/chrome/browser/resources/settings/privacy_page/privacy_page.html b/chrome/browser/resources/settings/privacy_page/privacy_page.html
+index 159316198e7f3..554ff79614fe4 100644
+--- a/chrome/browser/resources/settings/privacy_page/privacy_page.html
++++ b/chrome/browser/resources/settings/privacy_page/privacy_page.html
+@@ -38,11 +38,6 @@
+         </settings-clear-browsing-data-dialog-v2>
+       </template>
+     </template>
+-    <template is="dom-if" if="[[showPrivacyGuideDialog_]]" restamp>
+-      <settings-privacy-guide-dialog id="privacyGuideDialog" prefs="{{prefs}}"
+-          on-close="onPrivacyGuideDialogClosed_">
+-      </settings-privacy-guide-dialog>
+-    </template>
+     <settings-animated-pages id="pages" section="privacy"
+         focus-config="[[focusConfig_]]">
+       <div route-path="default">
+@@ -51,49 +46,6 @@
+             label="$i18n{clearBrowsingData}"
+             sub-label="$i18n{clearBrowsingDataDescription}"
+             on-click="onClearBrowsingDataClick_"></cr-link-row>
+-        <template is="dom-if" if="[[isPrivacyGuideAvailable]]">
+-          <cr-link-row id="privacyGuideLinkRow" class="hr"
+-              start-icon="privacy20:signpost"
+-              label="$i18n{privacyGuideLabel}"
+-              sub-label="$i18n{privacyGuideSublabel}"
+-              on-click="onPrivacyGuideClick_"
+-              role-description="$i18n{subpageArrowRoleDescription}">
+-          </cr-link-row>
+-        </template>
+-        <cr-link-row id="thirdPartyCookiesLinkRow"
+-            start-icon="privacy:cookie"
+-            class="hr" label="$i18n{thirdPartyCookiesLinkRowLabel}"
+-            sub-label="[[computeThirdPartyCookiesSublabel_(
+-                prefs.profile.cookie_controls_mode.*,
+-                prefs.tracking_protection.block_all_3pc_toggle_enabled.*
+-                )]]"
+-            on-click="onCookiesClick_"
+-            role-description="$i18n{subpageArrowRoleDescription}">
+-        </cr-link-row>
+-        <template is="dom-if" if="[[enableIncognitoTrackingProtections_]]">
+-          <cr-link-row id="incognitoTrackingProtectionsLinkRow" class="hr"
+-              start-icon="settings:visibility-off"
+-              label="$i18n{incognitoTrackingProtectionsPageTitle}"
+-              sub-label="$i18n{incognitoTrackingProtectionsPageEntrypointDescription}"
+-              on-click="onIncognitoTrackingProtectionsClick_"
+-              role-description="$i18n{subpageArrowRoleDescription}">
+-          </cr-link-row>
+-        </template>
+-        <template is="dom-if" if=
+-            "[[shouldShowAdPrivacy_(
+-                isPrivacySandboxRestricted_,
+-                isPrivacySandboxRestrictedNoticeEnabled_)]]">
+-          <cr-link-row id="privacySandboxLinkRow"
+-              start-icon="privacy20:ads-click"
+-              class="hr"
+-              label="$i18n{adPrivacyLinkRowLabel}"
+-              sub-label="[[computeAdPrivacySublabel_(
+-                  isPrivacySandboxRestricted_,
+-                  isPrivacySandboxRestrictedNoticeEnabled_)]]"
+-              on-click="onPrivacySandboxClick_"
+-              role-description="$i18n{subpageArrowRoleDescription}">
+-          </cr-link-row>
+-        </template>
+         <cr-link-row id="securityLinkRow" start-icon="privacy:lock"
+             class="hr" label="$i18n{securityPageTitle}"
+             sub-label="$i18n{securityPageDescription}"
+@@ -106,33 +58,6 @@
+             role-description="$i18n{subpageArrowRoleDescription}"></cr-link-row>
+       </div>
+ 
+-      <template is="dom-if" route-path="/content/v8" no-search>
+-        <settings-subpage
+-            page-title="$i18n{siteSettingsCategoryJavascriptOptimizer}"
+-            search-label="$i18n{siteSettingsAllSitesSearch}"
+-            search-term="{{searchFilter_}}">
+-          <div class="content-settings-header secondary">
+-            $i18n{siteSettingsJavascriptOptimizerDescription}
+-          </div>
+-          <settings-category-default-radio-group
+-              category="[[contentSettingsTypesEnum_.JAVASCRIPT_OPTIMIZER]]"
+-              allow-option-label=
+-                  "$i18n{siteSettingsJavascriptOptimizerAllowed}"
+-              allow-option-sub-label=
+-                  "$i18n{siteSettingsJavascriptOptimizerAllowedSubLabel}"
+-              block-option-label="$i18n{siteSettingsJavascriptOptimizerBlocked}"
+-              block-option-sub-label=
+-                  "$i18n{siteSettingsJavascriptOptimizerBlockedSubLabel}">
+-          </settings-category-default-radio-group>
+-          <category-setting-exceptions
+-              category="[[contentSettingsTypesEnum_.JAVASCRIPT_OPTIMIZER]]"
+-              allow-header="$i18n{siteSettingsJavascriptOptimizerAllowedExceptions}"
+-              block-header="$i18n{siteSettingsJavascriptOptimizerBlockedExceptions}"
+-              search-filter="[[searchFilter_]]">
+-          </category-setting-exceptions>
+-        </settings-subpage>
+-      </template>
+-
+       <template is="dom-if" if="[[enableSecurityKeysSubpage_]]">
+         <template is="dom-if" route-path="/securityKeys">
+           <settings-subpage associated-control="[[$$('#securityLinkRow')]]"
+@@ -163,18 +88,6 @@
+         </settings-subpage>
+       </template>
+ 
+-      <template is="dom-if" if="[[shouldShowSafetyHub_]]">
+-        <template is="dom-if" route-path="/safetyCheck">
+-          <!-- TODO(crbug.com/40267370): Make the page searchable.-->
+-          <settings-subpage id="safetyHub" page-title="$i18n{safetyHub}"
+-              class="multi-card" no-search
+-              learn-more-url="$i18n{safetyHubHelpCenterURL}">
+-            <settings-safety-hub-page prefs="{{prefs}}">
+-            </settings-safety-hub-page>
+-          </settings-subpage>
+-        </template>
+-      </template>
+-
+       <template is="dom-if" route-path="/security">
+         <settings-subpage id="security" page-title="$i18n{securityPageTitle}"
+             associated-control="[[$$('#securityLinkRow')]]"
+@@ -191,65 +104,6 @@
+         </settings-subpage>
+       </template>
+ 
+-      <template is="dom-if" route-path="/adPrivacy"
+-          no-search="[[!shouldShowAdPrivacy_(isPrivacySandboxRestricted_,
+-                isPrivacySandboxRestrictedNoticeEnabled_)]]">
+-        <settings-subpage id="privacy-sandbox"
+-            page-title="$i18n{adPrivacyPageTitle}"
+-            associated-control="[[$$('#privacySandboxLinkRow')]]"
+-            learn-more-url="$i18n{adPrivacyLearnMoreURL}">
+-          <settings-privacy-sandbox-page prefs="{{prefs}}"
+-              focus-config="[[focusConfig_]]">
+-          </settings-privacy-sandbox-page>
+-        </settings-subpage>
+-      </template>
+-
+-      <template is="dom-if" route-path="/adPrivacy/interests"
+-          no-search="[[isPrivacySandboxRestricted_]]">
+-        <settings-subpage id="privacy-sandbox-topics"
+-            page-title="$i18n{topicsPageTitle}"
+-            associated-control="[[$$('#privacySandboxLinkRow')]]"
+-            learn-more-url="$i18n{adPrivacyLearnMoreURL}">
+-          <settings-privacy-sandbox-topics-subpage prefs="{{prefs}}"
+-            focus-config="[[focusConfig_]]">
+-          </settings-privacy-sandbox-topics-subpage>
+-        </settings-subpage>
+-      </template>
+-      <template is="dom-if" route-path="/adPrivacy/interests/manage"
+-          no-search="[[isPrivacySandboxRestricted_]]">
+-        <settings-subpage id="privacy-sandbox-manage-topics"
+-            page-title="$i18n{manageTopicsHeading}"
+-            associated-control="[[$$('#privacySandboxLinkRow')]]"
+-            learn-more-url="$i18n{adPrivacyLearnMoreURL}">
+-          <settings-privacy-sandbox-manage-topics-subpage
+-            focus-config="[[focusConfig_]]" prefs="{{prefs}}">
+-          </settings-privacy-sandbox-manage-topics-subpage>
+-        </settings-subpage>
+-      </template>
+-
+-      <template is="dom-if" route-path="/adPrivacy/sites"
+-          no-search="[[isPrivacySandboxRestricted_]]">
+-        <settings-subpage id="privacy-sandbox-fledge"
+-            page-title="$i18n{fledgePageTitle}"
+-            associated-control="[[$$('#privacySandboxLinkRow')]]"
+-            learn-more-url="$i18n{adPrivacyLearnMoreURL}">
+-          <settings-privacy-sandbox-fledge-subpage prefs="{{prefs}}">
+-          </settings-privacy-sandbox-fledge-subpage>
+-        </settings-subpage>
+-      </template>
+-
+-      <template is="dom-if" route-path="/adPrivacy/measurement"
+-          no-search="[[!shouldShowAdPrivacy_(isPrivacySandboxRestricted_,
+-              isPrivacySandboxRestrictedNoticeEnabled_)]]">
+-        <settings-subpage id="privacy-sandbox-ad-measurement"
+-            page-title="$i18n{adMeasurementPageTitle}"
+-            associated-control="[[$$('#privacySandboxLinkRow')]]"
+-            learn-more-url="$i18n{adPrivacyLearnMoreURL}">
+-          <settings-privacy-sandbox-ad-measurement-subpage prefs="{{prefs}}">
+-          </settings-privacy-sandbox-ad-measurement-subpage>
+-        </settings-subpage>
+-      </template>
+-
+       <template is="dom-if" route-path="/content/all" no-search>
+         <settings-subpage id="allSites"
+             page-title$="[[allSitesPageTitle_]]"
+@@ -843,77 +697,6 @@
+           </site-details>
+         </settings-subpage>
+       </template>
+-      <template is="dom-if" route-path="/content/protectedContent" no-search>
+-<if expr="not chromeos_ash and not is_win">
+-        <settings-subpage page-title="$i18n{siteSettingsProtectedContent}">
+-</if>
+-<if expr="is_chromeos or is_win">
+-        <settings-subpage page-title="$i18n{siteSettingsProtectedContent}"
+-            search-label="$i18n{siteSettingsAllSitesSearch}"
+-            search-term="{{searchFilter_}}">
+-</if>
+-          <div class="radio-group">
+-            <div class="secondary">
+-              $i18n{siteSettingsProtectedContentDescription}
+-            </div>
+-            <h2>$i18n{siteSettingsDefaultBehavior}</h2>
+-            <div class="secondary radio-sub-heading">
+-              $i18n{siteSettingsDefaultBehaviorDescription}
+-            </div>
+-            <settings-radio-group
+-              pref="{{prefs.webkit.webprefs.encrypted_media_enabled}}"
+-              selectable-elements="settings-collapse-radio-button">
+-              <settings-collapse-radio-button no-collapse
+-                  pref="[[prefs.webkit.webprefs.encrypted_media_enabled]]"
+-                  label="$i18n{siteSettingsProtectedContentAllowed}"
+-                  name="true"
+-                  disabled$="[[isGuest_]]"
+-                  icon="privacy:sync-saved-locally">
+-              </settings-collapse-radio-button>
+-              <settings-collapse-radio-button no-collapse
+-                  pref="[[prefs.webkit.webprefs.encrypted_media_enabled]]"
+-                  label="$i18n{siteSettingsProtectedContentBlocked}"
+-                  sub-label=
+-                      "$i18n{siteSettingsProtectedContentBlockedSubLabel}"
+-                  name="false"
+-                  disabled$="[[isGuest_]]"
+-                  icon="privacy:web-asset-off">
+-              </settings-collapse-radio-button>
+-            </settings-radio-group>
+-          </div>
+-<if expr="is_chromeos or is_win">
+-          <settings-category-default-radio-group
+-            header="$i18n{siteSettingsProtectedContentIdentifiers}"
+-            description=
+-                "$i18n{siteSettingsProtectedContentIdentifiersExplanation}"
+-            category="[[contentSettingsTypesEnum_.PROTECTED_CONTENT]]"
+-            block-option-label=
+-                "$i18n{siteSettingsProtectedContentIdentifiersBlocked}"
+-            block-option-sub-label=
+-                "$i18n{siteSettingsProtectedContentIdentifiersBlockedSubLabel}"
+-            block-option-icon="privacy:web-asset-off"
+-            allow-option-label=
+-                "$i18n{siteSettingsProtectedContentIdentifiersAllowed}"
+-<if expr="is_win and _google_chrome">
+-            allow-option-sub-label=
+-                "$i18n{siteSettingsProtectedContentIdentifiersAllowedSubLabel}"
+-</if>
+-            allow-option-icon="privacy:sync-saved-locally"
+-            disabled$="[[isGuest_]]">
+-          </settings-category-default-radio-group>
+-          <category-setting-exceptions
+-              description=
+-                  "$i18n{siteSettingsCustomizedBehaviorsDescriptionShort}"
+-              category="[[contentSettingsTypesEnum_.PROTECTED_CONTENT]]"
+-              allow-header=
+-                  "$i18n{siteSettingsProtectedContentIdentifiersAllowedExceptions}"
+-              block-header=
+-                  "$i18n{siteSettingsProtectedContentIdentifiersBlockedExceptions}"
+-              search-filter="[[searchFilter_]]">
+-          </category-setting-exceptions>
+-</if>
+-        </settings-subpage>
+-      </template>
+       <template is="dom-if" route-path="/content/clipboard" no-search>
+         <settings-subpage page-title="$i18n{siteSettingsClipboard}"
+             search-label="$i18n{siteSettingsAllSitesSearch}"
+diff --git a/chrome/browser/resources/settings/privacy_page/security_page.html b/chrome/browser/resources/settings/privacy_page/security_page.html
+index 6195b85708ea4..72c8581e10d2e 100644
+--- a/chrome/browser/resources/settings/privacy_page/security_page.html
++++ b/chrome/browser/resources/settings/privacy_page/security_page.html
+@@ -71,126 +71,6 @@
+         pointer-events: auto;
+       }
+     </style>
+-    <div id="safeBrowsingSection">
+-      <h2 class="cr-title-text">$i18n{safeBrowsingSectionLabel}</h2>
+-      <settings-radio-group id="safeBrowsingRadioGroup" no-set-pref
+-          pref="{{prefs.generated.safe_browsing}}"
+-          selectable-elements="cr-radio-button, settings-collapse-radio-button"
+-          on-change="onSafeBrowsingRadioChange_">
+-        <settings-collapse-radio-button id="safeBrowsingEnhanced"
+-            name="[[safeBrowsingSettingEnum_.ENHANCED]]"
+-            pref="[[prefs.generated.safe_browsing]]"
+-            label="$i18n{safeBrowsingEnhanced}"
+-            sub-label="$i18n{safeBrowsingEnhancedDescUpdated}"
+-            indicator-aria-label="$i18n{controlledSettingPolicy}"
+-            expand-aria-label="$i18n{safeBrowsingEnhancedExpandA11yLabel}"
+-            on-expand-clicked="onEnhancedProtectionExpandButtonClicked_"
+-            no-automatic-collapse>
+-          <div slot="collapse">
+-            <div id="enhancedProtectionDescContainer"
+-                class="settings-columned-section">
+-              <div class="column">
+-                <h3 class="description-header">
+-                  $i18n{columnHeadingWhenOn}
+-                </h3>
+-                <ul class="icon-bulleted-list">
+-                  <li>
+-                    <cr-icon icon="settings20:data" aria-hidden="true">
+-                    </cr-icon>
+-                    <div class="secondary">
+-                      $i18n{safeBrowsingEnhancedWhenOnBulOne}
+-                    </div>
+-                  </li>
+-                  <li>
+-                    <cr-icon icon="settings20:download" aria-hidden="true">
+-                    </cr-icon>
+-                    <div class="secondary">
+-                      $i18n{safeBrowsingEnhancedWhenOnBulTwo}
+-                    </div>
+-                  </li>
+-                  <li>
+-                    <cr-icon icon="settings20:gshield" aria-hidden="true">
+-                    </cr-icon>
+-                    <div class="secondary">
+-                      $i18n{safeBrowsingEnhancedWhenOnBulThree}
+-                    </div>
+-                  </li>
+-                  <li>
+-                    <cr-icon icon="settings:language" aria-hidden="true">
+-                    </cr-icon>
+-                    <div class="secondary">
+-                      $i18n{safeBrowsingEnhancedWhenOnBulFour}
+-                    </div>
+-                  </li>
+-                </ul>
+-              </div>
+-              <div class="column">
+-                <h3 class="description-header">
+-                  $i18n{columnHeadingConsider}
+-                </h3>
+-                <ul class="icon-bulleted-list">
+-                  <li>
+-                    <cr-icon icon="settings20:link"></cr-icon>
+-                    <div class="cr-secondary-text">
+-                      $i18n{safeBrowsingEnhancedThingsToConsiderBulOne}
+-                    </div>
+-                  </li>
+-                  <li>
+-                    <cr-icon icon="settings20:account-circle"></cr-icon>
+-                    <div class="cr-secondary-text">
+-                      $i18n{safeBrowsingEnhancedThingsToConsiderBulTwo}
+-                    </div>
+-                  </li>
+-                  <li>
+-                    <cr-icon icon="settings:performance"></cr-icon>
+-                    <div class="cr-secondary-text">
+-                      $i18n{safeBrowsingEnhancedThingsToConsiderBulThree}
+-                    </div>
+-                  </li>
+-                </ul>
+-              </div>
+-            </div>
+-            <div id="learnMoreLabelContainer">
+-              <div class="cr-secondary-text">
+-                $i18nRaw{safeBrowsingEnhancedLearnMoreLabel}
+-              </div>
+-            </div>
+-          </div>
+-        </settings-collapse-radio-button>
+-        <settings-collapse-radio-button id="safeBrowsingStandard"
+-            no-collapse="[[hideExtendedReportingRadioButton_]]"
+-            name="[[safeBrowsingSettingEnum_.STANDARD]]"
+-            pref="[[prefs.generated.safe_browsing]]"
+-            label="$i18n{safeBrowsingStandard}"
+-            sub-label="[[getSafeBrowsingStandardSubLabel_(
+-                        enableHashPrefixRealTimeLookups_)]]"
+-            indicator-aria-label="$i18n{controlledSettingPolicy}"
+-            expand-aria-label="$i18n{safeBrowsingStandardExpandA11yLabel}"
+-            info-opened="{{infoOpened_}}"
+-            on-expand-clicked="onStandardProtectionExpandButtonClicked_"
+-            no-automatic-collapse>
+-          <div slot="noSelectionCollapse">
+-            <template is="dom-if" if="[[!hideExtendedReportingRadioButton_]]">
+-              <settings-toggle-button id="safeBrowsingReportingToggle"
+-                pref="{{prefs.safebrowsing.scout_reporting_enabled}}"
+-                label="$i18n{safeBrowsingStandardReportingLabel}"
+-                sub-label="$i18n{safeBrowsingEnableExtendedReportingDesc}"
+-                on-change="onSafeBrowsingExtendedReportingChange_"
+-                disabled="[[getDisabledExtendedSafeBrowsing_(
+-                              prefs.generated.safe_browsing.*)]]">
+-              </settings-toggle-button>
+-            </template>
+-          </div>
+-        </settings-collapse-radio-button>
+-        <settings-collapse-radio-button id="safeBrowsingDisabled" no-collapse
+-            name="[[safeBrowsingSettingEnum_.DISABLED]]"
+-            pref="[[prefs.generated.safe_browsing]]"
+-            label="$i18n{safeBrowsingNone}"
+-            sub-label="$i18n{safeBrowsingNoneDesc}"
+-            indicator-aria-label="$i18n{controlledSettingPolicy}">
+-        </settings-collapse-radio-button>
+-      </settings-radio-group>
+-    </div>
+     <template is="dom-if" if="[[enableHttpsFirstModeNewSettings_]]" restamp>
+       <div id="secureConnectionsSection">
+         <h2 class="cr-title-text">$i18n{secureConnectionsSectionTitle}</h2>
+@@ -294,12 +174,6 @@
+         on-click="onManageCertificatesClick_" external>
+     </cr-link-row>
+ 
+-    <cr-link-row id="advanced-protection-program-link" class="hr"
+-        label="$i18n{advancedProtectionProgramTitle}"
+-        sub-label="$i18n{advancedProtectionProgramDesc}"
+-        on-click="onAdvancedProtectionProgramLinkClick_"
+-        external>
+-    </cr-link-row>
+     <template is="dom-if" if="[[showDisableSafebrowsingDialog_]]" restamp>
+       <settings-simple-confirmation-dialog
+           title-text="$i18n{safeBrowsingDisableDialog}"
+diff --git a/chrome/app/resources/generated_resources_en-GB.xtb b/chrome/app/resources/generated_resources_en-GB.xtb
+index 3aff54bd14838..49059dcd573f2 100644
+--- a/chrome/app/resources/generated_resources_en-GB.xtb
++++ b/chrome/app/resources/generated_resources_en-GB.xtb
+@@ -3156,7 +3156,7 @@ You can manage this account’s settings by installing the Family Link app on yo
+ <translation id="3179982752812949580">Text font</translation>
+ <translation id="3180990259147710757">Shift jaw left</translation>
+ <translation id="3181825792072797598">Turn on Sync</translation>
+-<translation id="3181954750937456830">Safe Browsing (protects you and your device from dangerous sites)</translation>
++<translation id="3181954750937456830"></translation>
+ <translation id="3182749001423093222">Spell check</translation>
+ <translation id="3183139917765991655">Profile Importer</translation>
+ <translation id="3183143381919926261">Mobile data networks</translation>
+@@ -3348,7 +3348,7 @@ You can manage this account’s settings by installing the Family Link app on yo
+ <translation id="3317678681329786349">Camera and microphone blocked</translation>
+ <translation id="3319863571062685443">Your address is saved</translation>
+ <translation id="3320271870899888245">Can't connect to OneDrive. Try again.</translation>
+-<translation id="3320630259304269485">Safe Browsing (protection from dangerous sites) and other security settings</translation>
++<translation id="3320630259304269485">Security settings</translation>
+ <translation id="3320909810101200102">To choose an ID, scan the QR code</translation>
+ <translation id="3320957378743864387">Not allowed to offer writing help</translation>
+ <translation id="3321460131042519426">Enable word wrap</translation>
+@@ -11783,4 +11783,4 @@ This can include information about installed software, files, your browser, the
+ <translation id="99731366405731005">Turn on <ph name="LINK1_BEGIN" />Chrome Sync<ph name="LINK1_END" /> to use Wi-Fi Sync. <ph name="LINK2_BEGIN" />Learn more<ph name="LINK2_END" /></translation>
+ <translation id="998347228911661591">Sync your tab groups</translation>
+ <translation id="998747458861718449">I&amp;nspect</translation>
+-</translationbundle>
+\ No newline at end of file
++</translationbundle>
+diff --git a/chrome/app/settings_strings.grdp b/chrome/app/settings_strings.grdp
+index c388385ee4122..44bfcc6a5d3c1 100644
+--- a/chrome/app/settings_strings.grdp
++++ b/chrome/app/settings_strings.grdp
+@@ -1838,7 +1838,7 @@
+     Security
+   </message>
+   <message name="IDS_SETTINGS_SECURITY_DESCRIPTION" desc="Description of the controls available on the security settings page">
+-    Safe Browsing (protection from dangerous sites) and other security settings
++    Security settings
+   </message>
+   <message name="IDS_SETTINGS_ADVANCED_PROTECTION_PROGRAM" desc="Name of the link which takes users
+     to the Google Advanced Protection Program external webpage">
 diff --git a/chrome/browser/resources/settings/BUILD.gn b/chrome/browser/resources/settings/BUILD.gn
 index f9ea7772f06fa..d105dd9242162 100644
 --- a/chrome/browser/resources/settings/BUILD.gn
@@ -269,190 +708,11 @@ index dfff3832ebd6c..b3f8a48df9b52 100644
  export {SettingsSecurityPageV2Element} from './privacy_page/security_page_v2.js';
  export {SettingsPrivacySandboxAdMeasurementSubpageElement} from './privacy_sandbox/privacy_sandbox_ad_measurement_subpage.js';
  export {SettingsPrivacySandboxFledgeSubpageElement} from './privacy_sandbox/privacy_sandbox_fledge_subpage.js';
-diff --git a/chrome/browser/resources/settings/performance_page/speed_page.html b/chrome/browser/resources/settings/performance_page/speed_page.html
-index 4cea2b510eb8d..91c8f36a37d52 100644
---- a/chrome/browser/resources/settings/performance_page/speed_page.html
-+++ b/chrome/browser/resources/settings/performance_page/speed_page.html
-@@ -11,95 +11,3 @@
-     --settings-collapse-separator-line: var(--cr-separator-line);
-   }
- </style>
--<settings-toggle-button id="preloadingToggle"
--    pref="{{prefs.net.network_prediction_options}}"
--    label="$i18n{preloadingPageTitle}"
--    sub-label-with-link="$i18n{preloadingToggleSummary}"
--    on-sub-label-link-clicked="onPreloadingLearnMoreLinkClick_"
--    numeric-unchecked-values="[[numericUncheckedValues_]]"
--    numeric-checked-value="[[networkPredictionOptionsEnum_.STANDARD]]"
--    on-change="onPreloadingStateChange_">
--</settings-toggle-button>
--<cr-collapse
--    opened="[[isPreloadingEnabled_(
--        prefs.net.network_prediction_options.value)]]">
--  <div class="cr-row continuation settings-section-bottom-padding">
--    <settings-radio-group id="preloadingRadioGroup"
--        pref="{{prefs.net.network_prediction_options}}"
--        selectable-elements="settings-collapse-radio-button"
--        on-change="onPreloadingStateChange_">
--      <settings-collapse-radio-button id="preloadingExtended"
--          name="[[networkPredictionOptionsEnum_.EXTENDED]]"
--          pref="[[prefs.net.network_prediction_options]]"
--          label="$i18n{preloadingPageExtendedPreloadingTitle}"
--          sub-label="$i18n{preloadingPageExtendedPreloadingSummary}"
--          expand-aria-label="
--              $i18n{preloadingPageExtendedPreloadingExpandA11yLabel}"
--          no-automatic-collapse>
--        <div slot="collapse" class="settings-columned-section">
--          <div class="column">
--            <h2 class="description-header">
--              $i18n{columnHeadingWhenOn}
--            </h2>
--            <ul>
--              <li class="secondary">
--                $i18n{preloadingPageExtendedPreloadingWhenOnBulletOne}
--              </li>
--              <li class="secondary">
--                $i18n{preloadingPageExtendedPreloadingWhenOnBulletTwo}
--              </li>
--            </ul>
--          </div>
--          <div class="column">
--            <h2 class="description-header">
--              $i18n{columnHeadingConsider}
--            </h2>
--            <ul>
--              <li class="secondary">
--                $i18n{preloadingPageThingsToConsiderBulletOne}
--              </li>
--              <li class="secondary">
--                $i18n{preloadingPageExtendedPreloadingThingsToConsiderBulletTwo}
--              </li>
--            </ul>
--          </div>
--        </div>
--      </settings-collapse-radio-button>
--      <settings-collapse-radio-button id="preloadingStandard"
--          name="[[networkPredictionOptionsEnum_.STANDARD]]"
--          pref="[[prefs.net.network_prediction_options]]"
--          label="$i18n{preloadingPageStandardPreloadingTitle}"
--          sub-label="$i18n{preloadingPageStandardPreloadingSummary}"
--          expand-aria-label="
--              $i18n{preloadingPageStandardPreloadingExpandA11yLabel}"
--          info-opened="{{infoOpened_}}"
--          no-automatic-collapse>
--        <div slot="collapse" class="settings-columned-section">
--          <div class="column">
--            <h2 class="description-header">
--              $i18n{columnHeadingWhenOn}
--            </h2>
--            <ul>
--              <li class="secondary">
--                $i18n{preloadingPageStandardPreloadingWhenOnBulletOne}
--              </li>
--              <li class="secondary">
--                $i18n{preloadingPageStandardPreloadingWhenOnBulletTwo}
--              </li>
--            </ul>
--          </div>
--          <div class="column">
--            <h2 class="description-header">
--              $i18n{columnHeadingConsider}
--            </h2>
--            <ul>
--              <li class="secondary">
--                $i18n{preloadingPageThingsToConsiderBulletOne}
--              </li>
--            </ul>
--          </div>
--        </div>
--      </settings-collapse-radio-button>
--    </settings-radio-group>
--  </div>
--</cr-collapse>
-diff --git a/chrome/browser/resources/settings/performance_page/speed_page.ts b/chrome/browser/resources/settings/performance_page/speed_page.ts
-index 77064733acea5..619b25a520398 100644
---- a/chrome/browser/resources/settings/performance_page/speed_page.ts
-+++ b/chrome/browser/resources/settings/performance_page/speed_page.ts
-@@ -24,15 +24,6 @@ import type {SettingsCollapseRadioButtonElement} from '../privacy_page/collapse_
- import {NetworkPredictionOptions} from './constants.js';
- import {getTemplate} from './speed_page.html.js';
- 
--export interface SpeedPageElement {
--  $: {
--    preloadingToggle: SettingsToggleButtonElement,
--    preloadingExtended: SettingsCollapseRadioButtonElement,
--    preloadingRadioGroup: SettingsRadioGroupElement,
--    preloadingStandard: SettingsCollapseRadioButtonElement,
--  };
--}
--
- const SpeedPageElementBase = PrefsMixin(PolymerElement);
- 
- export class SpeedPageElement extends SpeedPageElementBase {
-@@ -44,58 +35,6 @@ export class SpeedPageElement extends SpeedPageElementBase {
-     return getTemplate();
-   }
- 
--  static get properties() {
--    return {
--      /** Valid network prediction options state. */
--      networkPredictionOptionsEnum_: {
--        type: Object,
--        value: NetworkPredictionOptions,
--      },
--
--      numericUncheckedValues_: {
--        type: Array,
--        value: () => [NetworkPredictionOptions.DISABLED],
--      },
--    };
--  }
--
--  declare private numericUncheckedValues_: NetworkPredictionOptions[];
--
--  override ready() {
--    super.ready();
--
--    CrSettingsPrefs.initialized.then(() => {
--      const prefValue = this.getPref<NetworkPredictionOptions>(
--                                'net.network_prediction_options')
--                            .value;
--      if (prefValue === NetworkPredictionOptions.WIFI_ONLY_DEPRECATED) {
--        // The default pref value is deprecated, and is treated the same as
--        // STANDARD. See chrome/browser/preloading/preloading_prefs.h.
--        this.setPrefValue(
--            'net.network_prediction_options',
--            NetworkPredictionOptions.STANDARD);
--      }
--    });
--  }
--
--  private isPreloadingEnabled_(value: number): boolean {
--    return value !== NetworkPredictionOptions.DISABLED;
--  }
--
--  private onPreloadingStateChange_() {
--    // Automatic expanding is disabled so that the radio buttons are collapsed
--    // initially. Because of this, radio buttons' expanded states need to be
--    // updated manually.
--    this.$.preloadingExtended.updateCollapsed();
--    this.$.preloadingStandard.updateCollapsed();
--  }
--
--  private onPreloadingLearnMoreLinkClick_() {
--    OpenWindowProxyImpl.getInstance().openUrl(
--        loadTimeData.getString('preloadingLearnMoreUrl'));
--  }
--}
--
- declare global {
-   interface HTMLElementTagNameMap {
-     'settings-speed-page': SpeedPageElement;
 diff --git a/chrome/browser/resources/settings/privacy_page/personalization_options.html b/chrome/browser/resources/settings/privacy_page/personalization_options.html
-index acaea4ea835b0..cb837d031e0ed 100644
+index 8418cc0f5d55d..cb837d031e0ed 100644
 --- a/chrome/browser/resources/settings/privacy_page/personalization_options.html
 +++ b/chrome/browser/resources/settings/privacy_page/personalization_options.html
-@@ -1,160 +1,119 @@
+@@ -1,135 +1,119 @@
 -    <style include="settings-shared md-select">
 -      :host(.list-frame) settings-toggle-button {
 -        padding-inline-end: 0;
@@ -539,16 +799,6 @@ index acaea4ea835b0..cb837d031e0ed 100644
 -          </option>
 -      </select>
      </div>
--    <settings-toggle-button id="signinAllowedToggle"
--        class="hr"
--        hidden="[[!signinAvailable_]]"
--        disabled="[[syncFirstSetupInProgress_]]"
--        pref="{{prefs.signin.allowed_on_next_startup}}"
--        label="$i18n{signinAllowedTitle}"
--        sub-label="$i18n{signinAllowedDescription}"
--        on-settings-boolean-control-change="onSigninAllowedChange_"
--        no-set-pref>
--    </settings-toggle-button>
 -</if><!-- not chromeos -->
 -<if expr="_google_chrome">
 -<if expr="chromeos_ash">
@@ -580,38 +830,21 @@ index acaea4ea835b0..cb837d031e0ed 100644
 +      sub-label="$i18n{enablePersonalizationLoggingDesc}" on-click="onMetricsReportingLinkClick_" external>
      </cr-link-row>
 -</if><!-- chromeos -->
--<if expr="not chromeos_ash">
--    <settings-toggle-button id="metricsReportingControl"
--        class="hr"
--        pref="[[metricsReportingPref_]]"
--        label="$i18n{enablePersonalizationLogging}"
--        sub-label="$i18n{enablePersonalizationLoggingDesc}" no-set-pref
--        on-settings-boolean-control-change="onMetricsReportingChange_">
-+  </if><if expr="not chromeos_ash">
-+    <settings-toggle-button id="metricsReportingControl" class="hr" pref="[[metricsReportingPref_]]"
-+      label="$i18n{enablePersonalizationLogging}" sub-label="$i18n{enablePersonalizationLoggingDesc}"
-+      no-set-pref on-settings-boolean-control-change="onMetricsReportingChange_">
-       <template is="dom-if" if="[[showRestart_]]" restamp>
--        <cr-button on-click="onRestartClick_" id="restart"
--            slot="more-actions">
-+        <cr-button on-click="onRestartClick_" id="restart" slot="more-actions">
-           $i18n{restart}
-         </cr-button>
-       </template>
-     </settings-toggle-button>
--</if><!-- not chromeos -->
 -</if><!-- _google_chrome -->
 -    <settings-toggle-button id="urlCollectionToggle"
 -        class="hr"
 -        pref="{{prefs.url_keyed_anonymized_data_collection.enabled}}"
 -        label="$i18n{urlKeyedAnonymizedDataCollection}"
 -        sub-label="$i18n{urlKeyedAnonymizedDataCollectionDesc}">
-+  </if></if><if expr="_google_chrome">
-+  <if expr="not chromeos_ash">
-+    <settings-toggle-button id="spellCheckControl" class="hr" pref="{{prefs.spellcheck.use_spelling_service}}"
-+      on-settings-boolean-control-change="onUseSpellingServiceToggle_" label="$i18n{spellingPref}"
-+      sub-label="$i18n{spellingDescription}"
-+      hidden="[[!showSpellCheckControlToggle_(prefs.spellcheck.dictionaries)]]">
++  </if><if expr="not chromeos_ash">
++    <settings-toggle-button id="metricsReportingControl" class="hr" pref="[[metricsReportingPref_]]"
++      label="$i18n{enablePersonalizationLogging}" sub-label="$i18n{enablePersonalizationLoggingDesc}"
++      no-set-pref on-settings-boolean-control-change="onMetricsReportingChange_">
++      <template is="dom-if" if="[[showRestart_]]" restamp>
++        <cr-button on-click="onRestartClick_" id="restart" slot="more-actions">
++          $i18n{restart}
++        </cr-button>
++      </template>
      </settings-toggle-button>
 -<if expr="_google_chrome">
 -<if expr="not chromeos_ash">
@@ -622,7 +855,13 @@ index acaea4ea835b0..cb837d031e0ed 100644
 -        label="$i18n{spellingPref}"
 -        sub-label="$i18n{spellingDescription}"
 -        hidden="[[!showSpellCheckControlToggle_(prefs.spellcheck.dictionaries)]]">
--    </settings-toggle-button>
++  </if></if><if expr="_google_chrome">
++  <if expr="not chromeos_ash">
++    <settings-toggle-button id="spellCheckControl" class="hr" pref="{{prefs.spellcheck.use_spelling_service}}"
++      on-settings-boolean-control-change="onUseSpellingServiceToggle_" label="$i18n{spellingPref}"
++      sub-label="$i18n{spellingDescription}"
++      hidden="[[!showSpellCheckControlToggle_(prefs.spellcheck.dictionaries)]]">
+     </settings-toggle-button>
 -</if>
 -<if expr="chromeos_ash">
 -    <!-- On ChromeOS the toggle for spellcheck is shown in the OS settings,
@@ -1151,269 +1390,6 @@ index ed1f815d31628..0000000000000
 -customElements.define(
 -    PrivacyGuideSafeBrowsingFragmentElement.is,
 -    PrivacyGuideSafeBrowsingFragmentElement);
-diff --git a/chrome/browser/resources/settings/privacy_page/privacy_page.html b/chrome/browser/resources/settings/privacy_page/privacy_page.html
-index 159316198e7f3..554ff79614fe4 100644
---- a/chrome/browser/resources/settings/privacy_page/privacy_page.html
-+++ b/chrome/browser/resources/settings/privacy_page/privacy_page.html
-@@ -38,11 +38,6 @@
-         </settings-clear-browsing-data-dialog-v2>
-       </template>
-     </template>
--    <template is="dom-if" if="[[showPrivacyGuideDialog_]]" restamp>
--      <settings-privacy-guide-dialog id="privacyGuideDialog" prefs="{{prefs}}"
--          on-close="onPrivacyGuideDialogClosed_">
--      </settings-privacy-guide-dialog>
--    </template>
-     <settings-animated-pages id="pages" section="privacy"
-         focus-config="[[focusConfig_]]">
-       <div route-path="default">
-@@ -51,49 +46,6 @@
-             label="$i18n{clearBrowsingData}"
-             sub-label="$i18n{clearBrowsingDataDescription}"
-             on-click="onClearBrowsingDataClick_"></cr-link-row>
--        <template is="dom-if" if="[[isPrivacyGuideAvailable]]">
--          <cr-link-row id="privacyGuideLinkRow" class="hr"
--              start-icon="privacy20:signpost"
--              label="$i18n{privacyGuideLabel}"
--              sub-label="$i18n{privacyGuideSublabel}"
--              on-click="onPrivacyGuideClick_"
--              role-description="$i18n{subpageArrowRoleDescription}">
--          </cr-link-row>
--        </template>
--        <cr-link-row id="thirdPartyCookiesLinkRow"
--            start-icon="privacy:cookie"
--            class="hr" label="$i18n{thirdPartyCookiesLinkRowLabel}"
--            sub-label="[[computeThirdPartyCookiesSublabel_(
--                prefs.profile.cookie_controls_mode.*,
--                prefs.tracking_protection.block_all_3pc_toggle_enabled.*
--                )]]"
--            on-click="onCookiesClick_"
--            role-description="$i18n{subpageArrowRoleDescription}">
--        </cr-link-row>
--        <template is="dom-if" if="[[enableIncognitoTrackingProtections_]]">
--          <cr-link-row id="incognitoTrackingProtectionsLinkRow" class="hr"
--              start-icon="settings:visibility-off"
--              label="$i18n{incognitoTrackingProtectionsPageTitle}"
--              sub-label="$i18n{incognitoTrackingProtectionsPageEntrypointDescription}"
--              on-click="onIncognitoTrackingProtectionsClick_"
--              role-description="$i18n{subpageArrowRoleDescription}">
--          </cr-link-row>
--        </template>
--        <template is="dom-if" if=
--            "[[shouldShowAdPrivacy_(
--                isPrivacySandboxRestricted_,
--                isPrivacySandboxRestrictedNoticeEnabled_)]]">
--          <cr-link-row id="privacySandboxLinkRow"
--              start-icon="privacy20:ads-click"
--              class="hr"
--              label="$i18n{adPrivacyLinkRowLabel}"
--              sub-label="[[computeAdPrivacySublabel_(
--                  isPrivacySandboxRestricted_,
--                  isPrivacySandboxRestrictedNoticeEnabled_)]]"
--              on-click="onPrivacySandboxClick_"
--              role-description="$i18n{subpageArrowRoleDescription}">
--          </cr-link-row>
--        </template>
-         <cr-link-row id="securityLinkRow" start-icon="privacy:lock"
-             class="hr" label="$i18n{securityPageTitle}"
-             sub-label="$i18n{securityPageDescription}"
-@@ -106,33 +58,6 @@
-             role-description="$i18n{subpageArrowRoleDescription}"></cr-link-row>
-       </div>
- 
--      <template is="dom-if" route-path="/content/v8" no-search>
--        <settings-subpage
--            page-title="$i18n{siteSettingsCategoryJavascriptOptimizer}"
--            search-label="$i18n{siteSettingsAllSitesSearch}"
--            search-term="{{searchFilter_}}">
--          <div class="content-settings-header secondary">
--            $i18n{siteSettingsJavascriptOptimizerDescription}
--          </div>
--          <settings-category-default-radio-group
--              category="[[contentSettingsTypesEnum_.JAVASCRIPT_OPTIMIZER]]"
--              allow-option-label=
--                  "$i18n{siteSettingsJavascriptOptimizerAllowed}"
--              allow-option-sub-label=
--                  "$i18n{siteSettingsJavascriptOptimizerAllowedSubLabel}"
--              block-option-label="$i18n{siteSettingsJavascriptOptimizerBlocked}"
--              block-option-sub-label=
--                  "$i18n{siteSettingsJavascriptOptimizerBlockedSubLabel}">
--          </settings-category-default-radio-group>
--          <category-setting-exceptions
--              category="[[contentSettingsTypesEnum_.JAVASCRIPT_OPTIMIZER]]"
--              allow-header="$i18n{siteSettingsJavascriptOptimizerAllowedExceptions}"
--              block-header="$i18n{siteSettingsJavascriptOptimizerBlockedExceptions}"
--              search-filter="[[searchFilter_]]">
--          </category-setting-exceptions>
--        </settings-subpage>
--      </template>
--
-       <template is="dom-if" if="[[enableSecurityKeysSubpage_]]">
-         <template is="dom-if" route-path="/securityKeys">
-           <settings-subpage associated-control="[[$$('#securityLinkRow')]]"
-@@ -163,18 +88,6 @@
-         </settings-subpage>
-       </template>
- 
--      <template is="dom-if" if="[[shouldShowSafetyHub_]]">
--        <template is="dom-if" route-path="/safetyCheck">
--          <!-- TODO(crbug.com/40267370): Make the page searchable.-->
--          <settings-subpage id="safetyHub" page-title="$i18n{safetyHub}"
--              class="multi-card" no-search
--              learn-more-url="$i18n{safetyHubHelpCenterURL}">
--            <settings-safety-hub-page prefs="{{prefs}}">
--            </settings-safety-hub-page>
--          </settings-subpage>
--        </template>
--      </template>
--
-       <template is="dom-if" route-path="/security">
-         <settings-subpage id="security" page-title="$i18n{securityPageTitle}"
-             associated-control="[[$$('#securityLinkRow')]]"
-@@ -191,65 +104,6 @@
-         </settings-subpage>
-       </template>
- 
--      <template is="dom-if" route-path="/adPrivacy"
--          no-search="[[!shouldShowAdPrivacy_(isPrivacySandboxRestricted_,
--                isPrivacySandboxRestrictedNoticeEnabled_)]]">
--        <settings-subpage id="privacy-sandbox"
--            page-title="$i18n{adPrivacyPageTitle}"
--            associated-control="[[$$('#privacySandboxLinkRow')]]"
--            learn-more-url="$i18n{adPrivacyLearnMoreURL}">
--          <settings-privacy-sandbox-page prefs="{{prefs}}"
--              focus-config="[[focusConfig_]]">
--          </settings-privacy-sandbox-page>
--        </settings-subpage>
--      </template>
--
--      <template is="dom-if" route-path="/adPrivacy/interests"
--          no-search="[[isPrivacySandboxRestricted_]]">
--        <settings-subpage id="privacy-sandbox-topics"
--            page-title="$i18n{topicsPageTitle}"
--            associated-control="[[$$('#privacySandboxLinkRow')]]"
--            learn-more-url="$i18n{adPrivacyLearnMoreURL}">
--          <settings-privacy-sandbox-topics-subpage prefs="{{prefs}}"
--            focus-config="[[focusConfig_]]">
--          </settings-privacy-sandbox-topics-subpage>
--        </settings-subpage>
--      </template>
--      <template is="dom-if" route-path="/adPrivacy/interests/manage"
--          no-search="[[isPrivacySandboxRestricted_]]">
--        <settings-subpage id="privacy-sandbox-manage-topics"
--            page-title="$i18n{manageTopicsHeading}"
--            associated-control="[[$$('#privacySandboxLinkRow')]]"
--            learn-more-url="$i18n{adPrivacyLearnMoreURL}">
--          <settings-privacy-sandbox-manage-topics-subpage
--            focus-config="[[focusConfig_]]" prefs="{{prefs}}">
--          </settings-privacy-sandbox-manage-topics-subpage>
--        </settings-subpage>
--      </template>
--
--      <template is="dom-if" route-path="/adPrivacy/sites"
--          no-search="[[isPrivacySandboxRestricted_]]">
--        <settings-subpage id="privacy-sandbox-fledge"
--            page-title="$i18n{fledgePageTitle}"
--            associated-control="[[$$('#privacySandboxLinkRow')]]"
--            learn-more-url="$i18n{adPrivacyLearnMoreURL}">
--          <settings-privacy-sandbox-fledge-subpage prefs="{{prefs}}">
--          </settings-privacy-sandbox-fledge-subpage>
--        </settings-subpage>
--      </template>
--
--      <template is="dom-if" route-path="/adPrivacy/measurement"
--          no-search="[[!shouldShowAdPrivacy_(isPrivacySandboxRestricted_,
--              isPrivacySandboxRestrictedNoticeEnabled_)]]">
--        <settings-subpage id="privacy-sandbox-ad-measurement"
--            page-title="$i18n{adMeasurementPageTitle}"
--            associated-control="[[$$('#privacySandboxLinkRow')]]"
--            learn-more-url="$i18n{adPrivacyLearnMoreURL}">
--          <settings-privacy-sandbox-ad-measurement-subpage prefs="{{prefs}}">
--          </settings-privacy-sandbox-ad-measurement-subpage>
--        </settings-subpage>
--      </template>
--
-       <template is="dom-if" route-path="/content/all" no-search>
-         <settings-subpage id="allSites"
-             page-title$="[[allSitesPageTitle_]]"
-@@ -843,77 +697,6 @@
-           </site-details>
-         </settings-subpage>
-       </template>
--      <template is="dom-if" route-path="/content/protectedContent" no-search>
--<if expr="not chromeos_ash and not is_win">
--        <settings-subpage page-title="$i18n{siteSettingsProtectedContent}">
--</if>
--<if expr="is_chromeos or is_win">
--        <settings-subpage page-title="$i18n{siteSettingsProtectedContent}"
--            search-label="$i18n{siteSettingsAllSitesSearch}"
--            search-term="{{searchFilter_}}">
--</if>
--          <div class="radio-group">
--            <div class="secondary">
--              $i18n{siteSettingsProtectedContentDescription}
--            </div>
--            <h2>$i18n{siteSettingsDefaultBehavior}</h2>
--            <div class="secondary radio-sub-heading">
--              $i18n{siteSettingsDefaultBehaviorDescription}
--            </div>
--            <settings-radio-group
--              pref="{{prefs.webkit.webprefs.encrypted_media_enabled}}"
--              selectable-elements="settings-collapse-radio-button">
--              <settings-collapse-radio-button no-collapse
--                  pref="[[prefs.webkit.webprefs.encrypted_media_enabled]]"
--                  label="$i18n{siteSettingsProtectedContentAllowed}"
--                  name="true"
--                  disabled$="[[isGuest_]]"
--                  icon="privacy:sync-saved-locally">
--              </settings-collapse-radio-button>
--              <settings-collapse-radio-button no-collapse
--                  pref="[[prefs.webkit.webprefs.encrypted_media_enabled]]"
--                  label="$i18n{siteSettingsProtectedContentBlocked}"
--                  sub-label=
--                      "$i18n{siteSettingsProtectedContentBlockedSubLabel}"
--                  name="false"
--                  disabled$="[[isGuest_]]"
--                  icon="privacy:web-asset-off">
--              </settings-collapse-radio-button>
--            </settings-radio-group>
--          </div>
--<if expr="is_chromeos or is_win">
--          <settings-category-default-radio-group
--            header="$i18n{siteSettingsProtectedContentIdentifiers}"
--            description=
--                "$i18n{siteSettingsProtectedContentIdentifiersExplanation}"
--            category="[[contentSettingsTypesEnum_.PROTECTED_CONTENT]]"
--            block-option-label=
--                "$i18n{siteSettingsProtectedContentIdentifiersBlocked}"
--            block-option-sub-label=
--                "$i18n{siteSettingsProtectedContentIdentifiersBlockedSubLabel}"
--            block-option-icon="privacy:web-asset-off"
--            allow-option-label=
--                "$i18n{siteSettingsProtectedContentIdentifiersAllowed}"
--<if expr="is_win and _google_chrome">
--            allow-option-sub-label=
--                "$i18n{siteSettingsProtectedContentIdentifiersAllowedSubLabel}"
--</if>
--            allow-option-icon="privacy:sync-saved-locally"
--            disabled$="[[isGuest_]]">
--          </settings-category-default-radio-group>
--          <category-setting-exceptions
--              description=
--                  "$i18n{siteSettingsCustomizedBehaviorsDescriptionShort}"
--              category="[[contentSettingsTypesEnum_.PROTECTED_CONTENT]]"
--              allow-header=
--                  "$i18n{siteSettingsProtectedContentIdentifiersAllowedExceptions}"
--              block-header=
--                  "$i18n{siteSettingsProtectedContentIdentifiersBlockedExceptions}"
--              search-filter="[[searchFilter_]]">
--          </category-setting-exceptions>
--</if>
--        </settings-subpage>
--      </template>
-       <template is="dom-if" route-path="/content/clipboard" no-search>
-         <settings-subpage page-title="$i18n{siteSettingsClipboard}"
-             search-label="$i18n{siteSettingsAllSitesSearch}"
 diff --git a/chrome/browser/resources/settings/privacy_page/privacy_page.ts b/chrome/browser/resources/settings/privacy_page/privacy_page.ts
 index 091f7a093cea0..938598d74691e 100644
 --- a/chrome/browser/resources/settings/privacy_page/privacy_page.ts
@@ -1437,150 +1413,6 @@ index 091f7a093cea0..938598d74691e 100644
    }
  
    /**
-diff --git a/chrome/browser/resources/settings/privacy_page/security_page.html b/chrome/browser/resources/settings/privacy_page/security_page.html
-index 1f5aff963f2a4..59fc10bdbd3c9 100644
---- a/chrome/browser/resources/settings/privacy_page/security_page.html
-+++ b/chrome/browser/resources/settings/privacy_page/security_page.html
-@@ -71,126 +71,6 @@
-         pointer-events: auto;
-       }
-     </style>
--    <div id="safeBrowsingSection">
--      <h2 class="cr-title-text">$i18n{safeBrowsingSectionLabel}</h2>
--      <settings-radio-group id="safeBrowsingRadioGroup" no-set-pref
--          pref="{{prefs.generated.safe_browsing}}"
--          selectable-elements="cr-radio-button, settings-collapse-radio-button"
--          on-change="onSafeBrowsingRadioChange_">
--        <settings-collapse-radio-button id="safeBrowsingEnhanced"
--            name="[[safeBrowsingSettingEnum_.ENHANCED]]"
--            pref="[[prefs.generated.safe_browsing]]"
--            label="$i18n{safeBrowsingEnhanced}"
--            sub-label="$i18n{safeBrowsingEnhancedDescUpdated}"
--            indicator-aria-label="$i18n{controlledSettingPolicy}"
--            expand-aria-label="$i18n{safeBrowsingEnhancedExpandA11yLabel}"
--            on-expand-clicked="onEnhancedProtectionExpandButtonClicked_"
--            no-automatic-collapse>
--          <div slot="collapse">
--            <div id="enhancedProtectionDescContainer"
--                class="settings-columned-section">
--              <div class="column">
--                <h3 class="description-header">
--                  $i18n{columnHeadingWhenOn}
--                </h3>
--                <ul class="icon-bulleted-list">
--                  <li>
--                    <cr-icon icon="settings20:data" aria-hidden="true">
--                    </cr-icon>
--                    <div class="secondary">
--                      $i18n{safeBrowsingEnhancedWhenOnBulOne}
--                    </div>
--                  </li>
--                  <li>
--                    <cr-icon icon="settings20:download" aria-hidden="true">
--                    </cr-icon>
--                    <div class="secondary">
--                      $i18n{safeBrowsingEnhancedWhenOnBulTwo}
--                    </div>
--                  </li>
--                  <li>
--                    <cr-icon icon="settings20:gshield" aria-hidden="true">
--                    </cr-icon>
--                    <div class="secondary">
--                      $i18n{safeBrowsingEnhancedWhenOnBulThree}
--                    </div>
--                  </li>
--                  <li>
--                    <cr-icon icon="settings:language" aria-hidden="true">
--                    </cr-icon>
--                    <div class="secondary">
--                      $i18n{safeBrowsingEnhancedWhenOnBulFour}
--                    </div>
--                  </li>
--                </ul>
--              </div>
--              <div class="column">
--                <h3 class="description-header">
--                  $i18n{columnHeadingConsider}
--                </h3>
--                <ul class="icon-bulleted-list">
--                  <li>
--                    <cr-icon icon="settings20:link"></cr-icon>
--                    <div class="cr-secondary-text">
--                      $i18n{safeBrowsingEnhancedThingsToConsiderBulOne}
--                    </div>
--                  </li>
--                  <li>
--                    <cr-icon icon="settings20:account-circle"></cr-icon>
--                    <div class="cr-secondary-text">
--                      $i18n{safeBrowsingEnhancedThingsToConsiderBulTwo}
--                    </div>
--                  </li>
--                  <li>
--                    <cr-icon icon="settings:performance"></cr-icon>
--                    <div class="cr-secondary-text">
--                      $i18n{safeBrowsingEnhancedThingsToConsiderBulThree}
--                    </div>
--                  </li>
--                </ul>
--              </div>
--            </div>
--            <div id="learnMoreLabelContainer">
--              <div class="cr-secondary-text">
--                $i18nRaw{safeBrowsingEnhancedLearnMoreLabel}
--              </div>
--            </div>
--          </div>
--        </settings-collapse-radio-button>
--        <settings-collapse-radio-button id="safeBrowsingStandard"
--            no-collapse="[[hideExtendedReportingRadioButton_]]"
--            name="[[safeBrowsingSettingEnum_.STANDARD]]"
--            pref="[[prefs.generated.safe_browsing]]"
--            label="$i18n{safeBrowsingStandard}"
--            sub-label="[[getSafeBrowsingStandardSubLabel_(
--                        enableHashPrefixRealTimeLookups_)]]"
--            indicator-aria-label="$i18n{controlledSettingPolicy}"
--            expand-aria-label="$i18n{safeBrowsingStandardExpandA11yLabel}"
--            info-opened="{{infoOpened_}}"
--            on-expand-clicked="onStandardProtectionExpandButtonClicked_"
--            no-automatic-collapse>
--          <div slot="noSelectionCollapse">
--            <template is="dom-if" if="[[!hideExtendedReportingRadioButton_]]">
--              <settings-toggle-button id="safeBrowsingReportingToggle"
--                pref="{{prefs.safebrowsing.scout_reporting_enabled}}"
--                label="$i18n{safeBrowsingStandardReportingLabel}"
--                sub-label="$i18n{safeBrowsingEnableExtendedReportingDesc}"
--                on-change="onSafeBrowsingExtendedReportingChange_"
--                disabled="[[getDisabledExtendedSafeBrowsing_(
--                              prefs.generated.safe_browsing.*)]]">
--              </settings-toggle-button>
--            </template>
--          </div>
--        </settings-collapse-radio-button>
--        <settings-collapse-radio-button id="safeBrowsingDisabled" no-collapse
--            name="[[safeBrowsingSettingEnum_.DISABLED]]"
--            pref="[[prefs.generated.safe_browsing]]"
--            label="$i18n{safeBrowsingNone}"
--            sub-label="$i18n{safeBrowsingNoneDesc}"
--            indicator-aria-label="$i18n{controlledSettingPolicy}">
--        </settings-collapse-radio-button>
--      </settings-radio-group>
--    </div>
-     <template is="dom-if" if="[[enableHttpsFirstModeNewSettings_]]" restamp>
-       <div id="secureConnectionsSection">
-         <h2 class="cr-title-text">$i18n{secureConnectionsSectionTitle}</h2>
-@@ -299,12 +179,6 @@
-         on-click="onManageCertificatesClick_" external>
-     </cr-link-row>
- 
--    <cr-link-row id="advanced-protection-program-link" class="hr"
--        label="$i18n{advancedProtectionProgramTitle}"
--        sub-label="$i18n{advancedProtectionProgramDesc}"
--        on-click="onAdvancedProtectionProgramLinkClick_"
--        external>
--    </cr-link-row>
-     <template is="dom-if" if="[[showDisableSafebrowsingDialog_]]" restamp>
-       <settings-simple-confirmation-dialog
-           title-text="$i18n{safeBrowsingDisableDialog}"
 diff --git a/chrome/browser/resources/settings/privacy_page/security_page.ts b/chrome/browser/resources/settings/privacy_page/security_page.ts
 index 4e79876ab6845..7839006a8ed13 100644
 --- a/chrome/browser/resources/settings/privacy_page/security_page.ts
@@ -1905,6 +1737,66 @@ index 4e79876ab6845..7839006a8ed13 100644
  }
  
  declare global {
+diff --git a/chrome/browser/resources/settings/basic_page/basic_page.html b/chrome/browser/resources/settings/basic_page/basic_page.html
+index 6888307f1a5dc..d53c23d76f0e6 100644
+--- a/chrome/browser/resources/settings/basic_page/basic_page.html
++++ b/chrome/browser/resources/settings/basic_page/basic_page.html
+@@ -104,17 +104,6 @@
+               >
+             <settings-battery-page prefs="{{prefs}}">
+             </settings-battery-page>
+-          </settings-section>
+-          <settings-section page-title="$i18n{speedPageTitle}"
+-              section="speed" nest-under-section="performance"
+-              id="speedSettingsSection"
+-<if expr="_google_chrome">
+-              show-send-feedback-button
+-              on-send-feedback="onSendSpeedFeedbackClick_"
+-</if>
+-              >
+-            <settings-speed-page prefs="{{prefs}}"></settings-speed-page>
+-          </settings-section>
+         </template>
+         <template is="dom-if" if="[[showPage_(pageVisibility.appearance)]]"
+             restamp>
+diff --git a/chrome/browser/resources/settings/performance_page/speed_page.ts b/chrome/browser/resources/settings/performance_page/speed_page.ts
+index 619b25a520398..c3017db8a8d0f 100644
+--- a/chrome/browser/resources/settings/performance_page/speed_page.ts
++++ b/chrome/browser/resources/settings/performance_page/speed_page.ts
+@@ -24,21 +24,3 @@ import type {SettingsCollapseRadioButtonElement} from '../privacy_page/collapse_
+ import {NetworkPredictionOptions} from './constants.js';
+ import {getTemplate} from './speed_page.html.js';
+ 
+-const SpeedPageElementBase = PrefsMixin(PolymerElement);
+-
+-export class SpeedPageElement extends SpeedPageElementBase {
+-  static get is() {
+-    return 'settings-speed-page';
+-  }
+-
+-  static get template() {
+-    return getTemplate();
+-  }
+-
+-declare global {
+-  interface HTMLElementTagNameMap {
+-    'settings-speed-page': SpeedPageElement;
+-  }
+-}
+-
+-customElements.define(SpeedPageElement.is, SpeedPageElement);
+diff --git a/chrome/browser/resources/settings/settings.ts b/chrome/browser/resources/settings/settings.ts
+index 85e1db9929325..60ca1e2677e92 100644
+--- a/chrome/browser/resources/settings/settings.ts
++++ b/chrome/browser/resources/settings/settings.ts
+@@ -88,7 +88,6 @@ export {MEMORY_SAVER_MODE_AGGRESSIVENESS_PREF, MEMORY_SAVER_MODE_PREF, SettingsM
+ export {PerformanceBrowserProxy, PerformanceBrowserProxyImpl} from './performance_page/performance_browser_proxy.js';
+ export {BatterySaverModeState, MemorySaverModeAggressiveness, MemorySaverModeExceptionListAction, MemorySaverModeState, PerformanceMetricsProxy, PerformanceMetricsProxyImpl} from './performance_page/performance_metrics_proxy.js';
+ export {DISCARD_RING_PREF, PERFORMANCE_INTERVENTION_NOTIFICATION_PREF, SettingsPerformancePageElement} from './performance_page/performance_page.js';
+-export {SpeedPageElement} from './performance_page/speed_page.js';
+ export {ExceptionEditDialogElement} from './performance_page/tab_discard/exception_edit_dialog.js';
+ export {ExceptionEntryElement} from './performance_page/tab_discard/exception_entry.js';
+ export {ExceptionListElement, TAB_DISCARD_EXCEPTIONS_OVERFLOW_SIZE} from './performance_page/tab_discard/exception_list.js';
 -- 
 2.49.0.windows.1
 
