@@ -496,6 +496,1247 @@ index 6195b85708ea4..72c8581e10d2e 100644
      <template is="dom-if" if="[[showDisableSafebrowsingDialog_]]" restamp>
        <settings-simple-confirmation-dialog
            title-text="$i18n{safeBrowsingDisableDialog}"
+diff --git a/chrome/app/resources/generated_resources_en-GB.xtb b/chrome/app/resources/generated_resources_en-GB.xtb
+index 3aff54bd14838..49059dcd573f2 100644
+--- a/chrome/app/resources/generated_resources_en-GB.xtb
++++ b/chrome/app/resources/generated_resources_en-GB.xtb
+@@ -3156,7 +3156,7 @@ You can manage this account’s settings by installing the Family Link app on yo
+ <translation id="3179982752812949580">Text font</translation>
+ <translation id="3180990259147710757">Shift jaw left</translation>
+ <translation id="3181825792072797598">Turn on Sync</translation>
+-<translation id="3181954750937456830">Safe Browsing (protects you and your device from dangerous sites)</translation>
++<translation id="3181954750937456830"></translation>
+ <translation id="3182749001423093222">Spell check</translation>
+ <translation id="3183139917765991655">Profile Importer</translation>
+ <translation id="3183143381919926261">Mobile data networks</translation>
+@@ -3348,7 +3348,7 @@ You can manage this account’s settings by installing the Family Link app on yo
+ <translation id="3317678681329786349">Camera and microphone blocked</translation>
+ <translation id="3319863571062685443">Your address is saved</translation>
+ <translation id="3320271870899888245">Can't connect to OneDrive. Try again.</translation>
+-<translation id="3320630259304269485">Safe Browsing (protection from dangerous sites) and other security settings</translation>
++<translation id="3320630259304269485">Security settings</translation>
+ <translation id="3320909810101200102">To choose an ID, scan the QR code</translation>
+ <translation id="3320957378743864387">Not allowed to offer writing help</translation>
+ <translation id="3321460131042519426">Enable word wrap</translation>
+@@ -11783,4 +11783,4 @@ This can include information about installed software, files, your browser, the
+ <translation id="99731366405731005">Turn on <ph name="LINK1_BEGIN" />Chrome Sync<ph name="LINK1_END" /> to use Wi-Fi Sync. <ph name="LINK2_BEGIN" />Learn more<ph name="LINK2_END" /></translation>
+ <translation id="998347228911661591">Sync your tab groups</translation>
+ <translation id="998747458861718449">I&amp;nspect</translation>
+-</translationbundle>
+\ No newline at end of file
++</translationbundle>
+diff --git a/chrome/app/settings_strings.grdp b/chrome/app/settings_strings.grdp
+index c388385ee4122..44bfcc6a5d3c1 100644
+--- a/chrome/app/settings_strings.grdp
++++ b/chrome/app/settings_strings.grdp
+@@ -1838,7 +1838,7 @@
+     Security
+   </message>
+   <message name="IDS_SETTINGS_SECURITY_DESCRIPTION" desc="Description of the controls available on the security settings page">
+-    Safe Browsing (protection from dangerous sites) and other security settings
++    Security settings
+   </message>
+   <message name="IDS_SETTINGS_ADVANCED_PROTECTION_PROGRAM" desc="Name of the link which takes users
+     to the Google Advanced Protection Program external webpage">
+diff --git a/chrome/browser/resources/settings/BUILD.gn b/chrome/browser/resources/settings/BUILD.gn
+index f9ea7772f06fa..d105dd9242162 100644
+--- a/chrome/browser/resources/settings/BUILD.gn
++++ b/chrome/browser/resources/settings/BUILD.gn
+@@ -131,7 +131,6 @@ build_webui("build") {
+     "privacy_page/privacy_guide/privacy_guide_msbb_fragment.ts",
+     "privacy_page/privacy_guide/privacy_guide_page.ts",
+     "privacy_page/privacy_guide/privacy_guide_promo.ts",
+-    "privacy_page/privacy_guide/privacy_guide_safe_browsing_fragment.ts",
+     "privacy_page/privacy_guide/privacy_guide_welcome_fragment.ts",
+     "privacy_page/privacy_guide/step_indicator.ts",
+     "privacy_page/privacy_page.ts",
+diff --git a/chrome/browser/resources/settings/basic_page/basic_page.html b/chrome/browser/resources/settings/basic_page/basic_page.html
+index e539d035c0cb2..6888307f1a5dc 100644
+--- a/chrome/browser/resources/settings/basic_page/basic_page.html
++++ b/chrome/browser/resources/settings/basic_page/basic_page.html
+@@ -60,23 +60,6 @@
+             <settings-autofill-page prefs="{{prefs}}"></settings-autofill-page>
+           </settings-section>
+         </template>
+-        <settings-section id="privacyGuidePromoSection" page-title=""
+-            hidden$="[[!showPrivacyGuidePromo_]]" nest-under-section="privacy"
+-            no-search>
+-          <settings-privacy-guide-promo id="privacyGuidePromo"
+-              prefs="{{prefs}}">
+-          </settings-privacy-guide-promo>
+-        </settings-section>
+-        <!--  TODO(crbug.com/40267370): Add a test to basic_page_test.ts
+-        to check that settings-safety-hub-entry-point is not visible
+-        in the guest mode. -->
+-        <template is="dom-if" if="[[showPage_(pageVisibility.safetyHub)]]"
+-            restamp>
+-          <settings-section page-title="$i18n{safetyHub}"
+-              section="safetyHubEntryPoint" nest-under-section="privacy"
+-              id="safetyHubEntryPointSection">
+-            <settings-safety-hub-entry-point></settings-safety-hub-entry-point>
+-          </settings-section>
+         </template>
+         <template is="dom-if" if="[[showPage_(pageVisibility.privacy)]]"
+             restamp>
+diff --git a/chrome/browser/resources/settings/basic_page/basic_page.ts b/chrome/browser/resources/settings/basic_page/basic_page.ts
+index ba0076c0ded05..d18213bbdd822 100644
+--- a/chrome/browser/resources/settings/basic_page/basic_page.ts
++++ b/chrome/browser/resources/settings/basic_page/basic_page.ts
+@@ -16,9 +16,7 @@ import '../ai_page/ai_page.js';
+ import '../glic_page/glic_page.js';
+ // </if>
+ import '../appearance_page/appearance_page.js';
+-import '../privacy_page/privacy_guide/privacy_guide_promo.js';
+ import '../privacy_page/privacy_page.js';
+-import '../safety_hub/safety_hub_entry_point.js';
+ import '../autofill_page/autofill_page.js';
+ import '../controls/settings_idle_load.js';
+ import '../on_startup_page/on_startup_page.js';
+@@ -60,9 +58,6 @@ import type {LanguageHelper, LanguagesModel} from '../languages_page/languages_t
+ import type {PageVisibility} from '../page_visibility.js';
+ import type {PerformanceBrowserProxy} from '../performance_page/performance_browser_proxy.js';
+ import {PerformanceBrowserProxyImpl, PerformanceFeedbackCategory} from '../performance_page/performance_browser_proxy.js';
+-import {PrivacyGuideAvailabilityMixin} from '../privacy_page/privacy_guide/privacy_guide_availability_mixin.js';
+-import type {PrivacyGuideBrowserProxy} from '../privacy_page/privacy_guide/privacy_guide_browser_proxy.js';
+-import {MAX_PRIVACY_GUIDE_PROMO_IMPRESSION, PrivacyGuideBrowserProxyImpl} from '../privacy_page/privacy_guide/privacy_guide_browser_proxy.js';
+ import {routes} from '../route.js';
+ import type {Route} from '../router.js';
+ import {RouteObserverMixin, Router} from '../router.js';
+@@ -73,8 +68,8 @@ import {MainPageMixin} from '../settings_page/main_page_mixin.js';
+ import {getTemplate} from './basic_page.html.js';
+ 
+ const SettingsBasicPageElementBase =
+-    PrefsMixin(MainPageMixin(RouteObserverMixin(PrivacyGuideAvailabilityMixin(
+-        WebUiListenerMixin(I18nMixin(PolymerElement))))));
++    PrefsMixin(MainPageMixin(RouteObserverMixin(
++        WebUiListenerMixin(I18nMixin(PolymerElement)))));
+ 
+ export class SettingsBasicPageElement extends SettingsBasicPageElementBase {
+   static get is() {
+@@ -131,15 +126,6 @@ export class SettingsBasicPageElement extends SettingsBasicPageElementBase {
+         },
+       },
+ 
+-      /**
+-       * True if the basic page should currently display the privacy guide
+-       * promo.
+-       */
+-      showPrivacyGuidePromo_: {
+-        type: Boolean,
+-        value: false,
+-      },
+-
+       currentRoute_: Object,
+ 
+       /**
+@@ -173,12 +159,6 @@ export class SettingsBasicPageElement extends SettingsBasicPageElementBase {
+     };
+   }
+ 
+-  static get observers() {
+-    return [
+-      'updatePrivacyGuidePromoVisibility_(isPrivacyGuideAvailable, prefs.privacy_guide.viewed.value)',
+-    ];
+-  }
+-
+   // <if expr="not chromeos_ash">
+   declare languages?: LanguagesModel;
+   declare languageHelper: LanguageHelper;
+@@ -194,10 +174,6 @@ export class SettingsBasicPageElement extends SettingsBasicPageElementBase {
+   // <if expr="enable_glic">
+   declare private showGlicSection_: boolean;
+   // </if>
+-  declare private showPrivacyGuidePromo_: boolean;
+-  private privacyGuidePromoWasShown_: boolean;
+-  private privacyGuideBrowserProxy_: PrivacyGuideBrowserProxy =
+-      PrivacyGuideBrowserProxyImpl.getInstance();
+   private performanceBrowserProxy_: PerformanceBrowserProxy =
+       PerformanceBrowserProxyImpl.getInstance();
+ 
+@@ -233,9 +209,6 @@ export class SettingsBasicPageElement extends SettingsBasicPageElementBase {
+     }
+ 
+     super.currentRouteChanged(newRoute, oldRoute);
+-    if (newRoute === routes.PRIVACY) {
+-      this.updatePrivacyGuidePromoVisibility_();
+-    }
+   }
+ 
+   /** Overrides MainPageMixin method. */
+@@ -255,23 +228,6 @@ export class SettingsBasicPageElement extends SettingsBasicPageElementBase {
+     return idleLoad.get();
+   }
+ 
+-  private updatePrivacyGuidePromoVisibility_() {
+-    if (!this.isPrivacyGuideAvailable ||
+-        this.pageVisibility.privacy === false || this.prefs === undefined ||
+-        this.getPref('privacy_guide.viewed').value ||
+-        this.privacyGuideBrowserProxy_.getPromoImpressionCount() >=
+-            MAX_PRIVACY_GUIDE_PROMO_IMPRESSION ||
+-        this.currentRoute_ !== routes.PRIVACY) {
+-      this.showPrivacyGuidePromo_ = false;
+-      return;
+-    }
+-    this.showPrivacyGuidePromo_ = true;
+-    if (!this.privacyGuidePromoWasShown_) {
+-      this.privacyGuideBrowserProxy_.incrementPromoImpressionCount();
+-      this.privacyGuidePromoWasShown_ = true;
+-    }
+-  }
+-
+   private onDeviceHasBatteryChanged_(deviceHasBattery: boolean) {
+     this.showBatterySettings_ = deviceHasBattery;
+   }
+diff --git a/chrome/browser/resources/settings/lazy_load.ts b/chrome/browser/resources/settings/lazy_load.ts
+index dfff3832ebd6c..b3f8a48df9b52 100644
+--- a/chrome/browser/resources/settings/lazy_load.ts
++++ b/chrome/browser/resources/settings/lazy_load.ts
+@@ -204,7 +204,6 @@ export {SettingsPrivacyGuideDialogElement} from './privacy_page/privacy_guide/pr
+ export {PrivacyGuideHistorySyncFragmentElement} from './privacy_page/privacy_guide/privacy_guide_history_sync_fragment.js';
+ export {PrivacyGuideMsbbFragmentElement} from './privacy_page/privacy_guide/privacy_guide_msbb_fragment.js';
+ export {SettingsPrivacyGuidePageElement} from './privacy_page/privacy_guide/privacy_guide_page.js';
+-export {PrivacyGuideSafeBrowsingFragmentElement} from './privacy_page/privacy_guide/privacy_guide_safe_browsing_fragment.js';
+ export {PrivacyGuideWelcomeFragmentElement} from './privacy_page/privacy_guide/privacy_guide_welcome_fragment.js';
+ export {SecureDnsResolverType, SettingsSecureDnsElement} from './privacy_page/secure_dns.js';
+ export {SecureDnsInputElement} from './privacy_page/secure_dns_input.js';
+@@ -215,7 +214,7 @@ export {SecurityKeysPhonesSubpageElement} from './privacy_page/security_keys_pho
+ export {ResetDialogPage, SettingsSecurityKeysResetDialogElement} from './privacy_page/security_keys_reset_dialog.js';
+ export {SetPinDialogPage, SettingsSecurityKeysSetPinDialogElement} from './privacy_page/security_keys_set_pin_dialog.js';
+ export {SecurityKeysSubpageElement} from './privacy_page/security_keys_subpage.js';
+-export {HttpsFirstModeSetting, SafeBrowsingSetting, SettingsSecurityPageElement} from './privacy_page/security_page.js';
++export {HttpsFirstModeSetting, SettingsSecurityPageElement} from './privacy_page/security_page.js';
+ export {SettingsSecurityPageV2Element} from './privacy_page/security_page_v2.js';
+ export {SettingsPrivacySandboxAdMeasurementSubpageElement} from './privacy_sandbox/privacy_sandbox_ad_measurement_subpage.js';
+ export {SettingsPrivacySandboxFledgeSubpageElement} from './privacy_sandbox/privacy_sandbox_fledge_subpage.js';
+diff --git a/chrome/browser/resources/settings/privacy_page/personalization_options.html b/chrome/browser/resources/settings/privacy_page/personalization_options.html
+index 8418cc0f5d55d..cb837d031e0ed 100644
+--- a/chrome/browser/resources/settings/privacy_page/personalization_options.html
++++ b/chrome/browser/resources/settings/privacy_page/personalization_options.html
+@@ -1,135 +1,119 @@
+-    <style include="settings-shared md-select">
+-      :host(.list-frame) settings-toggle-button {
+-        padding-inline-end: 0;
+-        padding-inline-start: 0;
+-      }
++<style include="settings-shared md-select">
++  :host(.list-frame) settings-toggle-button {
++    padding-inline-end: 0;
++    padding-inline-start: 0;
++  }
+ 
+-      :host(.list-frame) cr-link-row {
+-        padding-inline-end: 8px;
+-        padding-inline-start: 0;
+-      }
++  :host(.list-frame) cr-link-row {
++    padding-inline-end: 8px;
++    padding-inline-start: 0;
++  }
+ 
+-      /* Removes the border of the first hr element.*/
+-      .hr:not(.hr:not([hidden]) ~ *) {
+-        border-top: 0;
+-      }
++  /* Removes the border of the first hr element.*/
++  .hr:not(.hr:not([hidden]) ~ *) {
++    border-top: 0;
++  }
+ 
+-      #chromeSigninUserChoiceSetting {
+-        padding: 10px 0px 10px;
+-      }
++  #chromeSigninUserChoiceSetting {
++    padding: 10px 0px 10px;
++  }
+ 
+-      #label-wrapper {
+-        margin-inline-end: 20px;
+-      }
++  #label-wrapper {
++    margin-inline-end: 20px;
++  }
+ 
+-    </style>
++</style>
+ 
+ <if expr="not is_chromeos">
+-    <div id="chromeSigninUserChoiceSetting" class="hr cr-row" role="group"
+-        hidden="[[!chromeSigninUserChoiceInfo_.shouldShowSettings]]"
+-        aria-label="$i18n{chromeSigninChoiceTitle}">
+-      <div id="label-wrapper" class="flex">
+-          <div>
+-            $i18n{chromeSigninChoiceTitle}
+-          </div>
+-          <div id="chromeSigninChoiceDescription" class="secondary">
+-            [[i18n('chromeSigninChoiceDescription',
+-                chromeSigninUserChoiceInfo_.signedInEmail)]]
+-          </div>
++  <div id="chromeSigninUserChoiceSetting" class="hr cr-row" role="group"
++    hidden="[[!chromeSigninUserChoiceInfo_.shouldShowSettings]]"
++    aria-label="$i18n{chromeSigninChoiceTitle}">
++    <div id="label-wrapper" class="flex">
++      <div>
++        $i18n{chromeSigninChoiceTitle}
++      </div>
++      <div id="chromeSigninChoiceDescription" class="secondary">
++        [[i18n('chromeSigninChoiceDescription',
++        chromeSigninUserChoiceInfo_.signedInEmail)]]
+       </div>
+-      <select id="chromeSigninUserChoiceSelection" class="md-select"
+-          on-change="onChromeSigninChoiceSelectionChanged_">
+-          <option selected disabled hidden
+-              value="[[chromeSigninUserChoiceEnum_.NO_CHOICE]]">
+-            $i18n{chromeSigninChoiceSelectOptionPlaceholder}
+-          </option>
+-          <option value="[[chromeSigninUserChoiceEnum_.SIGNIN]]">
+-            $i18n{chromeSigninChoiceSignin}
+-          </option>
+-          <option value="[[chromeSigninUserChoiceEnum_.DO_NOT_SIGNIN]]">
+-            $i18n{chromeSigninChoiceDoNotSignin}
+-          </option>
+-          <option value="[[chromeSigninUserChoiceEnum_.ALWAYS_ASK]]">
+-            $i18n{chromeSigninChoiceAlwaysAsk}
+-          </option>
+-      </select>
+     </div>
+-</if><!-- not chromeos -->
+-<if expr="_google_chrome">
+-<if expr="chromeos_ash">
+-    <!-- Ash Browser settings show a link to the OS settings instead. -->
++    <select id="chromeSigninUserChoiceSelection" class="md-select"
++      on-change="onChromeSigninChoiceSelectionChanged_">
++      <option selected disabled hidden
++        value="[[chromeSigninUserChoiceEnum_.NO_CHOICE]]">
++        $i18n{chromeSigninChoiceSelectOptionPlaceholder}
++      </option>
++      <option value="[[chromeSigninUserChoiceEnum_.SIGNIN]]">
++        $i18n{chromeSigninChoiceSignin}
++      </option>
++      <option value="[[chromeSigninUserChoiceEnum_.DO_NOT_SIGNIN]]">
++        $i18n{chromeSigninChoiceDoNotSignin}
++      </option>
++      <option value="[[chromeSigninUserChoiceEnum_.ALWAYS_ASK]]">
++        $i18n{chromeSigninChoiceAlwaysAsk}
++      </option>
++    </select>
++  </div>
++</if><if expr="_google_chrome">
++  <if expr="chromeos_ash">
+     <cr-link-row id="metricsReportingLink" class="hr"
+-        label="$i18n{enablePersonalizationLogging}"
+-        sub-label="$i18n{enablePersonalizationLoggingDesc}"
+-        on-click="onMetricsReportingLinkClick_" external>
++      label="$i18n{enablePersonalizationLogging}"
++      sub-label="$i18n{enablePersonalizationLoggingDesc}" on-click="onMetricsReportingLinkClick_" external>
+     </cr-link-row>
+-</if><!-- chromeos -->
+-</if><!-- _google_chrome -->
+-    <settings-toggle-button id="urlCollectionToggle"
+-        class="hr"
+-        pref="{{prefs.url_keyed_anonymized_data_collection.enabled}}"
+-        label="$i18n{urlKeyedAnonymizedDataCollection}"
+-        sub-label="$i18n{urlKeyedAnonymizedDataCollectionDesc}">
++  </if><if expr="not chromeos_ash">
++    <settings-toggle-button id="metricsReportingControl" class="hr" pref="[[metricsReportingPref_]]"
++      label="$i18n{enablePersonalizationLogging}" sub-label="$i18n{enablePersonalizationLoggingDesc}"
++      no-set-pref on-settings-boolean-control-change="onMetricsReportingChange_">
++      <template is="dom-if" if="[[showRestart_]]" restamp>
++        <cr-button on-click="onRestartClick_" id="restart" slot="more-actions">
++          $i18n{restart}
++        </cr-button>
++      </template>
+     </settings-toggle-button>
+-<if expr="_google_chrome">
+-<if expr="not chromeos_ash">
+-    <settings-toggle-button id="spellCheckControl"
+-        class="hr"
+-        pref="{{prefs.spellcheck.use_spelling_service}}"
+-        on-settings-boolean-control-change="onUseSpellingServiceToggle_"
+-        label="$i18n{spellingPref}"
+-        sub-label="$i18n{spellingDescription}"
+-        hidden="[[!showSpellCheckControlToggle_(prefs.spellcheck.dictionaries)]]">
++  </if></if><if expr="_google_chrome">
++  <if expr="not chromeos_ash">
++    <settings-toggle-button id="spellCheckControl" class="hr" pref="{{prefs.spellcheck.use_spelling_service}}"
++      on-settings-boolean-control-change="onUseSpellingServiceToggle_" label="$i18n{spellingPref}"
++      sub-label="$i18n{spellingDescription}"
++      hidden="[[!showSpellCheckControlToggle_(prefs.spellcheck.dictionaries)]]">
+     </settings-toggle-button>
+-</if>
+-<if expr="chromeos_ash">
+-    <!-- On ChromeOS the toggle for spellcheck is shown in the OS settings,
+-         and Ash Browser settings show a link to the OS settings instead. -->
+-    <cr-link-row id="spellCheckLink"
+-        class="hr"
+-        label="$i18n{spellingPref}"
+-        sub-label="$i18n{spellingDescription}"
+-        hidden="[[!showSpellCheckControlLink_(prefs.spellcheck.dictionaries)]]"
+-        on-click="onUseSpellingServiceLinkClick_" external>
++  </if>
++  <if expr="chromeos_ash">
++    <cr-link-row id="spellCheckLink" class="hr" label="$i18n{spellingPref}"
++      sub-label="$i18n{spellingDescription}"
++      hidden="[[!showSpellCheckControlLink_(prefs.spellcheck.dictionaries)]]"
++      on-click="onUseSpellingServiceLinkClick_" external>
+     </cr-link-row>
+-</if><!-- chromeos -->
+-</if><!-- _google_chrome -->
+-    <template is="dom-if" if="[[showSearchSuggestToggle_()]]" restamp>
+-      <settings-toggle-button id="searchSuggestToggle"
+-          class="hr"
+-          pref="{{prefs.search.suggest_enabled}}"
+-          label="$i18n{searchSuggestPref}"
+-          sub-label="$i18n{searchSuggestPrefDesc}">
+-      </settings-toggle-button>
+-    </template>
++  </if></if><template is="dom-if" if="[[showSearchSuggestToggle_()]]" restamp>
++  <settings-toggle-button id="searchSuggestToggle" class="hr" pref="{{prefs.search.suggest_enabled}}"
++    label="$i18n{searchSuggestPref}" sub-label="$i18n{searchSuggestPrefDesc}">
++  </settings-toggle-button>
++</template>
+ 
+-    <template is="dom-if" if="[[showPriceEmailNotificationsToggle_(
+-        syncStatus, syncStatus.signedInState)]]" restamp>
+-      <settings-toggle-button id="priceEmailNotificationsToggle"
+-          class="hr"
+-          label="$i18n{priceEmailNotificationsPref}"
+-          sub-label="[[getPriceEmailNotificationsPrefDesc_(syncStatus)]]"
+-          pref="{{prefs.price_tracking.email_notifications_enabled}}">
+-      </settings-toggle-button>
+-    </template>
++<template is="dom-if" if="[[showPriceEmailNotificationsToggle_(
++      syncStatus, syncStatus.signedInState)]]" restamp>
++  <settings-toggle-button id="priceEmailNotificationsToggle" class="hr"
++    label="$i18n{priceEmailNotificationsPref}" sub-label="[[getPriceEmailNotificationsPrefDesc_(syncStatus)]]"
++    pref="{{prefs.price_tracking.email_notifications_enabled}}">
++  </settings-toggle-button>
++</template>
+ 
+-    <template is="dom-if" if="[[showSignoutDialog_]]" restamp>
+-      <settings-signout-dialog sync-status="[[syncStatus]]"
+-          on-close="onSignoutDialogClosed_">
+-      </settings-signout-dialog>
+-    </template>
++<template is="dom-if" if="[[showSignoutDialog_]]" restamp>
++  <settings-signout-dialog sync-status="[[syncStatus]]" on-close="onSignoutDialogClosed_">
++  </settings-signout-dialog>
++</template>
+ 
+ <if expr="not chromeos_ash">
+-    <cr-toast id="toast">
+-      <div>$i18n{restartToApplyChanges}</div>
+-      <cr-button on-click="onRestartClick_">$i18n{restart}</cr-button>
+-    </cr-toast>
++  <cr-toast id="toast">
++    <div>$i18n{restartToApplyChanges}</div>
++    <cr-button on-click="onRestartClick_">$i18n{restart}</cr-button>
++  </cr-toast>
+ 
+-    <template is="dom-if" if="[[shouldShowRelaunchDialog]]" restamp>
+-      <relaunch-confirmation-dialog restart-type="[[restartTypeEnum.RESTART]]"
+-          on-close="onRelaunchDialogClose"></relaunch-confirmation-dialog>
+-    </template>
+-    <cr-toast id="chromeSigninUserChoiceToast" duration="5000">
+-      <div>$i18n{chromeSigninChoiceToast}</div>
+-    </cr-toast>
++  <template is="dom-if" if="[[shouldShowRelaunchDialog]]" restamp>
++    <relaunch-confirmation-dialog restart-type="[[restartTypeEnum.RESTART]]"
++      on-close="onRelaunchDialogClose"></relaunch-confirmation-dialog>
++  </template>
++  <cr-toast id="chromeSigninUserChoiceToast" duration="5000">
++    <div>$i18n{chromeSigninChoiceToast}</div>
++  </cr-toast>
+ </if>
+diff --git a/chrome/browser/resources/settings/privacy_page/personalization_options.ts b/chrome/browser/resources/settings/privacy_page/personalization_options.ts
+index 3ffec6ac9aed4..01acac4141c19 100644
+--- a/chrome/browser/resources/settings/privacy_page/personalization_options.ts
++++ b/chrome/browser/resources/settings/privacy_page/personalization_options.ts
+@@ -47,10 +47,8 @@ import {getTemplate} from './personalization_options.html.js';
+ export interface SettingsPersonalizationOptionsElement {
+   $: {
+     toast: CrToastElement,
+-    signinAllowedToggle: SettingsToggleButtonElement,
+     metricsReportingControl: SettingsToggleButtonElement,
+     metricsReportingLink: CrLinkRowElement,
+-    urlCollectionToggle: SettingsToggleButtonElement,
+     chromeSigninUserChoiceSelection: HTMLSelectElement,
+     chromeSigninUserChoiceToast: CrToastElement,
+   };
+@@ -60,9 +58,6 @@ const SettingsPersonalizationOptionsElementBase = HelpBubbleMixin(
+     RelaunchMixin(WebUiListenerMixin(I18nMixin(PrefsMixin(PolymerElement)))));
+ 
+ // browser_element_identifiers constants
+-const ANONYMIZED_URL_COLLECTION_ID =
+-    'kAnonymizedUrlCollectionPersonalizationSettingId';
+-
+ export class SettingsPersonalizationOptionsElement extends
+     SettingsPersonalizationOptionsElementBase {
+   static get is() {
+@@ -180,9 +175,6 @@ export class SettingsPersonalizationOptionsElement extends
+         this.setChromeSigninUserChoiceInfo_.bind(this));
+     // </if>
+ 
+-    this.registerHelpBubble(
+-        ANONYMIZED_URL_COLLECTION_ID,
+-        this.$.urlCollectionToggle.getBubbleAnchor(), {anchorPaddingTop: 10});
+   }
+ 
+   // <if expr="chromeos_ash">
+@@ -194,13 +186,6 @@ export class SettingsPersonalizationOptionsElement extends
+         '#searchSuggestToggle');
+   }
+ 
+-  /**
+-   * @return the anonymized URL collection CrToggleElement.
+-   */
+-  getUrlCollectionToggle(): SettingsToggleButtonElement|null {
+-    return this.shadowRoot!.querySelector<SettingsToggleButtonElement>(
+-        '#urlCollectionToggle');
+-  }
+   // </if>
+ 
+   // <if expr="_google_chrome and not chromeos_ash">
+@@ -283,24 +268,10 @@ export class SettingsPersonalizationOptionsElement extends
+   // </if><!-- chromeos -->
+   // </if><!-- _google_chrome -->
+ 
+-  private onSigninAllowedChange_() {
+-    if (this.syncStatus.signedInState === SignedInState.SYNCING &&
+-        !this.$.signinAllowedToggle.checked) {
+-      // Switch the toggle back on and show the signout dialog.
+-      this.$.signinAllowedToggle.checked = true;
+-      this.showSignoutDialog_ = true;
+-    } else {
+-      this.$.signinAllowedToggle.sendPrefChange();
+-      this.$.toast.show();
+-    }
+-  }
+-
+   private onSignoutDialogClosed_() {
+     if (this.shadowRoot!
+             .querySelector<SettingsSignoutDialogElement>(
+                 'settings-signout-dialog')!.wasConfirmed()) {
+-      this.$.signinAllowedToggle.checked = false;
+-      this.$.signinAllowedToggle.sendPrefChange();
+       this.$.toast.show();
+     }
+     this.showSignoutDialog_ = false;
+diff --git a/chrome/browser/resources/settings/privacy_page/privacy_guide/privacy_guide_page.ts b/chrome/browser/resources/settings/privacy_page/privacy_guide/privacy_guide_page.ts
+index a15910d6ed4cb..e8595336df3bf 100644
+--- a/chrome/browser/resources/settings/privacy_page/privacy_guide/privacy_guide_page.ts
++++ b/chrome/browser/resources/settings/privacy_page/privacy_guide/privacy_guide_page.ts
+@@ -16,7 +16,6 @@ import './privacy_guide_completion_fragment.js';
+ import './privacy_guide_cookies_fragment.js';
+ import './privacy_guide_history_sync_fragment.js';
+ import './privacy_guide_msbb_fragment.js';
+-import './privacy_guide_safe_browsing_fragment.js';
+ import './privacy_guide_welcome_fragment.js';
+ import './step_indicator.js';
+ 
+@@ -33,7 +32,6 @@ import {afterNextRender, PolymerElement} from 'chrome://resources/polymer/v3_0/p
+ import {loadTimeData} from '../../i18n_setup.js';
+ import type {MetricsBrowserProxy} from '../../metrics_browser_proxy.js';
+ import {MetricsBrowserProxyImpl, PrivacyGuideInteractions, PrivacyGuideStepsEligibleAndReached} from '../../metrics_browser_proxy.js';
+-import {SafeBrowsingSetting} from '../../privacy_page/security_page.js';
+ import {routes} from '../../route.js';
+ import type {Route} from '../../router.js';
+ import {RouteObserverMixin, Router} from '../../router.js';
+@@ -63,8 +61,6 @@ function eligibilityToRecord(step: PrivacyGuideStep):
+       return PrivacyGuideStepsEligibleAndReached.HISTORY_SYNC_ELIGIBLE;
+     case PrivacyGuideStep.COOKIES:
+       return PrivacyGuideStepsEligibleAndReached.COOKIES_ELIGIBLE;
+-    case PrivacyGuideStep.SAFE_BROWSING:
+-      return PrivacyGuideStepsEligibleAndReached.SAFE_BROWSING_ELIGIBLE;
+     case PrivacyGuideStep.AD_TOPICS:
+       return PrivacyGuideStepsEligibleAndReached.AD_TOPICS_ELIGIBLE;
+     case PrivacyGuideStep.COMPLETION:
+@@ -127,7 +123,7 @@ export class SettingsPrivacyGuidePageElement extends PrivacyGuideBase {
+       stepIndicatorModel_: {
+         type: Object,
+         computed:
+-            'computeStepIndicatorModel(privacyGuideStep_, prefs.profile.cookie_controls_mode, prefs.generated.cookie_default_content_setting, prefs.generated.safe_browsing, prefs.generated.third_party_cookie_blocking_setting, prefs.net.network_prediction_options)',
++            'computeStepIndicatorModel(privacyGuideStep_, prefs.profile.cookie_controls_mode, prefs.generated.cookie_default_content_setting, prefs.generated.third_party_cookie_blocking_setting, prefs.net.network_prediction_options)',
+       },
+ 
+       shouldShowAdTopicsCard_: {
+@@ -141,7 +137,7 @@ export class SettingsPrivacyGuidePageElement extends PrivacyGuideBase {
+ 
+   static get observers() {
+     return [
+-      'onPrefsChanged_(prefs.profile.cookie_controls_mode, prefs.generated.cookie_default_content_setting, prefs.generated.safe_browsing, prefs.generated.third_party_cookie_blocking_setting, prefs.net.network_prediction_options)',
++      'onPrefsChanged_(prefs.profile.cookie_controls_mode, prefs.generated.cookie_default_content_setting, prefs.generated.third_party_cookie_blocking_setting, prefs.net.network_prediction_options)',
+       'exitIfNecessary(isPrivacyGuideAvailable)',
+     ];
+   }
+@@ -238,7 +234,7 @@ export class SettingsPrivacyGuidePageElement extends PrivacyGuideBase {
+       [
+         PrivacyGuideStep.HISTORY_SYNC,
+         {
+-          nextStep: PrivacyGuideStep.SAFE_BROWSING,
++          nextStep: PrivacyGuideStep.COOKIES,
+           previousStep: PrivacyGuideStep.MSBB,
+           recordForwardNavigationMetrics: () => {
+             this.metricsBrowserProxy_.recordPrivacyGuideNextNavigationHistogram(
+@@ -257,24 +253,6 @@ export class SettingsPrivacyGuidePageElement extends PrivacyGuideBase {
+           isAvailable: () => !this.syncStatus_ || this.isSyncOn_(),
+         },
+       ],
+-      [
+-        PrivacyGuideStep.SAFE_BROWSING,
+-        {
+-          nextStep: PrivacyGuideStep.COOKIES,
+-          previousStep: PrivacyGuideStep.HISTORY_SYNC,
+-          recordForwardNavigationMetrics: () => {
+-            this.metricsBrowserProxy_.recordPrivacyGuideNextNavigationHistogram(
+-                PrivacyGuideInteractions.SAFE_BROWSING_NEXT_BUTTON);
+-            this.metricsBrowserProxy_.recordAction(
+-                'Settings.PrivacyGuide.NextClickSafeBrowsing');
+-          },
+-          recordBackwardNavigationMetrics: () => {
+-            this.metricsBrowserProxy_.recordAction(
+-                'Settings.PrivacyGuide.BackClickSafeBrowsing');
+-          },
+-          isAvailable: () => this.shouldShowSafeBrowsingCard_(),
+-        },
+-      ],
+       [
+         PrivacyGuideStep.COOKIES,
+         {
+@@ -289,7 +267,7 @@ export class SettingsPrivacyGuidePageElement extends PrivacyGuideBase {
+             this.metricsBrowserProxy_.recordAction(
+                 'Settings.PrivacyGuide.BackClickCookies');
+           },
+-          previousStep: PrivacyGuideStep.SAFE_BROWSING,
++          previousStep: PrivacyGuideStep.HISTORY_SYNC,
+           isAvailable: () => this.shouldShowCookiesCard_(),
+         },
+       ],
+@@ -542,17 +520,6 @@ export class SettingsPrivacyGuidePageElement extends PrivacyGuideBase {
+          loadTimeData.getBoolean('isAlwaysBlock3pcsIncognitoEnabled'));
+   }
+ 
+-  private shouldShowSafeBrowsingCard_(): boolean {
+-    if (!this.prefs) {
+-      // Prefs are not available yet. Show the card until they become available.
+-      return true;
+-    }
+-    const currentSafeBrowsingSetting =
+-        this.getPref('generated.safe_browsing').value;
+-    return currentSafeBrowsingSetting === SafeBrowsingSetting.ENHANCED ||
+-        currentSafeBrowsingSetting === SafeBrowsingSetting.STANDARD;
+-  }
+-
+   private showAnySettingFragment_(): boolean {
+     return this.privacyGuideStep_ !== PrivacyGuideStep.WELCOME &&
+         this.privacyGuideStep_ !== PrivacyGuideStep.COMPLETION;
+diff --git a/chrome/browser/resources/settings/privacy_page/privacy_guide/privacy_guide_safe_browsing_fragment.html b/chrome/browser/resources/settings/privacy_page/privacy_guide/privacy_guide_safe_browsing_fragment.html
+deleted file mode 100644
+index 22bc36c716c9b..0000000000000
+--- a/chrome/browser/resources/settings/privacy_page/privacy_guide/privacy_guide_safe_browsing_fragment.html
++++ /dev/null
+@@ -1,101 +0,0 @@
+-<style include="privacy-guide-fragment-shared"></style>
+-<div class="settings-fragment-header" focus-element tabindex="-1">
+-  <picture>
+-    <source
+-        srcset="./images/privacy_guide/safe_browsing_graphic_dark_v2.svg"
+-        media="(prefers-color-scheme: dark)">
+-    <img alt="" src="./images/privacy_guide/safe_browsing_graphic_v2.svg">
+-  </picture>
+-  <h2 class="settings-fragment-header-label">
+-    $i18n{privacyGuideSafeBrowsingCardHeader}
+-  </h2>
+-</div>
+-<div class="fragment-content">
+-  <settings-radio-group id="safeBrowsingRadioGroup"
+-      pref="{{prefs.generated.safe_browsing}}"
+-      selectable-elements="settings-collapse-radio-button">
+-    <settings-collapse-radio-button id="safeBrowsingRadioEnhanced"
+-        pref="[[prefs.generated.safe_browsing]]"
+-        name="[[safeBrowsingSettingEnum_.ENHANCED]]"
+-        label="$i18n{safeBrowsingEnhanced}"
+-        sub-label="$i18n{safeBrowsingEnhancedDescUpdated}"
+-        expand-aria-label="$i18n{safeBrowsingEnhancedExpandA11yLabel}"
+-        on-click="onSafeBrowsingEnhancedClick_">
+-          <div slot="collapse" class="settings-columned-section">
+-            <div class="column">
+-              <h3 class="description-header">
+-                $i18n{columnHeadingWhenOn}
+-              </h3>
+-              <ul id="updatedDescItemContainer" class="icon-bulleted-list">
+-                <li>
+-                  <cr-icon icon="settings20:data" aria-hidden="true">
+-                  </cr-icon>
+-                  <div class="secondary">
+-                    $i18n{safeBrowsingEnhancedWhenOnBulOne}
+-                  </div>
+-                </li>
+-                <li>
+-                  <cr-icon icon="settings20:download" aria-hidden="true">
+-                  </cr-icon>
+-                  <div class="secondary">
+-                    $i18n{safeBrowsingEnhancedWhenOnBulTwo}
+-                  </div>
+-                </li>
+-                <li>
+-                  <cr-icon icon="settings20:gshield" aria-hidden="true">
+-                  </cr-icon>
+-                  <div class="secondary">
+-                    $i18n{safeBrowsingEnhancedWhenOnBulThree}
+-                  </div>
+-                </li>
+-                <li>
+-                  <cr-icon icon="settings:language" aria-hidden="true">
+-                  </cr-icon>
+-                  <div class="secondary">
+-                    $i18n{safeBrowsingEnhancedWhenOnBulFour}
+-                  </div>
+-                </li>
+-              </ul>
+-            </div>
+-            <div class="column">
+-              <h3 class="description-header">
+-                $i18n{columnHeadingConsider}
+-              </h3>
+-              <ul class="icon-bulleted-list">
+-                <li>
+-                  <cr-icon icon="settings20:link" aria-hidden="true">
+-                  </cr-icon>
+-                  <div class="secondary">
+-                    $i18n{safeBrowsingEnhancedThingsToConsiderBulOne}
+-                  </div>
+-                </li>
+-                <li>
+-                  <cr-icon icon="settings20:account-circle" aria-hidden="true">
+-                  </cr-icon>
+-                  <div class="secondary">
+-                    $i18n{safeBrowsingEnhancedThingsToConsiderBulTwo}
+-                  </div>
+-                </li>
+-                <li>
+-                  <cr-icon icon="settings:performance" aria-hidden="true">
+-                  </cr-icon>
+-                  <div class="secondary">
+-                    $i18n{safeBrowsingEnhancedThingsToConsiderBulThree}
+-                  </div>
+-                </li>
+-              </ul>
+-            </div>
+-          </div>
+-    </settings-collapse-radio-button>
+-    <settings-collapse-radio-button id="safeBrowsingRadioStandard"
+-        no-collapse
+-        pref="[[prefs.generated.safe_browsing]]"
+-        name="[[safeBrowsingSettingEnum_.STANDARD]]"
+-        label="$i18n{safeBrowsingStandard}"
+-        sub-label="[[getSafeBrowsingStandardSubLabel_(
+-                    enableHashPrefixRealTimeLookups_)]]"
+-        expand-aria-label="$i18n{safeBrowsingStandardExpandA11yLabel}"
+-        on-click="onSafeBrowsingStandardClick_">
+-    </settings-collapse-radio-button>
+-  </settings-radio-group>
+-</div>
+diff --git a/chrome/browser/resources/settings/privacy_page/privacy_guide/privacy_guide_safe_browsing_fragment.ts b/chrome/browser/resources/settings/privacy_page/privacy_guide/privacy_guide_safe_browsing_fragment.ts
+deleted file mode 100644
+index ed1f815d31628..0000000000000
+--- a/chrome/browser/resources/settings/privacy_page/privacy_guide/privacy_guide_safe_browsing_fragment.ts
++++ /dev/null
+@@ -1,148 +0,0 @@
+-// Copyright 2021 The Chromium Authors
+-// Use of this source code is governed by a BSD-style license that can be
+-// found in the LICENSE file.
+-
+-/**
+- * @fileoverview
+- * 'privacy-guide-safe-browsing-fragment' is the fragment in a privacy
+- * guide card that contains the safe browsing settings and their descriptions.
+- */
+-
+-import 'chrome://resources/cr_elements/cr_icon/cr_icon.js';
+-import '/shared/settings/prefs/prefs.js';
+-import './privacy_guide_fragment_shared.css.js';
+-import '../../controls/settings_radio_group.js';
+-import '../../icons.html.js';
+-import '../../privacy_page/collapse_radio_button.js';
+-
+-import {PrefsMixin} from '/shared/settings/prefs/prefs_mixin.js';
+-import {I18nMixin} from 'chrome://resources/cr_elements/i18n_mixin.js';
+-import {PolymerElement} from 'chrome://resources/polymer/v3_0/polymer/polymer_bundled.min.js';
+-
+-import {loadTimeData} from '../../i18n_setup.js';
+-import type {MetricsBrowserProxy} from '../../metrics_browser_proxy.js';
+-import {MetricsBrowserProxyImpl, PrivacyGuideSettingsStates, PrivacyGuideStepsEligibleAndReached} from '../../metrics_browser_proxy.js';
+-import {SafeBrowsingSetting} from '../../privacy_page/security_page.js';
+-
+-import {getTemplate} from './privacy_guide_safe_browsing_fragment.html.js';
+-
+-
+-const PrivacyGuideSafeBrowsingFragmentBase =
+-    I18nMixin(PrefsMixin(PolymerElement));
+-
+-export class PrivacyGuideSafeBrowsingFragmentElement extends
+-    PrivacyGuideSafeBrowsingFragmentBase {
+-  static get is() {
+-    return 'privacy-guide-safe-browsing-fragment';
+-  }
+-
+-  static get template() {
+-    return getTemplate();
+-  }
+-
+-  static get properties() {
+-    return {
+-      /**
+-       * Valid safe browsing states.
+-       */
+-      safeBrowsingSettingEnum_: {
+-        type: Object,
+-        value: SafeBrowsingSetting,
+-      },
+-
+-      enableHashPrefixRealTimeLookups_: {
+-        type: Boolean,
+-        value() {
+-          return loadTimeData.getBoolean('enableHashPrefixRealTimeLookups');
+-        },
+-      },
+-    };
+-  }
+-
+-  private metricsBrowserProxy_: MetricsBrowserProxy =
+-      MetricsBrowserProxyImpl.getInstance();
+-  private startStateEnhanced_: boolean;
+-  declare private enableHashPrefixRealTimeLookups_: boolean;
+-
+-  override ready() {
+-    super.ready();
+-    this.addEventListener('view-enter-start', this.onViewEnterStart_);
+-    this.addEventListener('view-exit-finish', this.onViewExitFinish_);
+-  }
+-
+-  override focus() {
+-    // The fragment element is focused when it becomes visible. Move the focus
+-    // to the fragment header, so that the newly shown content of the fragment
+-    // is downwards from the focus position. This allows users of screen readers
+-    // to continue navigating the screen reader position downwards through the
+-    // newly visible content.
+-    this.shadowRoot!.querySelector<HTMLElement>('[focus-element]')!.focus();
+-  }
+-
+-  private onViewEnterStart_() {
+-    this.startStateEnhanced_ = this.getPref('generated.safe_browsing').value ===
+-        SafeBrowsingSetting.ENHANCED;
+-    this.metricsBrowserProxy_
+-        .recordPrivacyGuideStepsEligibleAndReachedHistogram(
+-            PrivacyGuideStepsEligibleAndReached.SAFE_BROWSING_REACHED);
+-  }
+-
+-  private onViewExitFinish_() {
+-    const endStateEnhanced = this.getPref('generated.safe_browsing').value ===
+-        SafeBrowsingSetting.ENHANCED;
+-
+-    let state: PrivacyGuideSettingsStates|null = null;
+-    if (this.startStateEnhanced_) {
+-      state = endStateEnhanced ?
+-          PrivacyGuideSettingsStates.SAFE_BROWSING_ENHANCED_TO_ENHANCED :
+-          PrivacyGuideSettingsStates.SAFE_BROWSING_ENHANCED_TO_STANDARD;
+-    } else {
+-      state = endStateEnhanced ?
+-          PrivacyGuideSettingsStates.SAFE_BROWSING_STANDARD_TO_ENHANCED :
+-          PrivacyGuideSettingsStates.SAFE_BROWSING_STANDARD_TO_STANDARD;
+-    }
+-    this.metricsBrowserProxy_.recordPrivacyGuideSettingsStatesHistogram(state);
+-  }
+-
+-  private onSafeBrowsingEnhancedClick_() {
+-    this.metricsBrowserProxy_.recordAction(
+-        'Settings.PrivacyGuide.ChangeSafeBrowsingEnhanced');
+-  }
+-
+-  private onSafeBrowsingStandardClick_() {
+-    this.metricsBrowserProxy_.recordAction(
+-        'Settings.PrivacyGuide.ChangeSafeBrowsingStandard');
+-  }
+-
+-  private getSafeBrowsingStandardSubLabel_(): string {
+-    return this.i18n(
+-        this.enableHashPrefixRealTimeLookups_ ?
+-            'safeBrowsingStandardDescProxy' :
+-            'safeBrowsingStandardDesc');
+-  }
+-
+-  private getStandardProtectionFeatureDescription2_(): string {
+-    return this.i18n(
+-        this.enableHashPrefixRealTimeLookups_ ?
+-            'privacyGuideSafeBrowsingCardStandardProtectionFeatureDescription2Proxy' :
+-            'privacyGuideSafeBrowsingCardStandardProtectionFeatureDescription2');
+-  }
+-
+-  private getStandardProtectionPrivacyDescription1_(): string {
+-    return this.i18n(
+-        this.enableHashPrefixRealTimeLookups_ ?
+-            'privacyGuideSafeBrowsingCardStandardProtectionPrivacyDescription1Proxy' :
+-            'privacyGuideSafeBrowsingCardStandardProtectionPrivacyDescription1');
+-  }
+-}
+-
+-declare global {
+-  interface HTMLElementTagNameMap {
+-    'privacy-guide-safe-browsing-fragment':
+-        PrivacyGuideSafeBrowsingFragmentElement;
+-  }
+-}
+-
+-customElements.define(
+-    PrivacyGuideSafeBrowsingFragmentElement.is,
+-    PrivacyGuideSafeBrowsingFragmentElement);
+diff --git a/chrome/browser/resources/settings/privacy_page/privacy_page.ts b/chrome/browser/resources/settings/privacy_page/privacy_page.ts
+index 091f7a093cea0..938598d74691e 100644
+--- a/chrome/browser/resources/settings/privacy_page/privacy_page.ts
++++ b/chrome/browser/resources/settings/privacy_page/privacy_page.ts
+@@ -296,7 +296,7 @@ export class SettingsPrivacyPageElement extends SettingsPrivacyPageElementBase {
+       shouldShowSafetyHub_: {
+         type: Boolean,
+         value() {
+-          return !loadTimeData.getBoolean('isGuest');
++          return false;
+         },
+       },
+ 
+@@ -403,8 +403,7 @@ export class SettingsPrivacyPageElement extends SettingsPrivacyPageElementBase {
+     this.showClearBrowsingDataDialog_ =
+         Router.getInstance().getCurrentRoute() === routes.CLEAR_BROWSER_DATA;
+     this.showPrivacyGuideDialog_ =
+-        Router.getInstance().getCurrentRoute() === routes.PRIVACY_GUIDE &&
+-        this.isPrivacyGuideAvailable;
++        false;
+   }
+ 
+   /**
+diff --git a/chrome/browser/resources/settings/privacy_page/security_page.ts b/chrome/browser/resources/settings/privacy_page/security_page.ts
+index 4e79876ab6845..7839006a8ed13 100644
+--- a/chrome/browser/resources/settings/privacy_page/security_page.ts
++++ b/chrome/browser/resources/settings/privacy_page/security_page.ts
+@@ -32,7 +32,7 @@ import type {FocusConfig} from '../focus_config.js';
+ import {HatsBrowserProxyImpl, SecurityPageInteraction} from '../hats_browser_proxy.js';
+ import {loadTimeData} from '../i18n_setup.js';
+ import type {MetricsBrowserProxy} from '../metrics_browser_proxy.js';
+-import {MetricsBrowserProxyImpl, PrivacyElementInteractions, SafeBrowsingInteractions} from '../metrics_browser_proxy.js';
++import {MetricsBrowserProxyImpl, PrivacyElementInteractions} from '../metrics_browser_proxy.js';
+ import {routes} from '../route.js';
+ import type {Route} from '../router.js';
+ import {RouteObserverMixin, Router} from '../router.js';
+@@ -40,17 +40,6 @@ import {RouteObserverMixin, Router} from '../router.js';
+ import type {SettingsCollapseRadioButtonElement} from './collapse_radio_button.js';
+ import {getTemplate} from './security_page.html.js';
+ 
+-/**
+- * Enumeration of all safe browsing modes. Must be kept in sync with the enum
+- * of the same name located in:
+- * chrome/browser/safe_browsing/generated_safe_browsing_pref.h
+- */
+-export enum SafeBrowsingSetting {
+-  ENHANCED = 0,
+-  STANDARD = 1,
+-  DISABLED = 2,
+-}
+-
+ /**
+  * Enumeration of all HTTPS-First Mode setting states. Must be kept in sync with
+  * the enum of the same name located in:
+@@ -67,11 +56,6 @@ export enum HttpsFirstModeSetting {
+ export interface SettingsSecurityPageElement {
+   $: {
+     passwordsLeakToggle: SettingsToggleButtonElement,
+-    safeBrowsingDisabled: SettingsCollapseRadioButtonElement,
+-    safeBrowsingEnhanced: SettingsCollapseRadioButtonElement,
+-    safeBrowsingRadioGroup: SettingsRadioGroupElement,
+-    safeBrowsingReportingToggle: SettingsToggleButtonElement,
+-    safeBrowsingStandard: SettingsCollapseRadioButtonElement,
+   };
+ }
+ 
+@@ -114,14 +98,6 @@ export class SettingsSecurityPageElement extends
+       },
+       // </if>
+ 
+-      /**
+-       * Valid safe browsing states.
+-       */
+-      safeBrowsingSettingEnum_: {
+-        type: Object,
+-        value: SafeBrowsingSetting,
+-      },
+-
+       /**
+        * Valid HTTPS-First Mode states.
+        */
+@@ -189,7 +165,6 @@ export class SettingsSecurityPageElement extends
+         },
+       },
+ 
+-      showDisableSafebrowsingDialog_: Boolean,
+ 
+       /**
+        * A timestamp that records the last time the user visited this page or
+@@ -209,14 +184,6 @@ export class SettingsSecurityPageElement extends
+         value: SecurityPageInteraction.NO_INTERACTION,
+       },
+ 
+-      /** Safe browsing state when the page opened. */
+-      safeBrowsingStateOnOpen_: SafeBrowsingSetting,
+-
+-      /** Whether the user is currently on the security page or not. */
+-      isRouteSecurity_: {
+-        type: Boolean,
+-        value: true,
+-      },
+     };
+   }
+   declare private showSecureDnsSetting_: boolean;
+@@ -230,15 +197,13 @@ export class SettingsSecurityPageElement extends
+   declare private enableSecurityKeysPhonesSubpage_: boolean;
+   // </if>
+   declare focusConfig: FocusConfig;
+-  declare private showDisableSafebrowsingDialog_: boolean;
+   declare private enableHashPrefixRealTimeLookups_: boolean;
+   declare private httpsFirstModeUncheckedValues_: HttpsFirstModeSetting[];
+   declare private enableHttpsFirstModeNewSettings_: boolean;
+   declare private lastFocusTime_: number|undefined;
+   declare private totalTimeInFocus_: number;
+   declare private lastInteraction_: SecurityPageInteraction;
+-  declare private safeBrowsingStateOnOpen_: SafeBrowsingSetting;
+-  declare private isRouteSecurity_: boolean;
++  private isRouteSecurity_: boolean;
+   private eventTracker_: EventTracker = new EventTracker();
+   declare private hideExtendedReportingRadioButton_: boolean;
+ 
+@@ -274,17 +239,6 @@ export class SettingsSecurityPageElement extends
+     super.ready();
+ 
+     CrSettingsPrefs.initialized.then(() => {
+-      // Expand initial pref value manually because automatic
+-      // expanding is disabled.
+-      const prefValue = this.getPref('generated.safe_browsing').value;
+-      if (prefValue === SafeBrowsingSetting.ENHANCED) {
+-        this.$.safeBrowsingEnhanced.expanded = true;
+-      } else if (prefValue === SafeBrowsingSetting.STANDARD) {
+-        this.$.safeBrowsingStandard.expanded = true;
+-      }
+-
+-      this.safeBrowsingStateOnOpen_ = prefValue;
+-
+       // The HTTPS-First Mode generated pref should never be set to
+       // ENABLED_BALANCED if the feature flag is not enabled.
+       if (!loadTimeData.getBoolean('enableHttpsFirstModeNewSettings')) {
+@@ -294,10 +248,6 @@ export class SettingsSecurityPageElement extends
+       }
+     });
+ 
+-    this.registerHelpBubble(
+-        'kEnhancedProtectionSettingElementId',
+-        this.$.safeBrowsingEnhanced.getBubbleAnchor(), {anchorPaddingTop: 10});
+-
+     // Initialize the last focus time on page load.
+     this.lastFocusTime_ = HatsBrowserProxyImpl.getInstance().now();
+   }
+@@ -315,15 +265,6 @@ export class SettingsSecurityPageElement extends
+       this.eventTracker_.removeAll();
+       return;
+     }
+-    this.metricsBrowserProxy_.recordSafeBrowsingInteractionHistogram(
+-        SafeBrowsingInteractions.SAFE_BROWSING_SHOWED);
+-    const queryParams = Router.getInstance().getQueryParameters();
+-    const section = queryParams.get('q');
+-    if (section === 'enhanced') {
+-      this.$.safeBrowsingEnhanced.expanded = false;
+-      this.$.safeBrowsingStandard.expanded = false;
+-    }
+-
+     this.eventTracker_.add(window, 'focus', this.onFocus_.bind(this));
+     this.eventTracker_.add(window, 'blur', this.onBlur_.bind(this));
+     this.eventTracker_.add(
+@@ -376,39 +317,6 @@ export class SettingsSecurityPageElement extends
+       this.totalTimeInFocus_ +=
+           HatsBrowserProxyImpl.getInstance().now() - this.lastFocusTime_;
+     }
+-    HatsBrowserProxyImpl.getInstance().securityPageHatsRequest(
+-        this.lastInteraction_, this.safeBrowsingStateOnOpen_,
+-        this.totalTimeInFocus_);
+-  }
+-
+-  /**
+-   * Updates the buttons' expanded status by propagating previous click
+-   * events
+-   */
+-  private updateCollapsedButtons_() {
+-    this.$.safeBrowsingEnhanced.updateCollapsed();
+-    this.$.safeBrowsingStandard.updateCollapsed();
+-  }
+-
+-  /**
+-   * Possibly displays the Safe Browsing disable dialog based on the users
+-   * selection.
+-   */
+-  private onSafeBrowsingRadioChange_() {
+-    const selected =
+-        Number.parseInt(this.$.safeBrowsingRadioGroup.selected || '', 10);
+-    const prefValue = this.getPref('generated.safe_browsing').value;
+-    if (prefValue !== selected) {
+-      this.recordInteractionHistogramOnRadioChange_(selected);
+-      this.recordActionOnRadioChange_(selected);
+-      this.interactedWithPage_(selected);
+-    }
+-    if (selected === SafeBrowsingSetting.DISABLED) {
+-      this.showDisableSafebrowsingDialog_ = true;
+-    } else {
+-      this.updateCollapsedButtons_();
+-      this.$.safeBrowsingRadioGroup.sendPrefChange();
+-    }
+   }
+ 
+   private interactedWithPage_(securityPageInteraction:
+@@ -416,18 +324,6 @@ export class SettingsSecurityPageElement extends
+     this.lastInteraction_ = securityPageInteraction;
+   }
+ 
+-  private getDisabledExtendedSafeBrowsing_(): boolean {
+-    return this.getPref('generated.safe_browsing').value !==
+-        SafeBrowsingSetting.STANDARD;
+-  }
+-
+-  private getSafeBrowsingStandardSubLabel_(): string {
+-    return this.i18n(
+-        this.enableHashPrefixRealTimeLookups_ ?
+-            'safeBrowsingStandardDescProxy' :
+-            'safeBrowsingStandardDesc');
+-  }
+-
+   private getPasswordsLeakToggleSubLabel_(): string {
+     let subLabel = this.i18n('passwordsLeakDetectionGeneralDescription');
+     // If the backing password leak detection preference is enabled, but the
+@@ -515,54 +411,6 @@ export class SettingsSecurityPageElement extends
+     e.preventDefault();
+   }
+ 
+-  private onSafeBrowsingExtendedReportingChange_() {
+-    this.metricsBrowserProxy_.recordSettingsPageHistogram(
+-        PrivacyElementInteractions.IMPROVE_SECURITY);
+-  }
+-
+-  /**
+-   * Handles the closure of the disable safebrowsing dialog, reselects the
+-   * appropriate radio button if the user cancels the dialog, and puts focus on
+-   * the disable safebrowsing button.
+-   */
+-  private onDisableSafebrowsingDialogClose_() {
+-    const dialog =
+-        this.shadowRoot!.querySelector('settings-simple-confirmation-dialog');
+-    assert(dialog);
+-    const confirmed = dialog.wasConfirmed();
+-    this.recordInteractionHistogramOnSafeBrowsingDialogClose_(confirmed);
+-    this.recordActionOnSafeBrowsingDialogClose_(confirmed);
+-    // Check if the dialog was confirmed before closing it.
+-    if (confirmed) {
+-      this.$.safeBrowsingRadioGroup.sendPrefChange();
+-      this.updateCollapsedButtons_();
+-    } else {
+-      this.$.safeBrowsingRadioGroup.resetToPrefValue();
+-    }
+-
+-    this.showDisableSafebrowsingDialog_ = false;
+-
+-    // Set focus back to the no protection button regardless of user interaction
+-    // with the dialog, as it was the entry point to the dialog.
+-    focusWithoutInk(this.$.safeBrowsingDisabled);
+-  }
+-
+-  private onEnhancedProtectionExpandButtonClicked_() {
+-    this.recordInteractionHistogramOnExpandButtonClicked_(
+-        SafeBrowsingSetting.ENHANCED);
+-    this.recordActionOnExpandButtonClicked_(SafeBrowsingSetting.ENHANCED);
+-    this.interactedWithPage_(
+-        SecurityPageInteraction.EXPAND_BUTTON_ENHANCED_CLICK);
+-  }
+-
+-  private onStandardProtectionExpandButtonClicked_() {
+-    this.recordInteractionHistogramOnExpandButtonClicked_(
+-        SafeBrowsingSetting.STANDARD);
+-    this.recordActionOnExpandButtonClicked_(SafeBrowsingSetting.STANDARD);
+-    this.interactedWithPage_(
+-        SecurityPageInteraction.EXPAND_BUTTON_STANDARD_CLICK);
+-  }
+-
+   // <if expr="is_chromeos">
+   private onOpenChromeOsSecureDnsSettingsClicked_() {
+     const path =
+@@ -571,66 +419,6 @@ export class SettingsSecurityPageElement extends
+   }
+   // </if>
+ 
+-  private recordInteractionHistogramOnRadioChange_(safeBrowsingSetting:
+-                                                       SafeBrowsingSetting) {
+-    let action;
+-    if (safeBrowsingSetting === SafeBrowsingSetting.ENHANCED) {
+-      action =
+-          SafeBrowsingInteractions.SAFE_BROWSING_ENHANCED_PROTECTION_CLICKED;
+-    } else if (safeBrowsingSetting === SafeBrowsingSetting.STANDARD) {
+-      action =
+-          SafeBrowsingInteractions.SAFE_BROWSING_STANDARD_PROTECTION_CLICKED;
+-    } else {
+-      action =
+-          SafeBrowsingInteractions.SAFE_BROWSING_DISABLE_SAFE_BROWSING_CLICKED;
+-    }
+-    this.metricsBrowserProxy_.recordSafeBrowsingInteractionHistogram(action);
+-  }
+-
+-  private recordInteractionHistogramOnExpandButtonClicked_(
+-      safeBrowsingSetting: SafeBrowsingSetting) {
+-    this.metricsBrowserProxy_.recordSafeBrowsingInteractionHistogram(
+-        safeBrowsingSetting === SafeBrowsingSetting.ENHANCED ?
+-            SafeBrowsingInteractions
+-                .SAFE_BROWSING_ENHANCED_PROTECTION_EXPAND_ARROW_CLICKED :
+-            SafeBrowsingInteractions
+-                .SAFE_BROWSING_STANDARD_PROTECTION_EXPAND_ARROW_CLICKED);
+-  }
+-
+-  private recordInteractionHistogramOnSafeBrowsingDialogClose_(confirmed:
+-                                                                   boolean) {
+-    this.metricsBrowserProxy_.recordSafeBrowsingInteractionHistogram(
+-        confirmed ? SafeBrowsingInteractions
+-                        .SAFE_BROWSING_DISABLE_SAFE_BROWSING_DIALOG_CONFIRMED :
+-                    SafeBrowsingInteractions
+-                        .SAFE_BROWSING_DISABLE_SAFE_BROWSING_DIALOG_DENIED);
+-  }
+-
+-  private recordActionOnRadioChange_(safeBrowsingSetting: SafeBrowsingSetting) {
+-    let actionName;
+-    if (safeBrowsingSetting === SafeBrowsingSetting.ENHANCED) {
+-      actionName = 'SafeBrowsing.Settings.EnhancedProtectionClicked';
+-    } else if (safeBrowsingSetting === SafeBrowsingSetting.STANDARD) {
+-      actionName = 'SafeBrowsing.Settings.StandardProtectionClicked';
+-    } else {
+-      actionName = 'SafeBrowsing.Settings.DisableSafeBrowsingClicked';
+-    }
+-    this.metricsBrowserProxy_.recordAction(actionName);
+-  }
+-
+-  private recordActionOnExpandButtonClicked_(safeBrowsingSetting:
+-                                                 SafeBrowsingSetting) {
+-    this.metricsBrowserProxy_.recordAction(
+-        safeBrowsingSetting === SafeBrowsingSetting.ENHANCED ?
+-            'SafeBrowsing.Settings.EnhancedProtectionExpandArrowClicked' :
+-            'SafeBrowsing.Settings.StandardProtectionExpandArrowClicked');
+-  }
+-
+-  private recordActionOnSafeBrowsingDialogClose_(confirmed: boolean) {
+-    this.metricsBrowserProxy_.recordAction(
+-        confirmed ? 'SafeBrowsing.Settings.DisableSafeBrowsingDialogConfirmed' :
+-                    'SafeBrowsing.Settings.DisableSafeBrowsingDialogDenied');
+-  }
+ }
+ 
+ declare global {
 -- 
 2.49.0.windows.1
 
