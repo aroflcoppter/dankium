@@ -1,6 +1,7 @@
 # Dankium Browser
 Dankium is a chromium based browser focused on providing top of the line security and adblocking in addition to other features.
-Please read and agree to the [Terms of Service](https://dankium.ca/terms-of-service/ and [Privacy Policy](https://dankium.ca/privacy-policy/).
+You should visit [dankium.ca](https://dankium.ca/) to learn more and get updates on the blog. I'm going to describe what I'm doing in more detail there.
+Please also read and agree to the [Terms of Service](https://dankium.ca/terms-of-service/) and [Privacy Policy](https://dankium.ca/privacy-policy/).
 
 ## Android
 
