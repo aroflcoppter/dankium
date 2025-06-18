@@ -1,17 +1,17 @@
-From 0708f4bc25ed02d4e1970f01f106b65b4098df24 Mon Sep 17 00:00:00 2001
+From 624861a4b23364ba25e958c677fb9c26774376c1 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Wed, 4 Jun 2025 03:34:36 -0230
 Subject: [PATCH] Branding for desktop
 
 ---
- chrome/app/chromium_strings.grd                | 14 +++++++-------
+ chrome/app/chromium_strings.grd                | 16 ++++++++--------
  chrome/app/theme/chromium/BRANDING             | 18 +++++++++---------
  chrome/common/url_constants.h                  | 16 ++++++++--------
  .../install_static/chromium_install_modes.cc   |  6 +++---
- 4 files changed, 27 insertions(+), 27 deletions(-)
+ 4 files changed, 28 insertions(+), 28 deletions(-)
 
 diff --git a/chrome/app/chromium_strings.grd b/chrome/app/chromium_strings.grd
-index 2e5d2a8929ca8..7614a8e23c2b3 100644
+index 8dc9481ad8f78..859f3ce6d5ffe 100644
 --- a/chrome/app/chromium_strings.grd
 +++ b/chrome/app/chromium_strings.grd
 @@ -294,10 +294,10 @@ If you update this file, be sure also to update google_chrome_strings.grd. -->
@@ -46,7 +46,16 @@ index 2e5d2a8929ca8..7614a8e23c2b3 100644
          </message>
        </if>
        <if expr="is_chromeos">
-@@ -1301,7 +1301,7 @@ Chromium is unable to recover your settings.
+@@ -455,7 +455,7 @@ If you update this file, be sure also to update google_chrome_strings.grd. -->
+         </then>
+         <else>
+           <message name="IDS_ABOUT_VERSION_COMPANY_NAME" desc="Company name on the about pages">
+-            The Chromium Authors
++            aroflcoppter
+           </message>
+           <message name="IDS_ABOUT_VERSION_COPYRIGHT" desc="Copyright information on the about pages">
+             Copyright <ph name="YEAR">{0,date,y}<ex>2016</ex></ph> The Chromium Authors. All rights reserved.
+@@ -1289,7 +1289,7 @@ Chromium is unable to recover your settings.
  
        <!-- App shortcuts -->
        <message name="IDS_APP_SHORTCUTS_SUBDIR_NAME" desc="Name for the Chromium Apps Start Menu folder name.">
@@ -55,7 +64,7 @@ index 2e5d2a8929ca8..7614a8e23c2b3 100644
        </message>
        <message name="IDS_APP_SHORTCUTS_SUBDIR_NAME_CANARY" desc="Name for the Chrome Apps Start Menu folder name.">
          Chromium Apps
-@@ -1439,7 +1439,7 @@ Chromium is unable to recover your settings.
+@@ -1427,7 +1427,7 @@ Chromium is unable to recover your settings.
        <!-- Windows firewall rule strings. -->
        <if expr="is_win">
          <message name="IDS_INBOUND_MDNS_RULE_NAME" desc="The name of the firewall rule allowing inbound mDNS traffic.">
@@ -89,7 +98,7 @@ index f8363d5b294fe..d703208ef7e19 100644
 +MAC_CREATOR_CODE=arof
  MAC_TEAM_ID=
 diff --git a/chrome/common/url_constants.h b/chrome/common/url_constants.h
-index dfc4fd76bf02d..ed894a31a1e4b 100644
+index 69ee2726ba90e..8e67c08143570 100644
 --- a/chrome/common/url_constants.h
 +++ b/chrome/common/url_constants.h
 @@ -135,13 +135,13 @@ inline constexpr char kChromeHelpViaMenuURL[] =
@@ -117,7 +126,7 @@ index dfc4fd76bf02d..ed894a31a1e4b 100644
  
  #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
  // The URL for the "Clear browsing data in Chrome" help center article.
-@@ -635,19 +635,19 @@ inline constexpr char16_t kCwsEnhancedSafeBrowsingLearnMoreURL[] =
+@@ -640,19 +640,19 @@ inline constexpr char16_t kCwsEnhancedSafeBrowsingLearnMoreURL[] =
  
  // The URL path to Google's Privacy Policy page.
  inline constexpr char kPrivacyPolicyURL[] =
@@ -141,7 +150,7 @@ index dfc4fd76bf02d..ed894a31a1e4b 100644
  
  #if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
  // "Learn more" URL for the enhanced playback notification dialog.
-@@ -851,7 +851,7 @@ inline constexpr char kGoogleEulaOnlineURLPath[] =
+@@ -856,7 +856,7 @@ inline constexpr char kGoogleEulaOnlineURLPath[] =
  
  // The URL path to Online Chrome and Chrome OS terms of service.
  inline constexpr char kCrosEulaOnlineURLPath[] =
@@ -171,5 +180,5 @@ index f5af44ca1c489..21ee38d240376 100644
  
  }  // namespace install_static
 -- 
-2.43.0
+2.49.0.windows.1
 
