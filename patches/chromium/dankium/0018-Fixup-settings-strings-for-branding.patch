@@ -67,7 +67,7 @@ index ca7b8b6a32e27..18563fdb2614c 100644
        <!-- Legal information preferences -->
        <message name="IDS_LEGAL_INFORMATION_TITLE" desc="Title for legal information [CHAR_LIMIT=32]">
 -        Legal information
-+        Dankium Legal information
++        Legal information
        </message>
        <message name="IDS_OPEN_SOURCE_LICENSE_TITLE" desc="Title for open source license">
          Open source licenses
@@ -76,31 +76,31 @@ index ca7b8b6a32e27..18563fdb2614c 100644
        </message>
        <message name="IDS_GOOGLE_TERMS_OF_SERVICE_TITLE" desc="Title for Google terms of service">
 -        Google Terms of Service
-+        Dankium Terms of Service
++        Terms of Service
        </message>
        <message name="IDS_GOOGLE_TERMS_OF_SERVICE_URL" desc="URL for Google terms of service" translateable="false">
 -        https://policies.google.com/terms/embedded
-+        https://dankium.ca/tos.html
++        https://dankium.ca/terms-of-service/
        </message>
        <message name="IDS_GOOGLE_TERMS_OF_SERVICE_DARK_MODE_URL" desc="URL for Google terms of service for dark mode" translateable="false">
 -        https://policies.google.com/terms/embedded?color_scheme=dark
-+        https://dankium.ca/tos.html
++        https://dankium.ca/terms-of-service/
        </message>
        <message name="IDS_CHROME_ADDITIONAL_TERMS_OF_SERVICE_TITLE" desc="Title for Chrome and ChromeOS addtional terms of service">
 -        Chrome &amp; ChromeOS Additional Terms of Service
-+        Dankium Software Licenses
++        Software Licenses
        </message>
        <message name="IDS_CHROME_ADDITIONAL_TERMS_OF_SERVICE_URL" desc="URL for Chrome and ChromeOS additional terms of service" translateable="false">
 -        https://www.google.com/chrome/terms/
-+        https://dankium.ca/license.html
++        https://dankium.ca/license/
        </message>
        <message name="IDS_PRIVACY_POLICY_TITLE" desc="Title for the Google privacy policy">
 -        Google Privacy Policy
-+        Dankium Privacy Policy
++        Privacy Policy
        </message>
        <message name="IDS_GOOGLE_PRIVACY_POLICY_URL" desc="URL for the Google privacy policy" translateable="false">
 -        https://policies.google.com/privacy
-+        https://dankium.ca/privacy.html
++        https://dankium.ca/privacy-policy/
        </message>
  
        <!-- Sign-in strings -->

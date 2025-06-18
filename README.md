@@ -1,9 +1,6 @@
-# Server Status
-The server is under targeted attack I had to reinstall it because I could not access it at all without booting into another operating system. I believe they are exploiting a flaw in nginx mainline.
-
 # Dankium Browser
 Dankium is a chromium based browser focused on providing top of the line security and adblocking in addition to other features.
-Please read and agree to the [Terms of Service](https://dankium.ca/tos.html) and [Privacy Policy](https://dankium.ca/privacy.html).
+Please read and agree to the [Terms of Service](https://dankium.ca/terms-of-service/ and [Privacy Policy](https://dankium.ca/privacy-policy/).
 
 ## Android
 
@@ -22,10 +19,10 @@ Please read and agree to the [Terms of Service](https://dankium.ca/tos.html) and
 * much more
 
 ### Release Signing Key
-The key is `contact@dankium.ca ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINZmfylHw5KGY3bgHr3wtnXAbx1gXifBZDfupD4RuCJ1` which you can also verify at the bottom of [dankium.ca](https://dankium.ca). The cert key for the apk is also `Signer #1 certificate DN: CN=aroflcoppter
+The key is `contact@dankium.ca ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINZmfylHw5KGY3bgHr3wtnXAbx1gXifBZDfupD4RuCJ1` which you can also verify at [dankium.ca](https://dankium.ca/download/). The cert key for the apk is also `Signer #1 certificate DN: CN=aroflcoppter
 Signer #1 certificate SHA-256 digest: dc52ec905e655c69602645c63ea41e82594d652d0d4b88f1ff7831d5f27da3b4
 Signer #1 certificate SHA-1 digest: 0e246844630d81c2b4da2616756829f4677f5c9a
-Signer #1 certificate MD5 digest: 1542441f5569f30f1d1cc75bbfcd5e09` and also at the bottom of [dankium.ca](https://dankium.ca).
+Signer #1 certificate MD5 digest: 1542441f5569f30f1d1cc75bbfcd5e09` and also at [dankium.ca](https://dankium.ca/download/).
 
 
 ### Installing
