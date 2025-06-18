@@ -30,8 +30,7 @@ Signer #1 certificate MD5 digest: 1542441f5569f30f1d1cc75bbfcd5e09` and also at 
 
 ### Installing
 
-To install from play store first join [Dankium Google Group](https://groups.google.com/g/dankium/).
-Then join the [test program](https://play.google.com/apps/testing/app.dankium.browser) and it should appear in the [play store](https://play.google.com/store/apps/details?id=app.dankium.browser).
+Install from the [Google Play Store](https://play.google.com/store/apps/details?id=app.dankium.browser).
 
 Alternatively you may download an apk for sideloading from [github releases](https://github.com/aroflcoppter/dankium/releases) but it won't automatically update so be sure to check back at least once a week if you don't know there's an update.
 You can verify the release before installation with `ssh-keygen -Y verify -f dankium_public_key -I contact@dankium.ca -n "Dankium Browser" -s Dankium.apk.sig < Dankium.apk` or on windows `cmd /c 'ssh-keygen -Y verify -f dankium_public_key -I contact@dankium.ca -n "Dankium Browser" -s Dankium.apk.sig < Dankium.apk'`provided you downloaded the public key.
