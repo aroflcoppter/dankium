@@ -1,4 +1,4 @@
-From 105cf07f684fa62d1c29824919c5d46cb5c57d48 Mon Sep 17 00:00:00 2001
+From e5c45e99700303a66c6b2d5bb20e7841efc48ae6 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Wed, 4 Jun 2025 05:54:23 -0230
 Subject: [PATCH] Forbid dynamic code generation on Linux/Android
@@ -7,17 +7,16 @@ Based on https://github.com/Hexavalent-Browser/Hexavalent-Archive/blob/main/patc
 
 Copyright (c) 2021-2022 flawedworld
 All rights reserved.
-
 ---
  sandbox/linux/seccomp-bpf-helpers/baseline_policy.cc | 6 +++---
  sandbox/policy/linux/bpf_audio_policy_linux.cc       | 3 +++
  2 files changed, 6 insertions(+), 3 deletions(-)
 
 diff --git a/sandbox/linux/seccomp-bpf-helpers/baseline_policy.cc b/sandbox/linux/seccomp-bpf-helpers/baseline_policy.cc
-index 7bde501115bdf..0f1e4ae0c7b28 100644
+index 1df0b2293d4af..38440753b6efa 100644
 --- a/sandbox/linux/seccomp-bpf-helpers/baseline_policy.cc
 +++ b/sandbox/linux/seccomp-bpf-helpers/baseline_policy.cc
-@@ -257,19 +257,19 @@ ResultExpr EvaluateSyscallImpl(int fs_denied_errno,
+@@ -256,18 +256,18 @@ ResultExpr EvaluateSyscallImpl(int fs_denied_errno,
  #if defined(__i386__) || defined(__x86_64__) || defined(__mips__) || \
      defined(__aarch64__)
    if (sysno == __NR_mmap)
@@ -25,8 +24,7 @@ index 7bde501115bdf..0f1e4ae0c7b28 100644
 +    return RestrictMmapFlagsNoWX();
  #endif
  
- #if defined(__i386__) || defined(__arm__) || \
-     (defined(ARCH_CPU_MIPS_FAMILY) && defined(ARCH_CPU_32_BITS))
+ #if !defined(__LP64__)
    if (sysno == __NR_mmap2)
 -    return RestrictMmapFlags();
 +    return RestrictMmapFlagsNoWX();
@@ -55,5 +53,5 @@ index e1716b97e8f21..dc25d460460d5 100644
            SyscallSets::IsSystemVSharedMemory(system_call_number)) {
          return Allow();
 -- 
-2.43.0
+2.50.0.windows.1
 
