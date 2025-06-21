@@ -1,0 +1,74 @@
+From b6f39736c0544fa235d5d2070eb6b885dce2544b Mon Sep 17 00:00:00 2001
+From: aroflcoppter <contact@dankium.ca>
+Date: Sat, 21 Jun 2025 00:02:50 -0230
+Subject: [PATCH] Disable Lens
+
+---
+ components/lens/lens_features.cc | 16 ++++++----------
+ 1 file changed, 6 insertions(+), 10 deletions(-)
+
+diff --git a/components/lens/lens_features.cc b/components/lens/lens_features.cc
+index 4379e2c65d68b..cdcc5dc0f9f66 100644
+--- a/components/lens/lens_features.cc
++++ b/components/lens/lens_features.cc
+@@ -16,15 +16,11 @@ namespace lens::features {
+ 
+ BASE_FEATURE(kLensStandalone,
+              "LensStandalone",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
+ 
+ BASE_FEATURE(kLensOverlay,
+              "LensOverlay",
+-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
+              base::FEATURE_DISABLED_BY_DEFAULT
+-#else
+-             base::FEATURE_ENABLED_BY_DEFAULT
+-#endif
+ );
+ 
+ BASE_FEATURE(kLensOverlayTranslateButton,
+@@ -37,7 +33,7 @@ BASE_FEATURE(kLensOverlayTranslateLanguages,
+ 
+ BASE_FEATURE(kLensOverlayImageContextMenuActions,
+              "LensOverlayImageContextMenuActions",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
+ 
+ BASE_FEATURE(kLensOverlayContextualSearchbox,
+              "LensOverlayContextualSearchbox",
+@@ -53,7 +49,7 @@ BASE_FEATURE(kLensOverlayLatencyOptimizations,
+ 
+ BASE_FEATURE(kLensOverlayRoutingInfo,
+              "LensOverlayRoutingInfo",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
+ 
+ BASE_FEATURE(kLensOverlaySurvey,
+              "LensOverlaySurvey",
+@@ -97,7 +93,7 @@ BASE_FEATURE(kLensSearchSidePanelScrollToAPI,
+ // experimented with independently.
+ BASE_FEATURE(kLensOverlayOmniboxEntryPoint,
+              "LensOverlayOmniboxEntryPoint",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
+ 
+ BASE_FEATURE(kLensOverlayUploadChunking,
+              "LensOverlayUploadChunking",
+@@ -109,11 +105,11 @@ BASE_FEATURE(kLensOverlayRecontextualizeOnQuery,
+ 
+ BASE_FEATURE(kLensOverlayCornerSliders,
+              "LensOverlayCornerSliders",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
+ 
+ BASE_FEATURE(kLensSearchProtectedPage,
+              "LensSearchProtectedPage",
+-             base::FEATURE_ENABLED_BY_DEFAULT);
++             base::FEATURE_DISABLED_BY_DEFAULT);
+ 
+ BASE_FEATURE(kLensOverlayEduActionChip,
+              "LensOverlayEduActionChip",
+-- 
+2.43.0
+
