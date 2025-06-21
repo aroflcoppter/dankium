@@ -1,10 +1,9 @@
-From 06f9b0bbe29a4e25de59eebf6253d8d3518a8fc6 Mon Sep 17 00:00:00 2001
+From 65492d8d8e7556502d9ee34c1794d875cf88075a Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Thu, 22 May 2025 15:50:31 +0000
 Subject: [PATCH] adblock content
 
 Copyright (C) 2006-present eyeo GmbH.
-
 ---
  content/browser/BUILD.gn                      |  18 +
  content/browser/devtools/BUILD.gn             |   2 +
@@ -45,15 +44,15 @@ Copyright (C) 2006-present eyeo GmbH.
  .../adblock/TestPagesWebsocketTest.java       |  46 ++
  .../adblock/TestPagesWildcardDomainTest.java  |  46 ++
  content/shell/app/shell_main_delegate.cc      |   8 +-
- .../adblock/adblock_shell_browser_context.cc  |  69 +++
- .../adblock/adblock_shell_browser_context.h   |  38 ++
- .../adblock_shell_content_browser_client.cc   |  30 +
+ .../adblock/adblock_shell_browser_context.cc  |  64 ++
+ .../adblock/adblock_shell_browser_context.h   |  36 ++
+ .../adblock_shell_content_browser_client.cc   |  32 +
  .../adblock_shell_content_browser_client.h    |  35 ++
- content/shell/browser/shell.cc                |  13 +
+ content/shell/browser/shell.cc                |  12 +
  content/shell/browser/shell_browser_context.h |   7 +
- .../shell/browser/shell_browser_main_parts.cc |  10 +-
+ .../shell/browser/shell_browser_main_parts.cc |  12 +-
  content/test/BUILD.gn                         |  14 +
- 47 files changed, 2528 insertions(+), 5 deletions(-)
+ 47 files changed, 2523 insertions(+), 6 deletions(-)
  create mode 100644 content/browser/devtools/protocol/devtools_eyeo_handler_browsertest.cc
  create mode 100644 content/browser/devtools/protocol/eyeo_handler.cc
  create mode 100644 content/browser/devtools/protocol/eyeo_handler.h
@@ -84,7 +83,7 @@ Copyright (C) 2006-present eyeo GmbH.
  create mode 100644 content/shell/browser/adblock/adblock_shell_content_browser_client.h
 
 diff --git a/content/browser/BUILD.gn b/content/browser/BUILD.gn
-index 933abcca124ae..f5679e4cfb4ee 100644
+index de41df34b64c4..f73d9dfe93392 100644
 --- a/content/browser/BUILD.gn
 +++ b/content/browser/BUILD.gn
 @@ -1,6 +1,10 @@
@@ -117,7 +116,7 @@ index 933abcca124ae..f5679e4cfb4ee 100644
      "//components/attribution_reporting:data_host_mojom",
      "//components/attribution_reporting:mojom",
      "//components/back_forward_cache:enum",
-@@ -373,6 +382,8 @@ source_set("browser") {
+@@ -372,6 +381,8 @@ source_set("browser") {
      "$target_gen_dir/devtools/protocol/dom.h",
      "$target_gen_dir/devtools/protocol/emulation.cc",
      "$target_gen_dir/devtools/protocol/emulation.h",
@@ -126,7 +125,7 @@ index 933abcca124ae..f5679e4cfb4ee 100644
      "$target_gen_dir/devtools/protocol/fed_cm.cc",
      "$target_gen_dir/devtools/protocol/fed_cm.h",
      "$target_gen_dir/devtools/protocol/fetch.cc",
-@@ -929,6 +940,8 @@ source_set("browser") {
+@@ -928,6 +939,8 @@ source_set("browser") {
      "devtools/protocol/dom_handler.h",
      "devtools/protocol/emulation_handler.cc",
      "devtools/protocol/emulation_handler.h",
@@ -135,7 +134,7 @@ index 933abcca124ae..f5679e4cfb4ee 100644
      "devtools/protocol/fedcm_handler.cc",
      "devtools/protocol/fedcm_handler.h",
      "devtools/protocol/fetch_handler.cc",
-@@ -3703,6 +3716,11 @@ source_set("browser") {
+@@ -3725,6 +3738,11 @@ source_set("browser") {
      ]
    }
  
@@ -1440,7 +1439,7 @@ index 287d602c11e35..0f4b9d310df6f 100644
      error = net::ERR_UNSAFE_REDIRECT;
    } else if (--redirect_limit_ == 0) {
 diff --git a/content/browser/renderer_host/render_frame_host_impl.cc b/content/browser/renderer_host/render_frame_host_impl.cc
-index 23cd457563d7d..b8a227f674575 100644
+index a424de71561cd..a34249e93f608 100644
 --- a/content/browser/renderer_host/render_frame_host_impl.cc
 +++ b/content/browser/renderer_host/render_frame_host_impl.cc
 @@ -1,6 +1,10 @@
@@ -1454,7 +1453,7 @@ index 23cd457563d7d..b8a227f674575 100644
  
  #include "content/browser/renderer_host/render_frame_host_impl.h"
  
-@@ -3513,6 +3517,12 @@ void RenderFrameHostImpl::ExecuteJavaScriptMethod(
+@@ -3554,6 +3558,12 @@ void RenderFrameHostImpl::ExecuteJavaScriptMethod(
        std::move(callback));
  }
  
@@ -1468,7 +1467,7 @@ index 23cd457563d7d..b8a227f674575 100644
                                              JavaScriptResultCallback callback) {
    DCHECK_CURRENTLY_ON(BrowserThread::UI);
 diff --git a/content/browser/renderer_host/render_frame_host_impl.h b/content/browser/renderer_host/render_frame_host_impl.h
-index 9093d52a27de1..c0ca144f71936 100644
+index 0e8d749aabbb8..bd9af0257accc 100644
 --- a/content/browser/renderer_host/render_frame_host_impl.h
 +++ b/content/browser/renderer_host/render_frame_host_impl.h
 @@ -1,6 +1,10 @@
@@ -1482,7 +1481,7 @@ index 9093d52a27de1..c0ca144f71936 100644
  
  #ifndef CONTENT_BROWSER_RENDERER_HOST_RENDER_FRAME_HOST_IMPL_H_
  #define CONTENT_BROWSER_RENDERER_HOST_RENDER_FRAME_HOST_IMPL_H_
-@@ -499,6 +503,10 @@ class CONTENT_EXPORT RenderFrameHostImpl
+@@ -500,6 +504,10 @@ class CONTENT_EXPORT RenderFrameHostImpl
                                 const std::u16string& method_name,
                                 base::Value::List arguments,
                                 JavaScriptResultCallback callback) override;
@@ -1494,7 +1493,7 @@ index 9093d52a27de1..c0ca144f71936 100644
                           JavaScriptResultCallback callback) override;
    void ExecuteJavaScriptInIsolatedWorld(const std::u16string& javascript,
 diff --git a/content/public/browser/render_frame_host.h b/content/public/browser/render_frame_host.h
-index b4645c4759809..dd68a6bae5743 100644
+index 7cf78799f71ef..2c105c2a451d5 100644
 --- a/content/public/browser/render_frame_host.h
 +++ b/content/public/browser/render_frame_host.h
 @@ -1,6 +1,10 @@
@@ -1508,7 +1507,7 @@ index b4645c4759809..dd68a6bae5743 100644
  
  #ifndef CONTENT_PUBLIC_BROWSER_RENDER_FRAME_HOST_H_
  #define CONTENT_PUBLIC_BROWSER_RENDER_FRAME_HOST_H_
-@@ -551,6 +555,9 @@ class CONTENT_EXPORT RenderFrameHost : public IPC::Listener,
+@@ -557,6 +561,9 @@ class CONTENT_EXPORT RenderFrameHost : public IPC::Listener,
    virtual void AddMessageToConsole(blink::mojom::ConsoleMessageLevel level,
                                     const std::string& message) = 0;
  
@@ -1691,7 +1690,7 @@ index d257dbbb2e6f4..a469523413b01 100644
      "//content:content_resources",
      "//content/browser/resources:resources",
 diff --git a/content/shell/android/BUILD.gn b/content/shell/android/BUILD.gn
-index 64483c8ab5468..20d7da5a56a6f 100644
+index fe27ca9aaf9b0..67c733cce92ff 100644
 --- a/content/shell/android/BUILD.gn
 +++ b/content/shell/android/BUILD.gn
 @@ -1,6 +1,9 @@
@@ -2873,7 +2872,7 @@ index 0000000000000..7098eb18d4f1f
 +    }
 +}
 diff --git a/content/shell/app/shell_main_delegate.cc b/content/shell/app/shell_main_delegate.cc
-index c214d289c01b1..2cf1f1381871f 100644
+index 6b6e16188ab59..1fb7a195e5749 100644
 --- a/content/shell/app/shell_main_delegate.cc
 +++ b/content/shell/app/shell_main_delegate.cc
 @@ -22,6 +22,7 @@
@@ -2893,7 +2892,7 @@ index c214d289c01b1..2cf1f1381871f 100644
  #include "content/shell/common/shell_content_client.h"
  #include "content/shell/common/shell_paths.h"
  #include "content/shell/common/shell_switches.h"
-@@ -447,7 +448,7 @@ ContentBrowserClient* ShellMainDelegate::CreateContentBrowserClient() {
+@@ -464,7 +465,7 @@ ContentBrowserClient* ShellMainDelegate::CreateContentBrowserClient() {
      return browser_client_.get();
    }
  #endif
@@ -2902,7 +2901,7 @@ index c214d289c01b1..2cf1f1381871f 100644
    return browser_client_.get();
  }
  
-@@ -463,7 +464,8 @@ ContentRendererClient* ShellMainDelegate::CreateContentRendererClient() {
+@@ -480,7 +481,8 @@ ContentRendererClient* ShellMainDelegate::CreateContentRendererClient() {
      return renderer_client_.get();
    }
  #endif
@@ -2914,10 +2913,10 @@ index c214d289c01b1..2cf1f1381871f 100644
  
 diff --git a/content/shell/browser/adblock/adblock_shell_browser_context.cc b/content/shell/browser/adblock/adblock_shell_browser_context.cc
 new file mode 100644
-index 0000000000000..ccad4dc4c5754
+index 0000000000000..bda5796f72654
 --- /dev/null
 +++ b/content/shell/browser/adblock/adblock_shell_browser_context.cc
-@@ -0,0 +1,69 @@
+@@ -0,0 +1,64 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -2949,17 +2948,12 @@ index 0000000000000..ccad4dc4c5754
 +
 +namespace content {
 +
-+AdblockShellBrowserContext::AdblockShellBrowserContext()
-+    : ShellBrowserContext(false) {
++AdblockShellBrowserContext::AdblockShellBrowserContext(bool off_the_record)
++    : ShellBrowserContext(off_the_record) {
 +  CreateUserPrefService();
 +}
 +
 +AdblockShellBrowserContext::~AdblockShellBrowserContext() {}
-+
-+bool AdblockShellBrowserContext::IsOffTheRecord() {
-+  // Adblock services should not be created for off-the-record contexts
-+  return false;
-+}
 +
 +void AdblockShellBrowserContext::CreateUserPrefService() {
 +  auto pref_registry = base::MakeRefCounted<user_prefs::PrefRegistrySyncable>();
@@ -2989,10 +2983,10 @@ index 0000000000000..ccad4dc4c5754
 +}  // namespace content
 diff --git a/content/shell/browser/adblock/adblock_shell_browser_context.h b/content/shell/browser/adblock/adblock_shell_browser_context.h
 new file mode 100644
-index 0000000000000..b335c51a22aa8
+index 0000000000000..ee8996b4e19a9
 --- /dev/null
 +++ b/content/shell/browser/adblock/adblock_shell_browser_context.h
-@@ -0,0 +1,38 @@
+@@ -0,0 +1,36 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -3019,10 +3013,8 @@ index 0000000000000..b335c51a22aa8
 +
 +class AdblockShellBrowserContext : public ShellBrowserContext {
 + public:
-+  AdblockShellBrowserContext();
++  explicit AdblockShellBrowserContext(bool off_the_record);
 +  ~AdblockShellBrowserContext() override;
-+
-+  bool IsOffTheRecord() override;
 +
 + private:
 +  void CreateUserPrefService();
@@ -3033,10 +3025,10 @@ index 0000000000000..b335c51a22aa8
 +#endif  // CONTENT_SHELL_BROWSER_ADBLOCK_ADBLOCK_SHELL_BROWSER_CONTEXT_H_
 diff --git a/content/shell/browser/adblock/adblock_shell_content_browser_client.cc b/content/shell/browser/adblock/adblock_shell_content_browser_client.cc
 new file mode 100644
-index 0000000000000..b86536a728acf
+index 0000000000000..3684f251a9b2a
 --- /dev/null
 +++ b/content/shell/browser/adblock/adblock_shell_content_browser_client.cc
-@@ -0,0 +1,30 @@
+@@ -0,0 +1,32 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -3062,8 +3054,10 @@ index 0000000000000..b86536a728acf
 +
 +content::BrowserContext*
 +AdblockShellContentBrowserClient::GetBrowserContextForEyeoFactories(
-+    content::BrowserContext* /*current_browser_context*/) {
-+  return browser_context();
++    content::BrowserContext* current_browser_context) {
++  return current_browser_context->IsOffTheRecord()
++             ? off_the_record_browser_context()
++             : browser_context();
 +}
 +
 +}  // namespace content
@@ -3109,7 +3103,7 @@ index 0000000000000..c7383bfcf6af9
 +
 +#endif  // CONTENT_SHELL_BROWSER_ADBLOCK_ADBLOCK_SHELL_CONTENT_BROWSER_CLIENT_H_
 diff --git a/content/shell/browser/shell.cc b/content/shell/browser/shell.cc
-index b114fbb4bed44..d6f6b7e92970e 100644
+index 5d066025cba04..60ba43f9f2de0 100644
 --- a/content/shell/browser/shell.cc
 +++ b/content/shell/browser/shell.cc
 @@ -1,6 +1,10 @@
@@ -3140,19 +3134,18 @@ index b114fbb4bed44..d6f6b7e92970e 100644
  #include "content/shell/browser/shell_content_browser_client.h"
  #include "content/shell/browser/shell_devtools_frontend.h"
  #include "content/shell/browser/shell_javascript_dialog_manager.h"
-@@ -89,6 +96,12 @@ Shell::Shell(std::unique_ptr<WebContents> web_contents,
- 
-   windows_.push_back(this);
- 
-+  content::BrowserContext* browser_context =
-+      ShellContentBrowserClient::Get()->browser_context();
+@@ -232,6 +239,11 @@ Shell* Shell::CreateNewWindow(BrowserContext* browser_context,
+   }
+   std::unique_ptr<WebContents> web_contents =
+       WebContents::Create(create_params);
++
 +  adblock::EnsureBackgroundServicesStarted(browser_context);
 +  adblock::RegisterAdblockWebContentObserver<
-+      adblock::AdblockWebContentObserver>(web_contents_.get(), browser_context);
++      adblock::AdblockWebContentObserver>(web_contents.get(), browser_context);
 +
-   if (shell_created_callback_)
-     std::move(shell_created_callback_).Run(this);
- }
+   Shell* shell =
+       CreateShell(std::move(web_contents), AdjustWindowSize(initial_size),
+                   true /* should_set_delegate */);
 diff --git a/content/shell/browser/shell_browser_context.h b/content/shell/browser/shell_browser_context.h
 index 4443306678c70..3c1d8a1371a93 100644
 --- a/content/shell/browser/shell_browser_context.h
@@ -3186,7 +3179,7 @@ index 4443306678c70..3c1d8a1371a93 100644
    // Performs initialization of the ShellBrowserContext while IO is still
    // allowed on the current thread.
 diff --git a/content/shell/browser/shell_browser_main_parts.cc b/content/shell/browser/shell_browser_main_parts.cc
-index 76ba15e7f865d..60317bc1ffa09 100644
+index 76ba15e7f865d..433f3174b1cd4 100644
 --- a/content/shell/browser/shell_browser_main_parts.cc
 +++ b/content/shell/browser/shell_browser_main_parts.cc
 @@ -1,6 +1,10 @@
@@ -3216,15 +3209,17 @@ index 76ba15e7f865d..60317bc1ffa09 100644
  #include "content/shell/browser/shell.h"
  #include "content/shell/browser/shell_browser_context.h"
  #include "content/shell/browser/shell_devtools_manager_delegate.h"
-@@ -138,7 +144,7 @@ int ShellBrowserMainParts::PreEarlyInitialization() {
+@@ -138,8 +144,8 @@ int ShellBrowserMainParts::PreEarlyInitialization() {
  }
  
  void ShellBrowserMainParts::InitializeBrowserContexts() {
 -  set_browser_context(new ShellBrowserContext(false));
-+  set_browser_context(new AdblockShellBrowserContext());
-   set_off_the_record_browser_context(new ShellBrowserContext(true));
+-  set_off_the_record_browser_context(new ShellBrowserContext(true));
++  set_browser_context(new AdblockShellBrowserContext(false));
++  set_off_the_record_browser_context(new AdblockShellBrowserContext(true));
    // Persistent Origin Trials needs to be instantiated as soon as possible
    // during browser startup, to ensure data is available prior to the first
+   // request.
 @@ -186,6 +192,8 @@ int ShellBrowserMainParts::PreMainMessageLoopRun() {
  #endif
  
@@ -3235,7 +3230,7 @@ index 76ba15e7f865d..60317bc1ffa09 100644
    net::NetModule::SetResourceProvider(PlatformResourceProvider);
    ShellDevToolsManagerDelegate::StartHttpHandler(browser_context_.get());
 diff --git a/content/test/BUILD.gn b/content/test/BUILD.gn
-index d7cea6b7efd84..820ecb0aa23ff 100644
+index 76e9ac745ea4f..8ae080cdb6b0d 100644
 --- a/content/test/BUILD.gn
 +++ b/content/test/BUILD.gn
 @@ -1,6 +1,10 @@
@@ -3257,7 +3252,7 @@ index d7cea6b7efd84..820ecb0aa23ff 100644
  import("//components/viz/common/debugger/viz_debugger.gni")
  import("//content/common/features.gni")
  import("//content/public/common/features.gni")
-@@ -1778,6 +1783,11 @@ test("content_browsertests") {
+@@ -1786,6 +1791,11 @@ test("content_browsertests") {
      "../test/url_loader_interceptor_browsertest.cc",
    ]
  
@@ -3266,10 +3261,10 @@ index d7cea6b7efd84..820ecb0aa23ff 100644
 +        [ "../browser/devtools/protocol/devtools_eyeo_handler_browsertest.cc" ]
 +  }
 +
-   if (is_linux) {
-     sources += [ "../browser/network/address_map_linux_browsertest.cc" ]
-   }
-@@ -1831,6 +1841,9 @@ test("content_browsertests") {
+   # This is where fuzztests should be registered.
+   # fuzztests = []
+ 
+@@ -1854,6 +1864,9 @@ test("content_browsertests") {
      "//build:chromecast_buildflags",
      "//cc/slim",
      "//components//unexportable_keys:unexportable_keys",
@@ -3279,7 +3274,7 @@ index d7cea6b7efd84..820ecb0aa23ff 100644
      "//components/attribution_reporting:mojom",
      "//components/cbor",
      "//components/discardable_memory/client",
-@@ -1875,6 +1888,7 @@ test("content_browsertests") {
+@@ -1898,6 +1911,7 @@ test("content_browsertests") {
      "//content/services/auction_worklet/public/cpp:test_support",
      "//content/services/auction_worklet/public/mojom:for_content_tests",
      "//content/shell:content_browsertests_mojom",
@@ -3288,5 +3283,5 @@ index d7cea6b7efd84..820ecb0aa23ff 100644
      "//content/shell:pak",
      "//content/test:mojo_web_test_bindings",
 -- 
-2.43.0
+2.50.0.windows.1
 

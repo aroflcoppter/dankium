@@ -1,4 +1,4 @@
-From ad1748a3e221a76cc64c0f12442bf4fb453c1672 Mon Sep 17 00:00:00 2001
+From f962a5535c954bb16e37d57c371882ffed2a5ef5 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Thu, 22 May 2025 15:50:31 +0000
 Subject: [PATCH] adblock components folder
@@ -12,13 +12,13 @@ Copyright (C) 2006-present eyeo GmbH.
  components/adblock/README.md                  |   80 +
  components/adblock/android/BUILD.gn           |  108 ++
  .../adblock/android/adblock_controller_jni.cc |  132 ++
- .../filtering_configuration_android.cc        |  245 +++
+ .../filtering_configuration_android.cc        |  221 +++
  .../android/filtering_configuration_android.h |   95 ++
- .../components/adblock/AdblockController.java |  283 ++++
+ .../components/adblock/AdblockController.java |  273 ++++
  .../components/adblock/AdblockSwitches.java   |   22 +
  .../components/adblock/ContentType.java       |   61 +
  .../components/adblock/ElementHideAction.java |   51 +
- .../adblock/FilteringConfiguration.java       |  424 +++++
+ .../adblock/FilteringConfiguration.java       |  402 +++++
  .../ResourceClassificationNotifier.java       |  266 +++
  .../adblock/ResourceFilteringCounters.java    |  160 ++
  .../adblock/AdblockControllerTestBase.java    |   64 +
@@ -47,7 +47,7 @@ Copyright (C) 2006-present eyeo GmbH.
  ...resource_classification_notifier_android.h |   76 +
  components/adblock/content/BUILD.gn           |   22 +
  components/adblock/content/browser/BUILD.gn   |  232 +++
- .../browser/adblock_content_browser_client.h  |  356 ++++
+ .../browser/adblock_content_browser_client.h  |  364 +++++
  .../content/browser/adblock_context_data.cc   |   87 +
  .../content/browser/adblock_context_data.h    |   63 +
  .../content/browser/adblock_filter_match.h    |   33 +
@@ -68,8 +68,8 @@ Copyright (C) 2006-present eyeo GmbH.
  .../content_security_policy_injector.h        |   61 +
  .../content_security_policy_injector_impl.cc  |  111 ++
  .../content_security_policy_injector_impl.h   |   65 +
- .../browser/element_hide_api_handler.cc       |   75 +
- .../browser/element_hide_api_handler.h        |   55 +
+ .../browser/element_hide_api_handler.cc       |   80 +
+ .../browser/element_hide_api_handler.h        |   64 +
  .../adblock/content/browser/element_hider.h   |   70 +
  .../content/browser/element_hider_impl.cc     |  375 +++++
  .../content/browser/element_hider_impl.h      |   55 +
@@ -77,25 +77,25 @@ Copyright (C) 2006-present eyeo GmbH.
  .../content/browser/eyeo_document_info.h      |   58 +
  .../adblock/content/browser/eyeo_page_info.cc |   38 +
  .../adblock/content/browser/eyeo_page_info.h  |   53 +
- .../adblock_request_throttle_factory.cc       |   72 +
+ .../adblock_request_throttle_factory.cc       |   69 +
  .../adblock_request_throttle_factory.h        |   51 +
- .../adblock_telemetry_service_factory.cc      |  126 ++
+ .../adblock_telemetry_service_factory.cc      |  123 ++
  .../adblock_telemetry_service_factory.h       |   55 +
- ...ontent_security_policy_injector_factory.cc |   71 +
+ ...ontent_security_policy_injector_factory.cc |   68 +
  ...content_security_policy_injector_factory.h |   49 +
- .../factories/element_hider_factory.cc        |   65 +
+ .../factories/element_hider_factory.cc        |   62 +
  .../browser/factories/element_hider_factory.h |   47 +
  .../browser/factories/embedding_utils.cc      |   42 +
  .../browser/factories/embedding_utils.h       |   50 +
- .../resource_classification_runner_factory.cc |   78 +
+ .../resource_classification_runner_factory.cc |   75 +
  .../resource_classification_runner_factory.h  |   49 +
- .../factories/session_stats_factory.cc        |   73 +
+ .../factories/session_stats_factory.cc        |   70 +
  .../browser/factories/session_stats_factory.h |   47 +
- .../factories/sitekey_storage_factory.cc      |   61 +
+ .../factories/sitekey_storage_factory.cc      |   58 +
  .../factories/sitekey_storage_factory.h       |   47 +
- ...ubscription_persistent_metadata_factory.cc |   66 +
+ ...ubscription_persistent_metadata_factory.cc |   63 +
  ...subscription_persistent_metadata_factory.h |   49 +
- .../factories/subscription_service_factory.cc |  503 ++++++
+ .../factories/subscription_service_factory.cc |  446 +++++
  .../factories/subscription_service_factory.h  |   76 +
  .../browser/frame_hierarchy_builder.cc        |  137 ++
  .../content/browser/frame_hierarchy_builder.h |   66 +
@@ -103,7 +103,7 @@ Copyright (C) 2006-present eyeo GmbH.
  .../content/browser/frame_opener_info.h       |   46 +
  .../adblock/content/browser/mojom/BUILD.gn    |   22 +
  .../browser/mojom/adblock_internals.mojom     |   22 +
- .../content/browser/page_view_stats.cc        |  291 ++++
+ .../content/browser/page_view_stats.cc        |  288 ++++
  .../adblock/content/browser/page_view_stats.h |  131 ++
  .../content/browser/request_initiator.cc      |   58 +
  .../content/browser/request_initiator.h       |   69 +
@@ -112,14 +112,14 @@ Copyright (C) 2006-present eyeo GmbH.
  .../resource_classification_runner_impl.h     |  158 ++
  .../content/browser/session_stats_impl.cc     |  100 ++
  .../content/browser/session_stats_impl.h      |   77 +
- .../adblock_acceptable_ads_browsertest.cc     |  211 +++
- .../browser/test/adblock_browsertest_base.cc  |  239 +++
- .../browser/test/adblock_browsertest_base.h   |  136 ++
+ .../adblock_acceptable_ads_browsertest.cc     |  208 +++
+ .../browser/test/adblock_browsertest_base.cc  |  251 +++
+ .../browser/test/adblock_browsertest_base.h   |  141 ++
  ...lock_content_browser_client_browsertest.cc |  110 ++
- .../adblock_content_filters_browsertest.cc    |  385 +++++
- .../test/adblock_debug_url_browsertest.cc     |  331 ++++
+ .../adblock_content_filters_browsertest.cc    |  394 +++++
+ .../test/adblock_debug_url_browsertest.cc     |  338 ++++
  .../test/adblock_filter_list_browsertest.cc   |  708 ++++++++
- ...ck_filtering_configurations_browsertest.cc |  666 ++++++++
+ ...ck_filtering_configurations_browsertest.cc |  678 ++++++++
  .../test/adblock_non_ascii_browsertest.cc     |   67 +
  .../adblock_page_view_stats_browsertest.cc    |  840 ++++++++++
  .../adblock_request_throttle_browsertest.cc   |  127 ++
@@ -131,7 +131,7 @@ Copyright (C) 2006-present eyeo GmbH.
  .../adblock_trusted_events_browsertest.cc     |  145 ++
  .../test/adblock_url_loader_factory_test.cc   |  512 ++++++
  .../test/adblock_web_bundle_browsertest.cc    |  426 +++++
- .../test/adblock_web_ui_browsertest.cc        |   58 +
+ .../test/adblock_web_ui_browsertest.cc        |   56 +
  .../test/adblock_webcontents_observer_test.cc |  189 +++
  ...tent_security_policy_injector_impl_test.cc |  218 +++
  .../browser/test/element_hider_impl_test.cc   |  444 +++++
@@ -160,7 +160,7 @@ Copyright (C) 2006-present eyeo GmbH.
  .../adblock_internals/adblock_internals.html  |   45 +
  .../adblock_internals/adblock_internals.ts    |   65 +
  components/adblock/core/BUILD.gn              |  134 ++
- .../activeping_telemetry_topic_provider.cc    |  269 +++
+ .../activeping_telemetry_topic_provider.cc    |  261 +++
  .../activeping_telemetry_topic_provider.h     |   93 ++
  .../adblock/core/adblock_telemetry_service.cc |  308 ++++
  .../adblock/core/adblock_telemetry_service.h  |  130 ++
@@ -282,13 +282,13 @@ Copyright (C) 2006-present eyeo GmbH.
  components/adblock/core/sitekey_storage.h     |   53 +
  .../adblock/core/sitekey_storage_impl.cc      |  164 ++
  .../adblock/core/sitekey_storage_impl.h       |   59 +
- components/adblock/core/subscription/BUILD.gn |  187 +++
+ components/adblock/core/subscription/BUILD.gn |  179 ++
  .../core/subscription/conversion_executors.h  |   50 +
  .../core/subscription/domain_splitter.cc      |   74 +
  .../core/subscription/domain_splitter.h       |   56 +
- .../filtering_configuration_maintainer.h      |   59 +
- ...filtering_configuration_maintainer_impl.cc |  506 ++++++
- .../filtering_configuration_maintainer_impl.h |  122 ++
+ .../filtering_configuration_maintainer.h      |   56 +
+ ...filtering_configuration_maintainer_impl.cc |  459 ++++++
+ .../filtering_configuration_maintainer_impl.h |  114 ++
  .../subscription/installed_subscription.cc    |   46 +
  .../subscription/installed_subscription.h     |  147 ++
  .../installed_subscription_impl.cc            |  638 ++++++++
@@ -310,8 +310,8 @@ Copyright (C) 2006-present eyeo GmbH.
  .../subscription/subscription_collection.h    |   98 ++
  .../subscription_collection_impl.cc           |  382 +++++
  .../subscription_collection_impl.h            |   98 ++
- .../core/subscription/subscription_config.cc  |  417 +++++
- .../core/subscription/subscription_config.h   |  131 ++
+ .../core/subscription/subscription_config.cc  |  397 +++++
+ .../core/subscription/subscription_config.h   |  128 ++
  .../subscription/subscription_downloader.h    |   60 +
  .../subscription_downloader_impl.cc           |  279 ++++
  .../subscription_downloader_impl.h            |   97 ++
@@ -321,9 +321,9 @@ Copyright (C) 2006-present eyeo GmbH.
  .../subscription_persistent_storage.h         |   60 +
  .../subscription_persistent_storage_impl.cc   |  237 +++
  .../subscription_persistent_storage_impl.h    |   80 +
- .../core/subscription/subscription_service.h  |   97 ++
- .../subscription/subscription_service_impl.cc |  279 ++++
- .../subscription/subscription_service_impl.h  |  104 ++
+ .../core/subscription/subscription_service.h  |   95 ++
+ .../subscription/subscription_service_impl.cc |  260 +++
+ .../subscription/subscription_service_impl.h  |  101 ++
  .../subscription/subscription_validator.h     |   59 +
  .../subscription_validator_impl.cc            |  144 ++
  .../subscription_validator_impl.h             |   53 +
@@ -443,7 +443,7 @@ Copyright (C) 2006-present eyeo GmbH.
  .../xhr_result_3_subresource_loading.json     |    1 +
  .../test/data/adblock/wbn/index.html.mustache |  157 ++
  components/test/data/adblock/xpath3.html      |   23 +
- 438 files changed, 57415 insertions(+)
+ 438 files changed, 57216 insertions(+)
  create mode 100644 components/adblock/BUILD.gn
  create mode 100644 components/adblock/CHANGELOG.md
  create mode 100644 components/adblock/LICENSE
@@ -883,7 +883,7 @@ Copyright (C) 2006-present eyeo GmbH.
  create mode 100644 components/test/data/adblock/xpath3.html
 
 diff --git a/components/BUILD.gn b/components/BUILD.gn
-index 6eb0b6024e0f7..4e9861528db74 100644
+index 28304e45c512e..1964e8b2f76eb 100644
 --- a/components/BUILD.gn
 +++ b/components/BUILD.gn
 @@ -1,6 +1,9 @@
@@ -896,7 +896,7 @@ index 6eb0b6024e0f7..4e9861528db74 100644
  
  import("//base/debug/debug.gni")
  import("//build/config/chrome_build.gni")
-@@ -179,6 +182,7 @@ test("components_unittests") {
+@@ -182,6 +185,7 @@ test("components_unittests") {
  
    deps = [
      "//base",
@@ -904,7 +904,7 @@ index 6eb0b6024e0f7..4e9861528db74 100644
      "//components/affiliations/core/browser:unit_tests",
      "//components/aggregation_service:unit_tests",
      "//components/apdu:unit_tests",
-@@ -918,6 +922,7 @@ test("components_unittests") {
+@@ -962,6 +966,7 @@ test("components_unittests") {
  
  repack("components_tests_pak") {
    sources = [
@@ -912,7 +912,7 @@ index 6eb0b6024e0f7..4e9861528db74 100644
      "$root_gen_dir/components/arc/input_overlay_resources.pak",
      "$root_gen_dir/components/autofill/core/browser/geo/autofill_address_rewriter_resources.pak",
      "$root_gen_dir/components/components_resources.pak",
-@@ -934,6 +939,7 @@ repack("components_tests_pak") {
+@@ -978,6 +983,7 @@ repack("components_tests_pak") {
      # TODO(b/207518736): Input overlay resources will be changed to proto soon,
      # thus not going to move this resource pak to under ash.
      "//chromeos/ash/experiences/arc/input_overlay/resources:resources_grit",
@@ -920,7 +920,7 @@ index 6eb0b6024e0f7..4e9861528db74 100644
      "//components/autofill/core/browser:autofill_address_rewriter_resources",
      "//components/metrics:server_urls_grd",
      "//components/omnibox/resources:omnibox_pedal_synonyms",
-@@ -1035,6 +1041,7 @@ if (use_blink) {
+@@ -1079,6 +1085,7 @@ if (use_blink) {
      deps = [
        "//base",
        "//base/test:test_support",
@@ -928,7 +928,7 @@ index 6eb0b6024e0f7..4e9861528db74 100644
        "//components/autofill/content/browser",
        "//components/autofill/content/browser:browser_tests",
        "//components/autofill/content/renderer",
-@@ -1246,6 +1253,9 @@ if (use_blink) {
+@@ -1293,6 +1300,9 @@ if (use_blink) {
  
      deps = [
        "//base",
@@ -2773,10 +2773,10 @@ index 0000000000000..a358710292043
 +}
 diff --git a/components/adblock/android/filtering_configuration_android.cc b/components/adblock/android/filtering_configuration_android.cc
 new file mode 100644
-index 0000000000000..45841be13fd16
+index 0000000000000..cdbc76ed3e9b6
 --- /dev/null
 +++ b/components/adblock/android/filtering_configuration_android.cc
-@@ -0,0 +1,245 @@
+@@ -0,0 +1,221 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -2970,11 +2970,6 @@ index 0000000000000..45841be13fd16
 +  return ToJavaArrayOfStrings(env, urls);
 +}
 +
-+static ScopedJavaLocalRef<jstring>
-+JNI_FilteringConfiguration_GetAcceptableAdsUrl(JNIEnv* env) {
-+  return ConvertUTF8ToJavaString(env, adblock::AcceptableAdsUrl().spec());
-+}
-+
 +static jlong JNI_FilteringConfiguration_Create(
 +    JNIEnv* env,
 +    const JavaParamRef<jobject>& jcontroller,
@@ -3002,25 +2997,6 @@ index 0000000000000..45841be13fd16
 +      std::back_inserter(configurations),
 +      [](adblock::FilteringConfiguration* fc) { return fc->GetName(); });
 +  return ToJavaArrayOfStrings(env, configurations);
-+}
-+
-+static jboolean JNI_FilteringConfiguration_IsAutoInstallEnabled(
-+    JNIEnv* env,
-+    const JavaParamRef<jobject>& jbrowser_context_handle) {
-+  return adblock::SubscriptionServiceFactory::GetForBrowserContext(
-+             content::BrowserContextFromJavaHandle(jbrowser_context_handle))
-+                 ->IsAutoInstallEnabled()
-+             ? JNI_TRUE
-+             : JNI_FALSE;
-+}
-+
-+static void JNI_FilteringConfiguration_SetAutoInstallEnabled(
-+    JNIEnv* env,
-+    jboolean j_enabled,
-+    const JavaParamRef<jobject>& jbrowser_context_handle) {
-+  adblock::SubscriptionServiceFactory::GetForBrowserContext(
-+      content::BrowserContextFromJavaHandle(jbrowser_context_handle))
-+      ->SetAutoInstallEnabled(j_enabled == JNI_TRUE);
 +}
 diff --git a/components/adblock/android/filtering_configuration_android.h b/components/adblock/android/filtering_configuration_android.h
 new file mode 100644
@@ -3125,10 +3101,10 @@ index 0000000000000..2cf6e3f813726
 +#endif  // COMPONENTS_ADBLOCK_ANDROID_FILTERING_CONFIGURATION_ANDROID_H_
 diff --git a/components/adblock/android/java/src/org/chromium/components/adblock/AdblockController.java b/components/adblock/android/java/src/org/chromium/components/adblock/AdblockController.java
 new file mode 100644
-index 0000000000000..80d72fa47ba28
+index 0000000000000..06fd0797f1aa9
 --- /dev/null
 +++ b/components/adblock/android/java/src/org/chromium/components/adblock/AdblockController.java
-@@ -0,0 +1,283 @@
+@@ -0,0 +1,273 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -3281,16 +3257,6 @@ index 0000000000000..80d72fa47ba28
 +    public List<Subscription> getRecommendedSubscriptions() {
 +        return (List<Subscription>)
 +                (List<?>) Arrays.asList(AdblockControllerJni.get().getRecommendedSubscriptions());
-+    }
-+
-+    @UiThread
-+    public void setAutoInstallEnabled(boolean enable) {
-+        FilteringConfiguration.setAutoInstallEnabled(enable, mBrowserContextHandle);
-+    }
-+
-+    @UiThread
-+    public boolean isAutoInstallEnabled() {
-+        return FilteringConfiguration.isAutoInstallEnabled(mBrowserContextHandle);
 +    }
 +
 +    @UiThread
@@ -3566,10 +3532,10 @@ index 0000000000000..a417d1467fa84
 +}
 diff --git a/components/adblock/android/java/src/org/chromium/components/adblock/FilteringConfiguration.java b/components/adblock/android/java/src/org/chromium/components/adblock/FilteringConfiguration.java
 new file mode 100644
-index 0000000000000..26897aae23e72
+index 0000000000000..a79ff5d23585a
 --- /dev/null
 +++ b/components/adblock/android/java/src/org/chromium/components/adblock/FilteringConfiguration.java
-@@ -0,0 +1,424 @@
+@@ -0,0 +1,402 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -3748,12 +3714,6 @@ index 0000000000000..26897aae23e72
 +        return filterLists;
 +    }
 +
-+    @UiThread
-+    public String getAcceptableAdsUrl() {
-+        ValidateConfiguration();
-+        return FilteringConfigurationJni.get().getAcceptableAdsUrl();
-+    }
-+
 +    /**
 +     * @throws IllegalStateException when called on removed FilteringConfiguration.
 +     */
@@ -3887,17 +3847,6 @@ index 0000000000000..26897aae23e72
 +        return null;
 +    }
 +
-+    @UiThread
-+    public static void setAutoInstallEnabled(
-+            boolean enable, BrowserContextHandle browserContextHandle) {
-+        FilteringConfigurationJni.get().setAutoInstallEnabled(enable, browserContextHandle);
-+    }
-+
-+    @UiThread
-+    public static boolean isAutoInstallEnabled(BrowserContextHandle browserContextHandle) {
-+        return FilteringConfigurationJni.get().isAutoInstallEnabled(browserContextHandle);
-+    }
-+
 +    private String sanitizeSite(String site) {
 +        // |site| is raw user input. We expect it to be either a domain or a URL.
 +        try {
@@ -3985,13 +3934,8 @@ index 0000000000000..26897aae23e72
 +                final String configuration_name,
 +                BrowserContextHandle contextHandle);
 +
-+        void setAutoInstallEnabled(boolean enable, BrowserContextHandle contextHandle);
-+
-+        boolean isAutoInstallEnabled(BrowserContextHandle contextHandle);
-+
 +        String[] getConfigurations(BrowserContextHandle contextHandle);
 +
-+        String getAcceptableAdsUrl();
 +    }
 +}
 diff --git a/components/adblock/android/java/src/org/chromium/components/adblock/ResourceClassificationNotifier.java b/components/adblock/android/java/src/org/chromium/components/adblock/ResourceClassificationNotifier.java
@@ -8923,10 +8867,10 @@ index 0000000000000..e7d01029afb4b
 +}
 diff --git a/components/adblock/content/browser/adblock_content_browser_client.h b/components/adblock/content/browser/adblock_content_browser_client.h
 new file mode 100644
-index 0000000000000..346df4356e34e
+index 0000000000000..b88fbcbcf90a9
 --- /dev/null
 +++ b/components/adblock/content/browser/adblock_content_browser_client.h
-@@ -0,0 +1,356 @@
+@@ -0,0 +1,364 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -8983,9 +8927,11 @@ index 0000000000000..346df4356e34e
 +
 +namespace {
 +void BindElementHideApiHandler(
++    base::RepeatingCallback<content::BrowserContext*(content::BrowserContext*)>
++        context_mapper,
 +    content::RenderFrameHost* const frame_host,
 +    mojo::PendingReceiver<mojom::ElementHideApi> receiver) {
-+  ElementHideApiHandler::CreateAndBindElementHideApi(frame_host,
++  ElementHideApiHandler::CreateAndBindElementHideApi(context_mapper, frame_host,
 +                                                     std::move(receiver));
 +}
 +}  //  namespace
@@ -9145,8 +9091,14 @@ index 0000000000000..346df4356e34e
 +    RegisterBrowserInterfaceBindersForFrame(
 +        content::RenderFrameHost* render_frame_host,
 +        mojo::BinderMapWithContext<content::RenderFrameHost*>* map) {
-+  map->Add<adblock::mojom::ElementHideApi>(
-+      base::BindRepeating(&BindElementHideApiHandler));
++  // Using base::Unretained(this) instead of weak_factory_.GetWeakPtr() due
++  // to assert: `WeakPtrs can only bind to methods without return values`.
++  map->Add<adblock::mojom::ElementHideApi>(base::BindRepeating(
++      &BindElementHideApiHandler,
++      base::BindRepeating(
++          &AdblockContentBrowserClient<
++              ContentBrowserClientBase>::GetBrowserContextForEyeoFactories,
++          base::Unretained(this))));
 +  ContentBrowserClientBase::RegisterBrowserInterfaceBindersForFrame(
 +      render_frame_host, map);
 +  content::RegisterWebUIControllerInterfaceBinder<
@@ -11332,7 +11284,7 @@ index 0000000000000..837720181371e
 +#endif  // COMPONENTS_ADBLOCK_CONTENT_BROWSER_ADBLOCK_URL_LOADER_FACTORY_FOR_TEST_H_
 diff --git a/components/adblock/content/browser/adblock_web_ui_controller_factory.cc b/components/adblock/content/browser/adblock_web_ui_controller_factory.cc
 new file mode 100644
-index 0000000000000..66f5f4b9b264b
+index 0000000000000..01a817e5bc035
 --- /dev/null
 +++ b/components/adblock/content/browser/adblock_web_ui_controller_factory.cc
 @@ -0,0 +1,63 @@
@@ -11370,7 +11322,7 @@ index 0000000000000..66f5f4b9b264b
 +content::WebUI::TypeID AdblockWebUIControllerFactory::GetWebUIType(
 +    content::BrowserContext* browser_context,
 +    const GURL& url) {
-+  if (!content::HasWebUIScheme(url) || browser_context->IsOffTheRecord()) {
++  if (!content::HasWebUIScheme(url)) {
 +    return content::WebUI::kNoWebUI;
 +  }
 +
@@ -12136,10 +12088,10 @@ index 0000000000000..52a1be348cb6b
 +#endif  // COMPONENTS_ADBLOCK_CONTENT_BROWSER_CONTENT_SECURITY_POLICY_INJECTOR_IMPL_H_
 diff --git a/components/adblock/content/browser/element_hide_api_handler.cc b/components/adblock/content/browser/element_hide_api_handler.cc
 new file mode 100644
-index 0000000000000..b7ef483fccee4
+index 0000000000000..cdd3adf958332
 --- /dev/null
 +++ b/components/adblock/content/browser/element_hide_api_handler.cc
-@@ -0,0 +1,75 @@
+@@ -0,0 +1,80 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -12174,22 +12126,29 @@ index 0000000000000..b7ef483fccee4
 +
 +namespace adblock {
 +
-+ElementHideApiHandler::ElementHideApiHandler(int render_process_id,
-+                                             int render_frame_id)
-+    : render_process_id_(render_process_id),
++ElementHideApiHandler::ElementHideApiHandler(
++    base::RepeatingCallback<content::BrowserContext*(content::BrowserContext*)>
++        context_mapper,
++    int render_process_id,
++    int render_frame_id)
++    : context_mapper_(context_mapper),
++      render_process_id_(render_process_id),
 +      render_frame_id_(render_frame_id) {}
 +
 +ElementHideApiHandler::~ElementHideApiHandler() = default;
 +
 +// static
 +void ElementHideApiHandler::CreateAndBindElementHideApi(
++    base::RepeatingCallback<content::BrowserContext*(content::BrowserContext*)>
++        context_mapper,
 +    content::RenderFrameHost* frame_host,
 +    mojo::PendingReceiver<mojom::ElementHideApi> receiver) {
 +  int render_process_id = frame_host->GetProcess()->GetDeprecatedID();
 +  int render_frame_id = frame_host->GetRoutingID();
-+  mojo::MakeSelfOwnedReceiver(base::WrapUnique(new ElementHideApiHandler(
-+                                  render_process_id, render_frame_id)),
-+                              std::move(receiver));
++  mojo::MakeSelfOwnedReceiver(
++      base::WrapUnique(new ElementHideApiHandler(
++          context_mapper, render_process_id, render_frame_id)),
++      std::move(receiver));
 +}
 +
 +void ElementHideApiHandler::LogSelectors(
@@ -12202,12 +12161,10 @@ index 0000000000000..b7ef483fccee4
 +    // The frame has been destroyed, so we can't notify observers.
 +    return;
 +  }
-+  if (rfh->GetBrowserContext()->IsOffTheRecord()) {
-+    return;
-+  }
 +  auto* rcr = static_cast<ResourceClassificationRunnerImpl*>(
 +      ResourceClassificationRunnerFactory::GetForBrowserContext(
-+          rfh->GetBrowserContext()));
++          context_mapper_.Run(rfh->GetBrowserContext())));
++  DCHECK(rcr);
 +  for (const auto& selector : selectors) {
 +    rcr->NotifyPageElementMatched(selector,
 +                                  static_cast<ElementHideAction>(action), rfh);
@@ -12217,10 +12174,10 @@ index 0000000000000..b7ef483fccee4
 +}  // namespace adblock
 diff --git a/components/adblock/content/browser/element_hide_api_handler.h b/components/adblock/content/browser/element_hide_api_handler.h
 new file mode 100644
-index 0000000000000..604777b02f4c7
+index 0000000000000..d3f39083a5278
 --- /dev/null
 +++ b/components/adblock/content/browser/element_hide_api_handler.h
-@@ -0,0 +1,55 @@
+@@ -0,0 +1,64 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -12244,7 +12201,9 @@ index 0000000000000..604777b02f4c7
 +#include <string>
 +#include <vector>
 +
++#include "base/functional/callback.h"
 +#include "components/adblock/content/common/element_hide_api.mojom.h"
++#include "content/public/browser/browser_context.h"
 +
 +namespace content {
 +class RenderFrameHost;
@@ -12260,6 +12219,8 @@ index 0000000000000..604777b02f4c7
 +  ~ElementHideApiHandler() override;
 +
 +  static void CreateAndBindElementHideApi(
++      base::RepeatingCallback<
++          content::BrowserContext*(content::BrowserContext*)> context_mapper,
 +      content::RenderFrameHost* frame_host,
 +      mojo::PendingReceiver<mojom::ElementHideApi> receiver);
 +
@@ -12268,7 +12229,12 @@ index 0000000000000..604777b02f4c7
 +                    const std::vector<std::string>& selectors) override;
 +
 + private:
-+  ElementHideApiHandler(int render_process_id, int render_frame_id);
++  ElementHideApiHandler(base::RepeatingCallback<content::BrowserContext*(
++                            content::BrowserContext*)> context_mapper,
++                        int render_process_id,
++                        int render_frame_id);
++  base::RepeatingCallback<content::BrowserContext*(content::BrowserContext*)>
++      context_mapper_;
 +  const int render_process_id_;
 +  const int render_frame_id_;
 +};
@@ -13019,10 +12985,10 @@ index 0000000000000..6787ab3ddd79d
 +#endif  // COMPONENTS_ADBLOCK_CONTENT_BROWSER_EYEO_PAGE_INFO_H_
 diff --git a/components/adblock/content/browser/factories/adblock_request_throttle_factory.cc b/components/adblock/content/browser/factories/adblock_request_throttle_factory.cc
 new file mode 100644
-index 0000000000000..84fb86da428ce
+index 0000000000000..54ed7b3936cde
 --- /dev/null
 +++ b/components/adblock/content/browser/factories/adblock_request_throttle_factory.cc
-@@ -0,0 +1,72 @@
+@@ -0,0 +1,69 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -13088,9 +13054,6 @@ index 0000000000000..84fb86da428ce
 +
 +content::BrowserContext* AdblockRequestThrottleFactory::GetBrowserContextToUse(
 +    content::BrowserContext* context) const {
-+  if (context->IsOffTheRecord()) {
-+    return nullptr;
-+  }
 +  return context;
 +}
 +
@@ -13154,10 +13117,10 @@ index 0000000000000..012097e49ca2d
 +#endif  // COMPONENTS_ADBLOCK_CONTENT_BROWSER_FACTORIES_ADBLOCK_REQUEST_THROTTLE_FACTORY_H_
 diff --git a/components/adblock/content/browser/factories/adblock_telemetry_service_factory.cc b/components/adblock/content/browser/factories/adblock_telemetry_service_factory.cc
 new file mode 100644
-index 0000000000000..bdff5622b626c
+index 0000000000000..ecec5d51a97ba
 --- /dev/null
 +++ b/components/adblock/content/browser/factories/adblock_telemetry_service_factory.cc
-@@ -0,0 +1,126 @@
+@@ -0,0 +1,123 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -13233,9 +13196,6 @@ index 0000000000000..bdff5622b626c
 +
 +content::BrowserContext* AdblockTelemetryServiceFactory::GetBrowserContextToUse(
 +    content::BrowserContext* context) const {
-+  if (context->IsOffTheRecord()) {
-+    return nullptr;
-+  }
 +  return context;
 +}
 +
@@ -13347,10 +13307,10 @@ index 0000000000000..04a52d0ca815e
 +#endif  // COMPONENTS_ADBLOCK_CONTENT_BROWSER_FACTORIES_ADBLOCK_TELEMETRY_SERVICE_FACTORY_H_
 diff --git a/components/adblock/content/browser/factories/content_security_policy_injector_factory.cc b/components/adblock/content/browser/factories/content_security_policy_injector_factory.cc
 new file mode 100644
-index 0000000000000..8923e6c887fb2
+index 0000000000000..d9c3aca04de06
 --- /dev/null
 +++ b/components/adblock/content/browser/factories/content_security_policy_injector_factory.cc
-@@ -0,0 +1,71 @@
+@@ -0,0 +1,68 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -13415,9 +13375,6 @@ index 0000000000000..8923e6c887fb2
 +content::BrowserContext*
 +ContentSecurityPolicyInjectorFactory::GetBrowserContextToUse(
 +    content::BrowserContext* context) const {
-+  if (context->IsOffTheRecord()) {
-+    return nullptr;
-+  }
 +  return context;
 +}
 +
@@ -13479,10 +13436,10 @@ index 0000000000000..a99a0f46cd896
 +#endif  // COMPONENTS_ADBLOCK_CONTENT_BROWSER_FACTORIES_CONTENT_SECURITY_POLICY_INJECTOR_FACTORY_H_
 diff --git a/components/adblock/content/browser/factories/element_hider_factory.cc b/components/adblock/content/browser/factories/element_hider_factory.cc
 new file mode 100644
-index 0000000000000..e49bae1ccfbf2
+index 0000000000000..3bf0003a8f275
 --- /dev/null
 +++ b/components/adblock/content/browser/factories/element_hider_factory.cc
-@@ -0,0 +1,65 @@
+@@ -0,0 +1,62 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -13527,7 +13484,7 @@ index 0000000000000..e49bae1ccfbf2
 +    : BrowserContextKeyedServiceFactory(
 +          "ElementHider",
 +          BrowserContextDependencyManager::GetInstance()) {
-+  DependsOn(adblock::SubscriptionServiceFactory::GetInstance());
++  DependsOn(SubscriptionServiceFactory::GetInstance());
 +}
 +
 +ElementHiderFactory::~ElementHiderFactory() = default;
@@ -13536,14 +13493,11 @@ index 0000000000000..e49bae1ccfbf2
 +ElementHiderFactory::BuildServiceInstanceForBrowserContext(
 +    content::BrowserContext* context) const {
 +  return std::make_unique<ElementHiderImpl>(
-+      adblock::SubscriptionServiceFactory::GetForBrowserContext(context));
++      SubscriptionServiceFactory::GetForBrowserContext(context));
 +}
 +
 +content::BrowserContext* ElementHiderFactory::GetBrowserContextToUse(
 +    content::BrowserContext* context) const {
-+  if (context->IsOffTheRecord()) {
-+    return nullptr;
-+  }
 +  return context;
 +}
 +
@@ -13707,10 +13661,10 @@ index 0000000000000..436fc54ba17b0
 +#endif  // COMPONENTS_ADBLOCK_CONTENT_BROWSER_FACTORIES_EMBEDDING_UTILS_H_
 diff --git a/components/adblock/content/browser/factories/resource_classification_runner_factory.cc b/components/adblock/content/browser/factories/resource_classification_runner_factory.cc
 new file mode 100644
-index 0000000000000..e4534a2cab4d8
+index 0000000000000..b09fb4800069d
 --- /dev/null
 +++ b/components/adblock/content/browser/factories/resource_classification_runner_factory.cc
-@@ -0,0 +1,78 @@
+@@ -0,0 +1,75 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -13782,9 +13736,6 @@ index 0000000000000..e4534a2cab4d8
 +content::BrowserContext*
 +ResourceClassificationRunnerFactory::GetBrowserContextToUse(
 +    content::BrowserContext* context) const {
-+  if (context->IsOffTheRecord()) {
-+    return nullptr;
-+  }
 +  return context;
 +}
 +
@@ -13846,10 +13797,10 @@ index 0000000000000..55c967072d9d8
 +#endif  // COMPONENTS_ADBLOCK_CONTENT_BROWSER_FACTORIES_RESOURCE_CLASSIFICATION_RUNNER_FACTORY_H_
 diff --git a/components/adblock/content/browser/factories/session_stats_factory.cc b/components/adblock/content/browser/factories/session_stats_factory.cc
 new file mode 100644
-index 0000000000000..6ffbf52597b67
+index 0000000000000..0f4ebe548b1e7
 --- /dev/null
 +++ b/components/adblock/content/browser/factories/session_stats_factory.cc
-@@ -0,0 +1,73 @@
+@@ -0,0 +1,70 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -13916,9 +13867,6 @@ index 0000000000000..6ffbf52597b67
 +
 +content::BrowserContext* SessionStatsFactory::GetBrowserContextToUse(
 +    content::BrowserContext* context) const {
-+  if (context->IsOffTheRecord()) {
-+    return nullptr;
-+  }
 +  return context;
 +}
 +
@@ -13978,10 +13926,10 @@ index 0000000000000..fa1af11144451
 +#endif  // COMPONENTS_ADBLOCK_CONTENT_BROWSER_FACTORIES_SESSION_STATS_FACTORY_H_
 diff --git a/components/adblock/content/browser/factories/sitekey_storage_factory.cc b/components/adblock/content/browser/factories/sitekey_storage_factory.cc
 new file mode 100644
-index 0000000000000..19b224690d2ed
+index 0000000000000..58f6b5238d063
 --- /dev/null
 +++ b/components/adblock/content/browser/factories/sitekey_storage_factory.cc
-@@ -0,0 +1,61 @@
+@@ -0,0 +1,58 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -14036,9 +13984,6 @@ index 0000000000000..19b224690d2ed
 +
 +content::BrowserContext* SitekeyStorageFactory::GetBrowserContextToUse(
 +    content::BrowserContext* context) const {
-+  if (context->IsOffTheRecord()) {
-+    return nullptr;
-+  }
 +  return context;
 +}
 +
@@ -14098,10 +14043,10 @@ index 0000000000000..c7c7a334df7cc
 +#endif  // COMPONENTS_ADBLOCK_CONTENT_BROWSER_FACTORIES_SITEKEY_STORAGE_FACTORY_H_
 diff --git a/components/adblock/content/browser/factories/subscription_persistent_metadata_factory.cc b/components/adblock/content/browser/factories/subscription_persistent_metadata_factory.cc
 new file mode 100644
-index 0000000000000..ab55b634f2ff8
+index 0000000000000..70b64e2b957c5
 --- /dev/null
 +++ b/components/adblock/content/browser/factories/subscription_persistent_metadata_factory.cc
-@@ -0,0 +1,66 @@
+@@ -0,0 +1,63 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -14161,9 +14106,6 @@ index 0000000000000..ab55b634f2ff8
 +content::BrowserContext*
 +SubscriptionPersistentMetadataFactory::GetBrowserContextToUse(
 +    content::BrowserContext* context) const {
-+  if (context->IsOffTheRecord()) {
-+    return nullptr;
-+  }
 +  return context;
 +}
 +
@@ -14225,10 +14167,10 @@ index 0000000000000..874d7fd7fc26f
 +#endif  // COMPONENTS_ADBLOCK_CONTENT_BROWSER_FACTORIES_SUBSCRIPTION_PERSISTENT_METADATA_FACTORY_H_
 diff --git a/components/adblock/content/browser/factories/subscription_service_factory.cc b/components/adblock/content/browser/factories/subscription_service_factory.cc
 new file mode 100644
-index 0000000000000..518977a1d74e4
+index 0000000000000..6198d3991ea6a
 --- /dev/null
 +++ b/components/adblock/content/browser/factories/subscription_service_factory.cc
-@@ -0,0 +1,503 @@
+@@ -0,0 +1,446 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -14273,8 +14215,6 @@ index 0000000000000..518977a1d74e4
 +#include "components/adblock/core/net/adblock_resource_request_impl.h"
 +#include "components/adblock/core/subscription/filtering_configuration_maintainer_impl.h"
 +#include "components/adblock/core/subscription/installed_subscription_impl.h"
-+#include "components/adblock/core/subscription/preloaded_subscription_provider_impl.h"
-+#include "components/adblock/core/subscription/recommended_subscription_installer_impl.h"
 +#include "components/adblock/core/subscription/subscription_config.h"
 +#include "components/adblock/core/subscription/subscription_downloader_impl.h"
 +#include "components/adblock/core/subscription/subscription_persistent_storage_impl.h"
@@ -14372,18 +14312,8 @@ index 0000000000000..518977a1d74e4
 +      const_cast<ConversionExecutors*>(conversion_executors),
 +      persistent_metadata);
 +
-+  std::unique_ptr<RecommendedSubscriptionInstallerImpl> recommended_installer =
-+      nullptr;
-+  if (configuration->GetName() == kAdblockFilteringConfigurationName) {
-+    recommended_installer =
-+        std::make_unique<RecommendedSubscriptionInstallerImpl>(
-+            prefs, configuration, persistent_metadata,
-+            base::BindRepeating(&MakeSubscriptionRequest, context));
-+  }
-+
 +  auto maintainer = std::make_unique<FilteringConfigurationMaintainerImpl>(
 +      configuration, std::move(storage), std::move(downloader),
-+      std::move(recommended_installer),
 +      MakeTaskScheduler(),
 +      const_cast<ConversionExecutors*>(conversion_executors),
 +      persistent_metadata, observer);
@@ -14395,23 +14325,6 @@ index 0000000000000..518977a1d74e4
 +                                   FilteringConfiguration* configuration) {
 +  PersistentFilteringConfiguration::RemovePersistedData(
 +      prefs, configuration->GetName());
-+}
-+
-+void InstallFirstRunDefaultAdblockSubscription(
-+    std::unique_ptr<FilteringConfiguration>& adblock_filtering_configuration) {
-+  if (std::ranges::any_of(config::GetKnownSubscriptions(),
-+                          [&](const KnownSubscriptionInfo& subscription) {
-+                            return subscription.url ==
-+                                       DefaultSubscriptionUrl() &&
-+                                   subscription.first_run !=
-+                                       SubscriptionFirstRunBehavior::Ignore;
-+                          })) {
-+    VLOG(1) << "[eyeo] Using the default subscription";
-+    adblock_filtering_configuration->AddFilterList(DefaultSubscriptionUrl());
-+  } else {
-+    VLOG(1) << "[eyeo] No default subscription found, neither "
-+               "language-specific, nor generic.";
-+  }
 +}
 +
 +bool InstallFirstRunAdblockSubscriptionsCheckingLocale(
@@ -14450,16 +14363,10 @@ index 0000000000000..518977a1d74e4
 +    if (language.size() != 2u) {
 +      language = "en";
 +    }
-+    if (!InstallFirstRunAdblockSubscriptionsCheckingLocale(
-+            language, adblock_filtering_configuration)) {
-+      InstallFirstRunDefaultAdblockSubscription(
-+          adblock_filtering_configuration);
-+    }
++    InstallFirstRunAdblockSubscriptionsCheckingLocale(
++            language, adblock_filtering_configuration);
 +    if (IsEyeoFilteringDisabledByDefault()) {
 +      adblock_filtering_configuration->SetEnabled(false);
-+    }
-+    if (IsAcceptableAdsDisabledByDefault()) {
-+      adblock_filtering_configuration->RemoveFilterList(AcceptableAdsUrl());
 +    }
 +    prefs->SetBoolean(common::prefs::kInstallFirstStartSubscriptions, false);
 +  }
@@ -14523,21 +14430,6 @@ index 0000000000000..518977a1d74e4
 +    VLOG(1) << "[eyeo] Migrated kEnableAdblockLegacy pref";
 +  }
 +
-+  if (aa_value) {
-+    if (*aa_value) {
-+      adblock_filtering_configuration->AddFilterList(AcceptableAdsUrl());
-+    } else {
-+      adblock_filtering_configuration->RemoveFilterList(AcceptableAdsUrl());
-+    }
-+    VLOG(1) << "[eyeo] Migrated kEnableAcceptableAdsLegacy pref";
-+  } else if (!subscriptions.empty()) {
-+    // In old version AA setting could never be touched but AA was in use.
-+    // So if we see no value for AA but kAdblockSubscriptionsLegacy pref was
-+    // touched (kAdblockSubscriptionsLegacy is touched during 1st run scenario)
-+    // we need to assume AA was enabled. See DPD-2219.
-+    adblock_filtering_configuration->AddFilterList(AcceptableAdsUrl());
-+  }
-+
 +  for (const auto& url : subscriptions) {
 +    adblock_filtering_configuration->AddFilterList(url);
 +    VLOG(1) << "[eyeo] Migrated " << url
@@ -14585,10 +14477,6 @@ index 0000000000000..518977a1d74e4
 +
 +void CheckAdblockCliSwitches(
 +    FilteringConfiguration* adblock_filtering_configuration) {
-+  if (base::CommandLine::ForCurrentProcess()->HasSwitch(
-+          adblock::switches::kDisableAcceptableAds)) {
-+    adblock_filtering_configuration->RemoveFilterList(AcceptableAdsUrl());
-+  }
 +  if (base::CommandLine::ForCurrentProcess()->HasSwitch(
 +          switches::kDisableAdblock)) {
 +    adblock_filtering_configuration->SetEnabled(false);
@@ -14712,9 +14600,6 @@ index 0000000000000..518977a1d74e4
 +
 +content::BrowserContext* SubscriptionServiceFactory::GetBrowserContextToUse(
 +    content::BrowserContext* context) const {
-+  if (context->IsOffTheRecord()) {
-+    return nullptr;
-+  }
 +  return context;
 +}
 +
@@ -15182,10 +15067,10 @@ index 0000000000000..bf057664af99f
 +};
 diff --git a/components/adblock/content/browser/page_view_stats.cc b/components/adblock/content/browser/page_view_stats.cc
 new file mode 100644
-index 0000000000000..7ff7b9589ad54
+index 0000000000000..5c8f1bdd49029
 --- /dev/null
 +++ b/components/adblock/content/browser/page_view_stats.cc
-@@ -0,0 +1,291 @@
+@@ -0,0 +1,288 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -15335,9 +15220,6 @@ index 0000000000000..7ff7b9589ad54
 +  }
 +
 +  if (match_result == FilterMatchResult::kAllowRule) {
-+    if (subscription == AcceptableAdsUrl()) {
-+      RecordPageView(render_frame_host->GetPage(), Metric::AcceptableAds);
-+    }
 +    // We increment general (any) allowlisting metric despite incrementing
 +    // specific, AA related metrics.
 +    RecordPageView(render_frame_host->GetPage(), Metric::Allowing);
@@ -16695,10 +16577,10 @@ index 0000000000000..fc6cadce9b8ae
 +#endif  // COMPONENTS_ADBLOCK_CONTENT_BROWSER_SESSION_STATS_IMPL_H_
 diff --git a/components/adblock/content/browser/test/adblock_acceptable_ads_browsertest.cc b/components/adblock/content/browser/test/adblock_acceptable_ads_browsertest.cc
 new file mode 100644
-index 0000000000000..3c357ed25d80f
+index 0000000000000..c8d935d9b7a01
 --- /dev/null
 +++ b/components/adblock/content/browser/test/adblock_acceptable_ads_browsertest.cc
-@@ -0,0 +1,211 @@
+@@ -0,0 +1,208 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -16767,9 +16649,6 @@ index 0000000000000..3c357ed25d80f
 +  void SetUpCommandLine(base::CommandLine* command_line) override {
 +    if (!AcceptableAdsEnabled()) {
 +      command_line->AppendSwitch(switches::kDisableAcceptableAds);
-+    }
-+    if (IncognitoMode()) {
-+      command_line->AppendSwitch("incognito");
 +    }
 +  }
 +
@@ -16872,7 +16751,7 @@ index 0000000000000..3c357ed25d80f
 +
 +  bool DomainAllowlisted() { return std::get<1>(GetParam()); }
 +
-+  bool IncognitoMode() { return std::get<2>(GetParam()); }
++  bool IncognitoMode() override { return std::get<2>(GetParam()); }
 +
 + private:
 +  net::EmbeddedTestServer https_server_;
@@ -16912,10 +16791,10 @@ index 0000000000000..3c357ed25d80f
 +}  // namespace adblock
 diff --git a/components/adblock/content/browser/test/adblock_browsertest_base.cc b/components/adblock/content/browser/test/adblock_browsertest_base.cc
 new file mode 100644
-index 0000000000000..bd7f6f4814b27
+index 0000000000000..48c7b3f06860f
 --- /dev/null
 +++ b/components/adblock/content/browser/test/adblock_browsertest_base.cc
-@@ -0,0 +1,239 @@
+@@ -0,0 +1,251 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -17154,13 +17033,25 @@ index 0000000000000..bd7f6f4814b27
 +  return domain;
 +}
 +
++bool AdblockBrowserTestBase::IncognitoMode() {
++  return false;
++}
++
++content::Shell* AdblockBrowserTestBase::shell() {
++  if (!browser_) {
++    browser_ =
++        (IncognitoMode() ? CreateOffTheRecordBrowser() : CreateBrowser());
++  }
++  return browser_;
++}
++
 +}  // namespace adblock
 diff --git a/components/adblock/content/browser/test/adblock_browsertest_base.h b/components/adblock/content/browser/test/adblock_browsertest_base.h
 new file mode 100644
-index 0000000000000..888a1a8eaa234
+index 0000000000000..e59f3f1d529fa
 --- /dev/null
 +++ b/components/adblock/content/browser/test/adblock_browsertest_base.h
-@@ -0,0 +1,136 @@
+@@ -0,0 +1,141 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -17288,10 +17179,15 @@ index 0000000000000..888a1a8eaa234
 +
 +  std::string GetTelemetryDomain();
 +
++  virtual bool IncognitoMode();
++
++  content::Shell* shell();
++
 + protected:
 +  bool finish_condition_met_ = false;
 +  base::RepeatingClosure quit_closure_;
 +  TestResourceClassificationRunnerObserver observer_;
++  raw_ptr<content::Shell, DanglingUntriaged> browser_ = nullptr;
 +};
 +
 +}  // namespace adblock
@@ -17415,10 +17311,10 @@ index 0000000000000..b8e576fbf749b
 +}  // namespace adblock
 diff --git a/components/adblock/content/browser/test/adblock_content_filters_browsertest.cc b/components/adblock/content/browser/test/adblock_content_filters_browsertest.cc
 new file mode 100644
-index 0000000000000..a8799dda27e4a
+index 0000000000000..6af8f4a5e40b4
 --- /dev/null
 +++ b/components/adblock/content/browser/test/adblock_content_filters_browsertest.cc
-@@ -0,0 +1,385 @@
+@@ -0,0 +1,394 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -17446,13 +17342,16 @@ index 0000000000000..a8799dda27e4a
 +#include "content/public/test/browser_test.h"
 +#include "content/public/test/browser_test_utils.h"
 +#include "content/public/test/content_browser_test_utils.h"
++#include "content/shell/browser/shell.h"
 +#include "net/dns/mock_host_resolver.h"
 +#include "net/test/embedded_test_server/embedded_test_server.h"
 +#include "testing/gtest/include/gtest/gtest.h"
 +
 +namespace adblock {
 +
-+class AdblockContentFiltersBrowserTest : public AdblockBrowserTestBase {
++class AdblockContentFiltersBrowserTest
++    : public AdblockBrowserTestBase,
++      public testing::WithParamInterface<bool> {
 + public:
 +  void SetUpOnMainThread() override {
 +    AdblockBrowserTestBase::SetUpOnMainThread();
@@ -17462,6 +17361,8 @@ index 0000000000000..a8799dda27e4a
 +    ASSERT_TRUE(embedded_test_server()->Start());
 +    InitResourceClassificationObserver();
 +  }
++
++  bool IncognitoMode() override { return GetParam(); }
 +
 +  GURL GetUrl(const std::string& path) {
 +    return embedded_test_server()->GetURL("example.com", path);
@@ -17530,7 +17431,7 @@ index 0000000000000..a8799dda27e4a
 +  }
 +};
 +
-+IN_PROC_BROWSER_TEST_F(AdblockContentFiltersBrowserTest, VerifyNoFilters) {
++IN_PROC_BROWSER_TEST_P(AdblockContentFiltersBrowserTest, VerifyNoFilters) {
 +  ASSERT_TRUE(
 +      content::NavigateToURL(shell(), GetUrl("/content_type_filters.html")));
 +  WaitForDynamicContentLoaded();
@@ -17542,7 +17443,7 @@ index 0000000000000..a8799dda27e4a
 +  VerifyCssAppliedForTargets(false, "id_to_apply_style_by_ehe");
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockContentFiltersBrowserTest, VerifyHide) {
++IN_PROC_BROWSER_TEST_P(AdblockContentFiltersBrowserTest, VerifyHide) {
 +  SetFilters({"example.com##.id_to_elem_hide",
 +              "example.com#?#span:-abp-contains(id_to_elem_hide_emu)"});
 +  ASSERT_TRUE(
@@ -17562,7 +17463,7 @@ index 0000000000000..a8799dda27e4a
 +          ":root > BODY:nth-child(2) > DIV:nth-child(3) > SPAN:nth-child(1)"));
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockContentFiltersBrowserTest, VerifyHideException) {
++IN_PROC_BROWSER_TEST_P(AdblockContentFiltersBrowserTest, VerifyHideException) {
 +  SetFilters({"example.com##.id_to_elem_hide",
 +              "example.com#?#span:-abp-contains(id_to_elem_hide_emu)",
 +              "example.com#@#.id_to_elem_hide",
@@ -17579,7 +17480,7 @@ index 0000000000000..a8799dda27e4a
 +  EXPECT_EQ(observer_.hidden_notifications_.size(), 0u);
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockContentFiltersBrowserTest, VerifyRemove) {
++IN_PROC_BROWSER_TEST_P(AdblockContentFiltersBrowserTest, VerifyRemove) {
 +  SetFilters({"example.com##.id_to_remove_by_eh {remove: true;}",
 +              "example.com#?#span:-abp-contains(id_to_remove_by_ehe) {remove: "
 +              "true;}"});
@@ -17600,7 +17501,7 @@ index 0000000000000..a8799dda27e4a
 +          ":root > BODY:nth-child(2) > DIV:nth-child(5) > SPAN:nth-child(1)"));
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockContentFiltersBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockContentFiltersBrowserTest,
 +                       VerifyRemoveException) {
 +  SetFilters({"example.com##.id_to_remove_by_eh {remove: true;}",
 +              "example.com#?#span:-abp-contains(id_to_remove_by_ehe\"]"
@@ -17619,7 +17520,7 @@ index 0000000000000..a8799dda27e4a
 +  EXPECT_EQ(observer_.removed_notifications_.size(), 0u);
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockContentFiltersBrowserTest, VerifyInlineCss) {
++IN_PROC_BROWSER_TEST_P(AdblockContentFiltersBrowserTest, VerifyInlineCss) {
 +  SetFilters(
 +      {"example.com##.id_to_apply_style_by_eh {background-color: "
 +       "#00FF00!important;}",
@@ -17642,7 +17543,7 @@ index 0000000000000..a8799dda27e4a
 +          ":root > BODY:nth-child(2) > DIV:nth-child(7) > SPAN:nth-child(1)"));
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockContentFiltersBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockContentFiltersBrowserTest,
 +                       VerifyInlineCssException) {
 +  SetFilters(
 +      {"example.com##.id_to_apply_style_by_eh {background-color: "
@@ -17663,7 +17564,7 @@ index 0000000000000..a8799dda27e4a
 +  EXPECT_EQ(observer_.inline_css_notifications_.size(), 0u);
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockContentFiltersBrowserTest, VerifyAllFilters) {
++IN_PROC_BROWSER_TEST_P(AdblockContentFiltersBrowserTest, VerifyAllFilters) {
 +  SetFilters({"example.com##.id_to_elem_hide",
 +              "example.com#?#span:-abp-contains(id_to_elem_hide_emu)",
 +              "example.com##.id_to_remove_by_eh {remove: true;}",
@@ -17702,7 +17603,7 @@ index 0000000000000..a8799dda27e4a
 +          ":root > BODY:nth-child(2) > DIV:nth-child(7) > SPAN:nth-child(1)"));
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockContentFiltersBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockContentFiltersBrowserTest,
 +                       VerifyHideToInlineCssSelectorChange) {
 +  SetFilters({"example.com#?#span:-abp-contains(hide_selector)",
 +              "example.com#?#span:-abp-contains(inline_css_selector) "
@@ -17737,7 +17638,7 @@ index 0000000000000..a8799dda27e4a
 +          ":root > BODY:nth-child(2) > DIV:nth-child(11) > SPAN:nth-child(2)"));
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockContentFiltersBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockContentFiltersBrowserTest,
 +                       VerifyHideToRemoveSelectorChange) {
 +  SetFilters(
 +      {"example.com#?#span:-abp-contains(hide_selector)",
@@ -17771,7 +17672,7 @@ index 0000000000000..a8799dda27e4a
 +          ":root > BODY:nth-child(2) > DIV:nth-child(11) > SPAN:nth-child(4)"));
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockContentFiltersBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockContentFiltersBrowserTest,
 +                       VerifyInlineCssStyleModificationLogic) {
 +  ASSERT_TRUE(
 +      content::NavigateToURL(shell(), GetUrl("/content_type_filters.html")));
@@ -17803,13 +17704,17 @@ index 0000000000000..a8799dda27e4a
 +              testing::UnorderedElementsAre("#hidden_then_inline_css"));
 +}
 +
++INSTANTIATE_TEST_SUITE_P(All,
++                         AdblockContentFiltersBrowserTest,
++                         testing::Values(false /*normal*/, true /*incognito*/));
++
 +}  // namespace adblock
 diff --git a/components/adblock/content/browser/test/adblock_debug_url_browsertest.cc b/components/adblock/content/browser/test/adblock_debug_url_browsertest.cc
 new file mode 100644
-index 0000000000000..6cdf42b7e94c7
+index 0000000000000..2a21c3aa6b9e1
 --- /dev/null
 +++ b/components/adblock/content/browser/test/adblock_debug_url_browsertest.cc
-@@ -0,0 +1,331 @@
+@@ -0,0 +1,338 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -17848,12 +17753,15 @@ index 0000000000000..6cdf42b7e94c7
 +
 +namespace adblock {
 +
-+class AdblockDebugUrlTest : public AdblockBrowserTestBase {
++class AdblockDebugUrlTest : public AdblockBrowserTestBase,
++                            public testing::WithParamInterface<bool> {
 + public:
 +  AdblockDebugUrlTest() {}
 +  ~AdblockDebugUrlTest() override = default;
 +  AdblockDebugUrlTest(const AdblockDebugUrlTest&) = delete;
 +  AdblockDebugUrlTest& operator=(const AdblockDebugUrlTest&) = delete;
++
++  bool IncognitoMode() override { return GetParam(); }
 +
 + protected:
 +  std::string ExecuteScriptAndExtractString(const std::string& js_code) {
@@ -17893,7 +17801,7 @@ index 0000000000000..6cdf42b7e94c7
 +      "document.getElementsByTagName('body')[0].firstChild.innerHTML";
 +};
 +
-+IN_PROC_BROWSER_TEST_F(AdblockDebugUrlTest, TestInvalidUrls) {
++IN_PROC_BROWSER_TEST_P(AdblockDebugUrlTest, TestInvalidUrls) {
 +  GURL no_command1(GetUrlForAdblockConfiguration());
 +  ASSERT_TRUE(content::NavigateToURL(shell(), no_command1));
 +  ASSERT_TRUE(base::StartsWith(
@@ -17923,7 +17831,7 @@ index 0000000000000..6cdf42b7e94c7
 +      ExecuteScriptAndExtractString(kReadPageBodyScript), "INVALID_COMMAND"));
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockDebugUrlTest, TestFilterCommands) {
++IN_PROC_BROWSER_TEST_P(AdblockDebugUrlTest, TestFilterCommands) {
 +  GURL clear_filters_url(GetUrlForAdblockConfiguration() + "/filters/clear");
 +  ASSERT_TRUE(content::NavigateToURL(shell(), clear_filters_url));
 +  ASSERT_EQ("OK", ExecuteScriptAndExtractString(kReadPageBodyScript));
@@ -17963,7 +17871,7 @@ index 0000000000000..6cdf42b7e94c7
 +            ExecuteScriptAndExtractString(kReadPageBodyScript));
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockDebugUrlTest, TestDomainCommands) {
++IN_PROC_BROWSER_TEST_P(AdblockDebugUrlTest, TestDomainCommands) {
 +  GURL clear_domains_url(GetUrlForAdblockConfiguration() + "/domains/clear");
 +  ASSERT_TRUE(content::NavigateToURL(shell(), clear_domains_url));
 +  ASSERT_EQ("OK", ExecuteScriptAndExtractString(kReadPageBodyScript));
@@ -18003,7 +17911,7 @@ index 0000000000000..6cdf42b7e94c7
 +            ExecuteScriptAndExtractString(kReadPageBodyScript));
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockDebugUrlTest, TestSubscriptionCommands) {
++IN_PROC_BROWSER_TEST_P(AdblockDebugUrlTest, TestSubscriptionCommands) {
 +  GURL clear_subscriptions_url(GetUrlForAdblockConfiguration() +
 +                               "/subscriptions/clear");
 +  ASSERT_TRUE(content::NavigateToURL(shell(), clear_subscriptions_url));
@@ -18049,7 +17957,7 @@ index 0000000000000..6cdf42b7e94c7
 +            ExecuteScriptAndExtractString(kReadPageBodyScript));
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockDebugUrlTest, TestEnableConfigurationCommands) {
++IN_PROC_BROWSER_TEST_P(AdblockDebugUrlTest, TestEnableConfigurationCommands) {
 +  GURL enable_adblock__url(GetUrlForAdblockConfiguration() +
 +                           "/configuration/enable");
 +  GURL disable_adblock_url(GetUrlForAdblockConfiguration() +
@@ -18075,7 +17983,7 @@ index 0000000000000..6cdf42b7e94c7
 +            ExecuteScriptAndExtractString(kReadPageBodyScript));
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockDebugUrlTest, TestEnableAACommands) {
++IN_PROC_BROWSER_TEST_P(AdblockDebugUrlTest, TestEnableAACommands) {
 +  GURL enable_aa_url(GetUrlForAdblockConfiguration() + "/aa/enable");
 +  GURL disable_aa_url(GetUrlForAdblockConfiguration() + "/aa/disable");
 +  GURL aa_state_url(GetUrlForAdblockConfiguration() + "/aa/state");
@@ -18098,7 +18006,7 @@ index 0000000000000..6cdf42b7e94c7
 +            ExecuteScriptAndExtractString(kReadPageBodyScript));
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockDebugUrlTest, TestHandleConfigurationsCommands) {
++IN_PROC_BROWSER_TEST_P(AdblockDebugUrlTest, TestHandleConfigurationsCommands) {
 +  GURL list_configurations_url(GetUrlForListingConfigurations() + "/list");
 +  GURL add_configuration_url(GetUrlForListingConfigurations() + "/add/adblock");
 +  GURL remove_configuration_url(GetUrlForListingConfigurations() +
@@ -18126,7 +18034,7 @@ index 0000000000000..6cdf42b7e94c7
 +  ASSERT_THAT(response, HasSubstr("adblock"));
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockDebugUrlTest, TestUrlsInterception) {
++IN_PROC_BROWSER_TEST_P(AdblockDebugUrlTest, TestUrlsInterception) {
 +  std::vector<GURL> invalid_urls = {
 +      GURL{"https://adblocktest.data"}, GURL{"https://adblock.testdata"},
 +      GURL{"https://adblock.test.data.eyeo"}, GURL{"https://test.data.eyeo"}};
@@ -18139,6 +18047,10 @@ index 0000000000000..6cdf42b7e94c7
 +    ASSERT_TRUE(content::NavigateToURL(shell(), url));
 +  }
 +}
++
++INSTANTIATE_TEST_SUITE_P(All,
++                         AdblockDebugUrlTest,
++                         testing::Values(false /*normal*/, true /*incognito*/));
 +
 +}  // namespace adblock
 diff --git a/components/adblock/content/browser/test/adblock_filter_list_browsertest.cc b/components/adblock/content/browser/test/adblock_filter_list_browsertest.cc
@@ -18857,10 +18769,10 @@ index 0000000000000..08f8c8d2347be
 +}  // namespace adblock
 diff --git a/components/adblock/content/browser/test/adblock_filtering_configurations_browsertest.cc b/components/adblock/content/browser/test/adblock_filtering_configurations_browsertest.cc
 new file mode 100644
-index 0000000000000..1ff1a842aaf5e
+index 0000000000000..d034770333b19
 --- /dev/null
 +++ b/components/adblock/content/browser/test/adblock_filtering_configurations_browsertest.cc
-@@ -0,0 +1,666 @@
+@@ -0,0 +1,678 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -18904,7 +18816,9 @@ index 0000000000000..1ff1a842aaf5e
 +
 +namespace adblock {
 +
-+class AdblockFilteringConfigurationBrowserTest : public AdblockBrowserTestBase {
++class AdblockFilteringConfigurationBrowserTest
++    : public AdblockBrowserTestBase,
++      public testing::WithParamInterface<bool> {
 + public:
 +  AdblockFilteringConfigurationBrowserTest() {
 +    embedded_test_server()->ServeFilesFromSourceDirectory(
@@ -18937,6 +18851,8 @@ index 0000000000000..1ff1a842aaf5e
 +    AdblockBrowserTestBase::SetUpOnMainThread();
 +    host_resolver()->AddRule("*", "127.0.0.1");
 +  }
++
++  bool IncognitoMode() override { return GetParam(); }
 +
 +  GURL BlockingFilterListUrl() {
 +    return embedded_test_server()->GetURL(
@@ -19009,7 +18925,7 @@ index 0000000000000..1ff1a842aaf5e
 +  void ExpectResourceNotBlocked() { EXPECT_TRUE(IsResourceLoaded()); }
 +};
 +
-+IN_PROC_BROWSER_TEST_F(AdblockFilteringConfigurationBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFilteringConfigurationBrowserTest,
 +                       NoBlockingByDefault) {
 +  auto configuration = MakeConfiguration("config");
 +  InstallFilteringConfiguration(std::move(configuration));
@@ -19018,7 +18934,7 @@ index 0000000000000..1ff1a842aaf5e
 +  ExpectResourceNotBlocked();
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockFilteringConfigurationBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFilteringConfigurationBrowserTest,
 +                       ResourceBlockedByFilteringConfigurationsList) {
 +  auto configuration = MakeConfiguration("config");
 +  configuration->AddFilterList(BlockingFilterListUrl());
@@ -19031,7 +18947,7 @@ index 0000000000000..1ff1a842aaf5e
 +  ExpectResourceBlocked();
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockFilteringConfigurationBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFilteringConfigurationBrowserTest,
 +                       ResourceHiddenByFilteringConfigurationsList) {
 +  auto configuration = MakeConfiguration("config");
 +  configuration->AddFilterList(ElementHidingFilterListUrl());
@@ -19044,7 +18960,7 @@ index 0000000000000..1ff1a842aaf5e
 +  ExpectResourceHidden();
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockFilteringConfigurationBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFilteringConfigurationBrowserTest,
 +                       ResourceAllowedByFilteringConfigurationsList) {
 +  auto configuration = MakeConfiguration("config");
 +  configuration->AddFilterList(BlockingFilterListUrl());
@@ -19062,7 +18978,7 @@ index 0000000000000..1ff1a842aaf5e
 +  ExpectResourceNotHidden();
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockFilteringConfigurationBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFilteringConfigurationBrowserTest,
 +                       BlockingTakesPrecedenceBetweenConfigurations) {
 +  auto blocking_configuration = MakeConfiguration("blocking");
 +  blocking_configuration->AddFilterList(BlockingFilterListUrl());
@@ -19080,7 +18996,7 @@ index 0000000000000..1ff1a842aaf5e
 +  ExpectResourceBlocked();
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockFilteringConfigurationBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFilteringConfigurationBrowserTest,
 +                       ElementBlockedByCustomFilter) {
 +  auto configuration = MakeConfiguration("config");
 +  configuration->AddCustomFilter("*resource.png");
@@ -19091,7 +19007,7 @@ index 0000000000000..1ff1a842aaf5e
 +  ExpectResourceBlocked();
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockFilteringConfigurationBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFilteringConfigurationBrowserTest,
 +                       ElementAllowedByCustomFilter) {
 +  auto configuration = MakeConfiguration("config");
 +  configuration->AddCustomFilter("*resource.png");
@@ -19103,7 +19019,7 @@ index 0000000000000..1ff1a842aaf5e
 +  ExpectResourceNotBlocked();
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockFilteringConfigurationBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFilteringConfigurationBrowserTest,
 +                       ElementAllowedByAllowedDomain) {
 +  auto configuration = MakeConfiguration("config");
 +  configuration->AddCustomFilter("*resource.png");
@@ -19115,7 +19031,7 @@ index 0000000000000..1ff1a842aaf5e
 +  ExpectResourceNotBlocked();
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockFilteringConfigurationBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFilteringConfigurationBrowserTest,
 +                       PRE_CustomFiltersPersist) {
 +  auto configuration = MakeConfiguration("persistent");
 +  // This custom filter will survive browser restart.
@@ -19123,7 +19039,7 @@ index 0000000000000..1ff1a842aaf5e
 +  InstallFilteringConfiguration(std::move(configuration));
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockFilteringConfigurationBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFilteringConfigurationBrowserTest,
 +                       CustomFiltersPersist) {
 +  auto configurations =
 +      SubscriptionServiceFactory::GetForBrowserContext(browser_context())
@@ -19138,7 +19054,7 @@ index 0000000000000..1ff1a842aaf5e
 +  ExpectResourceBlocked();
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockFilteringConfigurationBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFilteringConfigurationBrowserTest,
 +                       DisabledConfigurationDoesNotBlock) {
 +  auto configuration = MakeConfiguration("config");
 +  configuration->AddCustomFilter("*resource.png");
@@ -19150,7 +19066,7 @@ index 0000000000000..1ff1a842aaf5e
 +  ExpectResourceNotBlocked();
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockFilteringConfigurationBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFilteringConfigurationBrowserTest,
 +                       ConfigurationCanBeUsedAfterInstalling) {
 +  auto configuration = MakeConfiguration("config");
 +  auto* configuration_ptr = configuration.get();
@@ -19163,7 +19079,7 @@ index 0000000000000..1ff1a842aaf5e
 +  ExpectResourceBlocked();
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockFilteringConfigurationBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFilteringConfigurationBrowserTest,
 +                       ConfigurationCanBeDisabledAfterInstalling) {
 +  auto configuration = MakeConfiguration("config");
 +  auto* configuration_ptr = configuration.get();
@@ -19177,7 +19093,7 @@ index 0000000000000..1ff1a842aaf5e
 +  ExpectResourceNotBlocked();
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockFilteringConfigurationBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFilteringConfigurationBrowserTest,
 +                       SubscriptionsDownloadedAfterConfigurationEnabled) {
 +  auto configuration = MakeConfiguration("config");
 +  configuration->SetEnabled(false);
@@ -19195,7 +19111,7 @@ index 0000000000000..1ff1a842aaf5e
 +                                   ElementHidingFilterListUrl()});
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockFilteringConfigurationBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFilteringConfigurationBrowserTest,
 +                       PRE_DownloadedSubscriptionsPersistOnDisk) {
 +  auto configuration = MakeConfiguration("config");
 +  // This filter list setting will survive browser restart.
@@ -19207,21 +19123,21 @@ index 0000000000000..1ff1a842aaf5e
 +  WaitUntilSubscriptionsInstalled({BlockingFilterListUrl()});
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockFilteringConfigurationBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFilteringConfigurationBrowserTest,
 +                       DownloadedSubscriptionsPersistOnDisk) {
 +  NavigateToPage();
 +  ExpectResourceBlocked();
 +}
 +
 +// 1st run: create.
-+IN_PROC_BROWSER_TEST_F(AdblockFilteringConfigurationBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFilteringConfigurationBrowserTest,
 +                       PRE_PRE_CreateThenRemoveCustomConfiguration) {
 +  auto configuration = MakeConfiguration("persistent");
 +  InstallFilteringConfiguration(std::move(configuration));
 +}
 +
 +// 2nd run: remove.
-+IN_PROC_BROWSER_TEST_F(AdblockFilteringConfigurationBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFilteringConfigurationBrowserTest,
 +                       PRE_CreateThenRemoveCustomConfiguration) {
 +  auto configurations =
 +      SubscriptionServiceFactory::GetForBrowserContext(browser_context())
@@ -19239,7 +19155,7 @@ index 0000000000000..1ff1a842aaf5e
 +}
 +
 +// 3rd run: verify not present.
-+IN_PROC_BROWSER_TEST_F(AdblockFilteringConfigurationBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFilteringConfigurationBrowserTest,
 +                       CreateThenRemoveCustomConfiguration) {
 +  auto configurations =
 +      SubscriptionServiceFactory::GetForBrowserContext(browser_context())
@@ -19251,7 +19167,7 @@ index 0000000000000..1ff1a842aaf5e
 +
 +// 1st run: confirm "adblock" configuration is created and contains expected
 +// default settings, then change some settings and verify in the next run.
-+IN_PROC_BROWSER_TEST_F(AdblockFilteringConfigurationBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFilteringConfigurationBrowserTest,
 +                       PRE_PRE_RemoveAdblockConfiguration) {
 +  auto configurations =
 +      SubscriptionServiceFactory::GetForBrowserContext(browser_context())
@@ -19278,7 +19194,7 @@ index 0000000000000..1ff1a842aaf5e
 +
 +// 2nd run: make sure that previously changed settings are persisted, then
 +// remove "adblock" configuration.
-+IN_PROC_BROWSER_TEST_F(AdblockFilteringConfigurationBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFilteringConfigurationBrowserTest,
 +                       PRE_RemoveAdblockConfiguration) {
 +  auto configurations =
 +      SubscriptionServiceFactory::GetForBrowserContext(browser_context())
@@ -19305,7 +19221,7 @@ index 0000000000000..1ff1a842aaf5e
 +}
 +
 +// 3rd run: verify "adblock" configuration is not present.
-+IN_PROC_BROWSER_TEST_F(AdblockFilteringConfigurationBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFilteringConfigurationBrowserTest,
 +                       RemoveAdblockConfiguration) {
 +  auto configurations =
 +      SubscriptionServiceFactory::GetForBrowserContext(browser_context())
@@ -19317,7 +19233,7 @@ index 0000000000000..1ff1a842aaf5e
 +}
 +
 +// 1st run: set legacy prefs and verify migration in the next run.
-+IN_PROC_BROWSER_TEST_F(AdblockFilteringConfigurationBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFilteringConfigurationBrowserTest,
 +                       PRE_MigrateSettings) {
 +  auto configurations =
 +      SubscriptionServiceFactory::GetForBrowserContext(browser_context())
@@ -19371,7 +19287,7 @@ index 0000000000000..1ff1a842aaf5e
 +}
 +
 +// 2nd run: check migrated settings.
-+IN_PROC_BROWSER_TEST_F(AdblockFilteringConfigurationBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFilteringConfigurationBrowserTest,
 +                       MigrateSettings) {
 +  auto configurations =
 +      SubscriptionServiceFactory::GetForBrowserContext(browser_context())
@@ -19399,7 +19315,7 @@ index 0000000000000..1ff1a842aaf5e
 +              filters.end());
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockFilteringConfigurationBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFilteringConfigurationBrowserTest,
 +                       PRE_PersistDisabledAAState) {
 +  auto configurations =
 +      SubscriptionServiceFactory::GetForBrowserContext(browser_context())
@@ -19417,7 +19333,7 @@ index 0000000000000..1ff1a842aaf5e
 +                         AcceptableAdsUrl()) != subscriptions.end());
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockFilteringConfigurationBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFilteringConfigurationBrowserTest,
 +                       PersistDisabledAAState) {
 +  auto configurations =
 +      SubscriptionServiceFactory::GetForBrowserContext(browser_context())
@@ -19431,7 +19347,7 @@ index 0000000000000..1ff1a842aaf5e
 +                         AcceptableAdsUrl()) != subscriptions.end());
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockFilteringConfigurationBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFilteringConfigurationBrowserTest,
 +                       PRE_PersistEnabledAAState) {
 +  auto configurations =
 +      SubscriptionServiceFactory::GetForBrowserContext(browser_context())
@@ -19453,7 +19369,7 @@ index 0000000000000..1ff1a842aaf5e
 +                        AcceptableAdsUrl()) != subscriptions.end());
 +}
 +
-+IN_PROC_BROWSER_TEST_F(AdblockFilteringConfigurationBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFilteringConfigurationBrowserTest,
 +                       PersistEnabledAAState) {
 +  auto configurations =
 +      SubscriptionServiceFactory::GetForBrowserContext(browser_context())
@@ -19466,6 +19382,10 @@ index 0000000000000..1ff1a842aaf5e
 +  ASSERT_TRUE(std::find(subscriptions.begin(), subscriptions.end(),
 +                        AcceptableAdsUrl()) != subscriptions.end());
 +}
++
++INSTANTIATE_TEST_SUITE_P(All,
++                         AdblockFilteringConfigurationBrowserTest,
++                         testing::Values(false /*normal*/, true /*incognito*/));
 +
 +class AdblockFilteringConfigurationDisableSwitchBrowserTest
 +    : public AdblockFilteringConfigurationBrowserTest {
@@ -19480,7 +19400,7 @@ index 0000000000000..1ff1a842aaf5e
 +};
 +
 +// 1st run: create configuration and make sure it is enabled by default.
-+IN_PROC_BROWSER_TEST_F(
++IN_PROC_BROWSER_TEST_P(
 +    AdblockFilteringConfigurationDisableSwitchBrowserTest,
 +    PRE_PRE_PRE_CreateConfigAndConfirmEnableStateAfterReset) {
 +  auto configuration = MakeConfiguration("persistent");
@@ -19489,7 +19409,7 @@ index 0000000000000..1ff1a842aaf5e
 +}
 +
 +// 2nd run: make sure configuration is enabled after restart.
-+IN_PROC_BROWSER_TEST_F(AdblockFilteringConfigurationDisableSwitchBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFilteringConfigurationDisableSwitchBrowserTest,
 +                       PRE_PRE_CreateConfigAndConfirmEnableStateAfterReset) {
 +  auto configurations =
 +      SubscriptionServiceFactory::GetForBrowserContext(browser_context())
@@ -19502,7 +19422,7 @@ index 0000000000000..1ff1a842aaf5e
 +
 +// 3rd run: after adding "--disable-eyeo-filtering" make sure configuration is
 +// disabled.
-+IN_PROC_BROWSER_TEST_F(AdblockFilteringConfigurationDisableSwitchBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFilteringConfigurationDisableSwitchBrowserTest,
 +                       PRE_CreateConfigAndConfirmEnableStateAfterReset) {
 +  auto configurations =
 +      SubscriptionServiceFactory::GetForBrowserContext(browser_context())
@@ -19515,7 +19435,7 @@ index 0000000000000..1ff1a842aaf5e
 +
 +// 4th run: without "--disable-eyeo-filtering" make sure configuration is still
 +// disabled.
-+IN_PROC_BROWSER_TEST_F(AdblockFilteringConfigurationDisableSwitchBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFilteringConfigurationDisableSwitchBrowserTest,
 +                       CreateConfigAndConfirmEnableStateAfterReset) {
 +  auto configurations =
 +      SubscriptionServiceFactory::GetForBrowserContext(browser_context())
@@ -19525,6 +19445,10 @@ index 0000000000000..1ff1a842aaf5e
 +  ASSERT_TRUE(configuration != configurations.end());
 +  ASSERT_FALSE((*configuration)->IsEnabled());
 +}
++
++INSTANTIATE_TEST_SUITE_P(All,
++                         AdblockFilteringConfigurationDisableSwitchBrowserTest,
++                         testing::Values(false /*normal*/, true /*incognito*/));
 +
 +}  // namespace adblock
 diff --git a/components/adblock/content/browser/test/adblock_non_ascii_browsertest.cc b/components/adblock/content/browser/test/adblock_non_ascii_browsertest.cc
@@ -22740,10 +22664,10 @@ index 0000000000000..fc748f30f244f
 +}  // namespace adblock
 diff --git a/components/adblock/content/browser/test/adblock_web_ui_browsertest.cc b/components/adblock/content/browser/test/adblock_web_ui_browsertest.cc
 new file mode 100644
-index 0000000000000..2eeca70ebc41e
+index 0000000000000..605cce308dcfb
 --- /dev/null
 +++ b/components/adblock/content/browser/test/adblock_web_ui_browsertest.cc
-@@ -0,0 +1,58 @@
+@@ -0,0 +1,56 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -22762,28 +22686,22 @@ index 0000000000000..2eeca70ebc41e
 + */
 +
 +#include "base/strings/strcat.h"
++#include "components/adblock/content/browser/test/adblock_browsertest_base.h"
 +#include "components/adblock/core/common/web_ui_constants.h"
-+#include "content/public/browser/web_contents.h"
 +#include "content/public/test/browser_test.h"
-+#include "content/public/test/content_browser_test.h"
 +#include "content/public/test/content_browser_test_utils.h"
-+#include "content/shell/app/shell_main_delegate.h"
 +#include "content/shell/browser/shell.h"
 +#include "testing/gtest/include/gtest/gtest.h"
 +
 +namespace adblock {
 +
-+class AdblockWebUIBrowserTest : public content::ContentBrowserTest {
++class AdblockWebUIBrowserTest : public AdblockBrowserTestBase,
++                                public testing::WithParamInterface<bool> {
 + public:
-+  // Without this override there is no AdblockShellContentBrowserClient
-+  // (created by ShellMainDelegate) but default ShellContentBrowserClient.
-+  content::ContentMainDelegate* GetOptionalContentMainDelegateOverride()
-+      override {
-+    return new content::ShellMainDelegate(true);
-+  }
++  bool IncognitoMode() override { return GetParam(); }
 +};
 +
-+IN_PROC_BROWSER_TEST_F(AdblockWebUIBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockWebUIBrowserTest,
 +                       AdblockInternalsPageLoadsSuccessfully) {
 +  ASSERT_TRUE(content::NavigateToURL(
 +      shell(),
@@ -22792,7 +22710,7 @@ index 0000000000000..2eeca70ebc41e
 +  EXPECT_EQ(u"Ad-Filtering Internals", shell()->web_contents()->GetTitle());
 +}
 +
-+IN_PROC_BROWSER_TEST_F(
++IN_PROC_BROWSER_TEST_P(
 +    AdblockWebUIBrowserTest,
 +    VisitingAdblockInternalsWithInvalidSchemeResultsInErrorPage) {
 +  EXPECT_FALSE(content::NavigateToURL(
@@ -22800,6 +22718,10 @@ index 0000000000000..2eeca70ebc41e
 +  EXPECT_FALSE(shell()->web_contents()->GetWebUI());
 +  EXPECT_EQ(u"Error", shell()->web_contents()->GetTitle());
 +}
++
++INSTANTIATE_TEST_SUITE_P(All,
++                         AdblockWebUIBrowserTest,
++                         testing::Values(false /*normal*/, true /*incognito*/));
 +
 +}  // namespace adblock
 diff --git a/components/adblock/content/browser/test/adblock_webcontents_observer_test.cc b/components/adblock/content/browser/test/adblock_webcontents_observer_test.cc
@@ -26310,10 +26232,10 @@ index 0000000000000..40436119bf811
 +### CI & Testing module end
 diff --git a/components/adblock/core/activeping_telemetry_topic_provider.cc b/components/adblock/core/activeping_telemetry_topic_provider.cc
 new file mode 100644
-index 0000000000000..84a07e53316d8
+index 0000000000000..4885be1b2ab76
 --- /dev/null
 +++ b/components/adblock/core/activeping_telemetry_topic_provider.cc
-@@ -0,0 +1,269 @@
+@@ -0,0 +1,261 @@
 +/* This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
 + *
@@ -26535,14 +26457,6 @@ index 0000000000000..84a07e53316d8
 +base::Value ActivepingTelemetryTopicProvider::GetPayloadInternal() const {
 +  base::Value::Dict payload;
 +  bool aa_enabled = false;
-+  auto* adblock_configuration =
-+      subscription_service_->GetFilteringConfiguration(
-+          kAdblockFilteringConfigurationName);
-+  if (adblock_configuration) {
-+    aa_enabled = std::ranges::any_of(
-+        adblock_configuration->GetFilterLists(),
-+        [&](const auto& url) { return url == AcceptableAdsUrl(); });
-+  }
 +  payload.Set("addon_name", "eyeo-chromium-sdk");
 +  payload.Set("addon_version", "2.0.0");
 +  payload.Set("application", AppInfo::Get().name);
@@ -40867,10 +40781,10 @@ index 0000000000000..9a61ff4823f57
 +#endif  // COMPONENTS_ADBLOCK_CORE_SITEKEY_STORAGE_IMPL_H_
 diff --git a/components/adblock/core/subscription/BUILD.gn b/components/adblock/core/subscription/BUILD.gn
 new file mode 100644
-index 0000000000000..c88a274cd795f
+index 0000000000000..c56fa5793ae73
 --- /dev/null
 +++ b/components/adblock/core/subscription/BUILD.gn
-@@ -0,0 +1,187 @@
+@@ -0,0 +1,179 @@
 +#
 +# This file is part of eyeo Chromium SDK,
 +# Copyright (C) 2006-present eyeo GmbH
@@ -40901,14 +40815,6 @@ index 0000000000000..c88a274cd795f
 +    "installed_subscription_impl.h",
 +    "pattern_matcher.cc",
 +    "pattern_matcher.h",
-+    "preloaded_subscription_provider.h",
-+    "preloaded_subscription_provider_impl.cc",
-+    "preloaded_subscription_provider_impl.h",
-+    "recommended_subscription_installer.h",
-+    "recommended_subscription_installer_impl.cc",
-+    "recommended_subscription_installer_impl.h",
-+    "recommended_subscription_parser.cc",
-+    "recommended_subscription_parser.h",
 +    "regex_matcher.cc",
 +    "regex_matcher.h",
 +    "subscription.cc",
@@ -41258,10 +41164,10 @@ index 0000000000000..4c090231ef71c
 +#endif  // COMPONENTS_ADBLOCK_CORE_SUBSCRIPTION_DOMAIN_SPLITTER_H_
 diff --git a/components/adblock/core/subscription/filtering_configuration_maintainer.h b/components/adblock/core/subscription/filtering_configuration_maintainer.h
 new file mode 100644
-index 0000000000000..8bd8379ee2216
+index 0000000000000..66937850793b9
 --- /dev/null
 +++ b/components/adblock/core/subscription/filtering_configuration_maintainer.h
-@@ -0,0 +1,59 @@
+@@ -0,0 +1,56 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -41311,9 +41217,6 @@ index 0000000000000..8bd8379ee2216
 +  virtual std::vector<scoped_refptr<Subscription>> GetCurrentSubscriptions()
 +      const = 0;
 +
-+  // Removes all subscriptions with InstalationState::AutoInstalled
-+  virtual void RemoveAutoInstalledSubscriptions() = 0;
-+
 +  // Returns download statistics for all subscriptions
 +  virtual std::map<GURL, utils::DownloadStats> GetDownloadStats() const = 0;
 +};
@@ -41323,10 +41226,10 @@ index 0000000000000..8bd8379ee2216
 +#endif  // COMPONENTS_ADBLOCK_CORE_SUBSCRIPTION_FILTERING_CONFIGURATION_MAINTAINER_H_
 diff --git a/components/adblock/core/subscription/filtering_configuration_maintainer_impl.cc b/components/adblock/core/subscription/filtering_configuration_maintainer_impl.cc
 new file mode 100644
-index 0000000000000..78283dc057708
+index 0000000000000..1b5e42dc69805
 --- /dev/null
 +++ b/components/adblock/core/subscription/filtering_configuration_maintainer_impl.cc
-@@ -0,0 +1,506 @@
+@@ -0,0 +1,459 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -41359,7 +41262,6 @@ index 0000000000000..78283dc057708
 +
 +namespace adblock {
 +namespace {
-+constexpr base::TimeDelta kDefaultHeadRequestExpirationInterval = base::Days(1);
 +
 +std::string CreateDomainAllowlistingFilter(const std::string& domain) {
 +  return "@@||" + base::ToLowerASCII(domain) +
@@ -41391,7 +41293,6 @@ index 0000000000000..78283dc057708
 +    FilteringConfiguration* configuration,
 +    std::unique_ptr<SubscriptionPersistentStorage> storage,
 +    std::unique_ptr<SubscriptionDownloader> downloader,
-+    std::unique_ptr<RecommendedSubscriptionInstaller> recommended_installer,
 +    std::unique_ptr<TaskScheduler> subscription_updater,
 +    ConversionExecutors* conversion_executor,
 +    SubscriptionPersistentMetadata* persistent_metadata,
@@ -41399,7 +41300,6 @@ index 0000000000000..78283dc057708
 +    : configuration_(std::move(configuration)),
 +      storage_(std::move(storage)),
 +      downloader_(std::move(downloader)),
-+      recommended_installer_(std::move(recommended_installer)),
 +      subscription_updater_(std::move(subscription_updater)),
 +      conversion_executor_(conversion_executor),
 +      persistent_metadata_(persistent_metadata),
@@ -41454,10 +41354,6 @@ index 0000000000000..78283dc057708
 +                            persistent_metadata_->GetDownloadErrorCount(url)));
 +  }
 +  return result;
-+}
-+
-+void FilteringConfigurationMaintainerImpl::RemoveAutoInstalledSubscriptions() {
-+  recommended_installer_->RemoveAutoInstalledSubscriptions();
 +}
 +
 +void FilteringConfigurationMaintainerImpl::OnFilterListsChanged(
@@ -41609,11 +41505,6 @@ index 0000000000000..78283dc057708
 +  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
 +  VLOG(1) << "[eyeo] Running update check";
 +
-+  // Run recommended subscription update check first so
-+  // we don't update lists that would get removed.
-+  if (recommended_installer_) {
-+    recommended_installer_->RunUpdateCheck();
-+  }
 +
 +  for (auto& subscription : current_state_) {
 +    // Update subscriptions that are expired and aren't already in the process
@@ -41633,20 +41524,6 @@ index 0000000000000..78283dc057708
 +    }
 +  }
 +
-+  // TODO(mpawlowski): remove after DPD-1154. If Acceptable Ads is not
-+  // installed, but it would have been expired, send HEAD request for Acceptable
-+  // Ads filter list just to count the user, without the intention of
-+  // downloading it.
-+  // This is to support legacy behavior.
-+  if (configuration_->GetName() == "adblock" &&
-+      std::ranges::none_of(GetCurrentSubscriptions(),
-+                           [](const auto& subscription) {
-+                             return subscription->GetSourceUrl() ==
-+                                    AcceptableAdsUrl();
-+                           }) &&
-+      persistent_metadata_->IsExpired(AcceptableAdsUrl())) {
-+    PingAcceptableAds();
-+  }
 +}
 +
 +void FilteringConfigurationMaintainerImpl::DownloadAndInstallSubscription(
@@ -41731,25 +41608,6 @@ index 0000000000000..78283dc057708
 +  subscription_updated_callback_.Run(subscription->GetSourceUrl());
 +}
 +
-+void FilteringConfigurationMaintainerImpl::PingAcceptableAds() {
-+  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-+  DCHECK(IsInitialized());
-+  downloader_->DoHeadRequest(
-+      AcceptableAdsUrl(),
-+      base::BindOnce(&FilteringConfigurationMaintainerImpl::OnHeadRequestDone,
-+                     weak_ptr_factory_.GetWeakPtr()));
-+}
-+
-+void FilteringConfigurationMaintainerImpl::OnHeadRequestDone(
-+    const std::string version) {
-+  if (version.empty()) {
-+    return;
-+  }
-+  persistent_metadata_->SetVersion(AcceptableAdsUrl(), version);
-+  persistent_metadata_->SetExpirationInterval(
-+      AcceptableAdsUrl(), kDefaultHeadRequestExpirationInterval);
-+}
-+
 +void FilteringConfigurationMaintainerImpl::UninstallSubscription(
 +    const GURL& subscription_url) {
 +  DVLOG(1) << "[eyeo] Removing subscription " << subscription_url;
@@ -41758,12 +41616,10 @@ index 0000000000000..78283dc057708
 +            << subscription_url;
 +    return;
 +  }
-+  if (subscription_url != AcceptableAdsUrl()) {
 +    // Remove metadata associated with the subscription. Retain (forever)
 +    // metadata of the Acceptable Ads subscription even when it's no longer
 +    // installed, to allow continued HEAD-only pings for user counting purposes.
 +    persistent_metadata_->RemoveMetadata(subscription_url);
-+  }
 +  VLOG(1) << "[eyeo] Removed subscription " << subscription_url;
 +}
 +
@@ -41835,10 +41691,10 @@ index 0000000000000..78283dc057708
 +}  // namespace adblock
 diff --git a/components/adblock/core/subscription/filtering_configuration_maintainer_impl.h b/components/adblock/core/subscription/filtering_configuration_maintainer_impl.h
 new file mode 100644
-index 0000000000000..9a33889cb55a1
+index 0000000000000..dbd54020a238a
 --- /dev/null
 +++ b/components/adblock/core/subscription/filtering_configuration_maintainer_impl.h
-@@ -0,0 +1,122 @@
+@@ -0,0 +1,114 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -41867,8 +41723,6 @@ index 0000000000000..9a33889cb55a1
 +#include "components/adblock/core/configuration/filtering_configuration.h"
 +#include "components/adblock/core/subscription/conversion_executors.h"
 +#include "components/adblock/core/subscription/filtering_configuration_maintainer.h"
-+#include "components/adblock/core/subscription/preloaded_subscription_provider.h"
-+#include "components/adblock/core/subscription/recommended_subscription_installer.h"
 +#include "components/adblock/core/subscription/subscription_downloader.h"
 +#include "components/adblock/core/subscription/subscription_persistent_metadata.h"
 +#include "components/adblock/core/subscription/subscription_persistent_storage.h"
@@ -41885,7 +41739,6 @@ index 0000000000000..9a33889cb55a1
 +      FilteringConfiguration* configuration,
 +      std::unique_ptr<SubscriptionPersistentStorage> storage,
 +      std::unique_ptr<SubscriptionDownloader> downloader,
-+      std::unique_ptr<RecommendedSubscriptionInstaller> recommended_installer,
 +      std::unique_ptr<TaskScheduler> subscription_updater,
 +      ConversionExecutors* conversion_executor,
 +      SubscriptionPersistentMetadata* persistent_metadata,
@@ -41899,8 +41752,6 @@ index 0000000000000..9a33889cb55a1
 +      const final;
 +
 +  std::map<GURL, utils::DownloadStats> GetDownloadStats() const final;
-+
-+  void RemoveAutoInstalledSubscriptions() final;
 +
 +  // FilteringConfiguration::Observer:
 +  void OnFilterListsChanged(FilteringConfiguration* config) final;
@@ -41929,8 +41780,6 @@ index 0000000000000..9a33889cb55a1
 +  void SubscriptionAddedToStorage(
 +      scoped_refptr<OngoingInstallation> ongoing_installation,
 +      scoped_refptr<InstalledSubscription> subscription);
-+  void PingAcceptableAds();
-+  void OnHeadRequestDone(const std::string version);
 +  void UninstallSubscription(const GURL& subscription_url);
 +  bool UninstallSubscriptionInternal(const GURL& subscription_url);
 +  void SetCustomFilters();
@@ -41943,7 +41792,6 @@ index 0000000000000..9a33889cb55a1
 +  raw_ptr<FilteringConfiguration> configuration_;
 +  std::unique_ptr<SubscriptionPersistentStorage> storage_;
 +  std::unique_ptr<SubscriptionDownloader> downloader_;
-+  std::unique_ptr<RecommendedSubscriptionInstaller> recommended_installer_;
 +  std::unique_ptr<TaskScheduler> subscription_updater_;
 +  raw_ptr<ConversionExecutors> conversion_executor_;
 +  // TODO(mpawlowski): Should not need to update metadata after DPD-1154, when
@@ -44813,10 +44661,10 @@ index 0000000000000..6629da2c680d9
 +#endif  // COMPONENTS_ADBLOCK_CORE_SUBSCRIPTION_SUBSCRIPTION_COLLECTION_IMPL_H_
 diff --git a/components/adblock/core/subscription/subscription_config.cc b/components/adblock/core/subscription/subscription_config.cc
 new file mode 100644
-index 0000000000000..16d7c767a5645
+index 0000000000000..0be62092be67d
 --- /dev/null
 +++ b/components/adblock/core/subscription/subscription_config.cc
-@@ -0,0 +1,417 @@
+@@ -0,0 +1,397 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -44866,27 +44714,6 @@ index 0000000000000..16d7c767a5645
 +  return kAdblockBaseFilterListUrl;
 +}
 +
-+const GURL& AcceptableAdsUrl() {
-+  static GURL kAcceptableAds(GetHost() + "exceptionrules.txt");
-+  return kAcceptableAds;
-+}
-+
-+const GURL& AntiCVUrl() {
-+  static GURL kAntiCV(GetHost() + "abp-filters-anti-cv.txt");
-+  return kAntiCV;
-+}
-+
-+const GURL& DefaultSubscriptionUrl() {
-+  static GURL kEasylistUrl(GetHost() + "easylist.txt");
-+  return kEasylistUrl;
-+}
-+
-+const GURL& RecommendedSubscriptionListUrl() {
-+  static GURL kRecommendedSubscriptionListUrl(GetHost() +
-+                                              "recommendations.json");
-+  return kRecommendedSubscriptionListUrl;
-+}
-+
 +KnownSubscriptionInfo::KnownSubscriptionInfo() = default;
 +KnownSubscriptionInfo::~KnownSubscriptionInfo() = default;
 +KnownSubscriptionInfo::KnownSubscriptionInfo(const KnownSubscriptionInfo&) =
@@ -44912,20 +44739,58 @@ index 0000000000000..16d7c767a5645
 +      privileged_status(privileged_status_param) {}
 +
 +const std::vector<KnownSubscriptionInfo>& config::GetKnownSubscriptions() {
-+  // The current list of subscriptions can be downloaded from:
-+  // https://gitlab.com/eyeo/filterlists/subscriptionlist/-/archive/master/subscriptionlist-master.tar.gz
-+  // The archive contains files with subscription definitions. The ones we're
-+  // interested in are ones that declare a [recommendation] keyword in either
-+  // the "list" or "variant" key.
-+  // Here's a script that parses the archive into a subscriptions.json:
-+  // https://gitlab.com/eyeo/adblockplus/abc/adblockpluscore/-/blob/next/build/updateSubscriptions.js
-+  // The list isn't updated very often. If it starts to become a burden to
-+  // align the C++ representation, better to update it manually because it also
-+  // contains visibility and first run behavior options.
 +  static std::vector<KnownSubscriptionInfo> recommendations = {
-+      {DefaultSubscriptionUrl(),
++      {GURL(GetHost() + "easylist.txt"),
 +       "EasyList",
 +       {"en"},
++       SubscriptionUiVisibility::Visible,
++       SubscriptionFirstRunBehavior::Subscribe,
++       SubscriptionPrivilegedFilterStatus::Forbidden},
++      {GURL(GetHost() + "abp-filters-anti-cv.txt"),
++       "ABP anti-circumvention filters",
++       {},
++       SubscriptionUiVisibility::Visible,
++       SubscriptionFirstRunBehavior::Subscribe,
++       SubscriptionPrivilegedFilterStatus::Allowed},
++      {GURL(GetHost() + "i_dont_care_about_cookies.txt"),
++       "I don't care about cookies",
++       {},
++       SubscriptionUiVisibility::Visible,
++       SubscriptionFirstRunBehavior::Ignore,
++       SubscriptionPrivilegedFilterStatus::Forbidden},
++      {GURL(GetHost() + "fanboy-notifications.txt"),
++       "Fanboy's Notifications Blocking List",
++       {},
++       SubscriptionUiVisibility::Visible,
++       SubscriptionFirstRunBehavior::Ignore,
++       SubscriptionPrivilegedFilterStatus::Forbidden},
++      {GURL(GetHost() + "easyprivacy.txt"),
++       "EasyPrivacy",
++       {},
++       SubscriptionUiVisibility::Visible,
++       SubscriptionFirstRunBehavior::Subscribe,
++       SubscriptionPrivilegedFilterStatus::Forbidden},
++      {GURL(GetHost() + "antiadblockfilters.txt"),
++       "Anti-adblock filters",
++       {},
++       SubscriptionUiVisibility::Visible,
++       SubscriptionFirstRunBehavior::Subscribe,
++       SubscriptionPrivilegedFilterStatus::Forbidden},
++      {GURL(GetHost() + "fanboy-social.txt"),
++       "Fanboy's Social Blocking List",
++       {},
++       SubscriptionUiVisibility::Visible,
++       SubscriptionFirstRunBehavior::Ignore,
++       SubscriptionPrivilegedFilterStatus::Forbidden},
++      {GURL(GetHost() + "urlhaus-filter-agh.txt"),
++       "Anti-Malware",
++       {},
++       SubscriptionUiVisibility::Visible,
++       SubscriptionFirstRunBehavior::Subscribe,
++       SubscriptionPrivilegedFilterStatus::Forbidden},
++      {GURL(GetHost() + "yoyolist.txt"),
++       "Peter Lowe",
++       {},
 +       SubscriptionUiVisibility::Visible,
 +       SubscriptionFirstRunBehavior::Subscribe,
 +       SubscriptionPrivilegedFilterStatus::Forbidden},
@@ -45080,43 +44945,6 @@ index 0000000000000..16d7c767a5645
 +       SubscriptionUiVisibility::Visible,
 +       SubscriptionFirstRunBehavior::SubscribeIfLocaleMatch,
 +       SubscriptionPrivilegedFilterStatus::Forbidden},
-+      {AcceptableAdsUrl(),
-+       "Acceptable Ads",
-+       {},
-+       SubscriptionUiVisibility::Invisible,
-+       SubscriptionFirstRunBehavior::Subscribe,
-+       SubscriptionPrivilegedFilterStatus::Forbidden},
-+      {AntiCVUrl(),
-+       "ABP filters",
-+       {},
-+       SubscriptionUiVisibility::Visible,
-+       SubscriptionFirstRunBehavior::Subscribe,
-+       SubscriptionPrivilegedFilterStatus::Allowed},
-+      {GURL(GetHost() + "i_dont_care_about_cookies.txt"),
-+       "I don't care about cookies",
-+       {},
-+       SubscriptionUiVisibility::Visible,
-+       SubscriptionFirstRunBehavior::Ignore,
-+       SubscriptionPrivilegedFilterStatus::Forbidden},
-+      {GURL(GetHost() + ""
-+                        "fanboy-notifications.txt"),
-+       "Fanboy's Notifications Blocking List",
-+       {},
-+       SubscriptionUiVisibility::Visible,
-+       SubscriptionFirstRunBehavior::Ignore,
-+       SubscriptionPrivilegedFilterStatus::Forbidden},
-+      {GURL(GetHost() + "easyprivacy.txt"),
-+       "EasyPrivacy",
-+       {},
-+       SubscriptionUiVisibility::Visible,
-+       SubscriptionFirstRunBehavior::Subscribe,
-+       SubscriptionPrivilegedFilterStatus::Forbidden},
-+      {GURL(GetHost() + "fanboy-social.txt"),
-+       "Fanboy's Social Blocking List",
-+       {},
-+       SubscriptionUiVisibility::Visible,
-+       SubscriptionFirstRunBehavior::Ignore,
-+       SubscriptionPrivilegedFilterStatus::Forbidden},
 +      {CustomFiltersUrl(),
 +       "User filters",
 +       {},
@@ -45236,10 +45064,10 @@ index 0000000000000..16d7c767a5645
 +}  // namespace adblock
 diff --git a/components/adblock/core/subscription/subscription_config.h b/components/adblock/core/subscription/subscription_config.h
 new file mode 100644
-index 0000000000000..6ef77a4c08304
+index 0000000000000..f3a8a47f3d2d6
 --- /dev/null
 +++ b/components/adblock/core/subscription/subscription_config.h
-@@ -0,0 +1,131 @@
+@@ -0,0 +1,128 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -45268,10 +45096,7 @@ index 0000000000000..6ef77a4c08304
 +namespace adblock {
 +
 +const GURL& AdblockBaseFilterListUrl();
-+const GURL& AcceptableAdsUrl();
-+const GURL& AntiCVUrl();
 +const GURL& DefaultSubscriptionUrl();
-+const GURL& RecommendedSubscriptionListUrl();
 +
 +// Sets the port used by the embedded http server required for browser tests.
 +// Must be called before the first call to GetKnownSubscriptions().
@@ -46631,10 +46456,10 @@ index 0000000000000..80b79b3b88f10
 +#endif  // COMPONENTS_ADBLOCK_CORE_SUBSCRIPTION_SUBSCRIPTION_PERSISTENT_STORAGE_IMPL_H_
 diff --git a/components/adblock/core/subscription/subscription_service.h b/components/adblock/core/subscription/subscription_service.h
 new file mode 100644
-index 0000000000000..ddeafc71bf2f4
+index 0000000000000..8bdd640cff0a8
 --- /dev/null
 +++ b/components/adblock/core/subscription/subscription_service.h
-@@ -0,0 +1,97 @@
+@@ -0,0 +1,95 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -46722,8 +46547,6 @@ index 0000000000000..ddeafc71bf2f4
 +  // configuration.
 +  virtual std::map<GURL, utils::DownloadStats> GetDownloadStats(
 +      std::string_view configuration_name) const = 0;
-+  virtual void SetAutoInstallEnabled(bool enabled) = 0;
-+  virtual bool IsAutoInstallEnabled() const = 0;
 +
 +  virtual void AddObserver(SubscriptionObserver*) = 0;
 +  virtual void RemoveObserver(SubscriptionObserver*) = 0;
@@ -46734,10 +46557,10 @@ index 0000000000000..ddeafc71bf2f4
 +#endif  // COMPONENTS_ADBLOCK_CORE_SUBSCRIPTION_SUBSCRIPTION_SERVICE_H_
 diff --git a/components/adblock/core/subscription/subscription_service_impl.cc b/components/adblock/core/subscription/subscription_service_impl.cc
 new file mode 100644
-index 0000000000000..3b3626756edff
+index 0000000000000..8aaa7362de039
 --- /dev/null
 +++ b/components/adblock/core/subscription/subscription_service_impl.cc
-@@ -0,0 +1,279 @@
+@@ -0,0 +1,260 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -46952,25 +46775,6 @@ index 0000000000000..3b3626756edff
 +  return it->second->GetDownloadStats();
 +}
 +
-+void SubscriptionServiceImpl::SetAutoInstallEnabled(bool enabled) {
-+  if (!pref_service_) {
-+    return;
-+  }
-+  pref_service_->SetBoolean(common::prefs::kEnableAutoInstalledSubscriptions,
-+                            enabled);
-+  if (!enabled) {
-+    for (auto& entry : maintainers_) {
-+      entry.second->RemoveAutoInstalledSubscriptions();
-+    }
-+  }
-+}
-+
-+bool SubscriptionServiceImpl::IsAutoInstallEnabled() const {
-+  return pref_service_ != nullptr &&
-+         pref_service_->GetBoolean(
-+             common::prefs::kEnableAutoInstalledSubscriptions);
-+}
-+
 +void SubscriptionServiceImpl::AddObserver(SubscriptionObserver* o) {
 +  observers_.AddObserver(o);
 +}
@@ -47019,10 +46823,10 @@ index 0000000000000..3b3626756edff
 +}  // namespace adblock
 diff --git a/components/adblock/core/subscription/subscription_service_impl.h b/components/adblock/core/subscription/subscription_service_impl.h
 new file mode 100644
-index 0000000000000..9c28d02193955
+index 0000000000000..868231df20465
 --- /dev/null
 +++ b/components/adblock/core/subscription/subscription_service_impl.h
-@@ -0,0 +1,104 @@
+@@ -0,0 +1,101 @@
 +/*
 + * This file is part of eyeo Chromium SDK,
 + * Copyright (C) 2006-present eyeo GmbH
@@ -47056,7 +46860,6 @@ index 0000000000000..9c28d02193955
 +#include "components/adblock/core/configuration/filtering_configuration.h"
 +#include "components/adblock/core/subscription/filtering_configuration_maintainer.h"
 +#include "components/adblock/core/subscription/installed_subscription.h"
-+#include "components/adblock/core/subscription/preloaded_subscription_provider.h"
 +#include "components/adblock/core/subscription/subscription_downloader.h"
 +#include "components/adblock/core/subscription/subscription_persistent_metadata.h"
 +#include "components/adblock/core/subscription/subscription_persistent_storage.h"
@@ -47099,8 +46902,6 @@ index 0000000000000..9c28d02193955
 +  Snapshot GetCurrentSnapshot() const final;
 +  std::map<GURL, utils::DownloadStats> GetDownloadStats(
 +      std::string_view configuration_name) const final;
-+  void SetAutoInstallEnabled(bool enabled) final;
-+  bool IsAutoInstallEnabled() const final;
 +  void AddObserver(SubscriptionObserver*) final;
 +  void RemoveObserver(SubscriptionObserver*) final;
 +
@@ -61004,5 +60805,5 @@ index 0000000000000..c25d319d15515
 +</body>
 +</html>
 -- 
-2.43.0
+2.50.0.windows.1
 

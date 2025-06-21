@@ -1,4 +1,4 @@
-From a51a31477cfb60c49679f4ef7a4c6676b4eae537 Mon Sep 17 00:00:00 2001
+From ef3a6d31db3b0a35706c2a3762d65e37bdc67514 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Thu, 22 May 2025 15:50:31 +0000
 Subject: [PATCH] adblock other
@@ -58,7 +58,7 @@ index b1abcfaab58df..e654dbba44198 100644
    friend Profile* ::GetLastProfileMac();  // http://crbug.com/1176734
    // Note: This function return syntax is required so the "::" doesn't get
 diff --git a/base/trace_event/builtin_categories.h b/base/trace_event/builtin_categories.h
-index 31c41cb8e8cc0..ce0821dfb8a51 100644
+index 467ce5cd72f22..e2434d2e25e12 100644
 --- a/base/trace_event/builtin_categories.h
 +++ b/base/trace_event/builtin_categories.h
 @@ -1,6 +1,10 @@
@@ -72,7 +72,7 @@ index 31c41cb8e8cc0..ce0821dfb8a51 100644
  
  #ifndef BASE_TRACE_EVENT_BUILTIN_CATEGORIES_H_
  #define BASE_TRACE_EVENT_BUILTIN_CATEGORIES_H_
-@@ -123,6 +127,7 @@ PERFETTO_DEFINE_CATEGORIES_IN_NAMESPACE_WITH_ATTRS(
+@@ -128,6 +132,7 @@ PERFETTO_DEFINE_CATEGORIES_IN_NAMESPACE_WITH_ATTRS(
      perfetto::Category("exo"),
      perfetto::Category("extensions"),
      perfetto::Category("explore_sites"),
@@ -81,7 +81,7 @@ index 31c41cb8e8cc0..ce0821dfb8a51 100644
      perfetto::Category("file_system_provider"),
      perfetto::Category("fledge"),
 diff --git a/build/install-build-deps.py b/build/install-build-deps.py
-index f699b9b876e58..fa6a3e3d7e98d 100755
+index 412962fedf4c8..4157853ada7a2 100755
 --- a/build/install-build-deps.py
 +++ b/build/install-build-deps.py
 @@ -8,6 +8,14 @@
@@ -99,7 +99,7 @@ index f699b9b876e58..fa6a3e3d7e98d 100755
  import argparse
  import functools
  import os
-@@ -582,7 +590,7 @@ def backwards_compatible_list(options):
+@@ -584,7 +592,7 @@ def backwards_compatible_list(options):
        "msttcorefonts",
        "python-dev",
        "python-setuptools",
@@ -109,7 +109,7 @@ index f699b9b876e58..fa6a3e3d7e98d 100755
        "ttf-indic-fonts",
        "ttf-kochi-gothic",
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
-index 53e1d8a325bd9..c6460acade86c 100644
+index 0aeaaa9e56e33..8ca43b0f4df51 100644
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
 @@ -1,6 +1,9 @@
@@ -122,7 +122,7 @@ index 53e1d8a325bd9..c6460acade86c 100644
  
  import("//build/config/android/config.gni")
  import("//build/config/cronet/config.gni")
-@@ -554,6 +557,7 @@ if (_is_default_toolchain) {
+@@ -559,6 +562,7 @@ if (_is_default_toolchain) {
        "//chrome/browser/xsurface:java",
        "//chrome/browser/xsurface_provider:dependency_provider_impl_java",
        "//chrome/browser/xsurface_provider:java",
@@ -130,7 +130,7 @@ index 53e1d8a325bd9..c6460acade86c 100644
        "//components/android_autofill/browser:java",
        "//components/autofill/android:autofill_features_java",
        "//components/autofill/android:autofill_java",
-@@ -786,6 +790,11 @@ if (_is_default_toolchain) {
+@@ -794,6 +798,11 @@ if (_is_default_toolchain) {
        "//url/mojom:url_mojom_origin_java",
      ]
  
@@ -142,7 +142,7 @@ index 53e1d8a325bd9..c6460acade86c 100644
      deps += feed_deps
  
      srcjar_deps = [
-@@ -1356,6 +1365,7 @@ if (_is_default_toolchain) {
+@@ -1364,6 +1373,7 @@ if (_is_default_toolchain) {
        "javatests:chrome_test_java_org.chromium.chrome.browser.toolbar",
        "javatests:chrome_test_java_org.chromium.chrome.browser.webapps",
        "javatests:chrome_test_java_various",
@@ -150,7 +150,7 @@ index 53e1d8a325bd9..c6460acade86c 100644
        "//chrome/browser/android/browserservices/verification:javatests",
        "//chrome/browser/android/httpclient:javatests",
        "//chrome/browser/android/metrics:ukm_javatests",
-@@ -1427,6 +1437,7 @@ if (_is_default_toolchain) {
+@@ -1435,6 +1445,7 @@ if (_is_default_toolchain) {
        "//chrome/test/data/translate/",
        "//chrome/test/data/webauthn/",
        "//chrome/test/media_router/resources/",
@@ -158,7 +158,7 @@ index 53e1d8a325bd9..c6460acade86c 100644
        "//components/test/data/autofill/",
        "//components/test/data/payments/",
        "//content/test/data/browsing_data/",
-@@ -3334,6 +3345,7 @@ if (_is_default_toolchain) {
+@@ -3350,6 +3361,7 @@ if (_is_default_toolchain) {
        "//chrome/browser/ui/plus_addresses/android:jni_headers",
        "//chrome/browser/util:jni_headers",
        "//chrome/browser/webauthn/android:jni_headers",
@@ -167,7 +167,7 @@ index 53e1d8a325bd9..c6460acade86c 100644
        "//components/content_relationship_verification/android:jni_headers",
        "//components/image_fetcher:jni_headers",
 diff --git a/chrome/android/chrome_java_sources.gni b/chrome/android/chrome_java_sources.gni
-index f0bffc5abbf9c..d02502e556efb 100644
+index 6ac2cf573de71..275f15aa1d862 100644
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
 @@ -1,6 +1,9 @@
@@ -283,7 +283,7 @@ index 0000000000000..33af9b5b83fa0
 +    }
 +}
 diff --git a/chrome/app/chrome_main_delegate.cc b/chrome/app/chrome_main_delegate.cc
-index e65fddc7cc743..fafc0000d6a29 100644
+index 11b8bf6fc0ffe..ad6cd1354e3d7 100644
 --- a/chrome/app/chrome_main_delegate.cc
 +++ b/chrome/app/chrome_main_delegate.cc
 @@ -1,6 +1,10 @@
@@ -297,7 +297,7 @@ index e65fddc7cc743..fafc0000d6a29 100644
  
  #ifdef UNSAFE_BUFFERS_BUILD
  // TODO(crbug.com/40285824): Remove this and convert code to safer constructs.
-@@ -43,6 +47,7 @@
+@@ -42,6 +46,7 @@
  #include "base/timer/timer.h"
  #include "base/trace_event/trace_event_impl.h"
  #include "build/build_config.h"
@@ -305,7 +305,7 @@ index e65fddc7cc743..fafc0000d6a29 100644
  #include "chrome/browser/buildflags.h"
  #include "chrome/browser/chrome_content_browser_client.h"
  #include "chrome/browser/chrome_resource_bundle_helper.h"
-@@ -72,6 +77,7 @@
+@@ -71,6 +76,7 @@
  #include "chrome/grit/generated_resources.h"
  #include "chrome/renderer/chrome_content_renderer_client.h"
  #include "chrome/utility/chrome_content_utility_client.h"
@@ -313,7 +313,7 @@ index e65fddc7cc743..fafc0000d6a29 100644
  #include "components/component_updater/component_updater_paths.h"
  #include "components/content_settings/core/common/content_settings_pattern.h"
  #include "components/crash/core/app/crash_reporter_client.h"
-@@ -227,7 +233,8 @@
+@@ -226,7 +232,8 @@
  
  base::LazyInstance<ChromeContentGpuClient>::DestructorAtExit
      g_chrome_content_gpu_client = LAZY_INSTANCE_INITIALIZER;
@@ -323,7 +323,7 @@ index e65fddc7cc743..fafc0000d6a29 100644
      g_chrome_content_renderer_client = LAZY_INSTANCE_INITIALIZER;
  
  extern int NaClMain(content::MainFunctionParams);
-@@ -1616,7 +1623,7 @@ content::ContentClient* ChromeMainDelegate::CreateContentClient() {
+@@ -1622,7 +1629,7 @@ content::ContentClient* ChromeMainDelegate::CreateContentClient() {
  content::ContentBrowserClient*
  ChromeMainDelegate::CreateContentBrowserClient() {
    chrome_content_browser_client_ =
@@ -333,7 +333,7 @@ index e65fddc7cc743..fafc0000d6a29 100644
    // Android does this in `ChromeMainDelegateAndroid::PreSandboxStartup`.
    CHECK(sampling_profiler_);
 diff --git a/chrome/chrome_paks.gni b/chrome/chrome_paks.gni
-index eddc45b06456c..5c21df9cdd9e7 100644
+index 836fc187c9c59..90b85fd31d961 100644
 --- a/chrome/chrome_paks.gni
 +++ b/chrome/chrome_paks.gni
 @@ -1,6 +1,9 @@
@@ -411,7 +411,7 @@ index 70feb9a38de0b..7f0af3a56ef28 100644
    DELETED_AUDIO_ON_DEVICE_CHANGED = 24,
    AUDIO_ON_DEVICES_CHANGED = 25,
 diff --git a/extensions/common/mojom/api_permission_id.mojom b/extensions/common/mojom/api_permission_id.mojom
-index cbc30277e2a5a..4157698818e9e 100644
+index e19de6942981b..32566d5c90c7e 100644
 --- a/extensions/common/mojom/api_permission_id.mojom
 +++ b/extensions/common/mojom/api_permission_id.mojom
 @@ -1,6 +1,10 @@
@@ -425,10 +425,10 @@ index cbc30277e2a5a..4157698818e9e 100644
  
  module extensions.mojom;
  
-@@ -287,6 +291,9 @@ enum APIPermissionID {
-   kExperimentalAiData = 260,
+@@ -288,6 +292,9 @@ enum APIPermissionID {
    kOmniboxDirectInput = 261,
    kExperimentalActor = 262,
+   kEnterpriseLogin = 263,
 +  kEyeoDevToolsPrivate = 998,
 +  kAdblockPrivate = 999,
 +  kEyeoFilteringPrivate = 1000,
@@ -485,5 +485,5 @@ index aeb766e32fa6c..cf92d65e4b812 100644
    IPC_STRUCT_TRAITS_MEMBER(critical_ch_restart_time)
  IPC_STRUCT_TRAITS_END()
 -- 
-2.43.0
+2.50.0.windows.1
 

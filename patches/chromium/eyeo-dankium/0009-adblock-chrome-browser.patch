@@ -1,4 +1,4 @@
-From f473d3b4019a3a2017f3fd5066ee8972747917b5 Mon Sep 17 00:00:00 2001
+From 225021ef0e40ae5d3916bae7ce0b4b0841d554ea Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Thu, 22 May 2025 15:50:31 +0000
 Subject: [PATCH] adblock chrome browser
@@ -6,32 +6,34 @@ Subject: [PATCH] adblock chrome browser
 Copyright (C) 2006-present eyeo GmbH.
 ---
  chrome/browser/BUILD.gn                       |  13 +
+ ...ock_frame_hierarchy_builder_browsertest.cc |  77 +-
+ .../test/adblock_multiple_tabs_browsertest.cc |   5 +-
+ .../adblock/test/adblock_popup_browsertest.cc |   7 +-
  .../android/adblock/tab_id_translator_jni.cc  |  19 +
  chrome/browser/chrome_browser_main.cc         |   7 +
  .../client_hints/client_hints_browsertest.cc  |  11 +-
- .../browser/devtools/devtools_browsertest.cc  |   3 +-
  chrome/browser/extensions/BUILD.gn            |  18 +
  chrome/browser/extensions/api/BUILD.gn        |   4 +
- .../adblock_private/adblock_private_api.cc    | 693 +++++++++++++++
- .../api/adblock_private/adblock_private_api.h | 360 ++++++++
+ .../adblock_private/adblock_private_api.cc    | 614 ++++++++++++++
+ .../api/adblock_private/adblock_private_api.h | 296 +++++++
  .../adblock_private_apitest.cc                | 174 ++++
  .../adblock_private_apitest_backgroundpage.cc | 398 +++++++++
  .../adblock_private_apitest_base.cc           | 103 +++
  .../adblock_private_apitest_base.h            |  62 ++
- ...e_filter_lists_with_http_server_apitest.cc | 188 ++++
+ ...e_filter_lists_with_http_server_apitest.cc | 188 +++++
  ...browser_context_keyed_service_factories.cc |   6 +
- .../eyeo_dev_tools_private_api.cc             | 447 ++++++++++
+ .../eyeo_dev_tools_private_api.cc             | 447 +++++++++++
  .../eyeo_dev_tools_private_api.h              | 173 ++++
  .../eyeo_dev_tools_private_apitest.cc         | 256 ++++++
- .../eyeo_filtering_private_api.cc             | 808 ++++++++++++++++++
- .../eyeo_filtering_private_api.h              | 392 +++++++++
+ .../eyeo_filtering_private_api.cc             | 756 ++++++++++++++++++
+ .../eyeo_filtering_private_api.h              | 356 +++++++++
  .../eyeo_filtering_private_apitest.cc         | 172 ++++
  .../extension_function_registration_test.cc   |  11 +
  chrome/browser/net/errorpage_browsertest.cc   |   8 +
  ..._page_load_metrics_observer_browsertest.cc |   7 +-
  chrome/browser/preferences/BUILD.gn           |   4 +
  chrome/browser/prefs/browser_prefs.cc         |   2 +
- .../prefs/chrome_pref_service_factory.cc      |  11 +
+ .../prefs/chrome_pref_service_factory.cc      |  14 +
  ...hrome_browser_main_extra_parts_profiles.cc |  22 +
  .../profile_keyed_service_browsertest.cc      |  29 +
  chrome/browser/resources/BUILD.gn             |   5 +
@@ -41,7 +43,7 @@ Copyright (C) 2006-present eyeo GmbH.
  chrome/browser/ui/BUILD.gn                    |  12 +
  chrome/browser/ui/prefs/pref_watcher.cc       |  13 +
  chrome/browser/ui/tab_helpers.cc              |  13 +
- 36 files changed, 4462 insertions(+), 7 deletions(-)
+ 38 files changed, 4295 insertions(+), 32 deletions(-)
  create mode 100644 chrome/browser/android/adblock/tab_id_translator_jni.cc
  create mode 100644 chrome/browser/extensions/api/adblock_private/adblock_private_api.cc
  create mode 100644 chrome/browser/extensions/api/adblock_private/adblock_private_api.h
@@ -58,7 +60,7 @@ Copyright (C) 2006-present eyeo GmbH.
  create mode 100644 chrome/browser/extensions/api/eyeo_filtering_private/eyeo_filtering_private_apitest.cc
 
 diff --git a/chrome/browser/BUILD.gn b/chrome/browser/BUILD.gn
-index 36fe07a692e9b..6833c4e7aad7b 100644
+index d7c51bee1c026..ce511c9dfaad9 100644
 --- a/chrome/browser/BUILD.gn
 +++ b/chrome/browser/BUILD.gn
 @@ -1,6 +1,9 @@
@@ -71,7 +73,7 @@ index 36fe07a692e9b..6833c4e7aad7b 100644
  
  import("//base/allocator/allocator.gni")
  import("//build/buildflag_header.gni")
-@@ -174,6 +177,8 @@ static_library("browser") {
+@@ -202,6 +205,8 @@ static_library("browser") {
      "accessibility/page_colors_factory.h",
      "accessibility/prefers_default_scrollbar_styles_prefs.cc",
      "accessibility/prefers_default_scrollbar_styles_prefs.h",
@@ -80,7 +82,7 @@ index 36fe07a692e9b..6833c4e7aad7b 100644
      "after_startup_task_utils.cc",
      "after_startup_task_utils.h",
      "app_mode/app_mode_utils.cc",
-@@ -2082,6 +2087,7 @@ static_library("browser") {
+@@ -2113,6 +2118,7 @@ static_library("browser") {
      "//chrome/installer/util:with_no_strings",
      "//chrome/services/speech/buildflags",
      "//components/application_locale_storage",
@@ -88,7 +90,7 @@ index 36fe07a692e9b..6833c4e7aad7b 100644
      "//components/assist_ranker",
      "//components/autofill/content/browser",
      "//components/autofill/core/browser",
-@@ -3320,6 +3326,11 @@ static_library("browser") {
+@@ -3356,6 +3362,11 @@ static_library("browser") {
        "touch_to_fill/password_manager/touch_to_fill_controller_webauthn_delegate.h",
      ]
  
@@ -100,7 +102,7 @@ index 36fe07a692e9b..6833c4e7aad7b 100644
      deps += [
        ":delta_file_proto",
        ":profile_token",
-@@ -8481,6 +8492,8 @@ static_library("browser_public_dependencies") {
+@@ -8541,6 +8552,8 @@ static_library("browser_public_dependencies") {
      "//chrome/common/compose:mojo_bindings",
      "//chrome/services/file_util/public/mojom",
      "//components/account_id",
@@ -109,6 +111,316 @@ index 36fe07a692e9b..6833c4e7aad7b 100644
      "//components/autofill/content/browser",
      "//components/autofill/core/browser",
      "//components/commerce/core/product_specifications:product_specifications",
+diff --git a/chrome/browser/adblock/test/adblock_frame_hierarchy_builder_browsertest.cc b/chrome/browser/adblock/test/adblock_frame_hierarchy_builder_browsertest.cc
+index 448b37077bc93..ae24f1f68f791 100644
+--- a/chrome/browser/adblock/test/adblock_frame_hierarchy_builder_browsertest.cc
++++ b/chrome/browser/adblock/test/adblock_frame_hierarchy_builder_browsertest.cc
+@@ -125,6 +125,20 @@ class ResourceClassificationRunnerObserver
+     }
+   }
+ 
++  void OnPageElementMatched(
++      const std::string& selector,
++      adblock::ElementHideAction action,
++      content::RenderFrameHost* render_frame_host) override {
++    auto it = std::find(hidden_notifications.begin(),
++                        hidden_notifications.end(), selector);
++    ASSERT_FALSE(it == hidden_notifications.end())
++        << "Selector " << selector << " not on list";
++    hidden_notifications.erase(it);
++    if (hidden_notifications.empty() && eh_quit_closure_) {
++      eh_quit_closure_.Run();
++    }
++  }
++
+   void VerifyNotificationSent(std::string_view path, std::vector<GURL>& list) {
+     auto it = std::ranges::find(list, path, &GURL::ExtractFileName);
+     ASSERT_FALSE(it == list.end()) << "Path " << path << " not on list";
+@@ -139,6 +153,7 @@ class ResourceClassificationRunnerObserver
+     EXPECT_TRUE(blocked_popups_notifications.empty());
+     EXPECT_TRUE(allowed_popups_notifications.empty());
+     EXPECT_TRUE(allowed_pages_notifications.empty());
++    EXPECT_TRUE(hidden_notifications.empty());
+   }
+ 
+   std::vector<GURL> blocked_ads_notifications;
+@@ -146,7 +161,9 @@ class ResourceClassificationRunnerObserver
+   std::vector<GURL> allowed_pages_notifications;
+   std::vector<std::string> blocked_popups_notifications;
+   std::vector<std::string> allowed_popups_notifications;
++  std::vector<std::string> hidden_notifications;
+   std::unique_ptr<base::RunLoop> popup_notifications_run_loop_;
++  base::RepeatingClosure eh_quit_closure_;
+ };
+ 
+ // Simulated setup:
+@@ -159,7 +176,9 @@ class ResourceClassificationRunnerObserver
+ // distribution is simulated via SetupCrossSiteRedirector. innermost_frame.html
+ // reports whether resource.png is visible via window.top.postMessage to
+ // outermost_frame.html, which stores a global subresource_visible JS variable.
+-class AdblockFrameHierarchyBrowserTest : public InProcessBrowserTest {
++class AdblockFrameHierarchyBrowserTest
++    : public InProcessBrowserTest,
++      public testing::WithParamInterface<bool> {
+  public:
+   void SetUpOnMainThread() override {
+     InProcessBrowserTest::SetUpOnMainThread();
+@@ -167,30 +186,37 @@ class AdblockFrameHierarchyBrowserTest : public InProcessBrowserTest {
+     embedded_test_server()->ServeFilesFromSourceDirectory(
+         "components/test/data/adblock");
+     content::SetupCrossSiteRedirector(embedded_test_server());
+-    AllowHttpForHostnamesForTesting({"outer.com", "inner.com", "middle.com"},
+-                                    browser()->profile()->GetPrefs());
++    AllowHttpForHostnamesForTesting(
++        {"outer.com", "inner.com", "middle.com"},
++        browser()->profile()->GetOriginalProfile()->GetPrefs());
+     ASSERT_TRUE(embedded_test_server()->Start());
+     auto* classification_runner =
+         ResourceClassificationRunnerFactory::GetForBrowserContext(
+-            browser()->profile());
++            browser()->profile()->GetOriginalProfile());
+     classification_runner->AddObserver(&observer);
+   }
+ 
+   void TearDownOnMainThread() override {
+     auto* classification_runner =
+         ResourceClassificationRunnerFactory::GetForBrowserContext(
+-            browser()->profile());
++            browser()->profile()->GetOriginalProfile());
+     classification_runner->RemoveObserver(&observer);
+     InProcessBrowserTest::TearDownOnMainThread();
+   }
+ 
++  bool IncognitoMode() { return GetParam(); }
++
+   void SetUpCommandLine(base::CommandLine* command_line) override {
+     command_line->AppendSwitch(embedder_support::kDisablePopupBlocking);
++    if (IncognitoMode()) {
++      command_line->AppendSwitch("incognito");
++    }
+   }
+ 
+   void SetFilters(std::vector<std::string> filters) {
+     auto* adblock_configuration =
+-        SubscriptionServiceFactory::GetForBrowserContext(browser()->profile())
++        SubscriptionServiceFactory::GetForBrowserContext(
++            browser()->profile()->GetOriginalProfile())
+             ->GetFilteringConfiguration(kAdblockFilteringConfigurationName);
+     adblock_configuration->RemoveCustomFilter(kAllowlistEverythingFilter);
+     for (auto& filter : filters) {
+@@ -264,14 +290,14 @@ class AdblockFrameHierarchyBrowserTest : public InProcessBrowserTest {
+   ResourceClassificationRunnerObserver observer;
+ };
+ 
+-IN_PROC_BROWSER_TEST_F(AdblockFrameHierarchyBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFrameHierarchyBrowserTest,
+                        SubresourceShownWithNoFilters) {
+   SetFilters({});
+   NavigateToOutermostFrame();
+   VerifyTargetResourceBlockingStatus(true);
+ }
+ 
+-IN_PROC_BROWSER_TEST_F(AdblockFrameHierarchyBrowserTest, SubresourceBlocked) {
++IN_PROC_BROWSER_TEST_P(AdblockFrameHierarchyBrowserTest, SubresourceBlocked) {
+   SetFilters({"/resource.png"});
+   NavigateToOutermostFrame();
+   VerifyTargetResourceBlockingStatus(false);
+@@ -279,7 +305,7 @@ IN_PROC_BROWSER_TEST_F(AdblockFrameHierarchyBrowserTest, SubresourceBlocked) {
+                                   observer.blocked_ads_notifications);
+ }
+ 
+-IN_PROC_BROWSER_TEST_F(AdblockFrameHierarchyBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFrameHierarchyBrowserTest,
+                        SubresourceAllowedViaInnerFrame) {
+   SetFilters({"/resource.png", "@@||inner.com^$document"});
+   NavigateToOutermostFrame();
+@@ -288,7 +314,7 @@ IN_PROC_BROWSER_TEST_F(AdblockFrameHierarchyBrowserTest,
+                                   observer.allowed_ads_notifications);
+ }
+ 
+-IN_PROC_BROWSER_TEST_F(AdblockFrameHierarchyBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFrameHierarchyBrowserTest,
+                        SubresourceAllowedViaMiddleFrame) {
+   SetFilters({"/resource.png", "@@||middle.com^$document"});
+   NavigateToOutermostFrame();
+@@ -297,7 +323,7 @@ IN_PROC_BROWSER_TEST_F(AdblockFrameHierarchyBrowserTest,
+                                   observer.allowed_ads_notifications);
+ }
+ 
+-IN_PROC_BROWSER_TEST_F(AdblockFrameHierarchyBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFrameHierarchyBrowserTest,
+                        SubresourceAllowedViaOutermostFrame) {
+   SetFilters({"/resource.png", "@@||outer.com^$document"});
+   NavigateToOutermostFrame();
+@@ -308,7 +334,7 @@ IN_PROC_BROWSER_TEST_F(AdblockFrameHierarchyBrowserTest,
+                                   observer.allowed_pages_notifications);
+ }
+ 
+-IN_PROC_BROWSER_TEST_F(AdblockFrameHierarchyBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFrameHierarchyBrowserTest,
+                        SubresourceBlockedWhenInvalidAllowRule) {
+   SetFilters({"/resource.png", "@@||bogus.com^$document"});
+   NavigateToOutermostFrame();
+@@ -317,7 +343,7 @@ IN_PROC_BROWSER_TEST_F(AdblockFrameHierarchyBrowserTest,
+                                   observer.blocked_ads_notifications);
+ }
+ 
+-IN_PROC_BROWSER_TEST_F(AdblockFrameHierarchyBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFrameHierarchyBrowserTest,
+                        DISABLED_PopupHandledByChromiumWithoutFilters) {
+   // Without any popup-specific filters, blocking popups is handed over to
+   // Chromium, which has it's own heuristics that are not based on filters.
+@@ -331,7 +357,7 @@ IN_PROC_BROWSER_TEST_F(AdblockFrameHierarchyBrowserTest,
+                     ->GetBlockedPopupsCount());
+ }
+ 
+-IN_PROC_BROWSER_TEST_F(AdblockFrameHierarchyBrowserTest, PopupBlockedByFilter) {
++IN_PROC_BROWSER_TEST_P(AdblockFrameHierarchyBrowserTest, PopupBlockedByFilter) {
+   SetFilters({"http://inner.com*/popup.html$popup"});
+   observer.blocked_popups_notifications.emplace_back("popup.html");
+   TabAddedRemovedObserver observer(browser()->tab_strip_model());
+@@ -340,7 +366,7 @@ IN_PROC_BROWSER_TEST_F(AdblockFrameHierarchyBrowserTest, PopupBlockedByFilter) {
+   EXPECT_EQ(1, NumberOfOpenTabs());
+ }
+ 
+-IN_PROC_BROWSER_TEST_F(AdblockFrameHierarchyBrowserTest, PopupAllowedByFilter) {
++IN_PROC_BROWSER_TEST_P(AdblockFrameHierarchyBrowserTest, PopupAllowedByFilter) {
+   SetFilters({"http://inner.com*/popup.html$popup",
+               "@@http://inner.com*/popup.html$popup"});
+   observer.allowed_popups_notifications.emplace_back("popup.html");
+@@ -349,7 +375,7 @@ IN_PROC_BROWSER_TEST_F(AdblockFrameHierarchyBrowserTest, PopupAllowedByFilter) {
+   EXPECT_EQ(2, NumberOfOpenTabs());
+ }
+ 
+-IN_PROC_BROWSER_TEST_F(AdblockFrameHierarchyBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFrameHierarchyBrowserTest,
+                        PopupAllowedByDomainSpecificFilter) {
+   // The frame that wants to open the popup is hosted on middle.com.
+   // The $popup allow rule applies to that frame.
+@@ -361,7 +387,7 @@ IN_PROC_BROWSER_TEST_F(AdblockFrameHierarchyBrowserTest,
+   EXPECT_EQ(2, NumberOfOpenTabs());
+ }
+ 
+-IN_PROC_BROWSER_TEST_F(AdblockFrameHierarchyBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFrameHierarchyBrowserTest,
+                        PopupNotAllowedByDomainSpecificFilter) {
+   // The frame that wants to open the popup is hosted on middle.com.
+   // The $popup allow rule does not apply because it is specific to outer.com.
+@@ -375,7 +401,7 @@ IN_PROC_BROWSER_TEST_F(AdblockFrameHierarchyBrowserTest,
+   EXPECT_EQ(1, NumberOfOpenTabs());
+ }
+ 
+-IN_PROC_BROWSER_TEST_F(AdblockFrameHierarchyBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFrameHierarchyBrowserTest,
+                        PopupAllowedByParentDocument) {
+   // The outermost frame has a blanket allowing rule of $document type.
+   SetFilters({"http://inner.com*/popup.html$popup",
+@@ -388,7 +414,7 @@ IN_PROC_BROWSER_TEST_F(AdblockFrameHierarchyBrowserTest,
+                                   observer.allowed_pages_notifications);
+ }
+ 
+-IN_PROC_BROWSER_TEST_F(AdblockFrameHierarchyBrowserTest,
++IN_PROC_BROWSER_TEST_P(AdblockFrameHierarchyBrowserTest,
+                        PopupAllowedByIntermediateParentDocument) {
+   // The middle frame has a blanket allowing rule of $document type.
+   SetFilters({"http://inner.com*/popup.html$popup",
+@@ -399,7 +425,7 @@ IN_PROC_BROWSER_TEST_F(AdblockFrameHierarchyBrowserTest,
+   EXPECT_EQ(2, NumberOfOpenTabs());
+ }
+ 
+-IN_PROC_BROWSER_TEST_F(AdblockFrameHierarchyBrowserTest, BlankFrameHiding) {
++IN_PROC_BROWSER_TEST_P(AdblockFrameHierarchyBrowserTest, BlankFrameHiding) {
+   SetFilters({"##.about_blank_div"});
+   NavigateToOutermostFrameWithAboutBlank();
+   std::string script = R"(
+@@ -422,8 +448,13 @@ IN_PROC_BROWSER_TEST_F(AdblockFrameHierarchyBrowserTest, BlankFrameHiding) {
+       document.getElementById("about_blank").addEventListener("load", writeIframe);
+     }
+   )";
++  observer.hidden_notifications.emplace_back(
++      "type:div;className:about_blank_div");
+   EXPECT_TRUE(content::ExecJs(
+       browser()->tab_strip_model()->GetActiveWebContents(), script));
++  base::RunLoop run_loop;
++  observer.eh_quit_closure_ = run_loop.QuitClosure();
++  std::move(run_loop).Run();
+   VerifyTargetResourceHidingStatus(false);
+   SetFilters({"@@^eyeo=true$document"});
+   NavigateToOutermostFrameWithAboutBlank();
+@@ -432,7 +463,7 @@ IN_PROC_BROWSER_TEST_F(AdblockFrameHierarchyBrowserTest, BlankFrameHiding) {
+   VerifyTargetResourceHidingStatus(true);
+ }
+ 
+-IN_PROC_BROWSER_TEST_F(AdblockFrameHierarchyBrowserTest, BlankFrameBlocking) {
++IN_PROC_BROWSER_TEST_P(AdblockFrameHierarchyBrowserTest, BlankFrameBlocking) {
+   SetFilters({"/resource.png"});
+   NavigateToOutermostFrameWithAboutBlank();
+   std::string script = R"(
+@@ -467,6 +498,10 @@ IN_PROC_BROWSER_TEST_F(AdblockFrameHierarchyBrowserTest, BlankFrameBlocking) {
+                                   observer.allowed_ads_notifications);
+ }
+ 
++INSTANTIATE_TEST_SUITE_P(All,
++                         AdblockFrameHierarchyBrowserTest,
++                         testing::Values(false /*normal*/, true /*incognito*/));
++
+ // More tests can be added / parametrized, e.g.:
+ // - elemhide blocking filters (in conjunction with $elemhide allow rules)
+ // - $subdocument-based allow rules
+diff --git a/chrome/browser/adblock/test/adblock_multiple_tabs_browsertest.cc b/chrome/browser/adblock/test/adblock_multiple_tabs_browsertest.cc
+index eb0f954743085..e912095245e42 100644
+--- a/chrome/browser/adblock/test/adblock_multiple_tabs_browsertest.cc
++++ b/chrome/browser/adblock/test/adblock_multiple_tabs_browsertest.cc
+@@ -44,7 +44,7 @@ class AdblockMultipleTabsBrowserTest
+         "components/test/data/adblock");
+     ASSERT_TRUE(embedded_test_server()->Start());
+     ResourceClassificationRunnerFactory::GetForBrowserContext(
+-        browser()->profile())
++        browser()->profile()->GetOriginalProfile())
+         ->AddObserver(this);
+     SetFilters({"blocked.png", "allowed.png", "@@allowed.png"});
+   }
+@@ -56,7 +56,8 @@ class AdblockMultipleTabsBrowserTest
+ 
+   void SetFilters(std::vector<std::string> filters) {
+     auto* adblock_configuration =
+-        SubscriptionServiceFactory::GetForBrowserContext(browser()->profile())
++        SubscriptionServiceFactory::GetForBrowserContext(
++            browser()->profile()->GetOriginalProfile())
+             ->GetFilteringConfiguration(kAdblockFilteringConfigurationName);
+     adblock_configuration->RemoveCustomFilter(kAllowlistEverythingFilter);
+     for (auto& filter : filters) {
+diff --git a/chrome/browser/adblock/test/adblock_popup_browsertest.cc b/chrome/browser/adblock/test/adblock_popup_browsertest.cc
+index 7b3c1f9509711..4c7dd362e763a 100644
+--- a/chrome/browser/adblock/test/adblock_popup_browsertest.cc
++++ b/chrome/browser/adblock/test/adblock_popup_browsertest.cc
+@@ -92,14 +92,14 @@ class AdblockPopupBrowserTest
+         &AdblockPopupBrowserTest::RequestHandler, base::Unretained(this)));
+     ASSERT_TRUE(embedded_test_server()->Start());
+     ResourceClassificationRunnerFactory::GetForBrowserContext(
+-        browser()->profile())
++        browser()->profile()->GetOriginalProfile())
+         ->AddObserver(this);
+   }
+ 
+   void TearDownOnMainThread() override {
+     VerifyNoUnexpectedNotifications();
+     ResourceClassificationRunnerFactory::GetForBrowserContext(
+-        browser()->profile())
++        browser()->profile()->GetOriginalProfile())
+         ->RemoveObserver(this);
+     InProcessBrowserTest::TearDownOnMainThread();
+   }
+@@ -202,7 +202,8 @@ class AdblockPopupBrowserTest
+ 
+   void SetFilters(std::vector<std::string> filters) {
+     auto* adblock_configuration =
+-        SubscriptionServiceFactory::GetForBrowserContext(browser()->profile())
++        SubscriptionServiceFactory::GetForBrowserContext(
++            browser()->profile()->GetOriginalProfile())
+             ->GetFilteringConfiguration(kAdblockFilteringConfigurationName);
+     adblock_configuration->RemoveCustomFilter(kAllowlistEverythingFilter);
+     for (auto& filter : filters) {
 diff --git a/chrome/browser/android/adblock/tab_id_translator_jni.cc b/chrome/browser/android/adblock/tab_id_translator_jni.cc
 new file mode 100644
 index 0000000000000..bb2d6bf4c3df1
@@ -135,7 +447,7 @@ index 0000000000000..bb2d6bf4c3df1
 +#include "chrome/browser/android/tab_android.h"
 +#include "content/public/browser/web_contents.h"
 diff --git a/chrome/browser/chrome_browser_main.cc b/chrome/browser/chrome_browser_main.cc
-index ee9e6e9208043..a4b3e66aa2921 100644
+index c7c59fa540499..1c71bbb1710ff 100644
 --- a/chrome/browser/chrome_browser_main.cc
 +++ b/chrome/browser/chrome_browser_main.cc
 @@ -1,6 +1,10 @@
@@ -157,7 +469,7 @@ index ee9e6e9208043..a4b3e66aa2921 100644
  #include "components/color/color_mixers.h"
  #include "components/device_event_log/device_event_log.h"
  #include "components/embedder_support/origin_trials/component_updater_utils.h"
-@@ -1537,6 +1542,8 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+@@ -1551,6 +1556,8 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
    // called inside PostProfileInit.
    content::WebUIControllerFactory::RegisterFactory(
        ChromeWebUIControllerFactory::GetInstance());
@@ -167,7 +479,7 @@ index ee9e6e9208043..a4b3e66aa2921 100644
    RegisterChromeUntrustedWebUIConfigs();
  
 diff --git a/chrome/browser/client_hints/client_hints_browsertest.cc b/chrome/browser/client_hints/client_hints_browsertest.cc
-index cac78ae41abef..02809e2a1829f 100644
+index 60e6898ee0016..2b0b79d1bad95 100644
 --- a/chrome/browser/client_hints/client_hints_browsertest.cc
 +++ b/chrome/browser/client_hints/client_hints_browsertest.cc
 @@ -1,6 +1,10 @@
@@ -181,7 +493,7 @@ index cac78ae41abef..02809e2a1829f 100644
  
  #include "components/client_hints/common/client_hints.h"
  
-@@ -661,7 +665,12 @@ class ClientHintsBrowserTest : public policy::PolicyTest {
+@@ -662,7 +666,12 @@ class ClientHintsBrowserTest : public policy::PolicyTest {
      std::unique_ptr<base::FeatureList> feature_list(new base::FeatureList);
      // Force-enable the ClientHintsFormFactors feature, so that the header is
      // represented in the various header counts.
@@ -195,23 +507,8 @@ index cac78ae41abef..02809e2a1829f 100644
      scoped_feature_list.InitWithFeatureList(std::move(feature_list));
    }
  
-diff --git a/chrome/browser/devtools/devtools_browsertest.cc b/chrome/browser/devtools/devtools_browsertest.cc
-index 04a710b9b7699..48711d0510c83 100644
---- a/chrome/browser/devtools/devtools_browsertest.cc
-+++ b/chrome/browser/devtools/devtools_browsertest.cc
-@@ -3155,8 +3155,9 @@ IN_PROC_BROWSER_TEST_F(DevToolsTest,
- #define MAYBE_TestRawHeadersWithRedirectAndHSTS \
-   DISABLED_TestRawHeadersWithRedirectAndHSTS
- #else
-+// TODO DPD-3223. Re-enable the test.
- #define MAYBE_TestRawHeadersWithRedirectAndHSTS \
--  TestRawHeadersWithRedirectAndHSTS
-+  DISABLED_TestRawHeadersWithRedirectAndHSTS
- #endif
- IN_PROC_BROWSER_TEST_F(DevToolsTest, MAYBE_TestRawHeadersWithRedirectAndHSTS) {
-   net::EmbeddedTestServer https_test_server(
 diff --git a/chrome/browser/extensions/BUILD.gn b/chrome/browser/extensions/BUILD.gn
-index 2a16c69d04eca..fd6b0fecab506 100644
+index a66766c31c9af..65b7a85f5a5d1 100644
 --- a/chrome/browser/extensions/BUILD.gn
 +++ b/chrome/browser/extensions/BUILD.gn
 @@ -1,6 +1,9 @@
@@ -224,7 +521,7 @@ index 2a16c69d04eca..fd6b0fecab506 100644
  
  import("//build/config/chromebox_for_meetings/buildflags.gni")
  import("//build/config/chromeos/ui_mode.gni")
-@@ -424,6 +427,7 @@ source_set("extensions") {
+@@ -478,6 +481,7 @@ source_set("extensions") {
      "window_controller_list.h",
      "window_controller_list_observer.h",
    ]
@@ -232,7 +529,7 @@ index 2a16c69d04eca..fd6b0fecab506 100644
    configs += [
      "//build/config:precompiled_headers",
      "//build/config/compiler:wexit_time_destructors",
-@@ -776,6 +780,20 @@ source_set("extensions") {
+@@ -803,6 +807,20 @@ source_set("extensions") {
        ]
      }
  
@@ -254,7 +551,7 @@ index 2a16c69d04eca..fd6b0fecab506 100644
      if (!is_chromeos) {
        sources += [
 diff --git a/chrome/browser/extensions/api/BUILD.gn b/chrome/browser/extensions/api/BUILD.gn
-index 5fbe9340ccb8a..90356ecac69de 100644
+index de2fcefcd68ff..8f75f4b4fc14f 100644
 --- a/chrome/browser/extensions/api/BUILD.gn
 +++ b/chrome/browser/extensions/api/BUILD.gn
 @@ -1,6 +1,9 @@
@@ -267,7 +564,7 @@ index 5fbe9340ccb8a..90356ecac69de 100644
  
  import("//chrome/common/extensions/api/api_sources.gni")
  import("//chrome/common/features.gni")
-@@ -138,6 +141,7 @@ function_registration("api_registration") {
+@@ -139,6 +142,7 @@ function_registration("api_registration") {
      # include generated headers from these targets.
      # TODO(brettw) this should be made unnecessary if possible.
      "//chrome/common/extensions/api",
@@ -277,10 +574,10 @@ index 5fbe9340ccb8a..90356ecac69de 100644
      "//third_party/metrics_proto",
 diff --git a/chrome/browser/extensions/api/adblock_private/adblock_private_api.cc b/chrome/browser/extensions/api/adblock_private/adblock_private_api.cc
 new file mode 100644
-index 0000000000000..b0ce7b8b7ca4e
+index 0000000000000..37701419ddbd9
 --- /dev/null
 +++ b/chrome/browser/extensions/api/adblock_private/adblock_private_api.cc
-@@ -0,0 +1,693 @@
+@@ -0,0 +1,614 @@
 +// This file is part of eyeo Chromium SDK,
 +// Copyright (C) 2006-present eyeo GmbH
 +//
@@ -676,85 +973,6 @@ index 0000000000000..b0ce7b8b7ca4e
 +          adblock_configuration->IsEnabled())));
 +}
 +
-+AdblockPrivateSetAcceptableAdsEnabledFunction::
-+    AdblockPrivateSetAcceptableAdsEnabledFunction() {}
-+
-+AdblockPrivateSetAcceptableAdsEnabledFunction::
-+    ~AdblockPrivateSetAcceptableAdsEnabledFunction() {}
-+
-+ExtensionFunction::ResponseAction
-+AdblockPrivateSetAcceptableAdsEnabledFunction::Run() {
-+  absl::optional<api::adblock_private::SetAcceptableAdsEnabled::Params> params =
-+      api::adblock_private::SetAcceptableAdsEnabled::Params::Create(args());
-+  EXTENSION_FUNCTION_VALIDATE(params);
-+
-+  auto* adblock_configuration =
-+      GetAdblockConfiguration(GetOriginalBrowserContext(browser_context()));
-+  if (params->enabled) {
-+    adblock_configuration->AddFilterList(adblock::AcceptableAdsUrl());
-+  } else {
-+    adblock_configuration->RemoveFilterList(adblock::AcceptableAdsUrl());
-+  }
-+
-+  return RespondNow(NoArguments());
-+}
-+
-+AdblockPrivateIsAcceptableAdsEnabledFunction::
-+    AdblockPrivateIsAcceptableAdsEnabledFunction() {}
-+
-+AdblockPrivateIsAcceptableAdsEnabledFunction::
-+    ~AdblockPrivateIsAcceptableAdsEnabledFunction() {}
-+
-+ExtensionFunction::ResponseAction
-+AdblockPrivateIsAcceptableAdsEnabledFunction::Run() {
-+  auto* adblock_configuration =
-+      GetAdblockConfiguration(GetOriginalBrowserContext(browser_context()));
-+  return RespondNow(ArgumentList(
-+      api::adblock_private::IsAcceptableAdsEnabled::Results::Create(
-+          std::ranges::any_of(adblock_configuration->GetFilterLists(),
-+                              [&](const auto& url) {
-+                                return url == adblock::AcceptableAdsUrl();
-+                              }))));
-+}
-+
-+AdblockPrivateSetAutoInstallEnabledFunction::
-+    AdblockPrivateSetAutoInstallEnabledFunction() {}
-+
-+AdblockPrivateSetAutoInstallEnabledFunction::
-+    ~AdblockPrivateSetAutoInstallEnabledFunction() {}
-+
-+ExtensionFunction::ResponseAction
-+AdblockPrivateSetAutoInstallEnabledFunction::Run() {
-+  absl::optional<api::adblock_private::SetAutoInstallEnabled::Params> params =
-+      api::adblock_private::SetAutoInstallEnabled::Params::Create(args());
-+  EXTENSION_FUNCTION_VALIDATE(params);
-+
-+  auto* subscription_service =
-+      adblock::SubscriptionServiceFactory::GetForBrowserContext(
-+          GetOriginalBrowserContext(browser_context()));
-+
-+  subscription_service->SetAutoInstallEnabled(params->enabled);
-+
-+  return RespondNow(NoArguments());
-+}
-+
-+AdblockPrivateIsAutoInstallEnabledFunction::
-+    AdblockPrivateIsAutoInstallEnabledFunction() {}
-+
-+AdblockPrivateIsAutoInstallEnabledFunction::
-+    ~AdblockPrivateIsAutoInstallEnabledFunction() {}
-+
-+ExtensionFunction::ResponseAction
-+AdblockPrivateIsAutoInstallEnabledFunction::Run() {
-+  auto* subscription_service =
-+      adblock::SubscriptionServiceFactory::GetForBrowserContext(
-+          GetOriginalBrowserContext(browser_context()));
-+
-+  return RespondNow(
-+      ArgumentList(api::adblock_private::IsAutoInstallEnabled::Results::Create(
-+          subscription_service->IsAutoInstallEnabled())));
-+}
-+
 +AdblockPrivateGetBuiltInSubscriptionsFunction::
 +    AdblockPrivateGetBuiltInSubscriptionsFunction() {}
 +
@@ -976,10 +1194,10 @@ index 0000000000000..b0ce7b8b7ca4e
 +}  // namespace extensions
 diff --git a/chrome/browser/extensions/api/adblock_private/adblock_private_api.h b/chrome/browser/extensions/api/adblock_private/adblock_private_api.h
 new file mode 100644
-index 0000000000000..a1f1bab92b5cb
+index 0000000000000..08b3b405742c5
 --- /dev/null
 +++ b/chrome/browser/extensions/api/adblock_private/adblock_private_api.h
-@@ -0,0 +1,360 @@
+@@ -0,0 +1,296 @@
 +// This file is part of eyeo Chromium SDK,
 +// Copyright (C) 2006-present eyeo GmbH
 +//
@@ -1070,70 +1288,6 @@ index 0000000000000..a1f1bab92b5cb
 +      delete;
 +  AdblockPrivateIsEnabledFunction& operator=(
 +      const AdblockPrivateIsEnabledFunction&) = delete;
-+};
-+
-+class AdblockPrivateSetAcceptableAdsEnabledFunction : public ExtensionFunction {
-+ public:
-+  DECLARE_EXTENSION_FUNCTION("adblockPrivate.setAcceptableAdsEnabled", UNKNOWN)
-+  AdblockPrivateSetAcceptableAdsEnabledFunction();
-+
-+ private:
-+  ~AdblockPrivateSetAcceptableAdsEnabledFunction() override;
-+
-+  ResponseAction Run() override;
-+
-+  AdblockPrivateSetAcceptableAdsEnabledFunction(
-+      const AdblockPrivateSetAcceptableAdsEnabledFunction&) = delete;
-+  AdblockPrivateSetAcceptableAdsEnabledFunction& operator=(
-+      const AdblockPrivateSetAcceptableAdsEnabledFunction&) = delete;
-+};
-+
-+class AdblockPrivateIsAcceptableAdsEnabledFunction : public ExtensionFunction {
-+ public:
-+  DECLARE_EXTENSION_FUNCTION("adblockPrivate.isAcceptableAdsEnabled", UNKNOWN)
-+  AdblockPrivateIsAcceptableAdsEnabledFunction();
-+
-+ private:
-+  ~AdblockPrivateIsAcceptableAdsEnabledFunction() override;
-+
-+  ResponseAction Run() override;
-+
-+  AdblockPrivateIsAcceptableAdsEnabledFunction(
-+      const AdblockPrivateIsAcceptableAdsEnabledFunction&) = delete;
-+  AdblockPrivateIsAcceptableAdsEnabledFunction& operator=(
-+      const AdblockPrivateIsAcceptableAdsEnabledFunction&) = delete;
-+};
-+
-+class AdblockPrivateSetAutoInstallEnabledFunction : public ExtensionFunction {
-+ public:
-+  DECLARE_EXTENSION_FUNCTION("adblockPrivate.setAutoInstallEnabled", UNKNOWN)
-+  AdblockPrivateSetAutoInstallEnabledFunction();
-+
-+ private:
-+  ~AdblockPrivateSetAutoInstallEnabledFunction() override;
-+
-+  ResponseAction Run() override;
-+
-+  AdblockPrivateSetAutoInstallEnabledFunction(
-+      const AdblockPrivateSetAutoInstallEnabledFunction&) = delete;
-+  AdblockPrivateSetAutoInstallEnabledFunction& operator=(
-+      const AdblockPrivateSetAutoInstallEnabledFunction&) = delete;
-+};
-+
-+class AdblockPrivateIsAutoInstallEnabledFunction : public ExtensionFunction {
-+ public:
-+  DECLARE_EXTENSION_FUNCTION("adblockPrivate.isAutoInstallEnabled", UNKNOWN)
-+  AdblockPrivateIsAutoInstallEnabledFunction();
-+
-+ private:
-+  ~AdblockPrivateIsAutoInstallEnabledFunction() override;
-+
-+  ResponseAction Run() override;
-+
-+  AdblockPrivateIsAutoInstallEnabledFunction(
-+      const AdblockPrivateIsAutoInstallEnabledFunction&) = delete;
-+  AdblockPrivateIsAutoInstallEnabledFunction& operator=(
-+      const AdblockPrivateIsAutoInstallEnabledFunction&) = delete;
 +};
 +
 +class AdblockPrivateGetBuiltInSubscriptionsFunction : public ExtensionFunction {
@@ -2296,10 +2450,10 @@ index 0000000000000..8b5e187707639
 +
 +}  // namespace extensions
 diff --git a/chrome/browser/extensions/api/api_browser_context_keyed_service_factories.cc b/chrome/browser/extensions/api/api_browser_context_keyed_service_factories.cc
-index 139f834052964..5dfc25929946c 100644
+index 79d98729c27b1..d54298e802b28 100644
 --- a/chrome/browser/extensions/api/api_browser_context_keyed_service_factories.cc
 +++ b/chrome/browser/extensions/api/api_browser_context_keyed_service_factories.cc
-@@ -19,10 +19,13 @@
+@@ -24,10 +24,13 @@
  #include "build/build_config.h"
  #include "build/chromeos_buildflags.h"
  #include "chrome/browser/extensions/api/activity_log_private/activity_log_private_api.h"
@@ -2310,10 +2464,10 @@ index 139f834052964..5dfc25929946c 100644
  #include "chrome/browser/extensions/api/enterprise_reporting_private/enterprise_reporting_private_event_router.h"
 +#include "chrome/browser/extensions/api/eyeo_dev_tools_private/eyeo_dev_tools_private_api.h"
 +#include "chrome/browser/extensions/api/eyeo_filtering_private/eyeo_filtering_private_api.h"
- #include "chrome/browser/extensions/api/font_settings/font_settings_api.h"
  #include "chrome/browser/extensions/api/identity/identity_api.h"
  #include "chrome/browser/extensions/api/image_writer_private/operation_manager.h"
-@@ -88,6 +91,7 @@ void EnsureApiBrowserContextKeyedServiceFactoriesBuilt() {
+ #include "chrome/browser/extensions/api/language_settings_private/language_settings_private_delegate_factory.h"
+@@ -92,6 +95,7 @@ void EnsureApiBrowserContextKeyedServiceFactoriesBuilt() {
  
  #if BUILDFLAG(ENABLE_EXTENSIONS)
    extensions::ActivityLogAPI::GetFactoryInstance();
@@ -2321,15 +2475,15 @@ index 139f834052964..5dfc25929946c 100644
    extensions::AutofillPrivateEventRouterFactory::GetInstance();
    extensions::BluetoothLowEnergyAPI::GetFactoryInstance();
    extensions::BookmarkManagerPrivateAPI::GetFactoryInstance();
-@@ -96,6 +100,8 @@ void EnsureApiBrowserContextKeyedServiceFactoriesBuilt() {
+@@ -100,6 +104,8 @@ void EnsureApiBrowserContextKeyedServiceFactoriesBuilt() {
    extensions::DocumentScanAPIHandler::GetFactoryInstance();
  #endif
    extensions::EnterpriseReportingPrivateEventRouterFactory::GetInstance();
 +  extensions::EyeoDevToolsPrivateAPI::GetFactoryInstance();
 +  extensions::EyeoFilteringPrivateAPI::GetFactoryInstance();
-   extensions::FontSettingsAPI::GetFactoryInstance();
    extensions::IdentityAPI::GetFactoryInstance();
    extensions::IncognitoConnectability::EnsureFactoryBuilt();
+ #if BUILDFLAG(IS_CHROMEOS)
 diff --git a/chrome/browser/extensions/api/eyeo_dev_tools_private/eyeo_dev_tools_private_api.cc b/chrome/browser/extensions/api/eyeo_dev_tools_private/eyeo_dev_tools_private_api.cc
 new file mode 100644
 index 0000000000000..839aeb5012566
@@ -3226,10 +3380,10 @@ index 0000000000000..dc96a5f834ffd
 +}  // namespace extensions
 diff --git a/chrome/browser/extensions/api/eyeo_filtering_private/eyeo_filtering_private_api.cc b/chrome/browser/extensions/api/eyeo_filtering_private/eyeo_filtering_private_api.cc
 new file mode 100644
-index 0000000000000..8c53430020ecb
+index 0000000000000..ce027a285924e
 --- /dev/null
 +++ b/chrome/browser/extensions/api/eyeo_filtering_private/eyeo_filtering_private_api.cc
-@@ -0,0 +1,808 @@
+@@ -0,0 +1,756 @@
 +// This file is part of eyeo Chromium SDK,
 +// Copyright (C) 2006-present eyeo GmbH
 +//
@@ -3745,45 +3899,6 @@ index 0000000000000..8c53430020ecb
 +          std::move(configurations))));
 +}
 +
-+EyeoFilteringPrivateSetAutoInstallEnabledFunction::
-+    EyeoFilteringPrivateSetAutoInstallEnabledFunction() {}
-+
-+EyeoFilteringPrivateSetAutoInstallEnabledFunction::
-+    ~EyeoFilteringPrivateSetAutoInstallEnabledFunction() {}
-+
-+ExtensionFunction::ResponseAction
-+EyeoFilteringPrivateSetAutoInstallEnabledFunction::Run() {
-+  absl::optional<api::eyeo_filtering_private::SetAutoInstallEnabled::Params>
-+      params =
-+          api::eyeo_filtering_private::SetAutoInstallEnabled::Params::Create(
-+              args());
-+  EXTENSION_FUNCTION_VALIDATE(params);
-+
-+  auto* subscription_service =
-+      adblock::SubscriptionServiceFactory::GetForBrowserContext(
-+          GetOriginalBrowserContext(browser_context()));
-+  subscription_service->SetAutoInstallEnabled(params->enabled);
-+
-+  return RespondNow(NoArguments());
-+}
-+
-+EyeoFilteringPrivateIsAutoInstallEnabledFunction::
-+    EyeoFilteringPrivateIsAutoInstallEnabledFunction() {}
-+
-+EyeoFilteringPrivateIsAutoInstallEnabledFunction::
-+    ~EyeoFilteringPrivateIsAutoInstallEnabledFunction() {}
-+
-+ExtensionFunction::ResponseAction
-+EyeoFilteringPrivateIsAutoInstallEnabledFunction::Run() {
-+  auto* subscription_service =
-+      adblock::SubscriptionServiceFactory::GetForBrowserContext(
-+          GetOriginalBrowserContext(browser_context()));
-+
-+  return RespondNow(ArgumentList(
-+      api::eyeo_filtering_private::IsAutoInstallEnabled::Results::Create(
-+          subscription_service->IsAutoInstallEnabled())));
-+}
-+
 +EyeoFilteringPrivateSetEnabledFunction::
 +    EyeoFilteringPrivateSetEnabledFunction() = default;
 +
@@ -3816,19 +3931,6 @@ index 0000000000000..8c53430020ecb
 +  return RespondNow(
 +      ArgumentList(api::eyeo_filtering_private::IsEnabled::Results::Create(
 +          configuration->IsEnabled())));
-+}
-+
-+EyeoFilteringPrivateGetAcceptableAdsUrlFunction::
-+    EyeoFilteringPrivateGetAcceptableAdsUrlFunction() = default;
-+
-+EyeoFilteringPrivateGetAcceptableAdsUrlFunction::
-+    ~EyeoFilteringPrivateGetAcceptableAdsUrlFunction() = default;
-+
-+ExtensionFunction::ResponseAction
-+EyeoFilteringPrivateGetAcceptableAdsUrlFunction::Run() {
-+  return RespondNow(ArgumentList(
-+      api::eyeo_filtering_private::GetAcceptableAdsUrl::Results::Create(
-+          adblock::AcceptableAdsUrl().spec())));
 +}
 +
 +EyeoFilteringPrivateAddFilterListFunction::
@@ -4040,10 +4142,10 @@ index 0000000000000..8c53430020ecb
 +}  // namespace extensions
 diff --git a/chrome/browser/extensions/api/eyeo_filtering_private/eyeo_filtering_private_api.h b/chrome/browser/extensions/api/eyeo_filtering_private/eyeo_filtering_private_api.h
 new file mode 100644
-index 0000000000000..4add7f11d9072
+index 0000000000000..75c277fd296fc
 --- /dev/null
 +++ b/chrome/browser/extensions/api/eyeo_filtering_private/eyeo_filtering_private_api.h
-@@ -0,0 +1,392 @@
+@@ -0,0 +1,356 @@
 +// This file is part of eyeo Chromium SDK,
 +// Copyright (C) 2006-present eyeo GmbH
 +//
@@ -4153,42 +4255,6 @@ index 0000000000000..4add7f11d9072
 +      const EyeoFilteringPrivateGetConfigurationsFunction&) = delete;
 +  EyeoFilteringPrivateGetConfigurationsFunction& operator=(
 +      const EyeoFilteringPrivateGetConfigurationsFunction&) = delete;
-+};
-+
-+class EyeoFilteringPrivateSetAutoInstallEnabledFunction
-+    : public ExtensionFunction {
-+ public:
-+  DECLARE_EXTENSION_FUNCTION("eyeoFilteringPrivate.setAutoInstallEnabled",
-+                             UNKNOWN)
-+  EyeoFilteringPrivateSetAutoInstallEnabledFunction();
-+
-+ private:
-+  ~EyeoFilteringPrivateSetAutoInstallEnabledFunction() override;
-+
-+  ResponseAction Run() override;
-+
-+  EyeoFilteringPrivateSetAutoInstallEnabledFunction(
-+      const EyeoFilteringPrivateSetAutoInstallEnabledFunction&) = delete;
-+  EyeoFilteringPrivateSetAutoInstallEnabledFunction& operator=(
-+      const EyeoFilteringPrivateSetAutoInstallEnabledFunction&) = delete;
-+};
-+
-+class EyeoFilteringPrivateIsAutoInstallEnabledFunction
-+    : public ExtensionFunction {
-+ public:
-+  DECLARE_EXTENSION_FUNCTION("eyeoFilteringPrivate.isAutoInstallEnabled",
-+                             UNKNOWN)
-+  EyeoFilteringPrivateIsAutoInstallEnabledFunction();
-+
-+ private:
-+  ~EyeoFilteringPrivateIsAutoInstallEnabledFunction() override;
-+
-+  ResponseAction Run() override;
-+
-+  EyeoFilteringPrivateIsAutoInstallEnabledFunction(
-+      const EyeoFilteringPrivateIsAutoInstallEnabledFunction&) = delete;
-+  EyeoFilteringPrivateIsAutoInstallEnabledFunction& operator=(
-+      const EyeoFilteringPrivateIsAutoInstallEnabledFunction&) = delete;
 +};
 +
 +class EyeoFilteringPrivateSetEnabledFunction : public ExtensionFunction {
@@ -4615,7 +4681,7 @@ index 0000000000000..13919fa3825b6
 +
 +}  // namespace extensions
 diff --git a/chrome/browser/extensions/extension_function_registration_test.cc b/chrome/browser/extensions/extension_function_registration_test.cc
-index f384225e77c8b..dc4298f8048d5 100644
+index 5f219f227a952..b8b881a589972 100644
 --- a/chrome/browser/extensions/extension_function_registration_test.cc
 +++ b/chrome/browser/extensions/extension_function_registration_test.cc
 @@ -1,6 +1,10 @@
@@ -4629,7 +4695,7 @@ index f384225e77c8b..dc4298f8048d5 100644
  
  #include "base/containers/contains.h"
  #include "base/one_shot_event.h"
-@@ -58,6 +62,13 @@ IN_PROC_BROWSER_TEST_F(ExtensionFunctionRegistrationTest,
+@@ -59,6 +63,13 @@ IN_PROC_BROWSER_TEST_F(ExtensionFunctionRegistrationTest,
                             base::CompareCase::SENSITIVE)) {
          continue;
        }
@@ -4677,7 +4743,7 @@ index 0e01ba33df3fd..3e30bbbc59cd1 100644
  
    void TearDownOnMainThread() override { url_loader_interceptor_.reset(); }
 diff --git a/chrome/browser/page_load_metrics/observers/ad_metrics/ads_page_load_metrics_observer_browsertest.cc b/chrome/browser/page_load_metrics/observers/ad_metrics/ads_page_load_metrics_observer_browsertest.cc
-index 9de5c66ca4cd4..0a6aa800da104 100644
+index 7f97a813164a6..9b4e892f38f85 100644
 --- a/chrome/browser/page_load_metrics/observers/ad_metrics/ads_page_load_metrics_observer_browsertest.cc
 +++ b/chrome/browser/page_load_metrics/observers/ad_metrics/ads_page_load_metrics_observer_browsertest.cc
 @@ -1,6 +1,10 @@
@@ -4691,7 +4757,7 @@ index 9de5c66ca4cd4..0a6aa800da104 100644
  
  #include "components/page_load_metrics/browser/observers/ad_metrics/ads_page_load_metrics_observer.h"
  
-@@ -23,6 +27,7 @@
+@@ -24,6 +28,7 @@
  #include "chrome/test/base/in_process_browser_test.h"
  #include "chrome/test/base/interactive_test_utils.h"
  #include "chrome/test/base/ui_test_utils.h"
@@ -4699,7 +4765,7 @@ index 9de5c66ca4cd4..0a6aa800da104 100644
  #include "components/heavy_ad_intervention/heavy_ad_features.h"
  #include "components/page_load_metrics/browser/ads_page_load_metrics_test_waiter.h"
  #include "components/page_load_metrics/browser/features.h"
-@@ -1513,7 +1518,7 @@ class AdsPageLoadMetricsObserverResourceBrowserTest
+@@ -1514,7 +1519,7 @@ class AdsPageLoadMetricsObserverResourceBrowserTest
           {heavy_ad_intervention::features::kHeavyAdIntervention, {}},
           {heavy_ad_intervention::features::kHeavyAdPrivacyMitigations,
            {{"host-threshold", "3"}}}},
@@ -4731,10 +4797,10 @@ index 895b8c5d91839..780869b673687 100644
      "//components/bookmarks/common/bookmark_pref_names.h",
      "//components/commerce/core/pref_names.h",
 diff --git a/chrome/browser/prefs/browser_prefs.cc b/chrome/browser/prefs/browser_prefs.cc
-index 1ade93d9ea505..4c8ab4cd5a785 100644
+index 2332865b2aa3b..dd0ad59a1787d 100644
 --- a/chrome/browser/prefs/browser_prefs.cc
 +++ b/chrome/browser/prefs/browser_prefs.cc
-@@ -98,6 +98,7 @@
+@@ -100,6 +100,7 @@
  #include "chrome/common/buildflags.h"
  #include "chrome/common/pref_names.h"
  #include "chrome/common/secure_origin_allowlist.h"
@@ -4742,7 +4808,7 @@ index 1ade93d9ea505..4c8ab4cd5a785 100644
  #include "components/autofill/core/common/autofill_prefs.h"
  #include "components/blocked_content/safe_browsing_triggered_popup_blocker.h"
  #include "components/breadcrumbs/core/breadcrumbs_status.h"
-@@ -2869,6 +2870,7 @@ void MigrateObsoleteProfilePrefs(PrefService* profile_prefs,
+@@ -2967,6 +2968,7 @@ void MigrateObsoleteProfilePrefs(PrefService* profile_prefs,
    profile_prefs->ClearPref(kObsoleteLocalPasswordMigrationWarningPrefsVersion);
  #endif
  
@@ -4751,21 +4817,24 @@ index 1ade93d9ea505..4c8ab4cd5a785 100644
    profile_prefs->ClearPref(kSuggestionGroupVisibility);
  
 diff --git a/chrome/browser/prefs/chrome_pref_service_factory.cc b/chrome/browser/prefs/chrome_pref_service_factory.cc
-index 3d946ce955030..3dee439ea294d 100644
+index 85a59f91d40b3..0d90417746413 100644
 --- a/chrome/browser/prefs/chrome_pref_service_factory.cc
 +++ b/chrome/browser/prefs/chrome_pref_service_factory.cc
-@@ -1,6 +1,10 @@
+@@ -1,6 +1,13 @@
  // Copyright 2012 The Chromium Authors
  // Use of this source code is governed by a BSD-style license that can be
  // found in the LICENSE file.
 +//
 +// This source code is a part of eyeo Chromium SDK.
 +// Use of this source code is governed by the GPLv3 that can be found in the
++// components/adblock/LICENSE file.+//
++// This source code is a part of eyeo Chromium SDK.
++// Use of this source code is governed by the GPLv3 that can be found in the
 +// components/adblock/LICENSE file.
  
  #include "chrome/browser/prefs/chrome_pref_service_factory.h"
  
-@@ -43,6 +47,7 @@
+@@ -43,6 +50,7 @@
  #include "chrome/grit/branded_strings.h"
  #include "chrome/grit/browser_resources.h"
  #include "chrome/grit/generated_resources.h"
@@ -4773,10 +4842,10 @@ index 3d946ce955030..3dee439ea294d 100644
  #include "components/component_updater/pref_names.h"
  #include "components/policy/core/browser/configuration_policy_pref_store.h"
  #include "components/pref_registry/pref_registry_syncable.h"
-@@ -183,6 +188,12 @@ const auto kTrackedPrefs = std::to_array<prefs::TrackedPreferenceMetadata>({
-     {35, prefs::kExtensionsUIDeveloperMode, EnforcementLevel::ENFORCE_ON_LOAD,
+@@ -179,6 +187,12 @@ const auto kTrackedPrefs = std::to_array<prefs::TrackedPreferenceMetadata>({
+     // Allows it to trigger a write to the protected pref store.
+     {36, user_prefs::kScheduleToFlushToDisk, EnforcementLevel::ENFORCE_ON_LOAD,
       PrefTrackingStrategy::ATOMIC, ValueType::IMPERSONAL},
- #endif
 +    {100, adblock::common::prefs::kSubscriptionSignatures,
 +     EnforcementLevel::ENFORCE_ON_LOAD, PrefTrackingStrategy::SPLIT,
 +     ValueType::IMPERSONAL},
@@ -4787,7 +4856,7 @@ index 3d946ce955030..3dee439ea294d 100644
      // See note at top, new items added here also need to be added to
      // histograms.xml's TrackedPreference enum.
 diff --git a/chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.cc b/chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.cc
-index 85af5360465b8..4c44a98a142fb 100644
+index c071053a6920c..0b0aa8a58646c 100644
 --- a/chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.cc
 +++ b/chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.cc
 @@ -1,6 +1,10 @@
@@ -4801,7 +4870,7 @@ index 85af5360465b8..4c44a98a142fb 100644
  
  #include "chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.h"
  
-@@ -241,6 +245,15 @@
+@@ -242,6 +246,15 @@
  #include "chrome/browser/webid/federated_identity_permission_context_factory.h"
  #include "chrome/common/buildflags.h"
  #include "chrome/common/chrome_features.h"
@@ -4817,7 +4886,7 @@ index 85af5360465b8..4c44a98a142fb 100644
  #include "components/autofill/content/browser/autofill_log_router_factory.h"
  #include "components/breadcrumbs/core/breadcrumbs_status.h"
  #include "components/captive_portal/core/buildflags.h"
-@@ -911,6 +924,15 @@ void ChromeBrowserMainExtraPartsProfiles::
+@@ -917,6 +930,15 @@ void ChromeBrowserMainExtraPartsProfiles::
    // Makes manual testing possible.
    FakeSmartCardDeviceServiceFactory::GetInstance();
  #endif
@@ -4834,7 +4903,7 @@ index 85af5360465b8..4c44a98a142fb 100644
    FastCheckoutCapabilitiesFetcherFactory::GetInstance();
  #endif
 diff --git a/chrome/browser/profiles/profile_keyed_service_browsertest.cc b/chrome/browser/profiles/profile_keyed_service_browsertest.cc
-index 72ff470b46fe5..5ce4701f2433d 100644
+index 4dcfb846c7230..4dc6942e8f892 100644
 --- a/chrome/browser/profiles/profile_keyed_service_browsertest.cc
 +++ b/chrome/browser/profiles/profile_keyed_service_browsertest.cc
 @@ -1,6 +1,10 @@
@@ -4848,7 +4917,7 @@ index 72ff470b46fe5..5ce4701f2433d 100644
  
  #include <algorithm>
  #include <sstream>
-@@ -277,6 +281,17 @@ IN_PROC_BROWSER_TEST_F(ProfileKeyedServiceBrowserTest,
+@@ -278,6 +282,17 @@ IN_PROC_BROWSER_TEST_F(ProfileKeyedServiceBrowserTest,
      "PermissionsUpdaterShutdownFactory",
      "PluginInfoHostImpl",
      "TurnSyncOnHelperShutdownNotifier",
@@ -4866,7 +4935,7 @@ index 72ff470b46fe5..5ce4701f2433d 100644
    };
    // clang-format on
  
-@@ -852,6 +867,20 @@ IN_PROC_BROWSER_TEST_F(ProfileKeyedServiceGuestBrowserTest,
+@@ -854,6 +869,20 @@ IN_PROC_BROWSER_TEST_F(ProfileKeyedServiceGuestBrowserTest,
      "ZeroSuggestCacheServiceFactory",
  #endif  // !BUILDFLAG(IS_CHROMEOS)
  
@@ -4888,7 +4957,7 @@ index 72ff470b46fe5..5ce4701f2433d 100644
      // TODO(crbug.com/374351946):
      // Verify these are necessary: then reorder or remove.
 diff --git a/chrome/browser/resources/BUILD.gn b/chrome/browser/resources/BUILD.gn
-index 5e51b87522cbb..b6017fbb155ce 100644
+index ca7e404e3ad46..e8f144ef494e9 100644
 --- a/chrome/browser/resources/BUILD.gn
 +++ b/chrome/browser/resources/BUILD.gn
 @@ -1,6 +1,9 @@
@@ -4901,7 +4970,7 @@ index 5e51b87522cbb..b6017fbb155ce 100644
  
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
-@@ -284,6 +287,7 @@ group("dev_ui_resources") {
+@@ -285,6 +288,7 @@ group("dev_ui_resources") {
      "predictors:resources",
      "privacy_sandbox/internals:resources",
      "usb_internals:resources",
@@ -4909,7 +4978,7 @@ index 5e51b87522cbb..b6017fbb155ce 100644
      "//components/commerce/core/internals/resources",
      "//components/data_sharing/data_sharing_internals/resources",
      "//components/download/resources/download_internals:resources",
-@@ -351,6 +355,7 @@ repack("dev_ui_paks") {
+@@ -353,6 +357,7 @@ repack("dev_ui_paks") {
      "$root_gen_dir/chrome/predictors_resources.pak",
      "$root_gen_dir/chrome/privacy_sandbox_internals_resources.pak",
      "$root_gen_dir/chrome/usb_internals_resources.pak",
@@ -4918,7 +4987,7 @@ index 5e51b87522cbb..b6017fbb155ce 100644
      "$root_gen_dir/components/data_sharing_internals_resources.pak",
      "$root_gen_dir/components/dev_ui_components_resources.pak",
 diff --git a/chrome/browser/safe_browsing/safe_browsing_blocking_page_test.cc b/chrome/browser/safe_browsing/safe_browsing_blocking_page_test.cc
-index d522ad0e85f64..04506020dab0d 100644
+index d7eba4ffc511c..e3b5293b9ec4e 100644
 --- a/chrome/browser/safe_browsing/safe_browsing_blocking_page_test.cc
 +++ b/chrome/browser/safe_browsing/safe_browsing_blocking_page_test.cc
 @@ -5,6 +5,10 @@
@@ -4950,7 +5019,7 @@ index d522ad0e85f64..04506020dab0d 100644
  
    SafeBrowsingBlockingPageBrowserTest(
 diff --git a/chrome/browser/sessions/session_restore_browsertest.cc b/chrome/browser/sessions/session_restore_browsertest.cc
-index 315a9cd3abf1a..4aa03a3c399b8 100644
+index 7e0cb76e2f948..6ae74db61912c 100644
 --- a/chrome/browser/sessions/session_restore_browsertest.cc
 +++ b/chrome/browser/sessions/session_restore_browsertest.cc
 @@ -1,6 +1,10 @@
@@ -4964,7 +5033,7 @@ index 315a9cd3abf1a..4aa03a3c399b8 100644
  
  #ifdef UNSAFE_BUFFERS_BUILD
  // TODO(crbug.com/40285824): Remove this and convert code to safer constructs.
-@@ -4404,8 +4408,10 @@ class SessionRestoreStaleSessionCookieDeletionTest : public SessionRestoreTest {
+@@ -4405,8 +4409,10 @@ class SessionRestoreStaleSessionCookieDeletionTest : public SessionRestoreTest {
    net::EmbeddedTestServer https_server_;
  };
  
@@ -5011,7 +5080,7 @@ index afa46eb6e6982..d931be54dd7a6 100644
  
  SubresourceFilterBrowserTest::~SubresourceFilterBrowserTest() = default;
 diff --git a/chrome/browser/ui/BUILD.gn b/chrome/browser/ui/BUILD.gn
-index 8392975cdde4e..c00d4131ea0a3 100644
+index 77df46a8d4b02..49de6d09f15fb 100644
 --- a/chrome/browser/ui/BUILD.gn
 +++ b/chrome/browser/ui/BUILD.gn
 @@ -1,6 +1,9 @@
@@ -5024,7 +5093,7 @@ index 8392975cdde4e..c00d4131ea0a3 100644
  
  import("//build/config/buildflags_paint_preview.gni")
  import("//build/config/compiler/compiler.gni")
-@@ -424,6 +427,7 @@ static_library("ui") {
+@@ -417,6 +420,7 @@ static_library("ui") {
      "//chrome/services/media_gallery_util/public/mojom",
      "//components/access_code_cast/common:metrics",
      "//components/account_id",
@@ -5032,7 +5101,7 @@ index 8392975cdde4e..c00d4131ea0a3 100644
      "//components/affiliations/core/browser:affiliations",
      "//components/autofill/content/browser",
      "//components/autofill/content/browser:risk_proto",
-@@ -948,6 +952,14 @@ static_library("ui") {
+@@ -946,6 +950,14 @@ static_library("ui") {
      # Any circular includes must depend on the target "//chrome/browser:browser_public_dependencies".
      allow_circular_includes_from += [ "//chrome/browser/facilitated_payments" ]
  
@@ -5086,7 +5155,7 @@ index 1c7d3b2ddd3f0..774f5026f0740 100644
  
  }  // namespace
 diff --git a/chrome/browser/ui/tab_helpers.cc b/chrome/browser/ui/tab_helpers.cc
-index 8b3b888ead6d9..8df1fc2088aab 100644
+index b1cd68373bfce..9f5bbf6629364 100644
 --- a/chrome/browser/ui/tab_helpers.cc
 +++ b/chrome/browser/ui/tab_helpers.cc
 @@ -1,6 +1,10 @@
@@ -5109,7 +5178,7 @@ index 8b3b888ead6d9..8df1fc2088aab 100644
  #include "components/autofill/content/browser/content_autofill_client.h"
  #include "components/autofill/content/browser/content_autofill_driver_factory.h"
  #include "components/autofill/core/browser/foundations/browser_autofill_manager.h"
-@@ -342,6 +348,12 @@ void TabHelpers::AttachTabHelpers(WebContents* web_contents) {
+@@ -341,6 +347,12 @@ void TabHelpers::AttachTabHelpers(WebContents* web_contents) {
                                                     optimization_guide_decider);
      }
    }
@@ -5122,7 +5191,7 @@ index 8b3b888ead6d9..8df1fc2088aab 100644
    autofill::AutofillClientProvider& autofill_client_provider =
        autofill::AutofillClientProviderFactory::GetForProfile(profile);
    autofill_client_provider.CreateClientForWebContents(web_contents);
-@@ -379,6 +391,7 @@ void TabHelpers::AttachTabHelpers(WebContents* web_contents) {
+@@ -378,6 +390,7 @@ void TabHelpers::AttachTabHelpers(WebContents* web_contents) {
      ip_protection::IpProtectionStatus::CreateForWebContents(web_contents);
    }
  #endif  // BUILDFLAG(IS_ANDROID)
@@ -5131,5 +5200,5 @@ index 8b3b888ead6d9..8df1fc2088aab 100644
      BreadcrumbManagerTabHelper::CreateForWebContents(web_contents);
    }
 -- 
-2.43.0
+2.50.0.windows.1
 

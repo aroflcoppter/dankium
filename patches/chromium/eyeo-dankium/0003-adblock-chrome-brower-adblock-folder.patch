@@ -1,4 +1,4 @@
-From 65bfd36313a024cdaadfe513fafb92d9fe188ad4 Mon Sep 17 00:00:00 2001
+From d01824bba4373d9c1b5ce0c8ca7f1ea61f806c25 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Thu, 22 May 2025 15:50:31 +0000
 Subject: [PATCH] adblock chrome brower adblock folder
@@ -40,7 +40,7 @@ Copyright (C) 2006-present eyeo GmbH.
  .../settings/AdblockFilterListsAdapter.java   | 112 +++++
  .../settings/AdblockFilterListsFragment.java  |  57 +++
  .../settings/AdblockMoreOptionsFragment.java  |  34 ++
- .../settings/AdblockSettingsFragment.java     | 162 ++++++
+ .../settings/AdblockSettingsFragment.java     | 149 ++++++
  .../adblock/AdblockControllerTest.java        |  52 ++
  .../adblock/AdblockFilterFragmentTest.java    | 129 +++++
  .../adblock/AdblockPopupMessageTest.java      | 113 +++++
@@ -148,7 +148,7 @@ Copyright (C) 2006-present eyeo GmbH.
  ...ock_frame_hierarchy_builder_browsertest.cc | 474 ++++++++++++++++++
  .../test/adblock_multiple_tabs_browsertest.cc | 168 +++++++
  .../adblock/test/adblock_popup_browsertest.cc | 462 +++++++++++++++++
- 143 files changed, 5441 insertions(+)
+ 143 files changed, 5428 insertions(+)
  create mode 100644 chrome/browser/adblock/README.md
  create mode 100644 chrome/browser/adblock/adblock_chrome_content_browser_client.cc
  create mode 100644 chrome/browser/adblock/adblock_chrome_content_browser_client.h
@@ -2398,10 +2398,10 @@ index 0000000000000..f0949e2031e5a
 +}
 diff --git a/chrome/browser/adblock/android/java/src/org/chromium/chrome/browser/adblock/settings/AdblockSettingsFragment.java b/chrome/browser/adblock/android/java/src/org/chromium/chrome/browser/adblock/settings/AdblockSettingsFragment.java
 new file mode 100644
-index 0000000000000..3f85bfb5171fa
+index 0000000000000..70470a18805fc
 --- /dev/null
 +++ b/chrome/browser/adblock/android/java/src/org/chromium/chrome/browser/adblock/settings/AdblockSettingsFragment.java
-@@ -0,0 +1,162 @@
+@@ -0,0 +1,149 @@
 +// This file is part of eyeo Chromium SDK,
 +// Copyright (C) 2006-present eyeo GmbH
 +// eyeo Chromium SDK is free software: you can redistribute it and/or modify
@@ -2486,16 +2486,6 @@ index 0000000000000..3f85bfb5171fa
 +        mAdblockEnabled.setChecked(enabled);
 +        mAdblockEnabled.setOnPreferenceChangeListener(this);
 +        applyAdblockEnabled(enabled);
-+
-+        mAcceptableAdsEnabled.setChecked(
-+                AdblockController.getInstance(ProfileManager.getLastUsedRegularProfile())
-+                        .isAcceptableAdsEnabled());
-+        mAcceptableAdsEnabled.setOnPreferenceChangeListener(this);
-+
-+        mAutoInstalledEnabled.setChecked(
-+                AdblockController.getInstance(ProfileManager.getLastUsedRegularProfile())
-+                        .isAutoInstallEnabled());
-+        mAutoInstalledEnabled.setOnPreferenceChangeListener(this);
 +    }
 +
 +    private void maybeEnableMoreOptions() {
@@ -2551,9 +2541,6 @@ index 0000000000000..3f85bfb5171fa
 +                    .setAcceptableAdsEnabled((Boolean) newValue);
 +        } else {
 +            assert preference.getKey().equals(SETTINGS_AUTO_INSTALL_ENABLED_KEY);
-+
-+            AdblockController.getInstance(ProfileManager.getLastUsedRegularProfile())
-+                    .setAutoInstallEnabled((Boolean) newValue);
 +        }
 +        return true;
 +    }
@@ -6887,5 +6874,5 @@ index 0000000000000..7b3c1f9509711
 +
 +}  // namespace adblock
 -- 
-2.43.0
+2.50.0.windows.1
 

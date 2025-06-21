@@ -1,4 +1,4 @@
-From 92686e4913bb934fbcd6db895ddf78794aaf6df9 Mon Sep 17 00:00:00 2001
+From 10eccdbcb968edb30ef5e2be6b6fe77f30143906 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Thu, 22 May 2025 15:50:31 +0000
 Subject: [PATCH] adblock chrome common
@@ -6,21 +6,21 @@ Subject: [PATCH] adblock chrome common
 Copyright (C) 2006-present eyeo GmbH.
 ---
  chrome/common/BUILD.gn                        |   3 +
- .../common/extensions/api/_api_features.json  |  26 ++
+ .../common/extensions/api/_api_features.json  |  26 +++
  .../extensions/api/_permission_features.json  |  21 ++
- .../common/extensions/api/adblock_private.idl | 180 ++++++++++++++
+ .../common/extensions/api/adblock_private.idl | 172 ++++++++++++++
  chrome/common/extensions/api/api_sources.gni  |   7 +
  .../extensions/api/eyeo_dev_tools_private.idl |  88 +++++++
- .../extensions/api/eyeo_filtering_private.idl | 229 ++++++++++++++++++
+ .../extensions/api/eyeo_filtering_private.idl | 219 ++++++++++++++++++
  .../permissions/chrome_api_permissions.cc     |  10 +
  .../permissions/permission_set_unittest.cc    |   9 +
- 9 files changed, 573 insertions(+)
+ 9 files changed, 555 insertions(+)
  create mode 100644 chrome/common/extensions/api/adblock_private.idl
  create mode 100644 chrome/common/extensions/api/eyeo_dev_tools_private.idl
  create mode 100644 chrome/common/extensions/api/eyeo_filtering_private.idl
 
 diff --git a/chrome/common/BUILD.gn b/chrome/common/BUILD.gn
-index 7c4b57024e244..de0d937603709 100644
+index 03c5ca7e59d43..6c164f5e89a40 100644
 --- a/chrome/common/BUILD.gn
 +++ b/chrome/common/BUILD.gn
 @@ -1,6 +1,9 @@
@@ -34,7 +34,7 @@ index 7c4b57024e244..de0d937603709 100644
  import("//build/buildflag_header.gni")
  import("//build/config/chrome_build.gni")
 diff --git a/chrome/common/extensions/api/_api_features.json b/chrome/common/extensions/api/_api_features.json
-index b00e576dea758..fa5e0e026e4ae 100644
+index 8d487084fa490..8a2c315558d82 100644
 --- a/chrome/common/extensions/api/_api_features.json
 +++ b/chrome/common/extensions/api/_api_features.json
 @@ -70,6 +70,16 @@
@@ -54,7 +54,7 @@ index b00e576dea758..fa5e0e026e4ae 100644
    "app": {
      "blocklist": [
        "2FC374607C2DF285634B67C64A2E356C607091C3",  // Quickoffice
-@@ -534,6 +544,22 @@
+@@ -538,6 +548,22 @@
      "channel": "stable",
      "contexts": []
    },
@@ -78,7 +78,7 @@ index b00e576dea758..fa5e0e026e4ae 100644
      "dependencies": ["permission:fileBrowserHandler"],
      "contexts": ["privileged_extension"],
 diff --git a/chrome/common/extensions/api/_permission_features.json b/chrome/common/extensions/api/_permission_features.json
-index 80bff6566bb76..3800d83dd1131 100644
+index 66746c51b3e8d..e7f24ec58d1fa 100644
 --- a/chrome/common/extensions/api/_permission_features.json
 +++ b/chrome/common/extensions/api/_permission_features.json
 @@ -56,6 +56,13 @@
@@ -95,7 +95,7 @@ index 80bff6566bb76..3800d83dd1131 100644
    "autofillPrivate": {
      "channel": "trunk",
      "extension_types": ["extension", "platform_app"],
-@@ -375,6 +382,20 @@
+@@ -389,6 +396,20 @@
      "channel": "stable",
      "command_line_switch": "extension-ai-data-collection"
    },
@@ -118,10 +118,10 @@ index 80bff6566bb76..3800d83dd1131 100644
      "extension_types": ["extension"]
 diff --git a/chrome/common/extensions/api/adblock_private.idl b/chrome/common/extensions/api/adblock_private.idl
 new file mode 100644
-index 0000000000000..6cad537a202e6
+index 0000000000000..8ecd8b353a580
 --- /dev/null
 +++ b/chrome/common/extensions/api/adblock_private.idl
-@@ -0,0 +1,180 @@
+@@ -0,0 +1,172 @@
 +// This file is part of eyeo Chromium SDK,
 +// Copyright (C) 2006-present eyeo GmbH
 +//
@@ -227,14 +227,6 @@ index 0000000000000..6cad537a202e6
 +  static void setEnabled(boolean enabled);
 +  // Returns whether Adblock is on.
 +  static void isEnabled(StateCallback callback);
-+  // Allows to turn Acceptable Ads on or off.
-+  static void setAcceptableAdsEnabled(boolean enabled);
-+  // Returns whether Acceptable Ads is on.
-+  static void isAcceptableAdsEnabled(StateCallback callback);
-+  // Allows to turn autoinstalling geolocation recommendation on or off.
-+  static void setAutoInstallEnabled(boolean enabled);
-+  // Returns whether autoinstalling geolocation recommendation is on.
-+  static void isAutoInstallEnabled(StateCallback callback);
 +  // Gets the list of built-in subscriptions.
 +  static void getBuiltInSubscriptions(BuiltInSubscriptionsCallback callback);
 +  // Adds a domain ads should not be blocked on.
@@ -303,7 +295,7 @@ index 0000000000000..6cad537a202e6
 +
 +};
 diff --git a/chrome/common/extensions/api/api_sources.gni b/chrome/common/extensions/api/api_sources.gni
-index e64579b1c8b72..9ecfcb0419f23 100644
+index 9152928c8ef8b..227213fe0fad2 100644
 --- a/chrome/common/extensions/api/api_sources.gni
 +++ b/chrome/common/extensions/api/api_sources.gni
 @@ -1,6 +1,9 @@
@@ -316,10 +308,10 @@ index e64579b1c8b72..9ecfcb0419f23 100644
  
  import("//build/config/features.gni")
  import("//chrome/common/features.gni")
-@@ -86,6 +89,10 @@ if (enable_extensions) {
+@@ -89,6 +92,10 @@ if (enable_extensions) {
+     # as such do not belong in a conditional.
      "webrtc_audio_private.idl",
      "webrtc_desktop_capture_private.idl",
-     "webrtc_logging_private.idl",
 +
 +    "adblock_private.idl",
 +    "eyeo_dev_tools_private.idl",
@@ -423,10 +415,10 @@ index 0000000000000..e22fcf5210249
 +};
 diff --git a/chrome/common/extensions/api/eyeo_filtering_private.idl b/chrome/common/extensions/api/eyeo_filtering_private.idl
 new file mode 100644
-index 0000000000000..5f0a8836df49b
+index 0000000000000..4cb027ba1be8e
 --- /dev/null
 +++ b/chrome/common/extensions/api/eyeo_filtering_private.idl
-@@ -0,0 +1,229 @@
+@@ -0,0 +1,219 @@
 +// This file is part of eyeo Chromium SDK,
 +// Copyright (C) 2006-present eyeo GmbH
 +//
@@ -547,13 +539,6 @@ index 0000000000000..5f0a8836df49b
 +    static void removeConfiguration(DOMString config_name);
 +    // Returns a list of existing configurations.
 +    static void getConfigurations(ListCallback callback);
-+    // Returns whether autoinstalling geolocation recommendation is on.
-+    static void isAutoInstallEnabled(
-+        StateCallback callback);
-+    // Allows to turn autoinstalling geolocation recommendation on or off.
-+    static void setAutoInstallEnabled(
-+        boolean enabled,
-+        optional CompletionCallback status);
 +    // Allows to turn filtering configuration on or off.
 +    static void setEnabled(
 +        DOMString configuration,
@@ -616,9 +601,6 @@ index 0000000000000..5f0a8836df49b
 +    // Returns number of blocked requests in a current session (runtime).
 +    static void getSessionBlockedRequestsCount(
 +        SessionStatsCallback callback);
-+    // Returns Acceptable Ads url which can be passed to
-+    // (ref:addFilterList) or (ref:removeFilterList).
-+    static void getAcceptableAdsUrl(UrlCallback callback);
 +  };
 +
 +  interface Events {
@@ -657,7 +639,7 @@ index 0000000000000..5f0a8836df49b
 +  };
 +};
 diff --git a/chrome/common/extensions/permissions/chrome_api_permissions.cc b/chrome/common/extensions/permissions/chrome_api_permissions.cc
-index 25cf790f04e87..3213f2a6e9f13 100644
+index ff1c0a2a65cd3..ab8a637bcaf4b 100644
 --- a/chrome/common/extensions/permissions/chrome_api_permissions.cc
 +++ b/chrome/common/extensions/permissions/chrome_api_permissions.cc
 @@ -1,6 +1,10 @@
@@ -680,7 +662,7 @@ index 25cf790f04e87..3213f2a6e9f13 100644
      {APIPermissionID::kBackground, "background",
       APIPermissionInfo::kFlagDoesNotRequireManagedSessionFullLoginWarning},
      {APIPermissionID::kDeclarativeContent, "declarativeContent"},
-@@ -86,6 +92,10 @@ constexpr APIPermissionInfo::InitInfo permissions_to_register[] = {
+@@ -87,6 +93,10 @@ constexpr APIPermissionInfo::InitInfo permissions_to_register[] = {
      {APIPermissionID::kEnterpriseNetworkingAttributes,
       "enterprise.networkingAttributes",
       APIPermissionInfo::kFlagDoesNotRequireManagedSessionFullLoginWarning},
