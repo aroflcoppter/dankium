@@ -21,3 +21,5 @@ trichrome_library_package = "app.dankium.trichromelibrary"
 enable_android_secondary_abi = target_cpu == "x64"
 android_static_analysis = "off"
 is_high_end_android=true
+enable_desktop_android_extensions=true
+is_desktop_android=true
