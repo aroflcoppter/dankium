@@ -80,11 +80,11 @@ index ca7b8b6a32e27..18563fdb2614c 100644
        </message>
        <message name="IDS_GOOGLE_TERMS_OF_SERVICE_URL" desc="URL for Google terms of service" translateable="false">
 -        https://policies.google.com/terms/embedded
-+        https://dankium.ca/terms-of-service/
++        https://dankium.ca/#tos
        </message>
        <message name="IDS_GOOGLE_TERMS_OF_SERVICE_DARK_MODE_URL" desc="URL for Google terms of service for dark mode" translateable="false">
 -        https://policies.google.com/terms/embedded?color_scheme=dark
-+        https://dankium.ca/terms-of-service/
++        https://dankium.ca/#tos
        </message>
        <message name="IDS_CHROME_ADDITIONAL_TERMS_OF_SERVICE_TITLE" desc="Title for Chrome and ChromeOS addtional terms of service">
 -        Chrome &amp; ChromeOS Additional Terms of Service
@@ -92,7 +92,7 @@ index ca7b8b6a32e27..18563fdb2614c 100644
        </message>
        <message name="IDS_CHROME_ADDITIONAL_TERMS_OF_SERVICE_URL" desc="URL for Chrome and ChromeOS additional terms of service" translateable="false">
 -        https://www.google.com/chrome/terms/
-+        https://dankium.ca/license/
++        https://dankium.ca/#license
        </message>
        <message name="IDS_PRIVACY_POLICY_TITLE" desc="Title for the Google privacy policy">
 -        Google Privacy Policy
@@ -100,7 +100,7 @@ index ca7b8b6a32e27..18563fdb2614c 100644
        </message>
        <message name="IDS_GOOGLE_PRIVACY_POLICY_URL" desc="URL for the Google privacy policy" translateable="false">
 -        https://policies.google.com/privacy
-+        https://dankium.ca/privacy-policy/
++        https://dankium.ca/#privacy
        </message>
  
        <!-- Sign-in strings -->

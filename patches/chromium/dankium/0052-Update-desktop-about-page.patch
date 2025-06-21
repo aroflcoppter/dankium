@@ -33,9 +33,9 @@ index a2e3ef715fef2..c9dba1d50d933 100644
  
          <div class="info-section">
 -          <div class="secondary">$i18nRaw{aboutProductLicense}</div>
-+          <div class="secondary"><a href="https://dankium.ca/terms-of-service/" style="margin-right: 20px;">Terms of Service</a>
-+                                 <a href="https://dankium.ca/privacy-policy/" style="margin-right: 20px;">Privacy Policy</a>
-+                                 <a href="https://dankium.ca/license/">License</a>
++          <div class="secondary"><a href="https://dankium.ca/#tos" style="margin-right: 20px;">Terms of Service</a>
++                                 <a href="https://dankium.ca/#privacy" style="margin-right: 20px;">Privacy Policy</a>
++                                 <a href="https://dankium.ca/#license">License</a>
 +          </div>
          </div>
  <if expr="_google_chrome or _is_chrome_for_testing_branded">
