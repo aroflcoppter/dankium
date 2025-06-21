@@ -27,7 +27,7 @@ Signer #1 certificate SHA-256 digest: dc52ec905e655c69602645c63ea41e82594d652d0d
 
 Install from the [Google Play Store](https://play.google.com/store/apps/details?id=app.dankium.browser).
 
-Alternatively you may download an apk for sideloading from [github releases](https://github.com/aroflcoppter/dankium/releases) but it won't automatically update so be sure to check back at least once a week if you don't know there's an update.
+Alternatively you may download an apk for sideloading from [github releases](https://github.com/aroflcoppter/dankium/releases) but it won't automatically update so be sure to check back at least once a week if you don't know there's an update. You also miss out on apk signing V4 unless you understand how to use .idsig files with adb which is to have the idsig in the same folder as the apk so the installation may not be as secure.
 You can verify the release before installation with `ssh-keygen -Y verify -f dankium_public_key -I contact@dankium.ca -n "Dankium Browser" -s Dankium.apk.sig < Dankium.apk` or on windows `cmd /c 'ssh-keygen -Y verify -f dankium_public_key -I contact@dankium.ca -n "Dankium Browser" -s Dankium.apk.sig < Dankium.apk'`provided you downloaded the public key.
 There is a third method where you can use [obtanium](https://github.com/ImranR98/Obtainium) to update the sideloaded apk and check the signature but play store is prefered. 
 
