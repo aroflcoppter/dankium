@@ -1,7 +1,6 @@
 # Dankium Browser
 Dankium is a chromium based browser focused on providing top of the line security and adblocking in addition to other features.
-You should visit [dankium.ca](https://dankium.ca/) to learn more and get updates on the blog. I'm going to describe what I'm doing in more detail there.
-Please also read and agree to the [Terms of Service](https://dankium.ca/terms-of-service/) and [Privacy Policy](https://dankium.ca/privacy-policy/).
+Please also read and agree to the [Terms of Service](https://dankium.ca/#tos) and [Privacy Policy](https://dankium.ca/#privacy).
 
 ## Android
 
@@ -23,7 +22,7 @@ Please also read and agree to the [Terms of Service](https://dankium.ca/terms-of
 The key is `contact@dankium.ca ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINZmfylHw5KGY3bgHr3wtnXAbx1gXifBZDfupD4RuCJ1` which you can also verify at [dankium.ca](https://dankium.ca/download/). The cert key for the apk is also `Signer #1 certificate DN: CN=aroflcoppter
 Signer #1 certificate SHA-256 digest: dc52ec905e655c69602645c63ea41e82594d652d0d4b88f1ff7831d5f27da3b4
 Signer #1 certificate SHA-1 digest: 0e246844630d81c2b4da2616756829f4677f5c9a
-Signer #1 certificate MD5 digest: 1542441f5569f30f1d1cc75bbfcd5e09` and also at [dankium.ca](https://dankium.ca/download/).
+Signer #1 certificate MD5 digest: 1542441f5569f30f1d1cc75bbfcd5e09` and also at [dankium.ca](https://dankium.ca/#download).
 
 
 ### Installing
