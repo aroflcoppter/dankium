@@ -1,10 +1,9 @@
-From 390cae229ebebca8fe8dcb0f94d42b2354a535e6 Mon Sep 17 00:00:00 2001
+From f9cd4b77d01bd27e63edf3804023068040bae8a3 Mon Sep 17 00:00:00 2001
 From: aroflcoppter <contact@dankium.ca>
 Date: Sat, 7 Jun 2025 13:27:04 -0230
-Subject: [PATCH 1/4] adblock root folder changes
+Subject: [PATCH] adblock root folder changes
 
 Copyright (C) 2006-present eyeo GmbH.
-
 ---
  .gitignore |   2 +
  .vpython   | 428 +++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -16,7 +15,7 @@ Copyright (C) 2006-present eyeo GmbH.
  create mode 100644 .vpython
 
 diff --git a/.gitignore b/.gitignore
-index d69c2f1ff6978..c0e0453af273b 100644
+index 096b7a640f22b..a50964f951ca9 100644
 --- a/.gitignore
 +++ b/.gitignore
 @@ -293,6 +293,8 @@ vs-chromium-project.txt
@@ -464,7 +463,7 @@ index 0000000000000..fbb51dc654cb5
 +>
 \ No newline at end of file
 diff --git a/BUILD.gn b/BUILD.gn
-index e32e31565b7cc..4dda9acb5516d 100644
+index f3914714a3927..54655825f486e 100644
 --- a/BUILD.gn
 +++ b/BUILD.gn
 @@ -2,6 +2,9 @@
@@ -478,7 +477,7 @@ index e32e31565b7cc..4dda9acb5516d 100644
  # file, and recursively load all dependencies until all dependencies are either
  # resolved or known not to exist (which will cause the build to fail). So if
 diff --git a/DEPS b/DEPS
-index 3fe9e10feb9c8..fca1f04f8ce59 100644
+index dfed941972d47..0022c3a6cc37e 100644
 --- a/DEPS
 +++ b/DEPS
 @@ -183,6 +183,12 @@ vars = {
@@ -498,23 +497,23 @@ index 3fe9e10feb9c8..fca1f04f8ce59 100644
    'download_libvpx_testdata': False,
  
    'android_git': 'https://android.googlesource.com',
-+  'eyeo_gitlab': 'https://gitlab.com/eyeo',  
++  'eyeo_gitlab': 'https://gitlab.com/eyeo',
    'aomedia_git': 'https://aomedia.googlesource.com',
    'boringssl_git': 'https://boringssl.googlesource.com',
    'chrome_git': 'https://chrome-internal.googlesource.com',
-@@ -524,6 +531,11 @@ vars = {
-   # the commit queue can handle CLs rolling llvm-libc
+@@ -525,6 +532,11 @@ vars = {
    # and whatever else without interference from each other.
-   'compiler_rt_revision': '57196dd146582915c955f6d388e31aea93220c51',
-+  
+   'compiler_rt_revision': '629e5d165d4fd74cae28f3e3a590f97b6721c1fc',
+ 
 +  # Three lines of non-changing comments so that
 +  # the commit queue can handle CLs rolling feed
 +  # and whatever else without interference from each other.
 +  'eyeo_snippets_revision': 'v2.1.0',
- 
++
    # If you change this, also update the libc++ revision in
    # //buildtools/deps_revisions.gni.
-@@ -1512,6 +1524,10 @@ deps = {
+   'libcxx_revision':       '2c359c239b138a20a03f798e47889448ef131c22',
+@@ -1525,6 +1537,10 @@ deps = {
      'condition': 'checkout_android and checkout_src_internal',
    },
  
@@ -523,9 +522,9 @@ index 3fe9e10feb9c8..fca1f04f8ce59 100644
 +  },
 +
    'src/docs/website': {
-     'url': Var('chromium_git') + '/website.git' + '@' + 'd21d90790d8ea421b317c4cb52a0d94133422796',
+     'url': Var('chromium_git') + '/website.git' + '@' + 'cca89b4e2f007c21ff502adffd4339b01bf8730a',
    },
-@@ -1641,6 +1657,15 @@ deps = {
+@@ -1654,6 +1670,15 @@ deps = {
        'url': Var('chromium_git') + '/external/github.com/google/Accessibility-Test-Framework-for-Android.git' + '@' + '4a764c690353ea136c82f1a696a70bf38d1ef5fe',
    },
  
@@ -587,5 +586,5 @@ index 590f4c94f2067..850a4f69bc0fe 100644
 +architecture and integration steps.
 \ No newline at end of file
 -- 
-2.43.0
+2.50.0.windows.1
 
